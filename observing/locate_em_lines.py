@@ -18,12 +18,44 @@ from astropy.io import fits
 from math import pi
 import numpy as np
 
+from scipy.interpolate import interp1d # + on 17/12/2016
+
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from pylab import subplots_adjust
 
 def gaussian(x, mu, sig):
     return 1./(np.sqrt(2.*pi)*sig)*np.exp(-np.power((x - mu)/sig, 2.)/2)
+
+def atmo_trans_val(atmo_data, lambda_val, R_spec, silent=True, verbose=False):
+    '''
+    Function to compute atmospheric transmission at given value,
+    factors in resolution
+
+    Parameters
+    ----------
+    atmo_data : astropy Table
+      Atmospheric data table for Mauna Kea (Get from Gemini webpage) 
+
+    lambda_val : float or array
+      Observed wavelength of nebular emission lines
+
+    R_spec : float or double
+      Spectral resolution to consider width of emission lines (e.g., R = 3000)
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 17 December 2016
+    '''
+
+    f_atmo = interp1d(atmo_data['col1'] * 1E4, atmo_data['col2'])
+    trans0 = f_atmo(lambda_val)
+    print trans0
+    return trans0
+#enddef
 
 def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
          format='commented_header', silent=False, verbose=True):
@@ -173,6 +205,11 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
                              color='r', size='small', ha='center', va='bottom',
                              rotation=90)
 
+        # Get atmospheric transmission at lines | + on 17/12/2016
+        in_range = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
+        lambda_val = lambda0[in_range] * (1+zspec[ii])
+        trans0 = atmo_trans_val(atmo_data, lambda_val, R_spec)
+         
         # + on 17/12/2016
         if (ii == n_sources-1) and (n_sources % n_panels != 0):
             for aa in np.arange(n_sources % n_panels, n_panels):
@@ -194,9 +231,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
 
     if silent == False: print '### End locate_em_lines.main() | '+systime()
 #enddef
-
+    
 def zcalbase_gal_gemini():
-
     '''
     Function to run main() but for Gemini-N/GNIRS targets
 

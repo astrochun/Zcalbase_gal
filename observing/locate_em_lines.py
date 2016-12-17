@@ -62,6 +62,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     Notes
     -----
     Created by Chun Ly, 17 December 2016
+    Modified by Chun Ly, 17 December 2016
+     - Added atmospheric transmission
     '''
 
     co_filename = __file__
@@ -81,7 +83,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     lambda0    = lambda0_data['lambda0']
     str_lines0 = lambda0_data['str_lines0']
     #[3727, 4861.32, 4958.91, 5006.84, 6562.80, 6548.10, 6583.60, 6717.42, 6730.78]
-    
+
+    # OH night skyline file form Rousselot et al. (2000)
     rousselot_file = os.path.dirname(co_filename) + '/' + 'rousselot2000.dat'
     rousselot_data = asc.read(rousselot_file, format='commented_header')
     n_OH    = len(rousselot_data)
@@ -100,7 +103,12 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     t_mark = np.where((lam_OH >= np.min(l_temp1)) & (lam_OH <= np.max(l_temp2)))[0]
     max0 = np.max(OH_bgd[t_mark])
     print '## max0 : ', max0
-    
+
+    # Mauna Kea atmospheric transmission
+    # + on 17/12/2016
+    atmo_file = os.path.dirname(co_filename) + '/' + 'mktrans_zm_10_10.dat'
+    atmo_data = asc.read(atmo_file)
+
     #OII_loc   = (1.0+zspec) * 3727.00
     #Hb_loc    = (1.0+zspec) * 4861.32
     #OIIIa_loc = (1.0+zspec) * 4958.91
@@ -113,7 +121,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
 
     n_sources = len(ID)
     
-    n_panels = 4 # Number of figure panels
+    n_panels = 4 # Number of figure panels on a page
 
     pp = PdfPages(out_pdf)
 
@@ -126,16 +134,19 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
 
         xlim = [(1.0 + zspec[ii]) * lambda0_min, (1.0 + zspec[ii]) * lambda0_max]
         ax0.set_xlim(xlim)
-        ax0.set_ylim([0,1.1])
+        ax0.set_ylim([0,1.2])
         ax0.minorticks_on()
         
         t_x0 = xlim[0] + 0.01 * (xlim[1]-xlim[0])
-        ax0.annotate(ID[ii]+r' $z_{\rm spec}$ = '+str(zspec[ii]), [t_x0, 1.05],
+        ax0.annotate(ID[ii]+r' $z_{\rm spec}$ = '+str(zspec[ii]), [t_x0, 1.15],
                      xycoords='data', va='top', ha='left')
 
         # Overlay OH night skyline with it normalized
         ax0.plot(lam_OH, OH_bgd / max0)
 
+        # Overlay atmospheric transmission | + on 17/07/2016
+        ax0.plot(atmo_data['col1']*1e4, atmo_data['col2'], 'k', linewidth=0.5)
+        
         for ll in range(len(lambda0)):
             t_x = (1+zspec[ii]) * lambda0[ll]
             ax0.plot(np.repeat(t_x,2), [0,1], 'r--')

@@ -37,18 +37,24 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     ----------
     in_cat : string
       Filename for ASCII catalog containing source name and redshift
+      in two separate columns. These should be named 'ID' and 'redshift'
 
     out_pdf : string
       Filename to output PDF. Full path should be provided
 
     lambda0_min : float or double
-      Minimum rest-frame wavelength for plots
+      Minimum rest-frame wavelength for plots.
+      Note: X-axes will be in observed wavelengths
 
     lambda0_max : float or double
       Maximum rest-frame wavelength for plots
+      Note: X-axes will be in observed wavelengths
 
     R_spec : float or double
-      Resolution (FWHM) of spectra to convolve OH skylines with
+      Spectral resolution to convolve OH skylines with (e.g., R = 3000)
+
+    format : string
+      Format of in_cat ASCII file. Default: "commented_header"
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -96,7 +102,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     #SIIa_loc  = (1.0+zspec) * 6717.42
     #SIIb_loc  = (1.0+zspec) * 6730.78
 
-    # OH night skyline file form Rousselot et al. (2000)
+    # OH night skyline file from Rousselot et al. (2000)
     rousselot_file = os.path.dirname(co_filename) + '/' + 'rousselot2000.dat'
     rousselot_data = asc.read(rousselot_file, format='commented_header')
     n_OH    = len(rousselot_data)
@@ -110,11 +116,12 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
         OH_bgd += rousselot_data['flux'][rr] * temp
     #endfor
 
+    # Get maximum OH skyline to normalize spectrum for all panels
     l_temp1 = (1+zspec) * lambda0_min
     l_temp2 = (1+zspec) * lambda0_max
-    t_mark = np.where((lam_OH >= np.min(l_temp1)) & (lam_OH <= np.max(l_temp2)))[0]
-    max0 = np.max(OH_bgd[t_mark])
-    print '## max0 : ', max0
+    t_mark  = np.where((lam_OH >= np.min(l_temp1)) & (lam_OH <= np.max(l_temp2)))[0]
+    OH_max0 = np.max(OH_bgd[t_mark])
+    print '## OH_max0 : ', OH_max0
 
     # Mauna Kea atmospheric transmission
     # + on 17/12/2016
@@ -151,7 +158,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
                      xycoords='data', va='top', ha='left')
 
         # Overlay OH night skyline with it normalized
-        ax0.plot(lam_OH, OH_bgd / max0)
+        ax0.plot(lam_OH, OH_bgd / OH_max0)
 
         # Overlay atmospheric transmission | + on 17/07/2016
         ax0.plot(atmo_data['col1']*1e4, atmo_data['col2'], 'k', linewidth=0.5)
@@ -169,14 +176,12 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
         # + on 17/12/2016
         if (ii == n_sources-1) and (n_sources % n_panels != 0):
             for aa in np.arange(n_sources % n_panels, n_panels):
-                print aa
                 ax_arr[aa].axis('off')
 
         # Bug found on 17/12/2016. Last page excluded. Require output on last source
         if c_ii == n_panels or ii == n_sources-1: 
             ax0.set_xlabel('Wavelength (Angstroms)')
             fig.set_size_inches(8,8)
-            #fig.tight_layout()
             subplots_adjust(left=0.05, bottom=0.075, top=0.975, right=0.95,
                             wspace=0.05, hspace=0.13)
 

@@ -64,6 +64,9 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     Created by Chun Ly, 17 December 2016
     Modified by Chun Ly, 17 December 2016
      - Added atmospheric transmission
+     - Fix bug with last page not being plotted. Last page now outputted on
+       last source
+     - Fix plotting to avoid panels being shown when sources are not available
     '''
 
     co_filename = __file__
@@ -82,7 +85,16 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     lambda0_data = asc.read(lambda0_file, format='commented_header')
     lambda0    = lambda0_data['lambda0']
     str_lines0 = lambda0_data['str_lines0']
-    #[3727, 4861.32, 4958.91, 5006.84, 6562.80, 6548.10, 6583.60, 6717.42, 6730.78]
+
+    #OII_loc   = (1.0+zspec) * 3727.00
+    #Hb_loc    = (1.0+zspec) * 4861.32
+    #OIIIa_loc = (1.0+zspec) * 4958.91
+    #OIIIb_loc = (1.0+zspec) * 5006.84
+    #Ha_loc    = (1.0+zspec) * 6562.80
+    #NIIa_loc  = (1.0+zspec) * 6548.10
+    #NIIb_loc  = (1.0+zspec) * 6583.60
+    #SIIa_loc  = (1.0+zspec) * 6717.42
+    #SIIb_loc  = (1.0+zspec) * 6730.78
 
     # OH night skyline file form Rousselot et al. (2000)
     rousselot_file = os.path.dirname(co_filename) + '/' + 'rousselot2000.dat'
@@ -109,28 +121,25 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     atmo_file = os.path.dirname(co_filename) + '/' + 'mktrans_zm_10_10.dat'
     atmo_data = asc.read(atmo_file)
 
-    #OII_loc   = (1.0+zspec) * 3727.00
-    #Hb_loc    = (1.0+zspec) * 4861.32
-    #OIIIa_loc = (1.0+zspec) * 4958.91
-    #OIIIb_loc = (1.0+zspec) * 5006.84
-    #Ha_loc    = (1.0+zspec) * 6562.80
-    #NIIa_loc  = (1.0+zspec) * 6548.10
-    #NIIb_loc  = (1.0+zspec) * 6583.60
-    #SIIa_loc  = (1.0+zspec) * 6717.42
-    #SIIb_loc  = (1.0+zspec) * 6730.78
-
     n_sources = len(ID)
+    print '## n_sources : ', n_sources
     
-    n_panels = 4 # Number of figure panels on a page
+    # Number of figure panels on a page. Do not change, will break code below
+    n_panels = 4 
 
     pp = PdfPages(out_pdf)
 
     for ii in range(n_sources):
-        c_ii = ii % n_panels + 1
-        if c_ii == 1: fig, (ax1, ax2, ax3, ax4) = plt.subplots(4) #, sharex=True)
+        c_ii = (ii % n_panels) + 1
+        # Mod on 17/12/2016 to simplify ax_arr
+        if c_ii == 1: fig, ax_arr = plt.subplots(n_panels) #, sharex=True)
 
-        cmd1 = 'ax0 = ax'+str(c_ii)
-        exec(cmd1)
+        ax0 = ax_arr[c_ii-1]
+
+        #if c_ii == 1: fig, (ax1, ax2, ax3, ax4) = plt.subplots(4) #, sharex=True)
+        #
+        #cmd1 = 'ax0 = ax'+str(c_ii)
+        #exec(cmd1)
 
         xlim = [(1.0 + zspec[ii]) * lambda0_min, (1.0 + zspec[ii]) * lambda0_max]
         ax0.set_xlim(xlim)
@@ -146,7 +155,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
 
         # Overlay atmospheric transmission | + on 17/07/2016
         ax0.plot(atmo_data['col1']*1e4, atmo_data['col2'], 'k', linewidth=0.5)
-        
+
+        # Draw emission lines
         for ll in range(len(lambda0)):
             t_x = (1+zspec[ii]) * lambda0[ll]
             ax0.plot(np.repeat(t_x,2), [0,1], 'r--')
@@ -155,8 +165,15 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
                              xytext=(0, 0.0), textcoords='offset points',
                              color='r', size='small', ha='center', va='bottom',
                              rotation=90)
-            
-        if c_ii == 4:
+
+        # + on 17/12/2016
+        if (ii == n_sources-1) and (n_sources % n_panels != 0):
+            for aa in np.arange(n_sources % n_panels, n_panels):
+                print aa
+                ax_arr[aa].axis('off')
+
+        # Bug found on 17/12/2016. Last page excluded. Require output on last source
+        if c_ii == n_panels or ii == n_sources-1: 
             ax0.set_xlabel('Wavelength (Angstroms)')
             fig.set_size_inches(8,8)
             #fig.tight_layout()

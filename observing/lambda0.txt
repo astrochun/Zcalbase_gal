@@ -1,0 +1,13 @@
+#lambda0 str_lines0
+3727.00  [OII]
+4101.73  H$\delta$
+4340.46  H$\gamma$
+4363.21  [OIII]
+4861.32  H$\beta$
+4958.91  [OIII]
+5006.84  [OIII]
+6548.10  [NII]
+6562.80  H$\alpha$
+6583.60  [NII]
+6717.42  [SII]
+6730.78  [SII]

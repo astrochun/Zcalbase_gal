@@ -26,6 +26,36 @@ from pylab import subplots_adjust
 
 def gaussian(x, mu, sig):
     return 1./(np.sqrt(2.*pi)*sig)*np.exp(-np.power((x - mu)/sig, 2.)/2)
+#enddef
+
+def gaussian_R(x_arr, lambda_cen, R_spec):
+    '''
+    Generate an array consisting of a Gaussian profile given the
+    spectral resolution
+    
+    Parameters
+    ----------
+    x_arr : array
+      An array of wavelengths
+
+    x_lambda : float
+      The central wavelength of the Gaussian line
+
+    R_spec : float or double
+      Spectral resolution to consider width of emission lines (e.g., R = 3000)
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 20 December 2016
+    '''
+    
+    t_FWHM = lambda_cen / R_spec # FWHM based on the wavelength of interest
+    temp   = gaussian(x_arr, lambda_cen, t_FWHM/(2 * np.sqrt(2*np.log(2))))
+    return temp
+#enddef
 
 def atmo_trans_val(atmo_data, lambda_val, R_spec, silent=True, verbose=False):
     '''
@@ -45,16 +75,29 @@ def atmo_trans_val(atmo_data, lambda_val, R_spec, silent=True, verbose=False):
 
     Returns
     -------
+    trans0 : array
+      Transmission percentage for provided emission lines
 
     Notes
     -----
     Created by Chun Ly, 17 December 2016
+    Modified by Chun Ly, 20 December 2016
+     - Weigh transmission by location on the emission line
     '''
 
     f_atmo = interp1d(atmo_data['col1'] * 1E4, atmo_data['col2'])
-    trans0 = f_atmo(lambda_val)
+
+    #trans0 = f_atmo(lambda_val)
+    trans0 = np.zeros(len(lambda_val))
+
+    # Weigh transmission by location on the emission line | + on 20/12/2016
+    for ii in range(len(lambda_val)):
+        x_temp = np.arange(lambda_val[ii]-10,lambda_val[ii]+1,0.1)
+        scale  = gaussian_R(x_temp, lambda_val[ii], R_spec)
+        y_temp = f_atmo(x_temp)
+        trans0[ii] = np.sum(y_temp * scale) / np.sum(scale)
     print trans0
-    return trans0
+    return trans0 * 100.0
 #enddef
 
 def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
@@ -105,6 +148,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
      - Fix bug with last page not being plotted. Last page now outputted on
        last source
      - Fix plotting to avoid panels being shown when sources are not available
+    Modified by Chun Ly, 17 December 2016
+     - Call gaussian_R() instead of using 
     '''
 
     co_filename = __file__
@@ -143,9 +188,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     lam_OH  = np.arange(n_pix)
     for rr in range(n_OH):
         t_lambda = rousselot_data['lambda'][rr]
-        t_FWHM   = t_lambda / R_spec
-        temp     = gaussian(lam_OH, t_lambda, t_FWHM/(2 * np.sqrt(2*np.log(2))))
-        OH_bgd += rousselot_data['flux'][rr] * temp
+        temp     = gaussian_R(lam_OH, t_lambda, R_spec) # Mod on 20/12/2016
+        OH_bgd  += rousselot_data['flux'][rr] * temp
     #endfor
 
     # Get maximum OH skyline to normalize spectrum for all panels
@@ -206,9 +250,9 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
                              rotation=90)
 
         # Get atmospheric transmission at lines | + on 17/12/2016
-        in_range = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
+        in_range   = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
         lambda_val = lambda0[in_range] * (1+zspec[ii])
-        trans0 = atmo_trans_val(atmo_data, lambda_val, R_spec)
+        trans0     = atmo_trans_val(atmo_data, lambda_val, R_spec)
          
         # + on 17/12/2016
         if (ii == n_sources-1) and (n_sources % n_panels != 0):

@@ -97,7 +97,11 @@ def atmo_trans_val(atmo_data, lambda_val, R_spec, silent=True, verbose=False):
         y_temp = f_atmo(x_temp)
         trans0[ii] = np.sum(y_temp * scale) / np.sum(scale)
     print trans0
-    return trans0 * 100.0
+
+    trans0 *= 100
+
+    s_trans0 = ['%5.2f' % trans0[xx] for xx in range(len(trans0))]
+    return trans0, s_trans0
 #enddef
 
 def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
@@ -251,9 +255,24 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
 
         # Get atmospheric transmission at lines | + on 17/12/2016
         in_range   = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
-        lambda_val = lambda0[in_range] * (1+zspec[ii])
-        trans0     = atmo_trans_val(atmo_data, lambda_val, R_spec)
-         
+        lambda_val       = lambda0[in_range] * (1+zspec[ii])
+
+        # Mod on 20/12/2016
+        trans0, s_trans0 = atmo_trans_val(atmo_data, lambda_val, R_spec)
+
+        # Annotated plot | + on 20/12/2016
+        str_trans0 = [a+': '+b+'\n' for
+                      a,b in zip(str_lines0.data[in_range], s_trans0)]
+
+        bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75,
+                          ec="k", lw=0.5)
+        
+        t_x0 = xlim[0] + 0.02 * (xlim[1]-xlim[0])
+        ax0.annotate(r''.join(str_trans0)[:-2], [t_x0, 0.9], fontsize='x-small',
+                     xycoords='data', va='top', ha='left', alpha=0.5,
+                     bbox=bbox_props)
+
+        
         # + on 17/12/2016
         if (ii == n_sources-1) and (n_sources % n_panels != 0):
             for aa in np.arange(n_sources % n_panels, n_panels):
@@ -298,7 +317,8 @@ def zcalbase_gal_gemini():
     in_cat  = path0 + 'targets.txt'
     out_pdf = path0 + 'locate_em_lines.pdf'
 
-    main(in_cat, out_pdf, 6400, 6800, 3000)
+    R_spec = 3000.0 # Resolution of spectrograph
+    main(in_cat, out_pdf, 6400, 6800, R_spec)
     
     print '### End locate_em_lines.zcalbase_gal_gemini() | '+systime()
 #enddef

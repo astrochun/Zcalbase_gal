@@ -59,8 +59,8 @@ def gaussian_R(x_arr, lambda_cen, R_spec):
 
 def atmo_trans_val(atmo_data, lambda_val, R_spec, silent=True, verbose=False):
     '''
-    Function to compute atmospheric transmission at given value,
-    factors in resolution
+    Function to compute atmospheric transmission at given wavelength,
+    factors in spectral resolution
 
     Parameters
     ----------
@@ -102,6 +102,52 @@ def atmo_trans_val(atmo_data, lambda_val, R_spec, silent=True, verbose=False):
 
     s_trans0 = ['%5.2f' % trans0[xx] for xx in range(len(trans0))]
     return trans0, s_trans0
+#enddef
+
+def OH_contam_val(OH_bgd, OH_max0, lambda_OH, lambda_val, R_spec,
+                  silent=True, verbose=False):
+    '''
+    Function to compute OH night skyline contamination at given wavelength,
+    factors in spectral resolution
+
+    Parameters
+    ----------
+    OH_bgd : astropy Table
+      OH skyline data (Get from Gemini webpage) 
+
+    OH_max0 : float
+      Maximum value within a certain wavelength range to normalize the
+      OH skyline data to
+
+    lambda_OH : float or array
+      Wavelength of OH skyline spectrum
+
+    R_spec : float or double
+      Spectral resolution to consider width of emission lines (e.g., R = 3000)
+
+    Returns
+    -------
+    contam0 : array
+      OH skyline contamination for each value in lambda_val
+
+    Notes
+    -----
+    Created by Chun Ly, 20 December 2016
+    '''
+
+    f_OH = interp1d(lambda_OH, OH_bgd / OH_max0)
+
+    contam0 = np.zeros(len(lambda_val))
+
+    # Weigh OH skyline by location on the emission line
+    for ii in range(len(lambda_val)):
+        x_temp = np.arange(lambda_val[ii]-10,lambda_val[ii]+1,0.1)
+        scale  = gaussian_R(x_temp, lambda_val[ii], R_spec)
+        y_temp = f_OH(x_temp)
+        contam0[ii] = np.sum(y_temp * scale) / np.sum(scale)
+
+    s_contam0 = ['%5.2f' % contam0[xx] for xx in range(len(contam0))]
+    return contam0, s_contam0
 #enddef
 
 def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
@@ -189,17 +235,17 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     n_OH    = len(rousselot_data)
     n_pix   = 27000.0
     OH_bgd  = np.zeros(n_pix)
-    lam_OH  = np.arange(n_pix)
+    lambda_OH  = np.arange(n_pix)
     for rr in range(n_OH):
         t_lambda = rousselot_data['lambda'][rr]
-        temp     = gaussian_R(lam_OH, t_lambda, R_spec) # Mod on 20/12/2016
+        temp     = gaussian_R(lambda_OH, t_lambda, R_spec) # Mod on 20/12/2016
         OH_bgd  += rousselot_data['flux'][rr] * temp
     #endfor
 
     # Get maximum OH skyline to normalize spectrum for all panels
     l_temp1 = (1+zspec) * lambda0_min
     l_temp2 = (1+zspec) * lambda0_max
-    t_mark  = np.where((lam_OH >= np.min(l_temp1)) & (lam_OH <= np.max(l_temp2)))[0]
+    t_mark  = np.where((lambda_OH >= np.min(l_temp1)) & (lambda_OH <= np.max(l_temp2)))[0]
     OH_max0 = np.max(OH_bgd[t_mark])
     print '## OH_max0 : ', OH_max0
 
@@ -238,7 +284,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
                      xycoords='data', va='top', ha='left')
 
         # Overlay OH night skyline with it normalized
-        ax0.plot(lam_OH, OH_bgd / OH_max0)
+        ax0.plot(lambda_OH, OH_bgd / OH_max0)
 
         # Overlay atmospheric transmission | + on 17/07/2016
         ax0.plot(atmo_data['col1']*1e4, atmo_data['col2'], 'k', linewidth=0.5)
@@ -260,15 +306,19 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
         # Mod on 20/12/2016
         trans0, s_trans0 = atmo_trans_val(atmo_data, lambda_val, R_spec)
 
+        contam0, s_contam0 = OH_contam_val(OH_bgd, OH_max0, lambda_OH,
+                                           lambda_val, R_spec)
+
         # Annotated plot | + on 20/12/2016
-        str_trans0 = [a+': '+b+'\n' for
-                      a,b in zip(str_lines0.data[in_range], s_trans0)]
+        str_annot = [a+': '+b+', '+c+'\n' for
+                     a,b,c in zip(str_lines0.data[in_range], s_trans0,
+                                  s_contam0)]
 
         bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75,
                           ec="k", lw=0.5)
         
         t_x0 = xlim[0] + 0.02 * (xlim[1]-xlim[0])
-        ax0.annotate(r''.join(str_trans0)[:-2], [t_x0, 0.9], fontsize='x-small',
+        ax0.annotate(r''.join(str_annot)[:-2], [t_x0, 0.9], fontsize='x-small',
                      xycoords='data', va='top', ha='left', alpha=0.5,
                      bbox=bbox_props)
 

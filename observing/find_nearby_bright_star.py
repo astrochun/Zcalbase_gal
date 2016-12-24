@@ -51,19 +51,23 @@ def main(infile, out_path, max_radius=60*u.arcsec, mag_limit=20.0,
       RA and DEC must be provided in sexigesimal format.
       The columns should be referred to as 'ID', 'RA', and 'DEC'
 
+    out_path : string
+      Full path to output ASCII tables.  Must end with a '/'
+
     max_radius : float
       Maximum radius. Provide with astropy.units for arcsec,
       arcmin, or degrees. Default: 60 * u.arcsec
 
     mag_limit : float
-      Faintest source to consider in AB mag. Default: 20.0
+      Faintest source to consider in AB mag. Default: 20.0 mag
 
-    SDSS : boolean
-      Set to True if using SDSS catalogs. Default: True
+    mag_filt : string
+      The name of the filter adopt the above [mag_limit]
+      Default: 'modelMag_i'
+
+    catalog : string
+      Either SDSS or '2MASS'. Default: 'SDSS'
     
-    TWOMASS : boolean
-      Set to True if using 2MASS catalogs. Default: False
-
     format : string
       Format of infile ASCII file. Default: "commented_header"
 
@@ -133,6 +137,22 @@ def main(infile, out_path, max_radius=60*u.arcsec, mag_limit=20.0,
 #enddef
 
 def zcalbase_gal_gemini():
+    '''
+    Function to run find_nearby_bright_star.main() but for Gemini-N/GNIRS
+    targets
+
+    Parameters
+    ----------
+    None
+          
+    Returns
+    -------
+    
+    Notes
+    -----
+    Created by Chun Ly, 23 December 2016
+    '''
+
     path0    = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
     infile   = path0 + 'targets.txt'
     out_path = path0 + 'Alignment_Stars/'

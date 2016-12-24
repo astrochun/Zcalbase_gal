@@ -33,12 +33,13 @@ from astroquery.sdss import SDSS
 from astroquery.irsa import Irsa as IRSA
 
 # For SDSS only
-SDSS_fld      = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
+SDSS_fld      = ['ra','dec','objid','run','rerun','camcol','field','type']
 SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMag_g', 'modelMag_r',
                             'modelMag_i', 'modelMag_z']
 
-def main(infile, max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
-         catalog='SDSS', format='commented_header', silent=False, verbose=True):
+def main(infile, out_path, max_radius=60*u.arcsec, mag_limit=20.0,
+         mag_filt='modelMag_i', catalog='SDSS', format='commented_header',
+         silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -97,27 +98,45 @@ def main(infile, max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
     
-    for ii in range(1): #range(n_sources):
+    for ii in range(n_sources):
         c = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         if catalog == 'SDSS':
             xid = SDSS.query_region(c, max_radius, data_release=12,
                                     photoobj_fields=SDSS_phot_fld)
 
-            
-        good = np.where(xid[mag_filt] <= mag_limit)[0]
+            # Keep stars only (type == 6)
+            #http://www.sdss.org/dr12/algorithms/classify/#photo_class
+            good = np.where((xid[mag_filt] <= mag_limit) &
+                            (xid['type'] == 6))[0]
+
         xid = xid[good]
+
         if silent == False:
             print '## Finding nearby stars for '+ID[ii]+'. '+\
                 str(len(good))+' found.'
             
-        c1 = coords.SkyCoord(xid['ra'], xid['dec'],
-                             unit=(u.degree, u.degree))
+        c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.degree, u.degree))
         sep = c.separation(c1).to(u.arcsec).value
         col1 = Column(sep, name='Dist(arcsec)')
         xid.add_column(col1)
-        print xid
-            
+
+        # Sort by distance and then brightness
+        xid.sort(['Dist(arcsec)',mag_filt])
+        
+        out_table_file = out_path + ID[ii].replace('*','')+'.nearby.txt'
+        if silent == False:
+            print '### Writing: ', out_table_file
+        asc.write(xid, out_table_file, format='fixed_width_two_line')
+
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()
 #enddef
+
+def zcalbase_gal_gemini():
+    path0    = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
+    infile   = path0 + 'targets.txt'
+    out_path = path0 + 'Alignment_Stars/'
+
+    main(infile, out_path, max_radius=5*u.arcmin, mag_limit=19.0,
+         catalog='SDSS')
 

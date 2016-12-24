@@ -24,6 +24,21 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from pylab import subplots_adjust
 
+# Mauna Kea atmospheric transmission
+# + on 17/12/2016
+# Moved up on 21/12/2016
+co_filename = __file__
+atmo_file = os.path.dirname(co_filename) + '/' + 'mktrans_zm_10_10.dat'
+atmo_data = asc.read(atmo_file)
+
+# Read in file with wavelengths
+# Values are in Angstroms
+# Moved up on 21/12/2016
+lambda0_file = os.path.dirname(co_filename) + '/' + 'lambda0.txt'
+lambda0_data = asc.read(lambda0_file, format='commented_header')
+lambda0    = lambda0_data['lambda0']
+str_lines0 = lambda0_data['str_lines0']
+
 def gaussian(x, mu, sig):
     return 1./(np.sqrt(2.*pi)*sig)*np.exp(-np.power((x - mu)/sig, 2.)/2)
 #enddef
@@ -57,16 +72,13 @@ def gaussian_R(x_arr, lambda_cen, R_spec):
     return temp
 #enddef
 
-def atmo_trans_val(atmo_data, lambda_val, R_spec, silent=True, verbose=False):
+def atmo_trans_val(lambda_val, R_spec, silent=True, verbose=False):
     '''
     Function to compute atmospheric transmission at given wavelength,
     factors in spectral resolution
 
     Parameters
     ----------
-    atmo_data : astropy Table
-      Atmospheric data table for Mauna Kea (Get from Gemini webpage) 
-
     lambda_val : float or array
       Observed wavelength of nebular emission lines
 
@@ -132,7 +144,7 @@ def OH_contam_val(OH_bgd, OH_max0, lambda_OH, lambda_val, R_spec,
 
     Notes
     -----
-    Created by Chun Ly, 20 December 2016
+    Created by Chun Ly, 21 December 2016
     '''
 
     f_OH = interp1d(lambda_OH, OH_bgd / OH_max0)
@@ -202,8 +214,6 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
      - Call gaussian_R() instead of using 
     '''
 
-    co_filename = __file__
-
     if silent == False: print '### Begin locate_em_lines.main() | '+systime()
 
     if silent == False: print '### Reading : ', in_cat
@@ -211,13 +221,6 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
 
     ID    = cat_data['ID']
     zspec = cat_data['redshift']
-
-    # Read in file with wavelengths
-    # Values are in Angstroms
-    lambda0_file = os.path.dirname(co_filename) + '/' + 'lambda0.txt'
-    lambda0_data = asc.read(lambda0_file, format='commented_header')
-    lambda0    = lambda0_data['lambda0']
-    str_lines0 = lambda0_data['str_lines0']
 
     #OII_loc   = (1.0+zspec) * 3727.00
     #Hb_loc    = (1.0+zspec) * 4861.32
@@ -249,10 +252,6 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
     OH_max0 = np.max(OH_bgd[t_mark])
     print '## OH_max0 : ', OH_max0
 
-    # Mauna Kea atmospheric transmission
-    # + on 17/12/2016
-    atmo_file = os.path.dirname(co_filename) + '/' + 'mktrans_zm_10_10.dat'
-    atmo_data = asc.read(atmo_file)
 
     n_sources = len(ID)
     print '## n_sources : ', n_sources
@@ -304,7 +303,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
         lambda_val       = lambda0[in_range] * (1+zspec[ii])
 
         # Mod on 20/12/2016
-        trans0, s_trans0 = atmo_trans_val(atmo_data, lambda_val, R_spec)
+        trans0, s_trans0 = atmo_trans_val(lambda_val, R_spec)
 
         contam0, s_contam0 = OH_contam_val(OH_bgd, OH_max0, lambda_OH,
                                            lambda_val, R_spec)

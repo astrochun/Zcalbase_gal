@@ -83,6 +83,8 @@ def main(infile, out_path, max_radius=60*u.arcsec, mag_limit=20.0,
     Notes
     -----
     Created by Chun Ly, 23 December 2016
+    Modified by Chun Ly, 24 December 2016
+     - Added query for 2MASS
     '''
 
     if silent == False:
@@ -112,6 +114,16 @@ def main(infile, out_path, max_radius=60*u.arcsec, mag_limit=20.0,
             #http://www.sdss.org/dr12/algorithms/classify/#photo_class
             good = np.where((xid[mag_filt] <= mag_limit) &
                             (xid['type'] == 6))[0]
+            # Moved up on 24/12/2016
+            out_table_file = out_path + ID[ii].replace('*','')+\
+                             '.SDSS.nearby.txt'
+
+        # + on 24/12/2016
+        if catalog == '2MASS':
+            xid = IRSA.query_region(c, catalog='fp_psc', radius=max_radius)
+            good = np.where(xid[mag_filt] <= mag_limit)[0]
+            out_table_file = out_path + ID[ii].replace('*','')+\
+                             '.2MASS.nearby.txt'
 
         xid = xid[good]
 
@@ -127,7 +139,6 @@ def main(infile, out_path, max_radius=60*u.arcsec, mag_limit=20.0,
         # Sort by distance and then brightness
         xid.sort(['Dist(arcsec)',mag_filt])
         
-        out_table_file = out_path + ID[ii].replace('*','')+'.nearby.txt'
         if silent == False:
             print '### Writing: ', out_table_file
         asc.write(xid, out_table_file, format='fixed_width_two_line')
@@ -151,12 +162,20 @@ def zcalbase_gal_gemini():
     Notes
     -----
     Created by Chun Ly, 23 December 2016
+    Modified by Chun Ly, 24 December 2016
+     - Added call to main() using 2MASS selection
     '''
 
     path0    = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
     infile   = path0 + 'targets.txt'
     out_path = path0 + 'Alignment_Stars/'
 
+    # Select alignment stars based on SDSS
     main(infile, out_path, max_radius=5*u.arcmin, mag_limit=19.0,
          catalog='SDSS')
+
+    # Select alignment stars based on 2MASS
+    # + on 24/12/2016
+    main(infile, out_path, max_radius=5*u.arcmin, mag_limit=17.0,
+         catalog='2MASS', mag_filt='j_m')
 

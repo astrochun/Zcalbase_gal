@@ -32,6 +32,8 @@ from astropy import coordinates as coords
 from astroquery.sdss import SDSS
 from astroquery.irsa import Irsa as IRSA
 
+import aplpy # + on 24/12/2016
+
 # For SDSS only
 SDSS_fld      = ['ra','dec','objid','run','rerun','camcol','field','obj',
                  'type','mode']
@@ -40,6 +42,46 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMagErr_g', 'modelMag_r', 'modelMagErr_r',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
+
+def plot_finding_chart(fitsfile, c0, out_pdf, silent=True, verbose=False):
+    '''
+    Function to plot FITS images with WCS on the x- and y-axes
+
+    Parameters
+    ----------
+    fitsfile : string
+      Filename of FITS file
+
+    c0 : `astropy.coordinates` object
+      Central coordinate
+
+    out_pdf : string
+      Output PDF filename
+
+    silent : boolean
+      Turns off stdout messages. Default: True
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: False
+	  
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 24 December 2016
+    '''
+
+    gc = aplpy.FITSFigure(fitsfile, figsize=(8,8), north=True)
+
+    gc.show_grayscale(invert=True)
+    gc.set_tick_color('black')
+
+    gc.show_markers(c0.ra.value, c0.dec.value, layer='primary',edgecolor='red',
+                    facecolor='none',marker='+',s=100)
+
+    gc.savefig(out_pdf)
+#enddef
 
 def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
     '''
@@ -164,7 +206,7 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
     
-    for ii in range(n_sources):
+    for ii in range(1): # n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         if catalog == 'SDSS':
             xid = SDSS.query_region(c0, max_radius, data_release=12,
@@ -213,8 +255,12 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
                                         band=mag_filt.replace('modelMag_',''))
             else:
                 t_hdu = fits.open(out_fits)
-    #endfor
+        #endfor
 
+        if catalog == 'SDSS':
+            finding_chart_outpdf = out_fits.replace('.fits.gz', '.pdf')
+            plot_finding_chart(out_fits, c0, finding_chart_outpdf)
+        
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()
 #enddef

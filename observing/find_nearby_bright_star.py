@@ -33,9 +33,13 @@ from astroquery.sdss import SDSS
 from astroquery.irsa import Irsa as IRSA
 
 # For SDSS only
-SDSS_fld      = ['ra','dec','objid','run','rerun','camcol','field','type']
-SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMag_g', 'modelMag_r',
-                            'modelMag_i', 'modelMag_z']
+SDSS_fld      = ['ra','dec','objid','run','rerun','camcol','field','obj',
+                 'type','mode']
+                 
+SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
+                            'modelMagErr_g', 'modelMag_r', 'modelMagErr_r',
+                            'modelMag_i', 'modelMagErr_i', 'modelMag_z',
+                            'modelMagErr_z']
 
 def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
     '''
@@ -138,6 +142,7 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
     Created by Chun Ly, 23 December 2016
     Modified by Chun Ly, 24 December 2016
      - Added query for 2MASS
+     - Keep those with mode = 1 (Primary sources only, reduces duplication)
     '''
 
     if silent == False:
@@ -166,9 +171,10 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
                                     photoobj_fields=SDSS_phot_fld)
 
             # Keep stars only (type == 6)
-            #http://www.sdss.org/dr12/algorithms/classify/#photo_class
+            # http://www.sdss.org/dr12/algorithms/classify/#photo_class
+            # Keep primary target to deal with duplicate entries | 24/12/2016
             good = np.where((xid[mag_filt] <= mag_limit) &
-                            (xid['type'] == 6))[0]
+                            (xid['type'] == 6) & (xid['mode'] == 1))[0]
             # Moved up on 24/12/2016
             out_table_file = out_path + ID0[ii] + '.SDSS.nearby.txt'
             
@@ -204,7 +210,7 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
                 t_hdu = get_sdss_images(c0, out_fits,
                                         band=mag_filt.replace('modelMag_',''))
             else:
-                t_hdu = pyfits.open(out_fits)
+                t_hdu = fits.open(out_fits)
     #endfor
 
     if silent == False:

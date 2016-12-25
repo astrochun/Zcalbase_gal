@@ -164,7 +164,7 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
     
-    for ii in range(3): #n_sources):
+    for ii in range(n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         if catalog == 'SDSS':
             xid = SDSS.query_region(c0, max_radius, data_release=12,
@@ -173,7 +173,9 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
             # Keep stars only (type == 6)
             # http://www.sdss.org/dr12/algorithms/classify/#photo_class
             # Keep primary target to deal with duplicate entries | 24/12/2016
+            # Avoid unusual mag values | Mod on 24/12/2016
             good = np.where((xid[mag_filt] <= mag_limit) &
+                            (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
                             (xid['type'] == 6) & (xid['mode'] == 1))[0]
             # Moved up on 24/12/2016
             out_table_file = out_path + ID0[ii] + '.SDSS.nearby.txt'
@@ -234,6 +236,8 @@ def zcalbase_gal_gemini():
     Created by Chun Ly, 23 December 2016
     Modified by Chun Ly, 24 December 2016
      - Added call to main() using 2MASS selection
+     - Change max_radius from 5 arcmin to 120 arcsec.
+       Slit length of GNIRS is 99 arcsec. Will do offset star if too far away
     '''
 
     path0              = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
@@ -241,12 +245,13 @@ def zcalbase_gal_gemini():
     out_path           = path0 + 'Alignment_Stars/'
     finding_chart_path = path0 + 'Finding_Charts/'
 
+    max_radius = 120 * u.arcsec
     # Select alignment stars based on SDSS
-    main(infile, out_path, finding_chart_path, max_radius=5*u.arcmin,
+    main(infile, out_path, finding_chart_path, max_radius=max_radius,
          mag_limit=19.0, catalog='SDSS')
 
     # Select alignment stars based on 2MASS
     # + on 24/12/2016
-    main(infile, out_path, finding_chart_path, max_radius=5*u.arcmin,
+    main(infile, out_path, finding_chart_path, max_radius=max_radius,
          mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 

@@ -43,7 +43,7 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
-def plot_finding_chart(fitsfile, c0, out_pdf, silent=True, verbose=False):
+def plot_finding_chart(fitsfile, c0, c1, out_pdf, silent=True, verbose=False):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -53,7 +53,10 @@ def plot_finding_chart(fitsfile, c0, out_pdf, silent=True, verbose=False):
       Filename of FITS file
 
     c0 : `astropy.coordinates` object
-      Central coordinate
+      Central coordinate of target
+
+    c1 : `astropy.coordinates` object
+      Central coordinate of nearby bright stars
 
     out_pdf : string
       Output PDF filename
@@ -70,6 +73,9 @@ def plot_finding_chart(fitsfile, c0, out_pdf, silent=True, verbose=False):
     Notes
     -----
     Created by Chun Ly, 24 December 2016
+    Modified by Chun Ly, 2 January 2017
+     - Fix previous bug with show_markers (change facecolor)
+     - Added input of c1 to indicate where bright alignment stars are
     '''
 
     gc = aplpy.FITSFigure(fitsfile, figsize=(8,8), north=True)
@@ -77,8 +83,13 @@ def plot_finding_chart(fitsfile, c0, out_pdf, silent=True, verbose=False):
     gc.show_grayscale(invert=True)
     gc.set_tick_color('black')
 
-    gc.show_markers(c0.ra.value, c0.dec.value, layer='primary',edgecolor='red',
-                    facecolor='none',marker='+',s=100)
+    # Fix bug. marker='+' won't work with facecolor='none'
+    gc.show_markers([c0.ra.value], [c0.dec.value], layer='primary',
+                    edgecolor='red', facecolor='red', marker='+', s=25)
+
+    # + on 02/01/2017
+    gc.show_markers([c1.ra.value], [c1.dec.value], layer='secondary',
+                    edgecolor='blue', facecolor='none', marker='o', s=25)
 
     gc.savefig(out_pdf)
 #enddef
@@ -259,7 +270,7 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
 
         if catalog == 'SDSS':
             finding_chart_outpdf = out_fits.replace('.fits.gz', '.pdf')
-            plot_finding_chart(out_fits, c0, finding_chart_outpdf)
+            plot_finding_chart(out_fits, c0, c1, finding_chart_outpdf)
         
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()

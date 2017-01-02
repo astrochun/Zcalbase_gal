@@ -92,6 +92,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
      - Added t_ID, band0 inputs for plt.annotate call
      - Changed out_pdf to keyword rather than input variable
      - Added catalog keyword
+     - Change axis label values to clean it up
     '''
 
     # + on 02/01/2017
@@ -103,6 +104,11 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
     gc.show_grayscale(invert=True)
     gc.set_tick_color('black')
 
+    # + on 02/01/2017 to fix plotting
+    gc.set_tick_yspacing('auto')
+    gc.ticks.set_yspacing(5/60.0) # Every 5 arcmin in Dec
+    gc.set_tick_labels_format(xformat='hh:mm:ss', yformat='dd:mm')
+    
     # Fix bug. marker='+' won't work with facecolor='none'
     gc.show_markers([c0.ra.value], [c0.dec.value], layer='primary',
                     edgecolor='red', facecolor='red', marker='+', s=25)
@@ -114,7 +120,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
 
     # + on 02/01/2017
     lab0 = t_ID+'\n'+catalog+' '+band0
-    gc.add_label(0.05, 0.95, lab0, relative=True, ha='left', va='top',
+    gc.add_label(0.03, 0.95, lab0, relative=True, ha='left', va='top',
                  weight='bold', size='large')
 
     gc.savefig(out_pdf)
@@ -245,7 +251,7 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
     
-    for ii in range(1): # n_sources):
+    for ii in range(n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         if catalog == 'SDSS':
             xid = SDSS.query_region(c0, max_radius, data_release=12,

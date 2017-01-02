@@ -179,9 +179,9 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
     return t_hdu
 #enddef
 
-def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
-         mag_limit=20.0, mag_filt='modelMag_i', catalog='SDSS',
-         format='commented_header', silent=False, verbose=True):
+def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+         max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
+         catalog='SDSS', format='commented_header', silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -230,6 +230,7 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
      - Keep those with mode = 1 (Primary sources only, reduces duplication)
     Modified by Chun Ly, 02 January 2017
      - if statement if [good] is empty
+     - Added different path for FITS finding chart [finding_chart_fits_path]
     '''
 
     if silent == False:
@@ -296,7 +297,8 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
                 asc.write(xid, out_table_file, format='fixed_width_two_line')
         
             if catalog == 'SDSS':
-                out_fits = finding_chart_path + ID0[ii]+'.SDSS.fits.gz'
+                out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
+                out_pdf  = finding_chart_path + ID0[ii]+'.SDSS.pdf'
                 print out_fits
                 band0 = mag_filt.replace('modelMag_','') # + on 02/01/2017
                 if not exists(out_fits):
@@ -306,7 +308,8 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
 
             # Mod on 02/01/2017 for inputs
             if catalog == 'SDSS':
-                plot_finding_chart(out_fits, ID0[ii], band0, c0, c1, catalog=catalog)
+                plot_finding_chart(out_fits, ID0[ii], band0, c0, c1,
+                                   catalog=catalog, out_pdf=out_pdf)
         #endif
     #endfor
         
@@ -333,20 +336,26 @@ def zcalbase_gal_gemini():
      - Added call to main() using 2MASS selection
      - Change max_radius from 5 arcmin to 120 arcsec.
        Slit length of GNIRS is 99 arcsec. Will do offset star if too far away
+    Modified by Chun Ly, 2 January 2017
+     - Two separate paths for finding chart FITS and PDF
     '''
 
-    path0              = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
-    infile             = path0 + 'targets.txt'
-    out_path           = path0 + 'Alignment_Stars/'
-    finding_chart_path = path0 + 'Finding_Charts/'
+    path0                   = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
+    infile                  = path0 + 'targets.txt'
+    out_path                = path0 + 'Alignment_Stars/'
+    finding_chart_path      = path0 + 'Finding_Charts/'
+
+    # + on 02/01/2017
+    finding_chart_fits_path = '/Users/cly/data/Observing/Gemini/Finding_Charts/'
 
     max_radius = 120 * u.arcsec
+
     # Select alignment stars based on SDSS
-    main(infile, out_path, finding_chart_path, max_radius=max_radius,
-         mag_limit=19.0, catalog='SDSS')
+    main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+         max_radius=max_radius, mag_limit=19.0, catalog='SDSS')
 
     # Select alignment stars based on 2MASS
     # + on 24/12/2016
-    main(infile, out_path, finding_chart_path, max_radius=max_radius,
-         mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
+    main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+         max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 

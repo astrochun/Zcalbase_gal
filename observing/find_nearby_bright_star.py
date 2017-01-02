@@ -7,6 +7,7 @@ or to determine PA for longslit spectroscopy
 
 Requirements:
  astroquery (https://astroquery.readthedocs.io/en/latest/)
+ aplpy (https://aplpy.github.io/)
 
 """
 
@@ -43,7 +44,8 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
-def plot_finding_chart(fitsfile, c0, c1, out_pdf, silent=True, verbose=False):
+def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
+                       silent=True, verbose=False, catalog='SDSS'):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -52,6 +54,12 @@ def plot_finding_chart(fitsfile, c0, c1, out_pdf, silent=True, verbose=False):
     fitsfile : string
       Filename of FITS file
 
+    t_ID : string
+      Name of source
+
+    band0 : string
+      Observation waveband of image
+
     c0 : `astropy.coordinates` object
       Central coordinate of target
 
@@ -59,13 +67,18 @@ def plot_finding_chart(fitsfile, c0, c1, out_pdf, silent=True, verbose=False):
       Central coordinate of nearby bright stars
 
     out_pdf : string
-      Output PDF filename
+      Output PDF filename.
+      Default: based on [fitsfile], replacing '.fits.gz' or '.fits' with '.pdf'
 
     silent : boolean
       Turns off stdout messages. Default: True
 
     verbose : boolean
       Turns on additional stdout messages. Default: False
+
+    catalog : string
+      Which survey (e.g., SDSS, 2MASS) the finding chart image is from.
+      Default: 'SDSS'
 	  
     Returns
     -------
@@ -76,7 +89,14 @@ def plot_finding_chart(fitsfile, c0, c1, out_pdf, silent=True, verbose=False):
     Modified by Chun Ly, 2 January 2017
      - Fix previous bug with show_markers (change facecolor)
      - Added input of c1 to indicate where bright alignment stars are
+     - Added t_ID, band0 inputs for plt.annotate call
+     - Changed out_pdf to keyword rather than input variable
+     - Added catalog keyword
     '''
+
+    # + on 02/01/2017
+    if out_pdf == None:
+        out_pdf = fitsfile.replace('.fits.gz', '.pdf').replace('.fits','.pdf')
 
     gc = aplpy.FITSFigure(fitsfile, figsize=(8,8), north=True)
 
@@ -90,6 +110,11 @@ def plot_finding_chart(fitsfile, c0, c1, out_pdf, silent=True, verbose=False):
     # + on 02/01/2017
     gc.show_markers([c1.ra.value], [c1.dec.value], layer='secondary',
                     edgecolor='blue', facecolor='none', marker='o', s=25)
+
+    # + on 02/01/2017
+    fig, ax = plt.gcf()
+    ax.annotate(t_ID+'\n '+catalog+' '+band0, [0.05,0.95], ha='left', va='top',
+                xycoords='axes fraction')
 
     gc.savefig(out_pdf)
 #enddef
@@ -196,6 +221,8 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
     Modified by Chun Ly, 24 December 2016
      - Added query for 2MASS
      - Keep those with mode = 1 (Primary sources only, reduces duplication)
+    Modified by Chun Ly, 02 January 2017
+     - if statement if [good] is empty
     '''
 
     if silent == False:
@@ -239,38 +266,41 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
             good = np.where(xid[mag_filt] <= mag_limit)[0]
             out_table_file = out_path + ID0[ii] + '.2MASS.nearby.txt'
 
-        xid = xid[good]
-
         if silent == False:
             print '## Finding nearby stars for '+ID[ii]+'. '+\
                 str(len(good))+' found.'
-
-        # Get distance from target
-        c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.degree, u.degree))
-        sep = c0.separation(c1).to(u.arcsec).value
-        col1 = Column(sep, name='Dist(arcsec)')
-        xid.add_column(col1)
-
-        # Sort by distance and then brightness
-        xid.sort(['Dist(arcsec)',mag_filt])
+            if len(good) == 0: print '## Skipping ahead.'
         
-        if silent == False:
-            print '### Writing: ', out_table_file
-        asc.write(xid, out_table_file, format='fixed_width_two_line')
+        # Mod on 02/01/2017 to handle python crash when [good] is empty
+        if len(good) > 0:
+            xid = xid[good]
 
-        if catalog == 'SDSS':
-            out_fits = finding_chart_path + ID0[ii]+'.SDSS.fits.gz'
-            print out_fits
-            if not exists(out_fits):
-                t_hdu = get_sdss_images(c0, out_fits,
-                                        band=mag_filt.replace('modelMag_',''))
-            else:
-                t_hdu = fits.open(out_fits)
-        #endfor
+            # Get distance from target
+            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.degree, u.degree))
+            sep = c0.separation(c1).to(u.arcsec).value
+            col1 = Column(sep, name='Dist(arcsec)')
+            xid.add_column(col1)
 
-        if catalog == 'SDSS':
-            finding_chart_outpdf = out_fits.replace('.fits.gz', '.pdf')
-            plot_finding_chart(out_fits, c0, c1, finding_chart_outpdf)
+            # Sort by distance and then brightness
+            xid.sort(['Dist(arcsec)',mag_filt])
+        
+            if silent == False:
+                print '### Writing: ', out_table_file
+                asc.write(xid, out_table_file, format='fixed_width_two_line')
+        
+            if catalog == 'SDSS':
+                out_fits = finding_chart_path + ID0[ii]+'.SDSS.fits.gz'
+                print out_fits
+                band0 = mag_filt.replace('modelMag_','') # + on 02/01/2017
+                if not exists(out_fits):
+                    t_hdu = get_sdss_images(c0, out_fits, band=band0)
+                else:
+                    t_hdu = fits.open(out_fits)
+
+            # Mod on 02/01/2017 for inputs
+            plot_finding_chart(out_fits, ID0[ii], band0, c0, c1, catalog=catalog)
+        #endif
+    #endfor
         
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()

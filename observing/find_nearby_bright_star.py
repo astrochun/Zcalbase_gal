@@ -109,12 +109,13 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
 
     # + on 02/01/2017
     gc.show_markers([c1.ra.value], [c1.dec.value], layer='secondary',
-                    edgecolor='blue', facecolor='none', marker='o', s=25)
+                    edgecolor='blue', facecolor='none', marker='o', s=25,
+                    linewidth=0.5)
 
     # + on 02/01/2017
-    fig, ax = plt.gcf()
-    ax.annotate(t_ID+'\n '+catalog+' '+band0, [0.05,0.95], ha='left', va='top',
-                xycoords='axes fraction')
+    lab0 = t_ID+'\n'+catalog+' '+band0
+    gc.add_label(0.05, 0.95, lab0, relative=True, ha='left', va='top',
+                 weight='bold', size='large')
 
     gc.savefig(out_pdf)
 #enddef
@@ -298,7 +299,8 @@ def main(infile, out_path, finding_chart_path, max_radius=60*u.arcsec,
                     t_hdu = fits.open(out_fits)
 
             # Mod on 02/01/2017 for inputs
-            plot_finding_chart(out_fits, ID0[ii], band0, c0, c1, catalog=catalog)
+            if catalog == 'SDSS':
+                plot_finding_chart(out_fits, ID0[ii], band0, c0, c1, catalog=catalog)
         #endif
     #endfor
         

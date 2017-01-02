@@ -194,7 +194,13 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
       The columns should be referred to as 'ID', 'RA', and 'DEC'
 
     out_path : string
-      Full path to output ASCII tables.  Must end with a '/'
+      Full path to output ASCII tables. Must end with a '/'
+
+    finding_chart_path : string
+      Full path for outputted PDF finding charts. Must end with a '/'
+
+    finding_chart_fits_path : string
+      Full path for outputted finding charts. Must end with a '/'
 
     max_radius : float
       Maximum radius. Provide with astropy.units for arcsec,

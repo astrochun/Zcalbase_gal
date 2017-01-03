@@ -145,6 +145,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
      - Change axis label values to clean it up
     Modified by Chun Ly, 3 January 2017
      - Call get_PA() and draw slit
+     - Add annotated text in the lower left corner for info about
+       long-slit alignment
     '''
 
     # + on 02/01/2017
@@ -174,6 +176,22 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
     PA, c_ctr = get_PA(c0, c1[0])
     # Need a way to rotate
     gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
+
+    # Label things in lower left text | + on 03/01/2017
+    str_c_t   = c0.to_string('hmsdms').split(' ')
+    str_c     = c_ctr.to_string('hmsdms').split(' ')
+    str_c_bt  = c1[0].to_string('hmsdms').split(' ')
+    dra, ddec = c1[0].spherical_offsets_to(c0)
+
+    bt_star_txt = 'Target: RA='+str_c_t[0]+' Dec='+str_c_t[1]+'\n\n'+\
+                  'Slit Center: RA='+str_c[0]+' Dec='+str_c[1]+'\n'+\
+                  ('Slit PA = %7.3f' % PA) + ' deg\n\n'+\
+                  'Offset Star: RA='+str_c_bt[0]+' Dec='+str_c_bt[1]+'\n'+\
+                  'Offsets : (%+.3f", %+.3f")' % (dra.to(u.arcsec).value,
+                                                  ddec.to(u.arcsec).value)
+
+    gc.add_label(0.03, 0.1, bt_star_txt, color='magenta', relative=True,
+                 ha='left', va='bottom', weight='medium', size='small')
 
     # Label upper left source, catalog, and band | + on 02/01/2017
     lab0 = t_ID+'\n'+catalog+' '+band0

@@ -294,6 +294,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 02 January 2017
      - if statement if [good] is empty
      - Added different path for FITS finding chart [finding_chart_fits_path]
+    Modified by Chun Ly, 03 January 2017
+     - Re-define c1 so that order is consistent with [xid] sorting
     '''
 
     if silent == False:
@@ -354,6 +356,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
             # Sort by distance and then brightness
             xid.sort(['Dist(arcsec)',mag_filt])
+            # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
+            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.degree, u.degree))
 
             if silent == False:
                 print '### Writing: ', out_table_file

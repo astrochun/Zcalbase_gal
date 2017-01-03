@@ -14,7 +14,6 @@ Requirements:
 import sys, os
 
 from chun_codes import systime
-from chun_codes import chun_crossmatch
 
 from os.path import exists
 
@@ -35,6 +34,8 @@ from astroquery.irsa import Irsa as IRSA
 
 import aplpy # + on 24/12/2016
 
+from PyMontage.scripts import montage_reproj # + on 02/01/2017
+
 # For SDSS only
 SDSS_fld      = ['ra','dec','objid','run','rerun','camcol','field','obj',
                  'type','mode']
@@ -43,6 +44,55 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMagErr_g', 'modelMag_r', 'modelMagErr_r',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
+
+def get_PA(c0, c1, silent=True, verbose=False):
+    '''
+    Function to determine the PA on the sky and central coordinates given
+    two WCS coordinates
+
+    Parameters
+    ----------
+    c0 : `astropy.coordinates` object
+      Central coordinate of target
+
+    c1 : `astropy.coordinates` object
+      Central coordinate of nearby bright star
+
+    silent : boolean
+      Turns off stdout messages. Default: True
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: False
+
+    Returns
+    -------
+    PA : float
+      Position angle between c0 and c1. Positive values is for East of North
+
+    c_ctr : `astropy.coordinates` object
+      Coordinate associated with center between target and nearby bright star
+
+    Notes
+    -----
+    Created by Chun Ly, 3 January 2017
+    '''
+    
+    if silent == False:
+        print '### Begin find_nearby_bright_star.get_PA | '+systime()
+
+    PA = c0.position_angle(c1).degree # + => East of North
+
+    # Get central coordinate
+    ra_avg  = np.average([c0.ra.value, c1.ra.value])
+    dec_avg = np.average([c0.dec.value, c1.dec.value])
+
+    c_ctr = coords.SkyCoord(ra=ra_avg, dec=dec_avg, unit=(u.degree,u.degree))
+
+    if silent == False:
+        print '### End find_nearby_bright_star.get_PA | '+systime()
+
+    return PA, c_ctr
+#enddef
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
                        silent=True, verbose=False, catalog='SDSS'):
@@ -151,10 +201,10 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
       Format of infile ASCII file. Default: "commented_header"
 
     silent : boolean
-      Turns off stdout messages. Default: False
+      Turns off stdout messages. Default: True
 
     verbose : boolean
-      Turns on additional stdout messages. Default: True
+      Turns on additional stdout messages. Default: False
 	  
     Returns
     -------

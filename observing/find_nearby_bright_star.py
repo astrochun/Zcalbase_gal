@@ -143,6 +143,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
      - Changed out_pdf to keyword rather than input variable
      - Added catalog keyword
      - Change axis label values to clean it up
+    Modified by Chun Ly, 3 January 2017
+     - Call get_PA() and draw slit
     '''
 
     # + on 02/01/2017
@@ -168,7 +170,12 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
                     edgecolor='blue', facecolor='none', marker='o', s=25,
                     linewidth=0.5)
 
-    # + on 02/01/2017
+    # Draw slit between target and nearest bright star | + on 03/01/2017
+    PA, c_ctr = get_PA(c0, c1[0])
+    # Need a way to rotate
+    gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
+
+    # Label upper left source, catalog, and band | + on 02/01/2017
     lab0 = t_ID+'\n'+catalog+' '+band0
     gc.add_label(0.03, 0.95, lab0, relative=True, ha='left', va='top',
                  weight='bold', size='large')
@@ -347,7 +354,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
             # Sort by distance and then brightness
             xid.sort(['Dist(arcsec)',mag_filt])
-        
+
             if silent == False:
                 print '### Writing: ', out_table_file
                 asc.write(xid, out_table_file, format='fixed_width_two_line')

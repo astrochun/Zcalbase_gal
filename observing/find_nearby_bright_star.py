@@ -76,6 +76,9 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     -----
     Created by Chun Ly, 3 January 2017
      - Added slitlength option to get coordinates of longslit
+    Modified by Chun Ly, 4 January 2017
+     - Get PA for longslit for illustration on finding chart. This PA is different from
+       SkyCoords.position_angle(). This is merely to show the slit length
     '''
     
     if silent == False:
@@ -90,8 +93,13 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     c_ctr = coords.SkyCoord(ra=ra_avg, dec=dec_avg, unit=(u.degree,u.degree))
 
     # Get edges of longslit | Added later
-    ra0  = 0.5 * slitlength.to(u.arcsec).value * np.sin(PA * np.pi/180.0) #* np.cos(c0.dec.value * np.pi/180.0)
-    dec0 = 0.5 * slitlength.to(u.arcsec).value * np.cos(PA * np.pi/180.0)
+    # Mod on 04/01/2017
+    t_y, t_x = c_ctr.dec.degree - c0.dec.degree, c_ctr.ra.degree - c0.ra.degree
+    # This is different from PA. 90 deg is because of arctan2 definition. PA2=0 correspond to N
+    PA2 = 90 - np.degrees(np.arctan2(t_y, t_x)) # in degree. 
+
+    ra0  = 0.5 * slitlength.to(u.arcsec).value * np.sin(np.radians(PA2)) #* np.cos(c0.dec.value * np.pi/180.0)
+    dec0 = 0.5 * slitlength.to(u.arcsec).value * np.cos(np.radians(PA2))
 
     ra_offset  = coords.Angle(ra0, unit=u.arcsec)
     dec_offset = coords.Angle(dec0, unit=u.arcsec)
@@ -101,8 +109,6 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     longslit_list = []
     longslit_list.append(np.array([[new_pos[0].ra.value, new_pos[1].ra.value],
                                    [new_pos[0].dec.value, new_pos[1].dec.value]]))
-
-    print c0, c1
 
     if silent == False:
         print '### End find_nearby_bright_star.get_PA | '+systime()
@@ -352,7 +358,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
     
-    for ii in range(1): #n_sources):
+    for ii in range(n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         if catalog == 'SDSS':
             xid = SDSS.query_region(c0, max_radius, data_release=12,

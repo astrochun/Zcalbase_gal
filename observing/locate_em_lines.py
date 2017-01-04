@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from pylab import subplots_adjust
 
+import astropy.units as u # + on 04/01/2017
+
 # Mauna Kea atmospheric transmission
 # + on 17/12/2016
 # Moved up on 21/12/2016
@@ -162,7 +164,48 @@ def OH_contam_val(OH_bgd, OH_max0, lambda_OH, lambda_val, R_spec,
     return contam0, s_contam0
 #enddef
 
-def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
+def overlay_filter_trans(instrument, ax0=None, silent=True, verbose=False):
+    '''
+    Overlay filter transmission curves for different telescope/instrument
+
+    Parameters
+    ----------
+    instrument : string
+
+
+    Returns
+    -------
+    None.
+
+    Notes
+    -----
+    Created by Chun Ly, 4 January 2017
+    '''
+
+    if silent == False:
+        print '### Begin locate_em_lines.overlay_filter_trans() | '+systime()
+
+    if instrument == 'GNIRS':
+        trans_path = os.path.dirname(co_filename) + '/Filters/Gemini/GNIRS/'
+        files  = [trans_path+a+'_bl.dat' for a in ['x','j','h','k']]
+        x_unit = u.micron # Unit of the wavelength
+        
+    if silent == False:
+        print '### [files] : ', files
+
+    if ax0 == None: ax0 = plt.gca()
+        
+    for ii in range(len(files)):
+        if silent == False: print '### Reading : ', files[ii]
+        data    = asc.read(files[ii])
+        x_scale = x_unit.to(u.angstrom)
+        ax0.plot(data['col1']*x_scale, data['col2'])
+        
+    if silent == False:
+        print '### End locate_em_lines.overlay_filter_trans() | '+systime()
+#enddef
+
+def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
          format='commented_header', silent=False, verbose=True):
 
     '''
@@ -288,6 +331,9 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
         # Overlay atmospheric transmission | + on 17/07/2016
         ax0.plot(atmo_data['col1']*1e4, atmo_data['col2'], 'k', linewidth=0.5)
 
+        # Overlay filter transmission | + on 04/01/2017
+        overlay_filter_trans(instrument, ax0=ax0, silent=False)
+        
         # Draw emission lines
         for ll in range(len(lambda0)):
             t_x = (1+zspec[ii]) * lambda0[ll]
@@ -300,7 +346,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
 
         # Get atmospheric transmission at lines | + on 17/12/2016
         in_range   = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
-        lambda_val       = lambda0[in_range] * (1+zspec[ii])
+        lambda_val = lambda0[in_range] * (1+zspec[ii])
 
         # Mod on 20/12/2016
         trans0, s_trans0 = atmo_trans_val(lambda_val, R_spec)
@@ -320,7 +366,6 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec,
         ax0.annotate(r''.join(str_annot)[:-2], [t_x0, 0.9], fontsize='x-small',
                      xycoords='data', va='top', ha='left', alpha=0.5,
                      bbox=bbox_props)
-
         
         # + on 17/12/2016
         if (ii == n_sources-1) and (n_sources % n_panels != 0):
@@ -367,7 +412,7 @@ def zcalbase_gal_gemini():
     out_pdf = path0 + 'locate_em_lines.pdf'
 
     R_spec = 3000.0 # Resolution of spectrograph
-    main(in_cat, out_pdf, 6400, 6800, R_spec)
+    main(in_cat, out_pdf, 6400, 6800, R_spec, 'GNIRS')
     
     print '### End locate_em_lines.zcalbase_gal_gemini() | '+systime()
 #enddef

@@ -471,7 +471,8 @@ def zcalbase_gal_gemini():
     slitlength = 99 * u.arcsec 
     # Select alignment stars based on SDSS
     main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-         max_radius=max_radius, mag_limit=19.0, catalog='SDSS', slitlength=slitlength)
+         max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+         slitlength=slitlength)
 
     # Select alignment stars based on 2MASS
     # + on 24/12/2016

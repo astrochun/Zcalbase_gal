@@ -187,20 +187,30 @@ def overlay_filter_trans(instrument, ax0=None, silent=True, verbose=False):
 
     if instrument == 'GNIRS':
         trans_path = os.path.dirname(co_filename) + '/Filters/Gemini/GNIRS/'
-        files  = [trans_path+a+'_bl.dat' for a in ['x','j','h','k']]
+        filts  = ['X','J','H','K']
+        files  = [trans_path+a.lower()+'_bl.dat' for a in filts]
         x_unit = u.micron # Unit of the wavelength
         
     if silent == False:
         print '### [files] : ', files
 
     if ax0 == None: ax0 = plt.gca()
-        
+    xlim = ax0.get_xlim()
+
     for ii in range(len(files)):
         if silent == False: print '### Reading : ', files[ii]
         data    = asc.read(files[ii])
         x_scale = x_unit.to(u.angstrom)
-        ax0.plot(data['col1']*x_scale, data['col2'])
+        x_Ang   = data['col1']*x_scale
+        in_plot = np.where(((xlim[0] > np.min(x_Ang)) & (xlim[0] < np.max(x_Ang))) | 
+                           ((xlim[1] > np.min(x_Ang)) & (xlim[1] > np.max(x_Ang))))[0]
+        if len(in_plot) > 0:
+            ax0.plot(x_Ang, data['col2'], '--', linewidth=1.0,
+                     label=instrument+' '+filts[ii])
         
+    ax0.legend(loc='upper right', bbox_to_anchor=(0.975,0.75), fontsize='small',
+               framealpha=0.75)
+
     if silent == False:
         print '### End locate_em_lines.overlay_filter_trans() | '+systime()
 #enddef
@@ -255,6 +265,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
      - Fix plotting to avoid panels being shown when sources are not available
     Modified by Chun Ly, 17 December 2016
      - Call gaussian_R() instead of using 
+    Modified by Chun Ly, 4 January 2017
+     - Add call to overlay_filter_trans()
     '''
 
     if silent == False: print '### Begin locate_em_lines.main() | '+systime()
@@ -329,10 +341,10 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
         ax0.plot(lambda_OH, OH_bgd / OH_max0)
 
         # Overlay atmospheric transmission | + on 17/07/2016
-        ax0.plot(atmo_data['col1']*1e4, atmo_data['col2'], 'k', linewidth=0.5)
+        ax0.plot(atmo_data['col1'].data*1e4, atmo_data['col2'].data, 'k', linewidth=0.5)
 
         # Overlay filter transmission | + on 04/01/2017
-        overlay_filter_trans(instrument, ax0=ax0, silent=False)
+        overlay_filter_trans(instrument, ax0=ax0) #, silent=False)
         
         # Draw emission lines
         for ll in range(len(lambda0)):
@@ -412,7 +424,12 @@ def zcalbase_gal_gemini():
     out_pdf = path0 + 'locate_em_lines.pdf'
 
     R_spec = 3000.0 # Resolution of spectrograph
-    main(in_cat, out_pdf, 6400, 6800, R_spec, 'GNIRS')
-    
+    # main(in_cat, out_pdf, 6400, 6800, R_spec, 'GNIRS')
+
+    # + on 04/01/2017
+    in_cat2  = path0 + 'targets.2017a.txt'
+    out_pdf2 = path0 + 'locate_em_lines.2017a.pdf'
+    main(in_cat2, out_pdf2, 6400, 6800, R_spec, 'GNIRS')
+
     print '### End locate_em_lines.zcalbase_gal_gemini() | '+systime()
 #enddef

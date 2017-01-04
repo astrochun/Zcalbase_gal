@@ -77,8 +77,9 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     Created by Chun Ly, 3 January 2017
      - Added slitlength option to get coordinates of longslit
     Modified by Chun Ly, 4 January 2017
-     - Get PA for longslit for illustration on finding chart. This PA is different from
-       SkyCoords.position_angle(). This is merely to show the slit length
+     - Get PA for longslit for illustration on finding chart. This PA is
+       different from SkyCoords.position_angle(). This is merely to show the
+       slit length
     '''
     
     if silent == False:
@@ -95,16 +96,18 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     # Get edges of longslit | Added later
     # Mod on 04/01/2017
     t_y, t_x = c_ctr.dec.degree - c0.dec.degree, c_ctr.ra.degree - c0.ra.degree
-    # This is different from PA. 90 deg is because of arctan2 definition. PA2=0 correspond to N
+    # This is different from PA. 90 deg is because of arctan2 definition.
+    # PA2=0 correspond to N
     PA2 = 90 - np.degrees(np.arctan2(t_y, t_x)) # in degree. 
 
-    ra0  = 0.5 * slitlength.to(u.arcsec).value * np.sin(np.radians(PA2)) #* np.cos(c0.dec.value * np.pi/180.0)
+    ra0  = 0.5 * slitlength.to(u.arcsec).value * np.sin(np.radians(PA2))
     dec0 = 0.5 * slitlength.to(u.arcsec).value * np.cos(np.radians(PA2))
 
     ra_offset  = coords.Angle(ra0, unit=u.arcsec)
     dec_offset = coords.Angle(dec0, unit=u.arcsec)
 
-    new_pos = coords.SkyCoord(c_ctr.ra+ra_offset*[-1,1], c_ctr.dec+dec_offset*[-1,1])
+    new_pos = coords.SkyCoord(c_ctr.ra+ra_offset*[-1,1],
+                              c_ctr.dec+dec_offset*[-1,1])
 
     longslit_list = []
     longslit_list.append(np.array([[new_pos[0].ra.value, new_pos[1].ra.value],
@@ -117,7 +120,8 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
 #enddef
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
-                       silent=True, verbose=False, catalog='SDSS'):
+                       slitlength=99*u.arcsec, catalog='SDSS', silent=True,
+                       verbose=False):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -169,6 +173,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
      - Call get_PA() and draw slit
      - Add annotated text in the lower left corner for info about
        long-slit alignment
+    Modified by Chun Ly, 4 January 2017
+     - Added slitlength keyword input to pass to get_PA()
     '''
 
     # + on 02/01/2017
@@ -186,7 +192,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
     gc.set_tick_labels_format(xformat='hh:mm:ss', yformat='dd:mm')
     
     # Draw slit between target and nearest bright star | + on 03/01/2017
-    PA, c_ctr, longslit_list = get_PA(c0, c1[0])
+    PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength)
     print longslit_list
     gc.show_lines(longslit_list, layer='slit', color='black', linewidth=0.5)
     #gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
@@ -279,7 +285,8 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
 
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
-         catalog='SDSS', format='commented_header', silent=False, verbose=True):
+         catalog='SDSS', format='commented_header', slitlength=99*u.arcsec,
+         silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -337,6 +344,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Added different path for FITS finding chart [finding_chart_fits_path]
     Modified by Chun Ly, 03 January 2017
      - Re-define c1 so that order is consistent with [xid] sorting
+    Modified by Chun Ly, 4 January 2017
+     - Added slitlength keyword input to pass to plot_finding_chart()
     '''
 
     if silent == False:
@@ -417,7 +426,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Mod on 02/01/2017 for inputs
             if catalog == 'SDSS':
                 plot_finding_chart(out_fits, ID0[ii], band0, c0, c1,
-                                   catalog=catalog, out_pdf=out_pdf)
+                                   slitlength=slitlength, catalog=catalog,
+                                   out_pdf=out_pdf)
         #endif
     #endfor
         
@@ -458,12 +468,13 @@ def zcalbase_gal_gemini():
 
     max_radius = 120 * u.arcsec
 
+    slitlength = 99 * u.arcsec 
     # Select alignment stars based on SDSS
     main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-         max_radius=max_radius, mag_limit=19.0, catalog='SDSS')
+         max_radius=max_radius, mag_limit=19.0, catalog='SDSS', slitlength=slitlength)
 
     # Select alignment stars based on 2MASS
     # + on 24/12/2016
-    main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-         max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
+    #main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+    #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 

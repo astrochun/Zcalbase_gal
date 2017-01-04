@@ -45,7 +45,7 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
-def get_PA(c0, c1, silent=True, verbose=False):
+def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     '''
     Function to determine the PA on the sky and central coordinates given
     two WCS coordinates
@@ -75,6 +75,7 @@ def get_PA(c0, c1, silent=True, verbose=False):
     Notes
     -----
     Created by Chun Ly, 3 January 2017
+     - Added slitlength option to get coordinates of longslit
     '''
     
     if silent == False:
@@ -88,10 +89,25 @@ def get_PA(c0, c1, silent=True, verbose=False):
 
     c_ctr = coords.SkyCoord(ra=ra_avg, dec=dec_avg, unit=(u.degree,u.degree))
 
+    # Get edges of longslit | Added later
+    ra0  = 0.5 * slitlength.to(u.arcsec).value * np.sin(PA * np.pi/180.0) #* np.cos(c0.dec.value * np.pi/180.0)
+    dec0 = 0.5 * slitlength.to(u.arcsec).value * np.cos(PA * np.pi/180.0)
+
+    ra_offset  = coords.Angle(ra0, unit=u.arcsec)
+    dec_offset = coords.Angle(dec0, unit=u.arcsec)
+
+    new_pos = coords.SkyCoord(c_ctr.ra+ra_offset*[-1,1], c_ctr.dec+dec_offset*[-1,1])
+
+    longslit_list = []
+    longslit_list.append(np.array([[new_pos[0].ra.value, new_pos[1].ra.value],
+                                   [new_pos[0].dec.value, new_pos[1].dec.value]]))
+
+    print c0, c1
+
     if silent == False:
         print '### End find_nearby_bright_star.get_PA | '+systime()
 
-    return PA, c_ctr
+    return PA, c_ctr, longslit_list
 #enddef
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
@@ -163,6 +179,12 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
     gc.ticks.set_yspacing(5/60.0) # Every 5 arcmin in Dec
     gc.set_tick_labels_format(xformat='hh:mm:ss', yformat='dd:mm')
     
+    # Draw slit between target and nearest bright star | + on 03/01/2017
+    PA, c_ctr, longslit_list = get_PA(c0, c1[0])
+    print longslit_list
+    gc.show_lines(longslit_list, layer='slit', color='black', linewidth=0.5)
+    #gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
+
     # Fix bug. marker='+' won't work with facecolor='none'
     gc.show_markers([c0.ra.value], [c0.dec.value], layer='primary',
                     edgecolor='red', facecolor='red', marker='+', s=25)
@@ -171,12 +193,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
     gc.show_markers([c1.ra.value], [c1.dec.value], layer='secondary',
                     edgecolor='blue', facecolor='none', marker='o', s=25,
                     linewidth=0.5)
-
-    # Draw slit between target and nearest bright star | + on 03/01/2017
-    PA, c_ctr = get_PA(c0, c1[0])
-    # Need a way to rotate
-    gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
-
+    
     # Label things in lower left text | + on 03/01/2017
     str_c_t   = c0.to_string('hmsdms').split(' ')
     str_c     = c_ctr.to_string('hmsdms').split(' ')
@@ -335,7 +352,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
     
-    for ii in range(n_sources):
+    for ii in range(1): #n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         if catalog == 'SDSS':
             xid = SDSS.query_region(c0, max_radius, data_release=12,

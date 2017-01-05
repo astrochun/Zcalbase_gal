@@ -185,6 +185,8 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
     Notes
     -----
     Created by Chun Ly, 4 January 2017
+    Modified by Chun Ly, 5 January 2017
+     - Fix bug in truncation of str_annot for ax0.annotate()
     '''
 
     if silent == False:
@@ -234,7 +236,8 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
     bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75,
                       ec="k", lw=0.5)
     t_x0 = xlim[1] - 0.02 * (xlim[1]-xlim[0])
-    ax0.annotate(r''.join(str_annot)[:-2], [t_x0, 0.9], fontsize='x-small',
+    # Fix bug on 05/01/2017 for truncation
+    ax0.annotate(r''.join(str_annot)[:-1], [t_x0, 0.9], fontsize='x-small',
                  xycoords='data', va='top', ha='right', alpha=0.5,
                  bbox=bbox_props)
 
@@ -372,10 +375,12 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
         ax0.plot(lambda_OH, OH_bgd / OH_max0)
 
         # Overlay atmospheric transmission | + on 17/07/2016
-        ax0.plot(atmo_data['col1'].data*1e4, atmo_data['col2'].data, 'k', linewidth=0.5)
+        ax0.plot(atmo_data['col1'].data*1e4, atmo_data['col2'].data, 'k',
+                 linewidth=0.5)
 
         # Moved up on 04/01/2017
-        in_range   = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
+        in_range   = np.where((lambda0 >= lambda0_min) &
+                              (lambda0 <= lambda0_max))[0]
         lambda_val = lambda0[in_range] * (1+zspec[ii])
 
         # Overlay filter transmission | + on 04/01/2017

@@ -3,7 +3,8 @@ find_nearby_bright_star
 =======================
 
 Search SDSS or 2MASS catalogs for nearest bright star as offset star
-or to determine PA for longslit spectroscopy
+or to determine PA for longslit spectroscopy. Also generates
+finding charts
 
 Requirements:
  astroquery (https://astroquery.readthedocs.io/en/latest/)

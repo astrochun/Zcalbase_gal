@@ -26,6 +26,8 @@ from pylab import subplots_adjust
 
 import astropy.units as u # + on 04/01/2017
 
+import string # + on 04/01/2017
+
 # Mauna Kea atmospheric transmission
 # + on 17/12/2016
 # Moved up on 21/12/2016
@@ -164,14 +166,17 @@ def OH_contam_val(OH_bgd, OH_max0, lambda_OH, lambda_val, R_spec,
     return contam0, s_contam0
 #enddef
 
-def overlay_filter_trans(instrument, ax0=None, silent=True, verbose=False):
+def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
+                         silent=True, verbose=False):
     '''
     Overlay filter transmission curves for different telescope/instrument
 
     Parameters
     ----------
     instrument : string
-
+      Name of instrument. Accepted values are currently: 'GNIRS'
+      The ASCII files should be placed in Filters/TELE/[instrument].
+      See __filename__ for full path
 
     Returns
     -------
@@ -191,25 +196,51 @@ def overlay_filter_trans(instrument, ax0=None, silent=True, verbose=False):
         files  = [trans_path+a.lower()+'_bl.dat' for a in filts]
         x_unit = u.micron # Unit of the wavelength
         
-    if silent == False:
-        print '### [files] : ', files
+    if silent == False: print '### [files] : ', files
 
     if ax0 == None: ax0 = plt.gca()
     xlim = ax0.get_xlim()
+
+    f_trans_val = []
+    str_annot   = [a+': \n' for a in str_lines0.data[in_range]]
 
     for ii in range(len(files)):
         if silent == False: print '### Reading : ', files[ii]
         data    = asc.read(files[ii])
         x_scale = x_unit.to(u.angstrom)
         x_Ang   = data['col1']*x_scale
-        in_plot = np.where(((xlim[0] > np.min(x_Ang)) & (xlim[0] < np.max(x_Ang))) | 
-                           ((xlim[1] > np.min(x_Ang)) & (xlim[1] > np.max(x_Ang))))[0]
+        in_plot = np.where(((xlim[0] > np.min(x_Ang)) &
+                            (xlim[0] < np.max(x_Ang))) | 
+                           ((xlim[1] > np.min(x_Ang)) &
+                            (xlim[1] > np.max(x_Ang))))[0]
+
         if len(in_plot) > 0:
             ax0.plot(x_Ang, data['col2'], '--', linewidth=1.0,
                      label=instrument+' '+filts[ii])
-        
-    ax0.legend(loc='upper right', bbox_to_anchor=(0.975,0.75), fontsize='small',
-               framealpha=0.75)
+
+            # Get transmission for each wavelength
+            f_trans = interp1d(x_Ang, data['col2'])
+            f_trans_val.append(f_trans(lambda_val))
+
+            str_annot = [a.replace('\n','')+('%5.2f' % b)+'\n' for
+                         a,b in zip(str_annot,f_trans_val[-1])]
+        #endif
+    #endfor
+    #str_anot = [a+'\n' for a in str_annot]
+
+    #alpha_str = list(string.lowercase)
+    #str_annot = [a+str(b) for a,b in zip(str_annot, f_trans_val[-1])]
+
+    bbox_props = dict(boxstyle="square,pad=0.3", fc="white", alpha=0.75,
+                      ec="k", lw=0.5)
+    t_x0 = xlim[1] - 0.02 * (xlim[1]-xlim[0])
+    ax0.annotate(r''.join(str_annot)[:-2], [t_x0, 0.9], fontsize='x-small',
+                 xycoords='data', va='top', ha='right', alpha=0.5,
+                 bbox=bbox_props)
+
+    # Legend showing the transmission filter names
+    ax0.legend(loc='lower right', bbox_to_anchor=(0.995,0.03),
+               fontsize='small', framealpha=0.75)
 
     if silent == False:
         print '### End locate_em_lines.overlay_filter_trans() | '+systime()
@@ -343,8 +374,12 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
         # Overlay atmospheric transmission | + on 17/07/2016
         ax0.plot(atmo_data['col1'].data*1e4, atmo_data['col2'].data, 'k', linewidth=0.5)
 
+        # Moved up on 04/01/2017
+        in_range   = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
+        lambda_val = lambda0[in_range] * (1+zspec[ii])
+
         # Overlay filter transmission | + on 04/01/2017
-        overlay_filter_trans(instrument, ax0=ax0) #, silent=False)
+        overlay_filter_trans(instrument, lambda_val, in_range, ax0=ax0) #, silent=False)
         
         # Draw emission lines
         for ll in range(len(lambda0)):
@@ -357,9 +392,6 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
                              rotation=90)
 
         # Get atmospheric transmission at lines | + on 17/12/2016
-        in_range   = np.where((lambda0 >= lambda0_min) & (lambda0 <= lambda0_max))[0]
-        lambda_val = lambda0[in_range] * (1+zspec[ii])
-
         # Mod on 20/12/2016
         trans0, s_trans0 = atmo_trans_val(lambda_val, R_spec)
 

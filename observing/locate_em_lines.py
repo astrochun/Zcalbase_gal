@@ -221,7 +221,7 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
                      label=instrument+' '+filts[ii])
 
             # Get transmission for each wavelength
-            f_trans = interp1d(x_Ang, data['col2'])
+            f_trans = interp1d(x_Ang, data['col2'], bounds_error=False)
             f_trans_val.append(f_trans(lambda_val))
 
             str_annot = [a.replace('\n','')+('%5.2f' % b)+'\n' for
@@ -346,7 +346,8 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
     print '## n_sources : ', n_sources
     
     # Number of figure panels on a page. Do not change, will break code below
-    n_panels = 4 
+    # Changed on 05/01/2017
+    n_panels = 5 # 4
 
     pp = PdfPages(out_pdf)
 
@@ -412,7 +413,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
                           ec="k", lw=0.5)
         
         t_x0 = xlim[0] + 0.02 * (xlim[1]-xlim[0])
-        ax0.annotate(r''.join(str_annot)[:-2], [t_x0, 0.9], fontsize='x-small',
+        ax0.annotate(r''.join(str_annot)[:-1], [t_x0, 0.9], fontsize='x-small',
                      xycoords='data', va='top', ha='left', alpha=0.5,
                      bbox=bbox_props)
         
@@ -424,7 +425,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
         # Bug found on 17/12/2016. Last page excluded. Require output on last source
         if c_ii == n_panels or ii == n_sources-1: 
             ax0.set_xlabel('Wavelength (Angstroms)')
-            fig.set_size_inches(8,8)
+            fig.set_size_inches(8,11)
             subplots_adjust(left=0.05, bottom=0.075, top=0.975, right=0.95,
                             wspace=0.05, hspace=0.13)
 
@@ -460,13 +461,14 @@ def zcalbase_gal_gemini():
     in_cat  = path0 + 'targets.txt'
     out_pdf = path0 + 'locate_em_lines.pdf'
 
-    R_spec = 3000.0 # Resolution of spectrograph
-    # main(in_cat, out_pdf, 6400, 6800, R_spec, 'GNIRS')
+    R_spec = 7200/2.5 #3000.0 # Resolution of spectrograph
 
     # + on 04/01/2017
     in_cat2  = path0 + 'targets.2017a.txt'
     out_pdf2 = path0 + 'locate_em_lines.2017a.pdf'
     main(in_cat2, out_pdf2, 6400, 6800, R_spec, 'GNIRS')
+
+    main(in_cat, out_pdf, 6400, 6800, R_spec, 'GNIRS')
 
     print '### End locate_em_lines.zcalbase_gal_gemini() | '+systime()
 #enddef

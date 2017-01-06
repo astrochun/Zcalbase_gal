@@ -347,6 +347,10 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Re-define c1 so that order is consistent with [xid] sorting
     Modified by Chun Ly, 4 January 2017
      - Added slitlength keyword input to pass to plot_finding_chart()
+    Modified by Chun Ly, 6 January 2017
+     - Call montage_reproj() to perform image re-projection of SDSS images,
+       generate new mosaic with default image sizes
+     - Change input to plot_finding_chart() for new mosaicked image
     '''
 
     if silent == False:
@@ -424,9 +428,14 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 else:
                     t_hdu = fits.open(out_fits)
 
+                # + on 06/01/2017
+                out_image = finding_chart_fits_path + ID0[ii]+'.crop.SDSS.fits'
+                montage_reproj.main(c0, fitsfile=out_fits, out_image=out_image,
+                                    catalog=catalog)
+
             # Mod on 02/01/2017 for inputs
             if catalog == 'SDSS':
-                plot_finding_chart(out_fits, ID0[ii], band0, c0, c1,
+                plot_finding_chart(out_image, ID0[ii], band0, c0, c1,
                                    slitlength=slitlength, catalog=catalog,
                                    out_pdf=out_pdf)
         #endif

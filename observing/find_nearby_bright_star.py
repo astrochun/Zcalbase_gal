@@ -9,7 +9,7 @@ finding charts
 Requirements:
  astroquery (https://astroquery.readthedocs.io/en/latest/)
  aplpy (https://aplpy.github.io/)
-
+ pdfmerge ('pip install pdfmerge' will install it)
 """
 
 import sys, os
@@ -178,6 +178,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
      - Added slitlength keyword input to pass to get_PA()
     Modified by Chun Ly, 7 January 2017
      - Change major tick labels for Dec
+    Modified by Chun Ly, 8 January 2017
+     - Add offset values to central position
     '''
 
     # + on 02/01/2017
@@ -211,19 +213,22 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
                     linewidth=0.5)
     
     # Label things in lower left text | + on 03/01/2017
-    str_c_t   = c0.to_string('hmsdms').split(' ')
-    str_c     = c_ctr.to_string('hmsdms').split(' ')
-    str_c_bt  = c1[0].to_string('hmsdms').split(' ')
-    dra, ddec = c1[0].spherical_offsets_to(c0)
+    str_c_t     = c0.to_string('hmsdms').split(' ')
+    str_c       = c_ctr.to_string('hmsdms').split(' ')
+    str_c_bt    = c1[0].to_string('hmsdms').split(' ')
+    dra, ddec   = c1[0].spherical_offsets_to(c0)
+    dra2, ddec2 = c1[0].spherical_offsets_to(c_ctr) # + on 08/01/2017
 
-    bt_star_txt = 'Target: RA='+str_c_t[0]+' Dec='+str_c_t[1]+'\n\n'+\
-                  'Slit Center: RA='+str_c[0]+' Dec='+str_c[1]+'\n'+\
-                  ('Slit PA = %7.3f' % PA) + ' deg\n\n'+\
-                  'Offset Star: RA='+str_c_bt[0]+' Dec='+str_c_bt[1]+'\n'+\
-                  'Offsets : (%+.3f", %+.3f")' % (dra.to(u.arcsec).value,
-                                                  ddec.to(u.arcsec).value)
+    bt_txt = 'Target: RA='+str_c_t[0]+' Dec='+str_c_t[1]+'\n\n'+\
+             'Slit Center: RA='+str_c[0]+' Dec='+str_c[1]+'\n'+\
+             ('Slit PA = %7.3f' % PA) + ' deg\n'+\
+             'Offsets : (%+.3f", %+.3f")' % (dra2.to(u.arcsec).value,
+                                             ddec2.to(u.arcsec).value)+'\n\n'+\
+             'Offset Star: RA='+str_c_bt[0]+' Dec='+str_c_bt[1]+'\n'+\
+             'Offsets : (%+.3f", %+.3f")' % (dra.to(u.arcsec).value,
+                                             ddec.to(u.arcsec).value)
 
-    gc.add_label(0.03, 0.1, bt_star_txt, color='magenta', relative=True,
+    gc.add_label(0.03, 0.125, bt_txt, color='magenta', relative=True,
                  ha='left', va='bottom', weight='medium', size='small')
 
     # Label upper left source, catalog, and band | + on 02/01/2017
@@ -473,7 +478,11 @@ def zcalbase_gal_gemini():
        Slit length of GNIRS is 99 arcsec. Will do offset star if too far away
     Modified by Chun Ly, 2 January 2017
      - Two separate paths for finding chart FITS and PDF
+    Modified by Chun Ly, 8 January 2017
+     - Use pdfmerge package to merge PDF files
     '''
+
+    import pdfmerge
 
     path0                   = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
     infile                  = path0 + 'targets.txt'
@@ -495,4 +504,14 @@ def zcalbase_gal_gemini():
     # + on 24/12/2016
     #main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
+
+    # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
+    infile2 = path0 + 'targets.2017a.txt'
+    print '### Reading : ', infile2
+    data2   = asc.read(infile2)
+    files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
+             a in data2['ID']]
+    print files
+    out_pdf_2017a = finding_chart_path+'GNIRS_2017A_Targets_FindingCharts.pdf'
+    pdfmerge.merge(files, out_pdf_2017a)
 

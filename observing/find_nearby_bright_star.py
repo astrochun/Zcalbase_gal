@@ -120,7 +120,7 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     return PA, c_ctr, longslit_list
 #enddef
 
-def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
+def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, c1_mag, out_pdf=None,
                        slitlength=99*u.arcsec, catalog='SDSS', silent=True,
                        verbose=False):
     '''
@@ -180,6 +180,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
      - Change major tick labels for Dec
     Modified by Chun Ly, 8 January 2017
      - Add offset values to central position
+     - Add c1_mag input to get magnitudes for bright adjacent stars
     '''
 
     # + on 02/01/2017
@@ -219,12 +220,13 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
     dra, ddec   = c1[0].spherical_offsets_to(c0)
     dra2, ddec2 = c1[0].spherical_offsets_to(c_ctr) # + on 08/01/2017
 
-    bt_txt = 'Target: RA='+str_c_t[0]+' Dec='+str_c_t[1]+'\n\n'+\
-             'Slit Center: RA='+str_c[0]+' Dec='+str_c[1]+'\n'+\
+    bt_txt = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'+\
+             'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]+'\n'+\
              ('Slit PA = %7.3f' % PA) + ' deg\n'+\
              'Offsets : (%+.3f", %+.3f")' % (dra2.to(u.arcsec).value,
                                              ddec2.to(u.arcsec).value)+'\n\n'+\
-             'Offset Star: RA='+str_c_bt[0]+' Dec='+str_c_bt[1]+'\n'+\
+             'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]+\
+                               ',   '+band0+(': %5.3f\n' % c1_mag[0])+\
              'Offsets : (%+.3f", %+.3f")' % (dra.to(u.arcsec).value,
                                              ddec.to(u.arcsec).value)
 
@@ -361,6 +363,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Change input to plot_finding_chart() for new mosaicked image
     Modified by Chun Ly, 7 January 2017
      - Added check to avoid re-creating mosaic FITS image for finding chart
+    Modified by Chun Ly, 8 January 2017
+     - Determine [c1_mag], nearby star brightness
     '''
 
     if silent == False:
@@ -423,6 +427,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             xid.sort(['Dist(arcsec)',mag_filt])
             # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
             c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
+            c1_mag = np.array(xid[mag_filt].data) # + on 8/01/2017
 
             if silent == False:
                 print '### Writing: ', out_table_file
@@ -448,8 +453,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Mod on 02/01/2017 for inputs
             if catalog == 'SDSS':
                 plot_finding_chart(out_image, ID0[ii], band0, c0, c1,
-                                   slitlength=slitlength, catalog=catalog,
-                                   out_pdf=out_pdf)
+                                   c1_mag, slitlength=slitlength,
+                                   catalog=catalog, out_pdf=out_pdf)
         #endif
     #endfor
         
@@ -511,7 +516,7 @@ def zcalbase_gal_gemini():
     data2   = asc.read(infile2)
     files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
              a in data2['ID']]
-    print files
+    #print files
     out_pdf_2017a = finding_chart_path+'GNIRS_2017A_Targets_FindingCharts.pdf'
     pdfmerge.merge(files, out_pdf_2017a)
 

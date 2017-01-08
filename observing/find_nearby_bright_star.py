@@ -176,6 +176,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
        long-slit alignment
     Modified by Chun Ly, 4 January 2017
      - Added slitlength keyword input to pass to get_PA()
+    Modified by Chun Ly, 7 January 2017
+     - Change major tick labels for Dec
     '''
 
     # + on 02/01/2017
@@ -188,8 +190,9 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, out_pdf=None,
     gc.set_tick_color('black')
 
     # + on 02/01/2017 to fix plotting
+    # Mod on 07/01/2017
     gc.set_tick_yspacing('auto')
-    gc.ticks.set_yspacing(5/60.0) # Every 5 arcmin in Dec
+    gc.ticks.set_yspacing(1/60.0) # Every 1 arcmin in Dec
     gc.set_tick_labels_format(xformat='hh:mm:ss', yformat='dd:mm')
     
     # Draw slit between target and nearest bright star | + on 03/01/2017
@@ -351,6 +354,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Call montage_reproj() to perform image re-projection of SDSS images,
        generate new mosaic with default image sizes
      - Change input to plot_finding_chart() for new mosaicked image
+    Modified by Chun Ly, 7 January 2017
+     - Added check to avoid re-creating mosaic FITS image for finding chart
     '''
 
     if silent == False:
@@ -412,7 +417,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Sort by distance and then brightness
             xid.sort(['Dist(arcsec)',mag_filt])
             # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
-            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.degree, u.degree))
+            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
 
             if silent == False:
                 print '### Writing: ', out_table_file
@@ -429,9 +434,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                     t_hdu = fits.open(out_fits)
 
                 # + on 06/01/2017
+                # Mod on 07/01/2017 to check if FITS file exists
                 out_image = finding_chart_fits_path + ID0[ii]+'.crop.SDSS.fits'
-                montage_reproj.main(c0, fitsfile=out_fits, out_image=out_image,
-                                    catalog=catalog)
+                if not exists(out_image):
+                    montage_reproj.main(c0, fitsfile=out_fits, catalog=catalog,
+                                        out_image=out_image)
 
             # Mod on 02/01/2017 for inputs
             if catalog == 'SDSS':

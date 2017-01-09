@@ -200,7 +200,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, c1_mag, out_pdf=None,
     
     # Draw slit between target and nearest bright star | + on 03/01/2017
     PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength)
-    print longslit_list
+
     gc.show_lines(longslit_list, layer='slit', color='black', linewidth=0.5)
     #gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
 
@@ -392,13 +392,17 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             xid = SDSS.query_region(c0, max_radius, data_release=12,
                                     photoobj_fields=SDSS_phot_fld)
 
+            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
+            sep = c0.separation(c1).to(u.arcsec).value
             # Keep stars only (type == 6)
             # http://www.sdss.org/dr12/algorithms/classify/#photo_class
             # Keep primary target to deal with duplicate entries | 24/12/2016
             # Avoid unusual mag values | Mod on 24/12/2016
+            # Fix SDSS.query_region problem with max_radius | Mod on 08/01/2017
             good = np.where((xid[mag_filt] <= mag_limit) &
                             (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
-                            (xid['type'] == 6) & (xid['mode'] == 1))[0]
+                            (xid['type'] == 6) & (xid['mode'] == 1) &
+                            (sep <= max_radius.to(u.arcsec).value))[0]
             # Moved up on 24/12/2016
             out_table_file = out_path + ID0[ii] + '.SDSS.nearby.txt'
             
@@ -424,7 +428,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             xid.add_column(col1)
 
             # Sort by distance and then brightness
-            xid.sort(['Dist(arcsec)',mag_filt])
+            #xid.sort(['Dist(arcsec)',mag_filt])
+
+            # Sort by brightness and then distance | Mod on 08/01/2017
+            xid.sort([mag_filt,'Dist(arcsec)'])
+
             # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
             c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
             c1_mag = np.array(xid[mag_filt].data) # + on 8/01/2017
@@ -497,7 +505,7 @@ def zcalbase_gal_gemini():
     # + on 02/01/2017
     finding_chart_fits_path = '/Users/cly/data/Observing/Gemini/Finding_Charts/'
 
-    max_radius = 120 * u.arcsec
+    max_radius = 95 * u.arcsec #120 * u.arcsec # Mod on 08/01/2017
 
     slitlength = 99 * u.arcsec 
     # Select alignment stars based on SDSS
@@ -517,6 +525,6 @@ def zcalbase_gal_gemini():
     files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
              a in data2['ID']]
     #print files
-    out_pdf_2017a = finding_chart_path+'GNIRS_2017A_Targets_FindingCharts.pdf'
+    out_pdf_2017a = finding_chart_path+'GNIRS_2017A_Targets_FindingCharts.bright.pdf'
     pdfmerge.merge(files, out_pdf_2017a)
 

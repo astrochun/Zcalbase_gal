@@ -389,11 +389,14 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     for ii in range(n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         if catalog == 'SDSS':
-            xid = SDSS.query_region(c0, max_radius, data_release=12,
+            xid = SDSS.query_region(c0, radius=max_radius, data_release=12,
                                     photoobj_fields=SDSS_phot_fld)
 
+            # Get distance from target
             c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
             sep = c0.separation(c1).to(u.arcsec).value
+            col1 = Column(sep, name='Dist(arcsec)')
+            xid.add_column(col1)
             # Keep stars only (type == 6)
             # http://www.sdss.org/dr12/algorithms/classify/#photo_class
             # Keep primary target to deal with duplicate entries | 24/12/2016
@@ -402,7 +405,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             good = np.where((xid[mag_filt] <= mag_limit) &
                             (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
                             (xid['type'] == 6) & (xid['mode'] == 1) &
-                            (sep <= max_radius.to(u.arcsec).value))[0]
+                            (xid['Dist(arcsec)'] <= max_radius.to(u.arcsec).value))[0]
             # Moved up on 24/12/2016
             out_table_file = out_path + ID0[ii] + '.SDSS.nearby.txt'
             
@@ -420,12 +423,6 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         # Mod on 02/01/2017 to handle python crash when [good] is empty
         if len(good) > 0:
             xid = xid[good]
-
-            # Get distance from target
-            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.degree, u.degree))
-            sep = c0.separation(c1).to(u.arcsec).value
-            col1 = Column(sep, name='Dist(arcsec)')
-            xid.add_column(col1)
 
             # Sort by distance and then brightness
             #xid.sort(['Dist(arcsec)',mag_filt])
@@ -505,7 +502,7 @@ def zcalbase_gal_gemini():
     # + on 02/01/2017
     finding_chart_fits_path = '/Users/cly/data/Observing/Gemini/Finding_Charts/'
 
-    max_radius = 95 * u.arcsec #120 * u.arcsec # Mod on 08/01/2017
+    max_radius = 95. * u.arcsec #120 * u.arcsec # Mod on 08/01/2017
 
     slitlength = 99 * u.arcsec 
     # Select alignment stars based on SDSS

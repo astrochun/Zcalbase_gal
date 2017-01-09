@@ -82,12 +82,15 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
      - Get PA for longslit for illustration on finding chart. This PA is
        different from SkyCoords.position_angle(). This is merely to show the
        slit length
+    Modified by Chun Ly, 9 January 2017
+     - Fix longslit coordinates. Correct ra0 and dec0 this time
     '''
     
     if silent == False:
         print '### Begin find_nearby_bright_star.get_PA | '+systime()
 
-    PA = c0.position_angle(c1).degree # + => East of North
+    PA  = c0.position_angle(c1).degree # + => East of North
+    PAr = np.radians(PA)
 
     # Get central coordinate
     ra_avg  = np.average([c0.ra.value, c1.ra.value])
@@ -97,13 +100,13 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
 
     # Get edges of longslit | Added later
     # Mod on 04/01/2017
-    t_y, t_x = c_ctr.dec.degree - c0.dec.degree, c_ctr.ra.degree - c0.ra.degree
+    # t_y, t_x = c_ctr.dec.degree - c0.dec.degree, c_ctr.ra.degree - c0.ra.degree
     # This is different from PA. 90 deg is because of arctan2 definition.
     # PA2=0 correspond to N
-    PA2 = 90 - np.degrees(np.arctan2(t_y, t_x)) # in degree. 
-
-    ra0  = 0.5 * slitlength.to(u.arcsec).value * np.sin(np.radians(PA2))
-    dec0 = 0.5 * slitlength.to(u.arcsec).value * np.cos(np.radians(PA2))
+    # PA2  = 90 - np.degrees(np.arctan2(t_y, t_x)) # in degree.
+    # PA2r = np.radians(PA2)
+    ra0  = 0.5*slitlength.to(u.arcsec).value * np.sin(PAr) / np.cos(np.radians(dec_avg))
+    dec0 = 0.5*slitlength.to(u.arcsec).value * np.cos(PAr)
 
     ra_offset  = coords.Angle(ra0, unit=u.arcsec)
     dec_offset = coords.Angle(dec0, unit=u.arcsec)

@@ -15,6 +15,7 @@ Requirements:
 import sys, os
 
 from chun_codes import systime
+import string
 
 from os.path import exists
 
@@ -120,7 +121,7 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     return PA, c_ctr, longslit_list
 #enddef
 
-def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, c1_mag, out_pdf=None,
+def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
                        slitlength=99*u.arcsec, catalog='SDSS', silent=True,
                        verbose=False):
     '''
@@ -181,6 +182,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, c1_mag, out_pdf=None,
     Modified by Chun Ly, 8 January 2017
      - Add offset values to central position
      - Add c1_mag input to get magnitudes for bright adjacent stars
+    Modified by Chun Ly, 9 January 2017
+     - Switch [c1_mag] to string of mag from sdss_mag_str(), [mag_str]
     '''
 
     # + on 02/01/2017
@@ -220,15 +223,16 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, c1_mag, out_pdf=None,
     dra, ddec   = c1[0].spherical_offsets_to(c0)
     dra2, ddec2 = c1[0].spherical_offsets_to(c_ctr) # + on 08/01/2017
 
-    bt_txt = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'+\
-             'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]+'\n'+\
-             ('Slit PA = %7.3f' % PA) + ' deg\n'+\
-             'Offsets : (%+.3f", %+.3f")' % (dra2.to(u.arcsec).value,
-                                             ddec2.to(u.arcsec).value)+'\n\n'+\
-             'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]+\
-                               ',   '+band0+(': %5.3f\n' % c1_mag[0])+\
-             'Offsets : (%+.3f", %+.3f")' % (dra.to(u.arcsec).value,
+    # Mod on 09/01/2017
+    bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
+    bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]+'\n'
+    bt_txt += ('Slit PA = %7.3f' % PA) + ' deg\n'
+    bt_txt += 'Offsets : (%+.3f", %+.3f")' % (dra2.to(u.arcsec).value,
+                                              ddec2.to(u.arcsec).value)+'\n\n'
+    bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]+'\n'
+    bt_txt += 'Offsets : (%+.3f", %+.3f")' % (dra.to(u.arcsec).value,
                                              ddec.to(u.arcsec).value)
+    bt_txt += '\n'+mag_str[0]
 
     gc.add_label(0.03, 0.125, bt_txt, color='magenta', relative=True,
                  ha='left', va='bottom', weight='medium', size='small')
@@ -292,6 +296,40 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
         else:
             fits.append(out_fits, t_hdu.data, t_hdu.header)
     return t_hdu
+#enddef
+
+def sdss_mag_str(table):
+    '''
+    Function to create a string of magnitudes for labeling purposes on finding charts
+
+    Parameters
+    ----------
+    table : astropy.table
+
+    Returns
+    -------
+    mag_str : string
+
+    Notes
+    -----
+    Created by Chun Ly, 9 January 2017
+    '''
+
+    n_sources = len(table)
+
+    cols0  = [a for a in table.colnames if 'modelMag_' in a]
+    f_arr0 = []
+    for cc in range(len(cols0)):
+        t_filt = cols0[cc].replace('modelMag_','')
+        cmd = "mag_"+t_filt+" = ['"+t_filt+"='+('%5.3f ' % a) for a in table[cols0["+str(cc)+"]]]"
+        exec(cmd)
+        f_arr0.append("mag_"+t_filt)
+
+    q_str = string.lowercase[:len(f_arr0)]
+    cmd0  = "mag_str = ["+'+'.join(q_str)+' for '+','.join(q_str)+' in zip('+','.join(f_arr0)+')]'
+    exec(cmd0)
+
+    return mag_str
 #enddef
 
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
@@ -365,6 +403,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Added check to avoid re-creating mosaic FITS image for finding chart
     Modified by Chun Ly, 8 January 2017
      - Determine [c1_mag], nearby star brightness
+    Modified by Chun Ly, 9 January 2017
+     - Call sdss_mag_str()
     '''
 
     if silent == False:
@@ -432,13 +472,14 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
             # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
             c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
-            c1_mag = np.array(xid[mag_filt].data) # + on 8/01/2017
 
             if silent == False:
                 print '### Writing: ', out_table_file
                 asc.write(xid, out_table_file, format='fixed_width_two_line')
         
             if catalog == 'SDSS':
+                mag_str = sdss_mag_str(xid) # + on 9/01/2017
+
                 out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
                 out_pdf  = finding_chart_path + ID0[ii]+'.SDSS.pdf'
                 print out_fits
@@ -458,7 +499,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Mod on 02/01/2017 for inputs
             if catalog == 'SDSS':
                 plot_finding_chart(out_image, ID0[ii], band0, c0, c1,
-                                   c1_mag, slitlength=slitlength,
+                                   mag_str, slitlength=slitlength,
                                    catalog=catalog, out_pdf=out_pdf)
         #endif
     #endfor

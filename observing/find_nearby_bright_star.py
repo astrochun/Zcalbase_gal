@@ -408,6 +408,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Determine [c1_mag], nearby star brightness
     Modified by Chun Ly, 9 January 2017
      - Call sdss_mag_str()
+     - Re-organize to handle SDSS and 2MASS cases
     '''
 
     if silent == False:
@@ -431,15 +432,26 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     
     for ii in range(n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
+        # Moved up on 09/01/2017
+        out_table_file = out_path + ID0[ii] + '.'+catalog+'.nearby.txt' 
+
         if catalog == 'SDSS':
             xid = SDSS.query_region(c0, radius=max_radius, data_release=12,
                                     photoobj_fields=SDSS_phot_fld)
 
-            # Get distance from target
+        # + on 24/12/2016 | Moved up on 09/01/2017
+        if catalog == '2MASS':
+            xid = IRSA.query_region(c0, catalog='fp_psc', radius=max_radius)
+            good = np.where(xid[mag_filt] <= mag_limit)[0]
+
+        # Get distance from target
+        if len(xid) > 0:
             c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
             sep = c0.separation(c1).to(u.arcsec).value
             col1 = Column(sep, name='Dist(arcsec)')
             xid.add_column(col1)
+
+        if catalog == 'SDSS':
             # Keep stars only (type == 6)
             # http://www.sdss.org/dr12/algorithms/classify/#photo_class
             # Keep primary target to deal with duplicate entries | 24/12/2016
@@ -449,15 +461,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                             (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
                             (xid['type'] == 6) & (xid['mode'] == 1) &
                             (xid['Dist(arcsec)'] <= max_radius.to(u.arcsec).value))[0]
-            # Moved up on 24/12/2016
-            out_table_file = out_path + ID0[ii] + '.SDSS.nearby.txt'
             
-        # + on 24/12/2016
-        if catalog == '2MASS':
-            xid = IRSA.query_region(c0, catalog='fp_psc', radius=max_radius)
-            good = np.where(xid[mag_filt] <= mag_limit)[0]
-            out_table_file = out_path + ID0[ii] + '.2MASS.nearby.txt'
-
         if silent == False:
             print '## Finding nearby stars for '+ID[ii]+'. '+\
                 str(len(good))+' found.'
@@ -534,6 +538,8 @@ def zcalbase_gal_gemini():
      - Two separate paths for finding chart FITS and PDF
     Modified by Chun Ly, 8 January 2017
      - Use pdfmerge package to merge PDF files
+    Modified by Chun Ly, 8 January 2017
+     - Run 2MASS before SDSS
     '''
 
     import pdfmerge
@@ -549,15 +555,18 @@ def zcalbase_gal_gemini():
     max_radius = 95. * u.arcsec #120 * u.arcsec # Mod on 08/01/2017
 
     slitlength = 99 * u.arcsec 
+
+    # Select alignment stars based on 2MASS
+    # + on 24/12/2016
+    # Moved up on 09/01/2017
+    main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+         max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
+
     # Select alignment stars based on SDSS
     main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
          slitlength=slitlength)
 
-    # Select alignment stars based on 2MASS
-    # + on 24/12/2016
-    #main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-    #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 
     # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
     infile2 = path0 + 'targets.2017a.txt'

@@ -301,13 +301,18 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
     return t_hdu
 #enddef
 
-def sdss_mag_str(table):
+def sdss_mag_str(table, TWOMASS=True):
     '''
-    Function to create a string of magnitudes for labeling purposes on finding charts
+    Function to create a string of magnitudes for labeling purposes on
+    finding charts
 
     Parameters
     ----------
     table : astropy.table
+      SDSS table from SDSS.query_region()
+
+    TWOMASS : bool
+      Set to True to perform cross-matching to get 2MASS photometry. Default: True
 
     Returns
     -------
@@ -316,6 +321,8 @@ def sdss_mag_str(table):
     Notes
     -----
     Created by Chun Ly, 9 January 2017
+    Modified by Chun Ly, 10 January 2017
+     - Add option to get 2MASS photometry by running IRSA.query_region()
     '''
 
     n_sources = len(table)
@@ -324,13 +331,32 @@ def sdss_mag_str(table):
     f_arr0 = []
     for cc in range(len(cols0)):
         t_filt = cols0[cc].replace('modelMag_','')
-        cmd = "mag_"+t_filt+" = ['"+t_filt+"='+('%5.3f ' % a) for a in table[cols0["+str(cc)+"]]]"
+        cmd = "mag_"+t_filt+\
+              " = ['"+t_filt+"='+('%5.3f ' % a) for a in table[cols0["+str(cc)+"]]]"
         exec(cmd)
         f_arr0.append("mag_"+t_filt)
 
     q_str = string.lowercase[:len(f_arr0)]
-    cmd0  = "mag_str = ["+'+'.join(q_str)+' for '+','.join(q_str)+' in zip('+','.join(f_arr0)+')]'
+    cmd0  = "mag_str = ["+'+'.join(q_str)+' for '+\
+            ','.join(q_str)+' in zip('+','.join(f_arr0)+')]'
     exec(cmd0)
+
+    # Get 2MASS photometry using a astroquery approach
+    # + on 10/01/2017
+    if TWOMASS == True:
+        t_c0 = coords.SkyCoord(ra=table['ra'], dec=table['dec'],
+                               unit=(u.deg, u.deg))
+        for ii in range(n_sources):
+            table_2mass = IRSA.query_region(t_c0[ii], catalog='fp_psc',
+                                            radius=1*u.arcsec)
+            if len(table_2mass) == 0:
+                mag_str[ii] += 'JHK=None'
+            else:
+                tab0 = table_2mass[0]
+                mag_str[ii] += 'J=%5.3f H=%5.3f K=%5.3f' % \
+                               (tab0['j_m'],tab0['h_m'],tab0['k_m'])
+        #endfor
+    #endif
 
     return mag_str
 #enddef
@@ -482,10 +508,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
             if silent == False:
                 print '### Writing: ', out_table_file
-                asc.write(xid, out_table_file, format='fixed_width_two_line')
+                asc.write(xid, out_table_file, format='fixed_width_two_line',
+                          overwrite=True)
         
             if catalog == 'SDSS':
-                mag_str = sdss_mag_str(xid) # + on 9/01/2017
+                mag_str = sdss_mag_str(xid, TWOMASS=True) # + on 9/01/2017
 
                 out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
                 out_pdf  = finding_chart_path + ID0[ii]+'.SDSS.pdf'
@@ -559,8 +586,8 @@ def zcalbase_gal_gemini():
     # Select alignment stars based on 2MASS
     # + on 24/12/2016
     # Moved up on 09/01/2017
-    main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-         max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
+    #main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+    #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 
     # Select alignment stars based on SDSS
     main(infile, out_path, finding_chart_path, finding_chart_fits_path,

@@ -14,7 +14,7 @@ Requirements:
 
 import sys, os
 
-from chun_codes import systime
+from chun_codes import systime, match_nosort_str
 import string
 
 from os.path import exists
@@ -301,7 +301,7 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
     return t_hdu
 #enddef
 
-def sdss_mag_str(table, TWOMASS=True):
+def sdss_mag_str(table, TWOMASS=True, runall=True):
     '''
     Function to create a string of magnitudes for labeling purposes on
     finding charts
@@ -358,7 +358,9 @@ def sdss_mag_str(table, TWOMASS=True):
     if TWOMASS == True:
         t_c0 = coords.SkyCoord(ra=table['ra'], dec=table['dec'],
                                unit=(u.deg, u.deg))
-        for ii in range(n_sources):
+
+        n_val = n_sources if runall == True else 1
+        for ii in range(n_val):
             table_2mass = IRSA.query_region(t_c0[ii], catalog='fp_psc',
                                             radius=1*u.arcsec)
             if len(table_2mass) == 0:
@@ -389,7 +391,7 @@ def sdss_mag_str(table, TWOMASS=True):
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
          catalog='SDSS', format='commented_header', slitlength=99*u.arcsec,
-         silent=False, verbose=True):
+         runall=True, silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -460,6 +462,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 9 January 2017
      - Call sdss_mag_str()
      - Re-organize to handle SDSS and 2MASS cases
+    Modified by Chun Ly, 10 January 2017
+     - Get table of magnitudes and write to ASCII file in out_path
     '''
 
     if silent == False:
@@ -538,7 +542,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                           overwrite=True)
         
             if catalog == 'SDSS':
-                mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True) # + on 9/01/2017
+                # + on 9/01/2017
+                mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True, runall=runall)
 
                 # + on 10/01/2017
                 name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)), name='ID')
@@ -608,6 +613,8 @@ def zcalbase_gal_gemini():
      - Use pdfmerge package to merge PDF files
     Modified by Chun Ly, 8 January 2017
      - Run 2MASS before SDSS
+    Modified by Chun Ly, 10 January 2017
+     - Write photometric ASCII catalog for 2017A GNIRS targets
     '''
 
     import pdfmerge
@@ -633,7 +640,7 @@ def zcalbase_gal_gemini():
     # Select alignment stars based on SDSS
     main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
-         slitlength=slitlength)
+         slitlength=slitlength, runall=False)
 
 
     # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
@@ -645,3 +652,18 @@ def zcalbase_gal_gemini():
     #print files
     out_pdf_2017a = finding_chart_path+'GNIRS_2017A_Targets_FindingCharts.bright.pdf'
     pdfmerge.merge(files, out_pdf_2017a)
+
+    # Write Alignment Star photometric catalog
+    # + on 10/01/2017
+    out_mag_table = out_path + 'Alignment_Stars.txt'
+    print '### Reading : ', out_mag_table
+    mag_table0 = asc.read(out_mag_table)
+
+    ID1 = [str.replace('_off','') for str in mag_table0['ID']]
+    ID2 = [str.replace('*','') for str in data2['ID']]
+
+    idx2, idx1 = match_nosort_str(ID2, ID1)
+    out_mag_table2 = out_path + 'Alignment_Stars.2017a.txt'
+    print '### Writing : ', out_mag_table2
+    asc.write(mag_table0[idx1], out_mag_table2, format='fixed_width_two_line',
+              overwrite=True)

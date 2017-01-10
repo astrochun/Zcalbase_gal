@@ -323,9 +323,14 @@ def sdss_mag_str(table, TWOMASS=True):
     Created by Chun Ly, 9 January 2017
     Modified by Chun Ly, 10 January 2017
      - Add option to get 2MASS photometry by running IRSA.query_region()
+     - Combine SDSS and 2MASS photometry, output astropy.table
     '''
 
     n_sources = len(table)
+
+    # + on 10/01/2017
+    mag_table = table.copy()
+    mag_table.remove_columns(['run','rerun','camcol','field','obj'])
 
     cols0  = [a for a in table.colnames if 'modelMag_' in a]
     f_arr0 = []
@@ -343,6 +348,13 @@ def sdss_mag_str(table, TWOMASS=True):
 
     # Get 2MASS photometry using a astroquery approach
     # + on 10/01/2017
+    col_Jmag  = Column(np.repeat(-99.00, n_sources), name='j_m')
+    col_Hmag  = Column(np.repeat(-99.00, n_sources), name='h_m')
+    col_Kmag  = Column(np.repeat(-99.00, n_sources), name='k_m')
+    col_eJmag = Column(np.repeat(-99.00, n_sources), name='j_cmsig')
+    col_eHmag = Column(np.repeat(-99.00, n_sources), name='h_cmsig')
+    col_eKmag = Column(np.repeat(-99.00, n_sources), name='k_cmsig')
+
     if TWOMASS == True:
         t_c0 = coords.SkyCoord(ra=table['ra'], dec=table['dec'],
                                unit=(u.deg, u.deg))
@@ -355,10 +367,23 @@ def sdss_mag_str(table, TWOMASS=True):
                 tab0 = table_2mass[0]
                 mag_str[ii] += 'J=%5.3f H=%5.3f K=%5.3f' % \
                                (tab0['j_m'],tab0['h_m'],tab0['k_m'])
+
+                # + on 10/01/2017
+                col_Jmag[ii]  = tab0['j_m']
+                col_Hmag[ii]  = tab0['h_m']
+                col_Kmag[ii]  = tab0['k_m']
+                col_eJmag[ii] = tab0['j_cmsig']
+                col_eHmag[ii] = tab0['h_cmsig']
+                col_eKmag[ii] = tab0['k_cmsig']
         #endfor
     #endif
 
-    return mag_str
+    # + on 10/01/2017
+    mag_table = Table(mag_table)
+    n_cols = len(mag_table.colnames)
+    mag_table.add_columns([col_Jmag, col_eJmag, col_Hmag, col_eHmag,
+                           col_Kmag, col_eKmag], np.repeat(n_cols-1, 6))
+    return mag_str, mag_table
 #enddef
 
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
@@ -455,7 +480,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## max_radius(arcsec) : ', max_radius.to(u.arcsec).value
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
-    
+
+    mag_table0 = None # Initialize | + on 10/01/2017
     for ii in range(n_sources):
         c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
         # Moved up on 09/01/2017
@@ -512,7 +538,15 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                           overwrite=True)
         
             if catalog == 'SDSS':
-                mag_str = sdss_mag_str(xid, TWOMASS=True) # + on 9/01/2017
+                mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True) # + on 9/01/2017
+
+                # + on 10/01/2017
+                name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)), name='ID')
+                mag_table.add_column(name_Col, 0)
+                if mag_table0 == None:
+                    mag_table0 = Table(mag_table[0])
+                else:
+                    mag_table0.add_row(mag_table[0])
 
                 out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
                 out_pdf  = finding_chart_path + ID0[ii]+'.SDSS.pdf'
@@ -537,7 +571,14 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                                    catalog=catalog, out_pdf=out_pdf)
         #endif
     #endfor
-        
+
+    # + on 10/01/2017
+    out_mag_table = out_path + 'Alignment_Stars.txt'
+    if silent == False:
+        print '### Writing : ', out_mag_table
+    mag_table0.write(out_mag_table, format='ascii.fixed_width_two_line',
+                     overwrite=True)
+
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()
 #enddef
@@ -604,4 +645,3 @@ def zcalbase_gal_gemini():
     #print files
     out_pdf_2017a = finding_chart_path+'GNIRS_2017A_Targets_FindingCharts.bright.pdf'
     pdfmerge.merge(files, out_pdf_2017a)
-

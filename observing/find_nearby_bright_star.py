@@ -124,6 +124,43 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     return PA, c_ctr, longslit_list
 #enddef
 
+def get_offsets(c_ref, c0):
+    '''
+    Get relative offsets between two positions and provide values in units
+    of arcsec
+
+    Parameters
+    ----------
+    c_ref : `astropy.coordinates` object
+      Central coordinate of reference (i.e., the position to offset FROM)
+
+    c0 : `astropy.coordinates` object
+      Central coordinate of target (i.e., the position to offset TO)
+
+    Returns
+    -------
+    dra0 : float
+      Right ascension offsets in arcsec
+
+    ddec0 : float
+      Declination offsets in arcsec
+
+    dist0 : float
+      Distance between c0 and c_ref in arcsec
+
+    Notes
+    -----
+    Created by Chun Ly, 10 January 2017
+    '''
+
+    # Give coordinate offsets from reference [c_ref] to target [c0]
+    dra0, ddec0 = c_ref.spherical_offsets_to(c0)
+    dra0  = dra0.to(u.arcsec).value
+    ddec0 = ddec0.to(u.arcsec).value
+    dist0 = np.sqrt(dra0**2+ddec0**2)
+    return dra0, ddec0, dist0
+#enddef
+
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
                        slitlength=99*u.arcsec, catalog='SDSS', silent=True,
                        verbose=False):
@@ -187,6 +224,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
      - Add c1_mag input to get magnitudes for bright adjacent stars
     Modified by Chun Ly, 9 January 2017
      - Switch [c1_mag] to string of mag from sdss_mag_str(), [mag_str]
+    Modified by Chun Ly, 10 January 2017
+     - Call get_offsets() to simply get values
     '''
 
     # + on 02/01/2017
@@ -220,22 +259,20 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
                     linewidth=0.5)
     
     # Label things in lower left text | + on 03/01/2017
-    str_c_t     = c0.to_string('hmsdms').split(' ')
-    str_c       = c_ctr.to_string('hmsdms').split(' ')
-    str_c_bt    = c1[0].to_string('hmsdms').split(' ')
-    dra, ddec   = c1[0].spherical_offsets_to(c0)
-    dra2, ddec2 = c1[0].spherical_offsets_to(c_ctr) # + on 08/01/2017
+    str_c_t  = c0.to_string('hmsdms').split(' ')
+    str_c    = c_ctr.to_string('hmsdms').split(' ')
+    str_c_bt = c1[0].to_string('hmsdms').split(' ')
+    dra, ddec, dist    = get_offsets(c1[0], c0)    # Mod on 10/01/2017
+    dra2, ddec2, dist2 = get_offsets(c1[0], c_ctr) # Mod on 10/01/2017
 
-    # Mod on 09/01/2017
+    # Mod on 09/01/2017, 10/01/2017
     bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
     bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]+'\n'
     bt_txt += ('Slit PA = %7.3f' % PA) + ' deg\n'
-    bt_txt += 'Offsets : (%+.3f", %+.3f")' % (dra2.to(u.arcsec).value,
-                                              ddec2.to(u.arcsec).value)+'\n\n'
+    bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
     bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]+'\n'
-    bt_txt += 'Offsets : (%+.3f", %+.3f")' % (dra.to(u.arcsec).value,
-                                             ddec.to(u.arcsec).value)
-    bt_txt += '\n'+mag_str[0]
+    bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
+    bt_txt += mag_str[0]
 
     gc.add_label(0.03, 0.125, bt_txt, color='magenta', relative=True,
                  ha='left', va='bottom', weight='medium', size='small')
@@ -312,7 +349,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
       SDSS table from SDSS.query_region()
 
     TWOMASS : bool
-      Set to True to perform cross-matching to get 2MASS photometry. Default: True
+      Set to True to perform cross-matching to get 2MASS photometry.
+      Default: True
 
     Returns
     -------
@@ -337,7 +375,7 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
     for cc in range(len(cols0)):
         t_filt = cols0[cc].replace('modelMag_','')
         cmd = "mag_"+t_filt+\
-              " = ['"+t_filt+"='+('%5.3f ' % a) for a in table[cols0["+str(cc)+"]]]"
+              " = ['"+t_filt+"='+('%5.2f  ' % a) for a in table[cols0["+str(cc)+"]]]"
         exec(cmd)
         f_arr0.append("mag_"+t_filt)
 
@@ -367,7 +405,7 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
                 mag_str[ii] += 'JHK=None'
             else:
                 tab0 = table_2mass[0]
-                mag_str[ii] += 'J=%5.3f H=%5.3f K=%5.3f' % \
+                mag_str[ii] += 'J=%5.2f  H=%5.2f  K=%5.2f' % \
                                (tab0['j_m'],tab0['h_m'],tab0['k_m'])
 
                 # + on 10/01/2017
@@ -641,7 +679,6 @@ def zcalbase_gal_gemini():
     main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
          slitlength=slitlength, runall=False)
-
 
     # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
     infile2 = path0 + 'targets.2017a.txt'

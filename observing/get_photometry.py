@@ -30,7 +30,6 @@ N0     = len(data0)
 ID0    = data0['ID']
 
 def SDF(mag_auto=False, silent=False, verbose=True):
-
     '''
     Get photometric data for SDF [OIII]4363 targets,
     Ly et al. (2016), ApJS, 226, 5
@@ -185,3 +184,12 @@ def DEEP2(silent=False, verbose=True):
     print tab0
     if silent == False: print '### End get_photometry.DEEP2 | '+systime()
 #enddef
+
+def run_all():
+    '''
+    Run both SDF() and DEEP2() functions from above
+    '''
+
+    SDF(mag_auto=False)
+    DEEP2()
+

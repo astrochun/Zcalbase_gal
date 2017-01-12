@@ -54,6 +54,8 @@ def SDF(mag_auto=False, silent=False, verbose=True):
     -----
     Created by Chun Ly, 11 January 2017
      - Re-organized to handle both aperture fluxes and Kron aperture fluxes
+    Modified by Chun Ly, 12 January 2017
+     - Re-order filter list
     '''
     
     if silent == False: print '### Begin get_photometry.SDF | '+systime()
@@ -156,7 +158,9 @@ def DEEP2(silent=False, verbose=True):
     print '## idx1 : ', idx1
     print '## idx2 : ', idx2
 
-    filt0   = ['B','R','I','SDSS_U','SDSS_G','SDSS_R','SDSS_I','SDSS_Z',
+    # Mod on 12/01/2017 to have a consistent order as Gemini OT
+    #filt0   = ['B','R','I','SDSS_U','SDSS_G','SDSS_R','SDSS_I','SDSS_Z',
+    filt0   = ['SDSS_U','B','SDSS_G','SDSS_R','R','SDSS_I','I','SDSS_Z',
                'CFHT_U','CFHT_G','CFHT_R','CFHT_I','CFHT_Z']
     s_filt0 = ["'"+f0+"'" for f0 in filt0]
     arr0    = ['mag_'+f0 for f0 in filt0]

@@ -32,14 +32,15 @@ ID0    = data0['ID']
 def SDF(mag_auto=False, silent=False, verbose=True):
 
     '''
-    Get photometric data for SDF [OIII]4363 targets
+    Get photometric data for SDF [OIII]4363 targets,
+    Ly et al. (2016), ApJS, 226, 5
 
     Parameters
     ----------
     mag_auto : boolean; Default: False
       Set to use SExtractors MAG_AUTO. Otherwise, use aperture photometry with
-      aperture correction (what is published in Ly et al. 2016). This is the FAST
-      photometric catalog
+      aperture correction (what is published in Ly et al. 2016). This is the
+      FAST photometric catalog
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -61,7 +62,8 @@ def SDF(mag_auto=False, silent=False, verbose=True):
     SDF_path0 = '/Users/cly/data/SDF/Metallicity/Optical/2008_2014/'
 
     # Generator function to get just Keck and MMT targets
-    SDF_idx = [ii for ii in range(N0) if ('Keck' in ID0[ii] or 'MMT' in ID0[ii])]
+    SDF_idx = [ii for ii in range(N0) if ('Keck' in ID0[ii] or
+                                          'MMT' in ID0[ii])]
     data = data0[SDF_idx]
     ID   = [str0.replace('*','') for str0 in ID0[SDF_idx]]
 
@@ -104,7 +106,8 @@ def SDF(mag_auto=False, silent=False, verbose=True):
             cmd = 'mag_'+filt0[ff]+' = -2.5*np.log10(SED_data.'+filt0[ff]+'_FLUX)+23.90'
         exec(cmd)
 
-    cmd0 = "tab0 = Table([ID,"+",".join(arr0)+"],names=('ID',"+','.join(s_filt0)+"))"
+    cmd0 = "tab0 = Table([ID,"+",".join(arr0)+"], "+\
+           "names=('ID',"+','.join(s_filt0)+"))"
     print cmd0
     exec(cmd0)
 
@@ -112,3 +115,73 @@ def SDF(mag_auto=False, silent=False, verbose=True):
     if silent == False: print '### End get_photometry.SDF | '+systime()
 #enddef
 
+def DEEP2(silent=False, verbose=True):
+
+    '''
+    Get photometric data for DEEP2 [OIII]4363 targets,
+    Ly et al. (2015), ApJ, 805, 45
+
+    Parameters
+    ----------
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 11 January 2017
+    '''
+
+    if silent == False: print '### Begin get_photometry.DEEP2 | '+systime()
+
+    DEEP2_path0 = '/Users/cly/data/DEEP2/DR4/'
+
+    # Generator function to get just Keck and MMT targets
+    DEEP2_idx = [ii for ii in range(N0) if ('DEEP' in ID0[ii])]
+
+    data = data0[DEEP2_idx]
+    ID   = [str0.replace('*','') for str0 in ID0[DEEP2_idx]]
+
+    # Change file to the non-sorted one on 11/01/2017
+    source_file = DEEP2_path0 + 'EAZY/source_info.txt'
+    if silent == False: print '### Reading : ', source_file
+    source_data = asc.read(source_file)
+    source_ID   = [str0.replace('2_#','') for str0 in source_data['col1']]
+
+    idx1, idx2 = match_nosort_str(ID, source_ID)
+    print '## idx1 : ', idx1
+    print '## idx2 : ', idx2
+
+    filt0   = ['B','R','I','SDSS_U','SDSS_G','SDSS_R','SDSS_I','SDSS_Z',
+               'CFHT_U','CFHT_G','CFHT_R','CFHT_I','CFHT_Z']
+    s_filt0 = ["'"+f0+"'" for f0 in filt0]
+    arr0    = ['mag_'+f0 for f0 in filt0]
+
+    SED_file = DEEP2_path0 + 'EAZY/DEEP2_OIII4363_phot.fits'
+    if silent == False: print '### Reading : ', SED_file
+    SED_hdu   = fits.open(SED_file)
+    SED_data0 = SED_hdu[1].data
+
+    s_idx1, s_idx2 = match_nosort(source_data['col2'][idx2], SED_data0.ID)
+    print '## s_idx1 : ', s_idx1
+    print '## s_idx2 : ', s_idx2
+
+    SED_data = SED_data0[s_idx2]
+
+    for ff in range(len(filt0)):
+        cmd = 'mag_'+filt0[ff]+' = -2.5*np.log10(SED_data.'+filt0[ff]+')+23.90'
+        exec(cmd)
+
+    cmd0 = "tab0 = Table([ID,"+",".join(arr0)+"], "+\
+           "names=('ID',"+','.join(s_filt0)+"))"
+    print cmd0
+    exec(cmd0)
+
+    print tab0
+    if silent == False: print '### End get_photometry.DEEP2 | '+systime()
+#enddef

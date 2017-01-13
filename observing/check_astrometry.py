@@ -28,6 +28,10 @@ import astropy.units as u
 
 from astroquery.sdss import SDSS # + on 12/01/2017
 
+# Moved up on 12/01/2017
+path0      = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
+astro_path = path0 + 'Astrometry/'
+
 # Box region around target's coordinates to perform astrometry check
 # + on 12/01/2017
 box_size = (5 * u.arcmin).to(u.arcsec).value
@@ -94,6 +98,8 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
 
     rad0 = 1; src_rad0 = rad0 * u.arcsec
 
+    limits0 = rad0 * np.array([-1,1]) # + on 12/01/2017
+
     # + on 12/01/2017
     if infile1 != None:
         if silent == False: print '### Reading : ', infile1
@@ -152,17 +158,34 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
         diff_RA  = (A_RA - R_RA)   * 3600.0 * np.cos(np.radians(A_DEC))
         diff_DEC = (A_DEC - R_DEC) * 3600.0
 
+    a_RA, m_RA, s_RA    = np.average(diff_RA), np.median(diff_RA), \
+                          np.std(diff_RA)
+    a_DEC, m_DEC, s_DEC = np.average(diff_DEC), np.median(diff_DEC), \
+                          np.std(diff_DEC)
+
     # Generate plot from cross-match results | + on 12/01/2017
     fig, ax = plt.subplots()
-    ax.scatter(diff_RA, diff_DEC, marker='o', c='none', s=50,
-               edgecolors='black')
-    ax.set_xlim(rad0*np.array([-1,1]))
-    ax.set_ylim(rad0*np.array([-1,1]))
+
+    str1 = r'RA:  avg=%5.2f med=%5.2f $\sigma$=%5.2f' % (a_RA, m_RA, s_RA)
+    str2 = r'DEC: avg=%5.2f med=%5.2f $\sigma$=%5.2f' % (a_DEC, m_DEC, s_DEC)
+    str0 = 'N = '+str(len(idx_ref))+'\n'+str1+'\n'+str2
+
+    ax.annotate(str0, [0.975,0.025], xycoords='axes fraction', ha='right',
+                va='bottom', fontsize=14)
+
+    ax.plot(limits0, np.repeat(0,2), 'r--')
+    ax.plot(np.repeat(0,2), limits0, 'r--')
+    ax.scatter(diff_RA, diff_DEC, marker='+', c='k', s=50)
+    #ax.scatter(diff_RA, diff_DEC, marker='o', c='none', s=50,
+    #edgecolors='black')
+
+    ax.set_xlim(limits0)
+    ax.set_ylim(limits0)
     ax.minorticks_on()
     ax.set_xlabel('RA: Primary - '+cat2_survey+' [arcsec]', fontsize='16')
     ax.set_ylabel('DEC: Primary - '+cat2_survey+' [arcsec]', fontsize='16')
     ax.annotate(label, [0.025,0.975], xycoords='axes fraction', ha='left',
-                va='top', fontsize='large', weight='bold')
+                va='top', fontsize='x-large', weight='bold')
     fig.set_size_inches(8,8)
     fig.tight_layout()
 
@@ -198,9 +221,7 @@ def SDF(silent=False, verbose=True):
     
     if silent == False: print '### Begin check_astrometry.SDF | '+systime()
 
-    path0      = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
     cat_path0  = '/Users/cly/data/SDF/NBcat/SEx/'
-    astro_path = path0 + 'Astrometry/'
 
     infile0 = path0 + 'targets_sdf_astro.2017a.txt'
     if silent == False: print '### Reading : ', infile0
@@ -238,4 +259,73 @@ def SDF(silent=False, verbose=True):
 
     #endfor
     if silent == False: print '### End check_astrometry.SDF | '+systime()
+#enddef
+
+def DEEP2(silent=False, verbose=True):
+    '''
+    Cross-match DEEP2 catalogs against SDSS to get astrometry around each
+    [OIII]4363 targets from Ly et al. (2015), ApJ, 805, 45
+
+    Parameters
+    ----------
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 12 January 2017
+    '''
+
+    if silent == False: print '### Begin check_astrometry.DEEP2 | '+systime()
+
+    cat_path0  = '/Users/cly/data/DEEP2/DR4/phot_cat/'
+
+    infile0 = path0 + 'targets_deep2_astro.2017a.txt'
+    if silent == False: print '### Reading : ', infile0
+    data0   = asc.read(infile0, format='commented_header')
+    print data0
+
+    n_sources = len(data0)
+
+    DEEP2_idx = [ii for ii in range(n_sources) if ('DEEP' in data0['ID'][ii])]
+    print '## DEEP2_idx : ', len(DEEP2_idx)
+
+    data0 = data0[DEEP2_idx]
+
+    ID  = [str0.replace('*','') for str0 in data0['ID']]
+    RA  = data0['RA']
+    DEC = data0['DEC']
+    c0  = coords.SkyCoord(ra=RA, dec=DEC, unit=(u.hour, u.deg))
+
+    cat_files = [cat_path0+f0+'_ext.fits.gz' for f0 in data0['field']]
+    print cat_files
+
+    for ii in range(n_sources):
+        if silent == False: print '### Reading : ', cat_files[ii]
+        data1 = fits.getdata(cat_files[ii])
+        RA1   = data1.RA_SDSS
+        DEC1  = data1.DEC_SDSS
+
+        t_c = c0[ii]
+        RA_off  = (RA1 - t_c.ra.deg) * 3600.0 * \
+                  np.cos(np.radians(t_c.dec.deg))
+        DEC_off = (DEC1 - t_c.dec.deg) * 3600.0
+        in_box = np.where((np.absolute(RA_off) <= box_size) &
+                          (np.absolute(DEC_off) <= box_size))[0]
+        box_data1 = data1[in_box]
+
+        if silent == False: print '## in_box : ', len(in_box)
+
+        out_pdf = astro_path + ID[ii]+'.astrometry.pdf'
+        main(t_c, ID[ii], data1=box_data1, columns=['RA_SDSS','DEC_SDSS'],
+             out_pdf=out_pdf, verbose=True)
+
+    #endfor
+    if silent == False: print '### End check_astrometry.DEEP2 | '+systime()
 #enddef

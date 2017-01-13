@@ -203,6 +203,90 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
     if silent == False: print '### End check_astrometry.main | '+systime()
 #enddef
 
+def run_main(sample, silent=False, verbose=True):
+    '''
+    Cross-match either SDF NB catalogs or DEEP2 catalogs against SDSS to get
+    astrometry around each [OIII]4363 targets from Ly et al. (2016), ApJS,
+    226, 5 and Ly et al. (2015), ApJ, 805, 45
+
+    Parameters
+    ----------
+    sample : string
+      Either 'SDF' or 'DEEP2'
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 12 January 2017
+    '''
+
+    if silent == False: print '### Begin check_astrometry.run_main | '+systime()
+
+    if sample == 'SDF':
+        cat_path0 = '/Users/cly/data/SDF/NBcat/SEx/catalogs/'
+        infile0   = path0 + 'targets_sdf_astro.2017a.txt'
+    if sample == 'DEEP2':
+        cat_path0 = '/Users/cly/data/DEEP2/DR4/phot_cat/'
+        infile0   = path0 + 'targets_deep2_astro.2017a.txt'
+
+    if silent == False: print '### Reading : ', infile0
+    data0   = asc.read(infile0, format='commented_header')
+    print data0
+
+    n_sources = len(data0)
+
+    ID  = data0['ID']
+    RA  = data0['RA']
+    DEC = data0['DEC']
+    c0  = coords.SkyCoord(ra=RA, dec=DEC, unit=(u.hour, u.deg))
+
+    # Mod on 12/01/2017
+    if sample == 'SDF':
+        cat_files = [cat_path0+'sdf_pub2_'+f0+'.cat.fits.gz' for
+                     f0 in data0['filt']]
+        #cat_files = [cat_path0+f0+'emitters_allphot.fits' for f0 in data0['filt']]
+    if sample == 'DEEP2':
+        cat_files = [cat_path0+f0+'_ext.fits.gz' for f0 in data0['field']]
+    print cat_files
+
+    for ii in range(n_sources):
+        if silent == False: print '### Reading : ', cat_files[ii]
+        data1 = fits.getdata(cat_files[ii])
+        if sample == 'SDF':
+            RA1   = data1.ALPHA_J2000
+            DEC1  = data1.DELTA_J2000
+            columns = ['ALPHA_J2000','DELTA_J2000']
+        if sample == 'DEEP2':
+            RA1   = data1.RA_SDSS
+            DEC1  = data1.DEC_SDSS
+            columns = ['RA_SDSS','DEC_SDSS']
+
+        t_c = c0[ii]
+        RA_off  = (RA1 - t_c.ra.deg) * 3600.0 * np.cos(np.radians(t_c.dec.deg))
+        DEC_off = (DEC1 - t_c.dec.deg) * 3600.0
+        in_box = np.where((np.absolute(RA_off) <= box_size) &
+                          (np.absolute(DEC_off) <= box_size))[0]
+        box_data1 = data1[in_box]
+
+        if silent == False: print '## in_box : ', len(in_box)
+
+        out_pdf = astro_path + ID[ii]+'.astrometry.pdf'
+        main(t_c, ID[ii], data1=box_data1, columns=columns, out_pdf=out_pdf,
+             verbose=True)
+
+    #endfor
+    if silent == False: print '### End check_astrometry.run_main | '+systime()
+#enddef
+
+# This code has been replaced with run_main()
 def SDF(silent=False, verbose=True):
     '''
     Cross-match SDF NB catalogs against SDSS to get astrometry around each
@@ -269,6 +353,7 @@ def SDF(silent=False, verbose=True):
     if silent == False: print '### End check_astrometry.SDF | '+systime()
 #enddef
 
+# This code has been replaced with run_main()
 def DEEP2(silent=False, verbose=True):
     '''
     Cross-match DEEP2 catalogs against SDSS to get astrometry around each
@@ -339,11 +424,31 @@ def DEEP2(silent=False, verbose=True):
 #enddef
 
 def GNIRS_2017():
+    '''
+    Run run_main() for both SDF and DEEP2 to get astrometry plot checks for
+    Gemini-N/GNIRS 2017A targets
+
+    Parameters
+    ----------
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 12 January 2017
+    '''
 
     import pdfmerge
 
-    SDF()
-    DEEP2()
+    run_main('SDF')
+    run_main('DEEP2')
 
     infile2 = path0 + 'targets.2017a.txt'
     print '### Reading : ', infile2

@@ -4,6 +4,11 @@ check_astrometry
 
 Compares the WCS for two different catalogs, such as a target sample and a
 reference survey (e.g., 2MASS, SDSS) to check relative astrometry
+
+Requirements:
+ astroquery (https://astroquery.readthedocs.io/en/latest/)
+ pdfmerge ('pip install pdfmerge' will install it)
+
 """
 
 import sys, os
@@ -151,7 +156,7 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
         #idx, d2d, d3d = c1_arr.match_to_catalog_sky(c1_ref)
         #print idx; print d2d; print d3d
         idx_arr, idx_ref, d2d, d3d = c1_ref.search_around_sky(c1_arr, src_rad0)
-        print len(idx_ref), len(idx_arr), len(d2d), len(d3d)
+        if silent == False: print '## Crossmatch sample size : ', len(idx_ref)
 
         A_RA, A_DEC = RA[idx_arr], DEC[idx_arr]
         R_RA, R_DEC = RA_ref[idx_ref], DEC_ref[idx_ref]
@@ -221,7 +226,7 @@ def SDF(silent=False, verbose=True):
     
     if silent == False: print '### Begin check_astrometry.SDF | '+systime()
 
-    cat_path0  = '/Users/cly/data/SDF/NBcat/SEx/'
+    cat_path0  = '/Users/cly/data/SDF/NBcat/SEx/catalogs/'
 
     infile0 = path0 + 'targets_sdf_astro.2017a.txt'
     if silent == False: print '### Reading : ', infile0
@@ -234,8 +239,11 @@ def SDF(silent=False, verbose=True):
     RA  = data0['RA']
     DEC = data0['DEC']
     c0  = coords.SkyCoord(ra=RA, dec=DEC, unit=(u.hour, u.deg))
-    
-    cat_files = [cat_path0+f0+'emitters_allphot.fits' for f0 in data0['filt']]
+
+    # Mod on 12/01/2017
+    cat_files = [cat_path0+'sdf_pub2_'+f0+'.cat.fits.gz' for
+                 f0 in data0['filt']]
+    #cat_files = [cat_path0+f0+'emitters_allphot.fits' for f0 in data0['filt']]
     print cat_files
 
     for ii in range(n_sources):
@@ -329,3 +337,19 @@ def DEEP2(silent=False, verbose=True):
     #endfor
     if silent == False: print '### End check_astrometry.DEEP2 | '+systime()
 #enddef
+
+def GNIRS_2017():
+
+    import pdfmerge
+
+    SDF()
+    DEEP2()
+
+    infile2 = path0 + 'targets.2017a.txt'
+    print '### Reading : ', infile2
+    data2   = asc.read(infile2)
+    files = [astro_path+a.replace('*','')+'.astrometry.pdf' for
+             a in data2['ID']]
+
+    out_pdf_2017a = astro_path+'GNIRS_2017A_Targets_Astrometry.pdf'
+    pdfmerge.merge(files, out_pdf_2017a)

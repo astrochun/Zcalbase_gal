@@ -32,6 +32,7 @@ import astropy.coordinates as coords
 import astropy.units as u
 
 from astroquery.sdss import SDSS # + on 12/01/2017
+from astroquery.irsa import Irsa as IRSA # + on 14/01/2017
 
 # Moved up on 12/01/2017
 path0      = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
@@ -90,6 +91,8 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
      - Read in infile1 based on format type (ASCII or FITS)
     Modified by Chun Ly, 13 January 2017
      - Output average, median, and sigma of offsets
+    Modified by Chun Ly, 14 January 2017
+     - Add option for cat2_survey == '2MASS'
     '''
     
     if silent == False: print '### Begin check_astrometry.main | '+systime()
@@ -142,6 +145,11 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
             s_rad0 = box_size*u.arcsec*np.sqrt(2) # radius in arcsec
             ref_cat0 = SDSS.query_region(c0, radius=s_rad0, data_release=12,
                                     photoobj_fields=SDSS_phot_fld)
+        # + on 14/01/2017
+        if cat2_survey == '2MASS':
+            size0 = box_size*u.arcsec # size of edge in arcsec
+            ref_cat0 = IRSA.query_region(c0, catalog='fp_psc', spatial='Box',
+                                         width=size0)
     else:
         if silent == False: print '### Reading : ', infile2
         ref_cat0 = fits.getdata(infile2)
@@ -155,15 +163,22 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
         DEC_ref = ref_cat0['dec']
         c1_ref  = coords.SkyCoord(ra=RA_ref, dec=DEC_ref, unit=(u.deg,u.deg))
 
-        #idx, d2d, d3d = c1_arr.match_to_catalog_sky(c1_ref)
-        #print idx; print d2d; print d3d
-        idx_arr, idx_ref, d2d, d3d = c1_ref.search_around_sky(c1_arr, src_rad0)
-        if silent == False: print '## Crossmatch sample size : ', len(idx_ref)
+    # + on 14/01/2017
+    if cat2_survey == '2MASS':
+        c1_ref  = coords.SkyCoord(ra=ref_cat0['clon'], dec=ref_cat0['clat'],
+                                  unit=(u.hour,u.deg))
+        RA_ref  = c1_ref.ra.degree
+        DEC_ref = c1_ref.dec.degree
 
-        A_RA, A_DEC = RA[idx_arr], DEC[idx_arr]
-        R_RA, R_DEC = RA_ref[idx_ref], DEC_ref[idx_ref]
-        diff_RA  = (A_RA - R_RA)   * 3600.0 * np.cos(np.radians(A_DEC))
-        diff_DEC = (A_DEC - R_DEC) * 3600.0
+    #idx, d2d, d3d = c1_arr.match_to_catalog_sky(c1_ref)
+    #print idx; print d2d; print d3d
+    idx_arr, idx_ref, d2d, d3d = c1_ref.search_around_sky(c1_arr, src_rad0)
+    if silent == False: print '## Crossmatch sample size : ', len(idx_ref)
+
+    A_RA, A_DEC = RA[idx_arr], DEC[idx_arr]
+    R_RA, R_DEC = RA_ref[idx_ref], DEC_ref[idx_ref]
+    diff_RA  = (A_RA - R_RA)   * 3600.0 * np.cos(np.radians(A_DEC))
+    diff_DEC = (A_DEC - R_DEC) * 3600.0
 
     a_RA, m_RA, s_RA    = np.average(diff_RA), np.median(diff_RA), \
                           np.std(diff_RA)
@@ -332,24 +347,44 @@ def GNIRS_2017():
     Created by Chun Ly, 12 January 2017
     Modified by Chun Ly, 14 January 2017
      - Specifically set cat2_survey for run_main()
+     - Crossmatch against 2MASS option
     '''
 
     import pdfmerge
 
     ## Do astrometry check against SDSS
     ## Mod on 14/01/2017
-    run_main('SDF', cat2_survey='SDSS')
-    run_main('DEEP2', cat2_survey='SDSS')
+    do_SDSS = 0
+    if do_SDSS:
+        run_main('SDF', cat2_survey='SDSS')
+        run_main('DEEP2', cat2_survey='SDSS')
 
-    infile2 = path0 + 'targets.2017a.txt'
-    print '### Reading : ', infile2
-    data2   = asc.read(infile2)
-    files = [astro_path+a.replace('*','')+'.SDSS.astrometry.pdf' for
-             a in data2['ID']]
+        infile2 = path0 + 'targets.2017a.txt'
+        print '### Reading : ', infile2
+        data2   = asc.read(infile2)
+        files = [astro_path+a.replace('*','')+'.SDSS.astrometry.pdf' for
+                 a in data2['ID']]
 
-    out_pdf_2017a_sdss = astro_path+'GNIRS_2017A_Targets_Astrometry.SDSS.pdf'
-    print '### Writing : ', out_pdf_2017a_sdss
-    pdfmerge.merge(files, out_pdf_2017a_sdss)
+        out_pdf_2017a_sdss = astro_path+'GNIRS_2017A_Targets_Astrometry.SDSS.pdf'
+        print '### Writing : ', out_pdf_2017a_sdss
+        pdfmerge.merge(files, out_pdf_2017a_sdss)
+
+    # + on 14/01/2017
+    do_2MASS = 1
+    if do_2MASS:
+        run_main('SDF', cat2_survey='2MASS')
+        run_main('DEEP2', cat2_survey='2MASS')
+
+        infile2 = path0 + 'targets.2017a.txt'
+        print '### Reading : ', infile2
+        data2   = asc.read(infile2)
+        files = [astro_path+a.replace('*','')+'.2MASS.astrometry.pdf' for
+                 a in data2['ID']]
+
+        out_pdf_2017a_sdss = astro_path+'GNIRS_2017A_Targets_Astrometry.2MASS.pdf'
+        print '### Writing : ', out_pdf_2017a_sdss
+        pdfmerge.merge(files, out_pdf_2017a_sdss)
+
 #enddef
 
 # This code has been replaced with run_main()

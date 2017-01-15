@@ -516,8 +516,64 @@ def DEEP2_astro(all=True, GNIRS_2017A=False, silent=False, verbose=True):
         print '### End check_astrometry.DEEP2_astro | '+systime()
 #enddef
 
+def fix_SDF_astro(silent=False, verbose=True):
+    '''
+    Apply SDSS corrections to SDF GNIRS 2017A targets to have
+    coordinates consistent with SDSS
+
+    Parameters
+    ----------
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 15 January 2017
+    '''
+
+    if silent == False:
+        print '### Begin check_astrometry.fix_SDF_astro | '+systime()
+
+    # Read in SDF coordinates
+    file1 = path0 + 'targets_sdf_astro.2017a.txt'
+    if silent == False: print '### Reading : ', file1
+    data1 = asc.read(file1, format='commented_header')
+
+    RA  = data1['RA']
+    DEC = data1['DEC']
+    c1  = coords.SkyCoord(ra=RA, dec=DEC, unit=(u.hour, u.deg))
+
+    # Read in astrometric corrections
+    file2 = path0 + 'Astrometry/astro_fixes_SDF.SDSS.tbl'
+    if silent == False: print '### Reading : ', file2
+    data2 = asc.read(file2)
+
+    # Use median values instead of averages to avoid outliers
+    ra_offset  = coords.Angle(data2['med_RA'], unit=u.arcsec)
+    dec_offset = coords.Angle(data2['med_DEC'], unit=u.arcsec)
+
+    # SDF - SDSS = offset values. Need to subtract offsets
+    c1_fix = coords.SkyCoord(c1.ra - ra_offset, c1.dec - dec_offset)
+
+    hmsdms0 = c1_fix.to_string('hmsdms')
+    hms = [a.split(' ')[0] for a in hmsdms0]
+    dms = [b.split(' ')[1] for b in hmsdms0]
+
+    tab0 = Table([data1['ID'], hms, dms], names=('ID','RA','DEC'))
+    print tab0
+
+    if silent == False:
+        print '### End check_astrometry.fix_SDF_astro | '+systime()
 
 #enddef
+
 
 # This code has been replaced with run_main()
 def SDF(silent=False, verbose=True):

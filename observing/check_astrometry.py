@@ -259,6 +259,7 @@ def run_main(sample, cat2_survey='SDSS', silent=False, verbose=True):
     Modified by Chun Ly, 14 January 2017
      - Include cat2_survey keyword option.
      - Pass cat2_survey to main()
+     - Write ASCII table containing astrometric offsets
     '''
 
     if silent == False: print '### Begin check_astrometry.run_main | '+systime()
@@ -326,9 +327,16 @@ def run_main(sample, cat2_survey='SDSS', silent=False, verbose=True):
     #endfor
 
     # + on 13/01/2017
-    names0 = ('avg_RA','med_RA','sig_RA','avg_DEC','med_DEC','sig_DEC')
-    tab0 = Table([a_RA0, m_RA0, s_RA0, a_DEC0, m_DEC0, s_DEC0], names=names0)
+    names0 = ('ID','avg_RA','med_RA','sig_RA','avg_DEC','med_DEC','sig_DEC')
+    tab0 = Table([ID, a_RA0,m_RA0,s_RA0, a_DEC0,m_DEC0,s_DEC0], names=names0)
     print tab0
+
+    # + on 14/01/2017
+    out_table_file = astro_path + 'astro_fixes_'+sample+'.'+cat2_survey+'.tbl'
+    if silent == False: print '### Writing : ', out_table_file
+
+    tab0.write(out_table_file, format='ascii.fixed_width_two_line')
+
     if silent == False: print '### End check_astrometry.run_main | '+systime()
 #enddef
 
@@ -363,7 +371,7 @@ def GNIRS_2017A():
 
     ## Do astrometry check against SDSS
     ## Mod on 14/01/2017
-    do_SDSS = 0
+    do_SDSS = 1
     if do_SDSS:
         run_main('SDF', cat2_survey='SDSS')
         run_main('DEEP2', cat2_survey='SDSS')
@@ -379,7 +387,7 @@ def GNIRS_2017A():
         pdfmerge.merge(files, out_pdf_2017a_sdss)
 
     # + on 14/01/2017
-    do_WISE = 1
+    do_WISE = 0
     if do_WISE:
         run_main('SDF', cat2_survey='WISE')
         run_main('DEEP2', cat2_survey='WISE')

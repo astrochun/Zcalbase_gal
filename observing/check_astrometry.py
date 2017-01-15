@@ -498,6 +498,11 @@ def DEEP2_astro(all=True, GNIRS_2017A=False, silent=False, verbose=True):
                  names=names0)
     print tab0
 
+    hms = [a.split(' ')[0] for a in hmsdms0]
+    dms = [b.split(' ')[1] for b in hmsdms0]
+    names1 = ('ID','redshift','RA','DEC')
+    tab1   = Table([data0['ID'], data0['redshift'], hms, dms], names=names1)
+    print tab1.pprint()
 
     #print zcat_2017A.RA_SDSS
     #print zcat_2017A.DEC_SDSS

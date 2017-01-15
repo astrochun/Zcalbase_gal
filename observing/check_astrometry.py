@@ -333,7 +333,7 @@ def run_main(sample, cat2_survey='SDSS', silent=False, verbose=True):
 #enddef
 
 # Moved up on 14/01/2017
-def GNIRS_2017():
+def GNIRS_2017A():
     '''
     Run run_main() for both SDF and DEEP2 to get astrometry plot checks for
     Gemini-N/GNIRS 2017A targets

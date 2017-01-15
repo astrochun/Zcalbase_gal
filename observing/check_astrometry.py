@@ -88,6 +88,8 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
     Created by Chun Ly, 6 January 2017
     Modified by Chun Ly, 12 January 2017
      - Read in infile1 based on format type (ASCII or FITS)
+    Modified by Chun Ly, 13 January 2017
+     - Output average, median, and sigma of offsets
     '''
     
     if silent == False: print '### Begin check_astrometry.main | '+systime()
@@ -145,7 +147,7 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
         ref_cat0 = fits.getdata(infile2)
 
     if verbose == True:
-        print '## '+cat2_survey+' size: [ref_cat0] ', len(ref_cat0)
+        print '## '+cat2_survey+' size : [ref_cat0] ', len(ref_cat0)
 
     # + on 12/01/2017
     if cat2_survey == 'SDSS':
@@ -201,9 +203,12 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
     fig.savefig(out_pdf)
 
     if silent == False: print '### End check_astrometry.main | '+systime()
+
+    # + on 13/01/2017
+    return a_RA, m_RA, s_RA, a_DEC, m_DEC, s_DEC
 #enddef
 
-def run_main(sample, silent=False, verbose=True):
+def run_main(sample, cat2_survey='SDSS', silent=False, verbose=True):
     '''
     Cross-match either SDF NB catalogs or DEEP2 catalogs against SDSS to get
     astrometry around each [OIII]4363 targets from Ly et al. (2016), ApJS,
@@ -226,6 +231,11 @@ def run_main(sample, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 12 January 2017
+    Modified by Chun Ly, 13 January 2017
+     - Get average, median, sigma from offsets and create astropy.Table
+    Modified by Chun Ly, 14 January 2017
+     - Include cat2_survey keyword option.
+     - Pass cat2_survey to main()
     '''
 
     if silent == False: print '### Begin check_astrometry.run_main | '+systime()
@@ -257,6 +267,9 @@ def run_main(sample, silent=False, verbose=True):
         cat_files = [cat_path0+f0+'_ext.fits.gz' for f0 in data0['field']]
     print cat_files
 
+    # + on 13/01/2017
+    a_RA0  = []; m_RA0  = []; s_RA0  = []
+    a_DEC0 = []; m_DEC0 = []; s_DEC0 = []
     for ii in range(n_sources):
         if silent == False: print '### Reading : ', cat_files[ii]
         data1 = fits.getdata(cat_files[ii])
@@ -278,12 +291,65 @@ def run_main(sample, silent=False, verbose=True):
 
         if silent == False: print '## in_box : ', len(in_box)
 
-        out_pdf = astro_path + ID[ii]+'.astrometry.pdf'
-        main(t_c, ID[ii], data1=box_data1, columns=columns, out_pdf=out_pdf,
-             verbose=True)
+        out_pdf = astro_path + ID[ii]+'.'+cat2_survey+'.astrometry.pdf'
 
+        # Mod on 14/01/2017 to include cat2_survey
+        val0 = main(t_c, ID[ii], data1=box_data1, cat2_survey=cat2_survey,
+                    columns=columns, out_pdf=out_pdf, verbose=True)
+
+        # + on 13/01/2017
+        a_RA0.append(val0[0]); m_RA0.append(val0[1]); s_RA0.append(val0[2])
+        a_DEC0.append(val0[3]); m_DEC0.append(val0[4]); s_DEC0.append(val0[5])
     #endfor
+
+    # + on 13/01/2017
+    names0 = ('avg_RA','med_RA','sig_RA','avg_DEC','med_DEC','sig_DEC')
+    tab0 = Table([a_RA0, m_RA0, s_RA0, a_DEC0, m_DEC0, s_DEC0], names=names0)
+    print tab0
     if silent == False: print '### End check_astrometry.run_main | '+systime()
+#enddef
+
+# Moved up on 14/01/2017
+def GNIRS_2017():
+    '''
+    Run run_main() for both SDF and DEEP2 to get astrometry plot checks for
+    Gemini-N/GNIRS 2017A targets
+
+    Parameters
+    ----------
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 12 January 2017
+    Modified by Chun Ly, 14 January 2017
+     - Specifically set cat2_survey for run_main()
+    '''
+
+    import pdfmerge
+
+    ## Do astrometry check against SDSS
+    ## Mod on 14/01/2017
+    run_main('SDF', cat2_survey='SDSS')
+    run_main('DEEP2', cat2_survey='SDSS')
+
+    infile2 = path0 + 'targets.2017a.txt'
+    print '### Reading : ', infile2
+    data2   = asc.read(infile2)
+    files = [astro_path+a.replace('*','')+'.SDSS.astrometry.pdf' for
+             a in data2['ID']]
+
+    out_pdf_2017a_sdss = astro_path+'GNIRS_2017A_Targets_Astrometry.SDSS.pdf'
+    print '### Writing : ', out_pdf_2017a_sdss
+    pdfmerge.merge(files, out_pdf_2017a_sdss)
 #enddef
 
 # This code has been replaced with run_main()
@@ -422,39 +488,3 @@ def DEEP2(silent=False, verbose=True):
     #endfor
     if silent == False: print '### End check_astrometry.DEEP2 | '+systime()
 #enddef
-
-def GNIRS_2017():
-    '''
-    Run run_main() for both SDF and DEEP2 to get astrometry plot checks for
-    Gemini-N/GNIRS 2017A targets
-
-    Parameters
-    ----------
-
-    silent : boolean
-      Turns off stdout messages. Default: False
-
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
-
-    Returns
-    -------
-
-    Notes
-    -----
-    Created by Chun Ly, 12 January 2017
-    '''
-
-    import pdfmerge
-
-    run_main('SDF')
-    run_main('DEEP2')
-
-    infile2 = path0 + 'targets.2017a.txt'
-    print '### Reading : ', infile2
-    data2   = asc.read(infile2)
-    files = [astro_path+a.replace('*','')+'.astrometry.pdf' for
-             a in data2['ID']]
-
-    out_pdf_2017a = astro_path+'GNIRS_2017A_Targets_Astrometry.pdf'
-    pdfmerge.merge(files, out_pdf_2017a)

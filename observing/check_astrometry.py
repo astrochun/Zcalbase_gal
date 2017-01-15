@@ -93,6 +93,7 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
      - Output average, median, and sigma of offsets
     Modified by Chun Ly, 14 January 2017
      - Add option for cat2_survey == '2MASS'
+     - Add option for cat2_survey == 'WISE'
     '''
     
     if silent == False: print '### Begin check_astrometry.main | '+systime()
@@ -150,6 +151,13 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
             size0 = box_size*u.arcsec # size of edge in arcsec
             ref_cat0 = IRSA.query_region(c0, catalog='fp_psc', spatial='Box',
                                          width=size0)
+
+        # + on 14/01/2017
+        if cat2_survey == 'WISE':
+            size0 = box_size*u.arcsec # size of edge in arcsec
+            ref_cat0 = IRSA.query_region(c0, catalog='allwise_p3as_psd',
+                                         spatial='Box', width=size0)
+
     else:
         if silent == False: print '### Reading : ', infile2
         ref_cat0 = fits.getdata(infile2)
@@ -164,7 +172,7 @@ def main(c0, label, infile1=None, data1=None, infile2=None, cat2_survey='SDSS',
         c1_ref  = coords.SkyCoord(ra=RA_ref, dec=DEC_ref, unit=(u.deg,u.deg))
 
     # + on 14/01/2017
-    if cat2_survey == '2MASS':
+    if cat2_survey == '2MASS' or cat2_survey == 'WISE':
         c1_ref  = coords.SkyCoord(ra=ref_cat0['clon'], dec=ref_cat0['clat'],
                                   unit=(u.hour,u.deg))
         RA_ref  = c1_ref.ra.degree
@@ -348,6 +356,7 @@ def GNIRS_2017():
     Modified by Chun Ly, 14 January 2017
      - Specifically set cat2_survey for run_main()
      - Crossmatch against 2MASS option
+     - Crossmatch against WISE option
     '''
 
     import pdfmerge
@@ -370,7 +379,23 @@ def GNIRS_2017():
         pdfmerge.merge(files, out_pdf_2017a_sdss)
 
     # + on 14/01/2017
-    do_2MASS = 1
+    do_WISE = 1
+    if do_WISE:
+        run_main('SDF', cat2_survey='WISE')
+        run_main('DEEP2', cat2_survey='WISE')
+
+        infile2 = path0 + 'targets.2017a.txt'
+        print '### Reading : ', infile2
+        data2   = asc.read(infile2)
+        files = [astro_path+a.replace('*','')+'.WISE.astrometry.pdf' for
+                 a in data2['ID']]
+
+        out_pdf_2017a_sdss = astro_path+'GNIRS_2017A_Targets_Astrometry.WISE.pdf'
+        print '### Writing : ', out_pdf_2017a_sdss
+        pdfmerge.merge(files, out_pdf_2017a_sdss)
+
+    # + on 14/01/2017
+    do_2MASS = 0
     if do_2MASS:
         run_main('SDF', cat2_survey='2MASS')
         run_main('DEEP2', cat2_survey='2MASS')

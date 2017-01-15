@@ -420,7 +420,7 @@ def GNIRS_2017A():
 
 #enddef
 
-def DEEP2_astro(silent=False, verbose=True):
+def DEEP2_astro(all=True, GNIRS_2017A=False, silent=False, verbose=True):
     '''
     Makes sure that astrometry provided in OT is using the SDSS catalog
 
@@ -444,31 +444,36 @@ def DEEP2_astro(silent=False, verbose=True):
     if silent == False:
         print '### Begin check_astrometry.DEEP2_astro | '+systime()
 
-    file0 = path0 + 'targets_deep2_astro.2017a.txt'
+    if GNIRS_2017A == True: file0 = path0 + 'targets_deep2_astro.2017a.txt'
+    if all == True: file0 = path0 + 'targets.txt'
+
     if silent == False: print '## Reading : ', file0
-    data_2017a = asc.read(file0, format='commented_header')
-    print data_2017a
+    data0 = asc.read(file0, format='commented_header')
+    idx = [ii for ii in range(len(data0)) if 'DEEP' in data0['ID'][ii]]
+    data0 = data0[idx]
+    print data0
+    ID0 = [str0.replace('*','') for str0 in data0['ID']]
 
     path0_DEEP2 = '/Users/cly/data/DEEP2/DR4/EAZY/'
     file1 = path0_DEEP2 + 'DEEP2_OIII4363_zcat.fits'
     if silent == False: print '## Reading : ', file1
-    data0 = fits.getdata(file1)
+    data1 = fits.getdata(file1)
 
     file2 = path0_DEEP2 + 'source_info.txt'
     if silent == False: print '## Reading : ', file2
-    data1 = asc.read(file2)
-    ID1 = [str0.replace('2_#','') for str0 in data1['col1']]
+    data2 = asc.read(file2)
+    ID1 = [str0.replace('2_#','') for str0 in data2['col1']]
 
-    idx1, idx2 = match_nosort_str(data_2017a['ID'], ID1)
+    idx1, idx2 = match_nosort_str(ID0, ID1)
     print '## idx1 : ', idx1
     print '## idx2 : ', idx2
-    OBJNO_2017A = data1['col2'][idx2]
+    OBJNO_2017A = data2['col2'][idx2]
 
-    zcat_2017A = data0[idx2]
+    zcat_2017A = data1[idx2]
 
-    RA  = np.zeros(len(data_2017a))
-    DEC = np.zeros(len(data_2017a))
-    c_source = np.repeat('DEEP2',len(data_2017a))
+    RA  = np.zeros(len(data0))
+    DEC = np.zeros(len(data0))
+    c_source = np.repeat('DEEP2',len(data0))
 
     use_sdss = np.where((zcat_2017A.RA_SDSS != -99.0))[0]
     RA[use_sdss]  = zcat_2017A.RA_SDSS[use_sdss]
@@ -488,8 +493,8 @@ def DEEP2_astro(silent=False, verbose=True):
     c0_deep = coords.SkyCoord(ra=RA_DEEP, dec=DEC_DEEP, unit=(u.deg,u.deg))
     hmsdms_deep = c0_deep.to_string('hmsdms')
 
-    names0 = ('ID','RA','DEC','HMSDMS','HMSDMS_DEEP','c_source')
-    tab0 = Table([data_2017a['ID'], RA, DEC, hmsdms0, hmsdms_deep, c_source],
+    names0 = ('ID','RA','DEC','HMSDMS_SDSS','HMSDMS_DEEP','c_source')
+    tab0 = Table([data0['ID'], RA, DEC, hmsdms0, hmsdms_deep, c_source],
                  names=names0)
     print tab0
 
@@ -497,8 +502,8 @@ def DEEP2_astro(silent=False, verbose=True):
     #print zcat_2017A.RA_SDSS
     #print zcat_2017A.DEC_SDSS
 
-    #Obsolete as data0 is in same order as data1
-    #c_idx1, c_idx2 = match_nosort(OBJNO_2017A, data0.OBJNO)
+    #Obsolete as data1 is in same order as data2
+    #c_idx1, c_idx2 = match_nosort(OBJNO_2017A, data1.OBJNO)
     #print '## c_idx1 : ', c_idx1
     #print '## c_idx2 : ', c_idx2
 

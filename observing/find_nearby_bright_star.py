@@ -683,7 +683,7 @@ def zcalbase_gal_gemini():
     # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
     infile2 = path0 + 'targets.2017a.txt'
     print '### Reading : ', infile2
-    data2   = asc.read(infile2)
+    data2   = asc.read(infile2, format='commented_header')
     files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
              a in data2['ID']]
     #print files

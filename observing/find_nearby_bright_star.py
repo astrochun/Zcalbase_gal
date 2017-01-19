@@ -556,6 +556,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Re-organize to handle SDSS and 2MASS cases
     Modified by Chun Ly, 10 January 2017
      - Get table of magnitudes and write to ASCII file in out_path
+    Modified by Chun Ly, 19 January 2017
+     - Add call to get_2mass_images()
     '''
 
     if silent == False:
@@ -649,10 +651,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 out_pdf  = finding_chart_path + ID0[ii]+'.SDSS.pdf'
                 print out_fits
                 band0 = mag_filt.replace('modelMag_','') # + on 02/01/2017
-                if not exists(out_fits):
-                    t_hdu = get_sdss_images(c0, out_fits, band=band0)
-                else:
-                    t_hdu = fits.open(out_fits)
+                t_hdu = get_sdss_images(c0, out_fits, band=band0)
 
                 # + on 06/01/2017
                 # Mod on 07/01/2017 to check if FITS file exists
@@ -660,6 +659,15 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 if not exists(out_image):
                     montage_reproj.main(c0, fitsfile=out_fits, catalog=catalog,
                                         out_image=out_image)
+
+            # + on 19/01/2017
+            if catalog == '2MASS':
+                out_fits = finding_chart_fits_path + ID0[ii]+'.2MASS.fits.gz'
+                out_pdf  = finding_chart_path + ID0[ii]+'.2MASS.pdf'
+                print out_fits
+                band0 = mag_filt.replace('_m','').upper()
+                t_hdu = get_2mass_images(c0, out_fits, band=band0)
+                out_image = out_fits
 
             # Mod on 02/01/2017 for inputs
             if catalog == 'SDSS':

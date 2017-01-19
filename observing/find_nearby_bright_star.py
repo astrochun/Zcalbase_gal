@@ -33,6 +33,7 @@ from astropy.table import Table, Column
 from astropy import coordinates as coords
 from astroquery.sdss import SDSS
 from astroquery.irsa import Irsa as IRSA
+from astroquery.skyview import SkyView
 
 import aplpy # + on 24/12/2016
 
@@ -302,13 +303,7 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
     band : string
       Filter name for image to obtain from query (e.g., 'u', 'g', 'r', 'i', 'z')
       Default: 'i'
-
-    catalog : string
-      Either SDSS or '2MASS'. Default: 'SDSS'
     
-    format : string
-      Format of infile ASCII file. Default: "commented_header"
-
     silent : boolean
       Turns off stdout messages. Default: True
 
@@ -317,6 +312,9 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
 	  
     Returns
     -------
+    t_hdu : astropy.io.fits.image.PrimaryHDU
+      An HDU object containing FITS header and FITS data for the 2MASS
+      finding chart image
 
     Notes
     -----
@@ -335,6 +333,62 @@ def get_sdss_images(c0, out_fits, band=u'i', silent=True, verbose=False):
             t_hdu.writeto(out_fits, clobber=True)
         else:
             fits.append(out_fits, t_hdu.data, t_hdu.header)
+    return t_hdu
+#enddef
+
+def get_2mass_images(c0, out_fits, band=u'H', silent=True, verbose=False):
+    '''
+    Function to grab 2MASS FITS image that is associated with the provided
+    coordinate
+
+    Parameters
+    ----------
+    c0 : str or `astropy.coordinates` object
+      The target around which to search. It may be specified as a string
+      in which case it is resolved using online services or as the
+      appropriate `astropy.coordinates` object. ICRS coordinates may also
+      be entered as strings as specified in the `astropy.coordinates`
+      module.
+
+    band : string
+      Filter name for image to obtain from query (e.g., 'J', 'H', 'K')
+      Default: 'H'
+
+    silent : boolean
+      Turns off stdout messages. Default: True
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: False
+
+    Returns
+    -------
+    t_hdu : astropy.io.fits.image.PrimaryHDU
+      An HDU object containing FITS header and FITS data for the 2MASS
+      finding chart image
+
+    Notes
+    -----
+    Created by Chun Ly, 19 January 2017
+    '''
+
+    if silent == False:
+        print '### Begin find_nearby_bright_star.get_2mass_images '+systime()
+
+    imgs = SkyView.get_images(coordinates=c0, band='2MASS-'+band,
+                              width=5*u.arcmin, height=5*u.arcmin,
+                              timeout=180)
+
+    if silent == False: print '### Writing : ', out_fits
+    for ff in range(n_frames):
+        t_hdu = imgs[0][0]
+        if ff == 0:
+            t_hdu.writeto(out_fits, clobber=True)
+        else:
+            fits.append(out_fits, t_hdu.data, t_hdu.header)
+
+    if silent == False:
+        print '### End find_nearby_bright_star.get_2mass_images '+systime()
+
     return t_hdu
 #enddef
 

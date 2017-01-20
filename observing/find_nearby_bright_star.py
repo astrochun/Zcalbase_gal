@@ -163,8 +163,8 @@ def get_offsets(c_ref, c0):
 #enddef
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
-                       slitlength=99*u.arcsec, catalog='SDSS', silent=True,
-                       verbose=False):
+                       slitlength=99*u.arcsec, catalog='SDSS', image=None,
+                       silent=True, verbose=False):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -227,7 +227,18 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
      - Switch [c1_mag] to string of mag from sdss_mag_str(), [mag_str]
     Modified by Chun Ly, 10 January 2017
      - Call get_offsets() to simply get values
+    Modified by Chun Ly, 19 January 2017
+     - Add image keyword option
     '''
+
+    # + on 19/01/2017
+    if image == None:
+        if catalog == 'SDSS':
+            band_str0 = mag_filt.replace('modelMag_','')
+        if catalog == '2MASS':
+            band_str0 = mag_filt.replace('_m','').upper()
+        image = catalog+'-'+band_str0
+        if silent == False: '## image : ', image
 
     # + on 02/01/2017
     if out_pdf == None:
@@ -279,8 +290,9 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
                  ha='left', va='bottom', weight='medium', size='small')
 
     # Label upper left source, catalog, and band | + on 02/01/2017
-    lab0 = t_ID+'\n'+catalog+' '+band0
-    gc.add_label(0.03, 0.95, lab0, relative=True, ha='left', va='top',
+    # Mod on 19/01/2017
+    lab0 = t_ID+'\nCatalog: '+catalog+'\nImage: '+image.replace('-',' ')
+    gc.add_label(0.03, 0.925, lab0, relative=True, ha='left', va='top',
                  weight='bold', size='large')
 
     gc.savefig(out_pdf)
@@ -482,8 +494,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
 
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
-         catalog='SDSS', format='commented_header', slitlength=99*u.arcsec,
-         runall=True, silent=False, verbose=True):
+         catalog='SDSS', image=None, format='commented_header',
+         slitlength=99*u.arcsec, runall=True, silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -516,8 +528,13 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
       Default: 'modelMag_i'
 
     catalog : string
-      Either SDSS or '2MASS'. Default: 'SDSS'
+      The survey to extract a catalog.
+      Either 'SDSS' or '2MASS'. Default: 'SDSS'
     
+    image : string
+      The survey to extract the finding chart image.
+      Either 'SDSS' or '2MASS'. Default: None
+
     format : string
       Format of infile ASCII file. Default: "commented_header"
 
@@ -558,10 +575,19 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Get table of magnitudes and write to ASCII file in out_path
     Modified by Chun Ly, 19 January 2017
      - Add call to get_2mass_images()
+     - Add image keyword option
     '''
 
     if silent == False:
         print '### Begin find_nearby_bright_star.main | '+systime()
+
+    if catalog == 'SDSS':  band0 = mag_filt.replace('modelMag_','')
+    if catalog == '2MASS': band0 = mag_filt.replace('_m','').upper()
+
+    # + on 19/01/2017
+    if image == None:
+        image = catalog + '-'+band0
+    if silent == False: print '### image : ', image
 
     if silent == False: print '### Reading : ', infile
     data0 = asc.read(infile)
@@ -601,17 +627,17 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             col1 = Column(sep, name='Dist(arcsec)')
             xid.add_column(col1)
 
+        # Keep stars only (type == 6)
+        # http://www.sdss.org/dr12/algorithms/classify/#photo_class
+        # Keep primary target to deal with duplicate entries | 24/12/2016
+        # Avoid unusual mag values | Mod on 24/12/2016
+        # Fix SDSS.query_region problem with max_radius | Mod on 08/01/2017
         if catalog == 'SDSS':
-            # Keep stars only (type == 6)
-            # http://www.sdss.org/dr12/algorithms/classify/#photo_class
-            # Keep primary target to deal with duplicate entries | 24/12/2016
-            # Avoid unusual mag values | Mod on 24/12/2016
-            # Fix SDSS.query_region problem with max_radius | Mod on 08/01/2017
             good = np.where((xid[mag_filt] <= mag_limit) &
                             (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
                             (xid['type'] == 6) & (xid['mode'] == 1) &
                             (xid['Dist(arcsec)'] <= max_radius.to(u.arcsec).value))[0]
-            
+
         if silent == False:
             print '## Finding nearby stars for '+ID[ii]+'. '+\
                 str(len(good))+' found.'
@@ -647,11 +673,13 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 else:
                     mag_table0.add_row(mag_table[0])
 
+            if 'SDSS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
                 out_pdf  = finding_chart_path + ID0[ii]+'.SDSS.pdf'
                 print out_fits
-                band0 = mag_filt.replace('modelMag_','') # + on 02/01/2017
-                t_hdu = get_sdss_images(c0, out_fits, band=band0)
+                #band0 = mag_filt.replace('modelMag_','') # + on 02/01/2017
+                if not exists(out_fits):
+                    t_hdu = get_sdss_images(c0, out_fits, band=band0)
 
                 # + on 06/01/2017
                 # Mod on 07/01/2017 to check if FITS file exists
@@ -661,11 +689,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                                         out_image=out_image)
 
             # + on 19/01/2017
-            if catalog == '2MASS':
+            if '2MASS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.2MASS.fits.gz'
                 out_pdf  = finding_chart_path + ID0[ii]+'.2MASS.pdf'
                 print out_fits
-                band0 = mag_filt.replace('_m','').upper()
+                band0 = image.replace('2MASS-','')
                 t_hdu = get_2mass_images(c0, out_fits, band=band0)
                 out_image = out_fits
 
@@ -673,16 +701,18 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             if catalog == 'SDSS':
                 plot_finding_chart(out_image, ID0[ii], band0, c0, c1,
                                    mag_str, slitlength=slitlength,
-                                   catalog=catalog, out_pdf=out_pdf)
+                                   catalog=catalog, image=image,
+                                   out_pdf=out_pdf)
         #endif
     #endfor
 
     # + on 10/01/2017
-    out_mag_table = out_path + 'Alignment_Stars.txt'
-    if silent == False:
-        print '### Writing : ', out_mag_table
-    mag_table0.write(out_mag_table, format='ascii.fixed_width_two_line',
-                     overwrite=True)
+    if catalog == 'SDSS':
+        out_mag_table = out_path + 'Alignment_Stars.txt'
+        if silent == False:
+            print '### Writing : ', out_mag_table
+        mag_table0.write(out_mag_table, format='ascii.fixed_width_two_line',
+                         overwrite=True)
 
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()

@@ -41,7 +41,7 @@ from PyMontage.scripts import montage_reproj # + on 02/01/2017
 
 # For SDSS only
 SDSS_fld      = ['ra','dec','objid','run','rerun','camcol','field','obj',
-                 'type','mode']
+                 'type','mode','mjd']
                  
 SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMagErr_g', 'modelMag_r', 'modelMagErr_r',
@@ -381,22 +381,21 @@ def get_2mass_images(c0, out_fits, band=u'H', silent=True, verbose=False):
     Notes
     -----
     Created by Chun Ly, 19 January 2017
+    Modified by Chun Ly, 20 January 2017
+     - Fix bug with SkyView.get_images() call
     '''
 
     if silent == False:
         print '### Begin find_nearby_bright_star.get_2mass_images '+systime()
 
-    imgs = SkyView.get_images(coordinates=c0, band='2MASS-'+band,
-                              width=5*u.arcmin, height=5*u.arcmin,
-                              timeout=180)
+    imgs = SkyView.get_images(position=c0, survey=['2MASS-'+band],
+                              width=5*u.arcmin, height=5*u.arcmin)
 
     if silent == False: print '### Writing : ', out_fits
-    for ff in range(n_frames):
-        t_hdu = imgs[0][0]
-        if ff == 0:
-            t_hdu.writeto(out_fits, clobber=True)
-        else:
-            fits.append(out_fits, t_hdu.data, t_hdu.header)
+
+    # Mod on 20/01/2017 to clean it up
+    t_hdu = imgs[0][0]
+    t_hdu.writeto(out_fits, clobber=True)
 
     if silent == False:
         print '### End find_nearby_bright_star.get_2mass_images '+systime()
@@ -576,6 +575,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 19 January 2017
      - Add call to get_2mass_images()
      - Add image keyword option
+    Modified by Chun Ly, 20 January 2017
+     - Handle case of SDSS catalog but with 2MASS images for finding charts
     '''
 
     if silent == False:
@@ -585,8 +586,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     if catalog == '2MASS': band0 = mag_filt.replace('_m','').upper()
 
     # + on 19/01/2017
-    if image == None:
-        image = catalog + '-'+band0
+    if image == None: image = catalog + '-' + band0
     if silent == False: print '### image : ', image
 
     if silent == False: print '### Reading : ', infile
@@ -673,13 +673,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 else:
                     mag_table0.add_row(mag_table[0])
 
+            # Moved up on 20/01/2017
             if 'SDSS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
-                out_pdf  = finding_chart_path + ID0[ii]+'.SDSS.pdf'
-                print out_fits
-                #band0 = mag_filt.replace('modelMag_','') # + on 02/01/2017
                 if not exists(out_fits):
-                    t_hdu = get_sdss_images(c0, out_fits, band=band0)
+                    t_hdu = get_sdss_images(c0, out_fits, band=image.replace('SDSS-',''))
 
                 # + on 06/01/2017
                 # Mod on 07/01/2017 to check if FITS file exists
@@ -688,21 +686,28 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                     montage_reproj.main(c0, fitsfile=out_fits, catalog=catalog,
                                         out_image=out_image)
 
-            # + on 19/01/2017
+            # Moved up on 20/01/2017 | + on 19/01/2017
             if '2MASS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.2MASS.fits.gz'
-                out_pdf  = finding_chart_path + ID0[ii]+'.2MASS.pdf'
-                print out_fits
-                band0 = image.replace('2MASS-','')
-                t_hdu = get_2mass_images(c0, out_fits, band=band0)
+                t_hdu = get_2mass_images(c0, out_fits, band=image.replace('2MASS-',''))
                 out_image = out_fits
 
+            print '### out_fits : ', out_fits
+
+            out_pdf = finding_chart_path + ID0[ii]+'_'+catalog+'_'+image+'.pdf'
+            if catalog == 'SDSS' and ('SDSS' in image):
+                out_pdf = finding_chart_path + ID0[ii]+'.SDSS.pdf'
+
+            if catalog == '2MASS' and ('2MASS' in image):
+                out_pdf  = finding_chart_path + ID0[ii]+'.2MASS.pdf'
+            print '### out_pdf : ', out_pdf
+
             # Mod on 02/01/2017 for inputs
-            if catalog == 'SDSS':
-                plot_finding_chart(out_image, ID0[ii], band0, c0, c1,
-                                   mag_str, slitlength=slitlength,
-                                   catalog=catalog, image=image,
-                                   out_pdf=out_pdf)
+            #if catalog == 'SDSS':
+            plot_finding_chart(out_image, ID0[ii], band0, c0, c1,
+                               mag_str, slitlength=slitlength,
+                               catalog=catalog, image=image,
+                               out_pdf=out_pdf)
         #endif
     #endfor
 
@@ -745,6 +750,8 @@ def zcalbase_gal_gemini():
      - Run 2MASS before SDSS
     Modified by Chun Ly, 10 January 2017
      - Write photometric ASCII catalog for 2017A GNIRS targets
+    Modified by Chun Ly, 20 January 2017
+     - Handle making 2MASS finding chart with SDSS coordinates
     '''
 
     import pdfmerge
@@ -761,26 +768,47 @@ def zcalbase_gal_gemini():
 
     slitlength = 99 * u.arcsec 
 
-    # Select alignment stars based on 2MASS
-    # + on 24/12/2016
-    # Moved up on 09/01/2017
-    #main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-    #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
-
-    # Select alignment stars based on SDSS
-    main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-         max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
-         slitlength=slitlength, runall=False)
-
-    # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
+    # Moved up on 20/01/2017
     infile2 = path0 + 'targets.2017a.txt'
     print '### Reading : ', infile2
     data2   = asc.read(infile2, format='commented_header')
-    files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
-             a in data2['ID']]
-    #print files
-    out_pdf_2017a = finding_chart_path+'GNIRS_2017A_Targets_FindingCharts.bright.pdf'
-    pdfmerge.merge(files, out_pdf_2017a)
+
+    # Select alignment stars based on 2MASS
+    # + on 24/12/2016
+    # Moved up on 09/01/2017
+    # main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+    #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
+
+    do_step1 = 1
+
+    if do_step1:
+        # Select alignment stars based on SDSS
+        main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             slitlength=slitlength, runall=False)
+
+        # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
+        files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
+                 a in data2['ID']]
+        #print files
+        out_pdf_2017a = finding_chart_path+\
+                        'GNIRS_2017A_Targets_SDSS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2017a)
+
+    # + on 20/01/2017
+    do_step2 = 1
+    if do_step2:
+        # Generate 2MASS finding chart with SDSS catalog | + on 20/01/2017
+        main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='2MASS-H', slitlength=slitlength, runall=False)
+
+        # Merge PDF finding chart files for 2017A targets
+        files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
+                 a in data2['ID']]
+        out_pdf_2017a = finding_chart_path+\
+                        'GNIRS_2017A_Targets_2MASS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2017a)
 
     # Write Alignment Star photometric catalog
     # + on 10/01/2017

@@ -427,6 +427,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
     Modified by Chun Ly, 10 January 2017
      - Add option to get 2MASS photometry by running IRSA.query_region()
      - Combine SDSS and 2MASS photometry, output astropy.table
+    Modified by Chun Ly, 21 January 2017
+     - Added columns of 2MASS's RA, Dec, and observation date
     '''
 
     n_sources = len(table)
@@ -458,6 +460,11 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
     col_eHmag = Column(np.repeat(-99.00, n_sources), name='h_cmsig')
     col_eKmag = Column(np.repeat(-99.00, n_sources), name='k_cmsig')
 
+    # + on 21/01/2017
+    col_ra   = Column(np.zeros(n_sources), name='ra_2mass')
+    col_dec  = Column(np.zeros(n_sources), name='dec_2mass')
+    col_date = Column(np.repeat('XXXX-XX-XX', n_sources), name='date_2mass')
+
     if TWOMASS == True:
         t_c0 = coords.SkyCoord(ra=table['ra'], dec=table['dec'],
                                unit=(u.deg, u.deg))
@@ -480,14 +487,21 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
                 col_eJmag[ii] = tab0['j_cmsig']
                 col_eHmag[ii] = tab0['h_cmsig']
                 col_eKmag[ii] = tab0['k_cmsig']
+
+                # + on 21/01/2017
+                col_ra[ii]    = tab0['ra']
+                col_dec[ii]   = tab0['dec']
+                col_date[ii]  = tab0['xdate']
         #endfor
     #endif
 
     # + on 10/01/2017
     mag_table = Table(mag_table)
     n_cols = len(mag_table.colnames)
-    mag_table.add_columns([col_Jmag, col_eJmag, col_Hmag, col_eHmag,
-                           col_Kmag, col_eKmag], np.repeat(n_cols-1, 6))
+    # Mod on 21/01/2017
+    mag_table.add_columns([col_ra, col_dec, col_Jmag, col_eJmag, col_Hmag,
+                           col_eHmag, col_Kmag, col_eKmag, col_date],
+                          np.repeat(n_cols-1, 9))
     return mag_str, mag_table
 #enddef
 
@@ -663,10 +677,12 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         
             if catalog == 'SDSS':
                 # + on 9/01/2017
-                mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True, runall=runall)
+                mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True,
+                                                  runall=runall)
 
                 # + on 10/01/2017
-                name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)), name='ID')
+                name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),
+                                  name='ID')
                 mag_table.add_column(name_Col, 0)
                 if mag_table0 == None:
                     mag_table0 = Table(mag_table[0])
@@ -677,7 +693,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             if 'SDSS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
                 if not exists(out_fits):
-                    t_hdu = get_sdss_images(c0, out_fits, band=image.replace('SDSS-',''))
+                    t_hdu = get_sdss_images(c0, out_fits,
+                                            band=image.replace('SDSS-',''))
 
                 # + on 06/01/2017
                 # Mod on 07/01/2017 to check if FITS file exists
@@ -689,7 +706,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Moved up on 20/01/2017 | + on 19/01/2017
             if '2MASS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.2MASS.fits.gz'
-                t_hdu = get_2mass_images(c0, out_fits, band=image.replace('2MASS-',''))
+                t_hdu = get_2mass_images(c0, out_fits,
+                                         band=image.replace('2MASS-',''))
                 out_image = out_fits
 
             print '### out_fits : ', out_fits

@@ -34,6 +34,7 @@ from astropy import coordinates as coords
 from astroquery.sdss import SDSS
 from astroquery.irsa import Irsa as IRSA
 from astroquery.skyview import SkyView
+from astropy.time import Time # + on 21/01/2017
 
 import aplpy # + on 24/12/2016
 
@@ -160,6 +161,47 @@ def get_offsets(c_ref, c0):
     ddec0 = ddec0.to(u.arcsec).value
     dist0 = np.sqrt(dra0**2+ddec0**2)
     return dra0, ddec0, dist0
+#enddef
+
+def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
+    '''
+    Function to determine proper motion based on 2MASS and SDSS coordinates
+
+    Parameters
+    ----------
+    silent : boolean
+      Turns off stdout messages. Default: True
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: False
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 21 January 2017
+    '''
+
+    if silent == False:
+        print '### Begin find_nearby_bright_star.sdss_2mass_proper_motion | '+systime()
+
+    c_sdss  = coords.SkyCoord(ra=tab0['ra'], dec=tab0['dec'], unit=(u.deg))
+    c_2mass = coords.SkyCoord(ra=tab0['ra_2mass'], dec=tab0['dec_2mass'],
+                              unit=(u.deg))
+
+    dra0, ddec0 = c_2mass.spherical_offsets_to(c_sdss)
+
+    t_sdss  = Time(tab0['mjd'], format='mjd')
+    t_2mass = Time(tab0['date_sdss'], format='iso')
+    t_diff  = (t_sdss - t_2mass).to(u.yr).value # in years
+
+    pra0, pdec0 = dra0.to(u.mas).value/t_diff, ddec0.to(u.mas).value/t_diff
+
+    if silent == False:
+        print '### End find_nearby_bright_star.sdss_2mass_proper_motion | '+systime()
+
+    return pra0, pdec0
 #enddef
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,

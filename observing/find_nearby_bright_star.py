@@ -186,6 +186,7 @@ def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
     Modified by Chun Ly, 22 January 2017
      - Fix small bug
      - Handle cases without 2MASS data
+     - Small bug found. Require [with_2mass] as non empty
     '''
 
     if silent == False:
@@ -198,21 +199,23 @@ def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
     pdec0 = np.repeat(0.000, len(tab0))
 
     # Deal with those without 2MASS data | + on 22/01/2017
-    tab2 = tab0.copy()
-    tab2 = tab2[with_2mass]
-    c_sdss  = coords.SkyCoord(ra=tab2['ra'], dec=tab2['dec'], unit=(u.deg))
-    c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
-                              unit=(u.deg))
+    if len(with_2mass) > 0:
+        tab2 = tab0.copy()
+        tab2 = tab2[with_2mass]
+        c_sdss  = coords.SkyCoord(ra=tab2['ra'], dec=tab2['dec'], unit=(u.deg))
+        c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
+                                  unit=(u.deg))
 
-    dra0, ddec0 = c_2mass.spherical_offsets_to(c_sdss)
+        dra0, ddec0 = c_2mass.spherical_offsets_to(c_sdss)
 
-    t_sdss  = Time(tab2['mjd'], format='mjd')
-    t_2mass = Time(tab2['date_2mass'], format='iso') # Mistake fix on 22/01/2017
-    t_diff  = (t_sdss - t_2mass).to(u.yr).value # in years
+        t_sdss  = Time(tab2['mjd'], format='mjd')
+        t_2mass = Time(tab2['date_2mass'], format='iso') # Mistake fix on 22/01/2017
+        t_diff  = (t_sdss - t_2mass).to(u.yr).value # in years
 
-    # Mod on 22/01/2017
-    pra0[with_2mass]  = dra0.to(u.mas).value/t_diff
-    pdec0[with_2mass] = ddec0.to(u.mas).value/t_diff
+        # Mod on 22/01/2017
+        pra0[with_2mass]  = dra0.to(u.mas).value/t_diff
+        pdec0[with_2mass] = ddec0.to(u.mas).value/t_diff
+    #endif
 
     if silent == False:
         print '### End find_nearby_bright_star.sdss_2mass_proper_motion | '+systime()
@@ -541,9 +544,10 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
 
         # Mod on 22/01/2017 for efficiency with runall == True
         rad0 = 5*u.arcmin if runall == True else 1*u.arcsec
+        if n_sources == 1: rad0 = 1*u.arcsec
         table_2mass = IRSA.query_region(t_c0[0], catalog='fp_psc',
                                         radius=rad0)
-        print table_2mass
+
         JHK_str0 = ['JHK=None'] * n_sources
         if len(table_2mass) > 0:
             c_2mass = coords.SkyCoord(ra=table_2mass['ra'],
@@ -587,9 +591,10 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
         pRA  = np.zeros(len(mag_table))
         pDec = np.zeros(len(mag_table))
 
+        # Mod on 22/01/2017
         if len(table_2mass) > 0:
-            print mag_str
-            pRA, pDec = sdss_2mass_proper_motion(mag_table) # + on 21/01/2017
+            if len(idx_arr) > 0:
+                pRA, pDec = sdss_2mass_proper_motion(mag_table) # + on 21/01/2017
 
         col_pRA  = Column(pRA, name='pRA')
         col_pDec = Column(pDec, name='pDec')

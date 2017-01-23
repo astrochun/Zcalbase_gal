@@ -177,10 +177,14 @@ def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
 
     Returns
     -------
+    pra0, pdec0 : float or array like
+      Proper motion in mas/yr for RA and Dec
 
     Notes
     -----
     Created by Chun Ly, 21 January 2017
+    Modified by Chun Ly, 22 January 2017
+     - Fix small bug
     '''
 
     if silent == False:
@@ -193,7 +197,7 @@ def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
     dra0, ddec0 = c_2mass.spherical_offsets_to(c_sdss)
 
     t_sdss  = Time(tab0['mjd'], format='mjd')
-    t_2mass = Time(tab0['date_sdss'], format='iso')
+    t_2mass = Time(tab0['date_2mass'], format='iso') # Mistake fix on 22/01/2017
     t_diff  = (t_sdss - t_2mass).to(u.yr).value # in years
 
     pra0, pdec0 = dra0.to(u.mas).value/t_diff, ddec0.to(u.mas).value/t_diff
@@ -204,9 +208,9 @@ def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
     return pra0, pdec0
 #enddef
 
-def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
-                       slitlength=99*u.arcsec, catalog='SDSS', image=None,
-                       silent=True, verbose=False):
+def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
+                       out_pdf=None, slitlength=99*u.arcsec, catalog='SDSS',
+                       image=None, silent=True, verbose=False):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -226,6 +230,12 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
 
     c1 : `astropy.coordinates` object
       Central coordinate of nearby bright stars
+
+    mag_str : string
+      Information on SDSS ugriz and 2MASS JHK for target
+
+    mag_table : astropy.table.table.Table
+      Table containing SDSS and 2MASS information, and proper motion
 
     out_pdf : string
       Output PDF filename.
@@ -271,6 +281,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
      - Call get_offsets() to simply get values
     Modified by Chun Ly, 19 January 2017
      - Add image keyword option
+    Modified by Chun Ly, 22 January 2017
+     - Add [mag_table] array input to get proper motion
     '''
 
     # + on 19/01/2017
@@ -319,14 +331,16 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, out_pdf=None,
     dra, ddec, dist    = get_offsets(c1[0], c0)    # Mod on 10/01/2017
     dra2, ddec2, dist2 = get_offsets(c1[0], c_ctr) # Mod on 10/01/2017
 
-    # Mod on 09/01/2017, 10/01/2017
+    # Mod on 09/01/2017, 10/01/2017, 22/01/2017
     bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
     bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]+'\n'
     bt_txt += ('Slit PA = %7.3f' % PA) + ' deg\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
     bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]+'\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
-    bt_txt += mag_str[0]
+    bt_txt += r'$\mu$(RA) = %+.3f $\mu$(Dec) = %+.3f' % (mag_table['pRA'][0],
+                                                         mag_table['pDec'][0])
+    bt_txt += '\n'+mag_str[0]
 
     gc.add_label(0.03, 0.125, bt_txt, color='magenta', relative=True,
                  ha='left', va='bottom', weight='medium', size='small')
@@ -540,10 +554,25 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
     # + on 10/01/2017
     mag_table = Table(mag_table)
     n_cols = len(mag_table.colnames)
-    # Mod on 21/01/2017
-    mag_table.add_columns([col_ra, col_dec, col_Jmag, col_eJmag, col_Hmag,
-                           col_eHmag, col_Kmag, col_eKmag, col_date],
-                          np.repeat(n_cols-1, 9))
+    # Mod on 22/01/2017
+    vec0 = [col_ra, col_dec, col_Jmag, col_eJmag, col_Hmag,
+            col_eHmag, col_Kmag, col_eKmag, col_date]
+    mag_table.add_columns(vec0, np.repeat(n_cols-1, len(vec0)))
+
+    # + on 22/01/2017
+    pRA  = np.zeros(len(mag_table))
+    pDec = np.zeros(len(mag_table))
+
+    if ('JHK=None' not in mag_str[0]):
+        print mag_str
+        pRA, pDec = sdss_2mass_proper_motion(mag_table) # + on 21/01/2017
+
+    col_pRA  = Column(pRA, name='pRA')
+    col_pDec = Column(pDec, name='pDec')
+
+    n_cols = len(mag_table.colnames)
+    mag_table.add_columns([col_pRA, col_pDec], np.repeat(n_cols-1, 2))
+
     return mag_str, mag_table
 #enddef
 
@@ -762,12 +791,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 out_pdf  = finding_chart_path + ID0[ii]+'.2MASS.pdf'
             print '### out_pdf : ', out_pdf
 
-            # Mod on 02/01/2017 for inputs
+            # Mod on 02/01/2017 and 22/01/2017 for inputs
             #if catalog == 'SDSS':
-            plot_finding_chart(out_image, ID0[ii], band0, c0, c1,
-                               mag_str, slitlength=slitlength,
-                               catalog=catalog, image=image,
-                               out_pdf=out_pdf)
+            plot_finding_chart(out_image, ID0[ii], band0, c0, c1, mag_str,
+                               mag_table, slitlength=slitlength, catalog=catalog,
+                               image=image, out_pdf=out_pdf)
         #endif
     #endfor
 
@@ -840,7 +868,6 @@ def zcalbase_gal_gemini():
     #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 
     do_step1 = 1
-
     if do_step1:
         # Select alignment stars based on SDSS
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,
@@ -856,7 +883,7 @@ def zcalbase_gal_gemini():
         pdfmerge.merge(files, out_pdf_2017a)
 
     # + on 20/01/2017
-    do_step2 = 1
+    do_step2 = 0
     if do_step2:
         # Generate 2MASS finding chart with SDSS catalog | + on 20/01/2017
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,

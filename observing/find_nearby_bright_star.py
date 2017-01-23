@@ -299,6 +299,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     Modified by Chun Ly, 22 January 2017
      - Add [mag_table] array input to get proper motion
      - Overlay 2MASS positions in red
+    Modified by Chun Ly, 23 January 2017
+     - Add SDSS observation date to label
     '''
 
     # + on 19/01/2017
@@ -352,12 +354,17 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     dra, ddec, dist    = get_offsets(c1[0], c0)    # Mod on 10/01/2017
     dra2, ddec2, dist2 = get_offsets(c1[0], c_ctr) # Mod on 10/01/2017
 
+    # + on 23/01/2017
+    obs_date = Time(mag_table['mjd'][0], format='mjd')
+    obs_date.format='iso'
+
     # Mod on 09/01/2017, 10/01/2017, 22/01/2017
     bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
     bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]+'\n'
     bt_txt += ('Slit PA = %7.3f' % PA) + ' deg\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
-    bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]+'\n'
+    bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]
+    bt_txt += ' Date='+obs_date.value.split(" ")[0]+'\n' # + on 23/01/2017
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
     bt_txt += r'$\mu$(RA) = %+.3f $\mu$(Dec) = %+.3f' % (mag_table['pRA'][0],
                                                          mag_table['pDec'][0])

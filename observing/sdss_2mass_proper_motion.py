@@ -146,6 +146,8 @@ def old(tab0, silent=True, verbose=False):
      - Fix small bug
      - Handle cases without 2MASS data
      - Small bug found. Require [with_2mass] as non empty
+    This code came from Zcalbase_gal.observing.find_nearby_bright_star.
+    It is now obsolete (replaced with main() function above)
     '''
 
     if silent == False:

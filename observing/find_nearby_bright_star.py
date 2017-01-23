@@ -36,6 +36,7 @@ from astroquery.irsa import Irsa as IRSA
 from astroquery.skyview import SkyView
 from astropy.time import Time # + on 21/01/2017
 
+import sdss_2mass_proper_motion
 import aplpy # + on 24/12/2016
 
 from PyMontage.scripts import montage_reproj # + on 02/01/2017
@@ -161,66 +162,6 @@ def get_offsets(c_ref, c0):
     ddec0 = ddec0.to(u.arcsec).value
     dist0 = np.sqrt(dra0**2+ddec0**2)
     return dra0, ddec0, dist0
-#enddef
-
-def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
-    '''
-    Function to determine proper motion based on 2MASS and SDSS coordinates
-
-    Parameters
-    ----------
-    silent : boolean
-      Turns off stdout messages. Default: True
-
-    verbose : boolean
-      Turns on additional stdout messages. Default: False
-
-    Returns
-    -------
-    pra0, pdec0 : float or array like
-      Proper motion in mas/yr for RA and Dec
-
-    Notes
-    -----
-    Created by Chun Ly, 21 January 2017
-    Modified by Chun Ly, 22 January 2017
-     - Fix small bug
-     - Handle cases without 2MASS data
-     - Small bug found. Require [with_2mass] as non empty
-    '''
-
-    if silent == False:
-        print '### Begin find_nearby_bright_star.sdss_2mass_proper_motion | '+systime()
-
-    with_2mass = np.where('XXXX' not in tab0['date_2mass'])[0] # + on 22/01/2017
-
-    # Initialize | + on 22/01/2017
-    pra0  = np.repeat(0.000, len(tab0))
-    pdec0 = np.repeat(0.000, len(tab0))
-
-    # Deal with those without 2MASS data | + on 22/01/2017
-    if len(with_2mass) > 0:
-        tab2 = tab0.copy()
-        tab2 = tab2[with_2mass]
-        c_sdss  = coords.SkyCoord(ra=tab2['ra'], dec=tab2['dec'], unit=(u.deg))
-        c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
-                                  unit=(u.deg))
-
-        dra0, ddec0 = c_2mass.spherical_offsets_to(c_sdss)
-
-        t_sdss  = Time(tab2['mjd'], format='mjd')
-        t_2mass = Time(tab2['date_2mass'], format='iso') # Mistake fix on 22/01/2017
-        t_diff  = (t_sdss - t_2mass).to(u.yr).value # in years
-
-        # Mod on 22/01/2017
-        pra0[with_2mass]  = dra0.to(u.mas).value/t_diff
-        pdec0[with_2mass] = ddec0.to(u.mas).value/t_diff
-    #endif
-
-    if silent == False:
-        print '### End find_nearby_bright_star.sdss_2mass_proper_motion | '+systime()
-
-    return pra0, pdec0
 #enddef
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
@@ -607,7 +548,7 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
         # Mod on 22/01/2017
         if len(table_2mass) > 0:
             if len(idx_arr) > 0:
-                pRA, pDec = sdss_2mass_proper_motion(mag_table) # + on 21/01/2017
+                pRA, pDec = sdss_2mass_proper_motion.old(mag_table)
 
         col_pRA  = Column(pRA, name='pRA')
         col_pDec = Column(pDec, name='pDec')

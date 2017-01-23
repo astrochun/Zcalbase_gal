@@ -185,22 +185,34 @@ def sdss_2mass_proper_motion(tab0, silent=True, verbose=False):
     Created by Chun Ly, 21 January 2017
     Modified by Chun Ly, 22 January 2017
      - Fix small bug
+     - Handle cases without 2MASS data
     '''
 
     if silent == False:
         print '### Begin find_nearby_bright_star.sdss_2mass_proper_motion | '+systime()
 
-    c_sdss  = coords.SkyCoord(ra=tab0['ra'], dec=tab0['dec'], unit=(u.deg))
-    c_2mass = coords.SkyCoord(ra=tab0['ra_2mass'], dec=tab0['dec_2mass'],
+    with_2mass = np.where('XXXX' not in tab0['date_2mass'])[0] # + on 22/01/2017
+
+    # Initialize | + on 22/01/2017
+    pra0  = np.repeat(0.000, len(tab0))
+    pdec0 = np.repeat(0.000, len(tab0))
+
+    # Deal with those without 2MASS data | + on 22/01/2017
+    tab2 = tab0.copy()
+    tab2 = tab2[with_2mass]
+    c_sdss  = coords.SkyCoord(ra=tab2['ra'], dec=tab2['dec'], unit=(u.deg))
+    c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
                               unit=(u.deg))
 
     dra0, ddec0 = c_2mass.spherical_offsets_to(c_sdss)
 
-    t_sdss  = Time(tab0['mjd'], format='mjd')
-    t_2mass = Time(tab0['date_2mass'], format='iso') # Mistake fix on 22/01/2017
+    t_sdss  = Time(tab2['mjd'], format='mjd')
+    t_2mass = Time(tab2['date_2mass'], format='iso') # Mistake fix on 22/01/2017
     t_diff  = (t_sdss - t_2mass).to(u.yr).value # in years
 
-    pra0, pdec0 = dra0.to(u.mas).value/t_diff, ddec0.to(u.mas).value/t_diff
+    # Mod on 22/01/2017
+    pra0[with_2mass]  = dra0.to(u.mas).value/t_diff
+    pdec0[with_2mass] = ddec0.to(u.mas).value/t_diff
 
     if silent == False:
         print '### End find_nearby_bright_star.sdss_2mass_proper_motion | '+systime()
@@ -485,6 +497,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
      - Combine SDSS and 2MASS photometry, output astropy.table
     Modified by Chun Ly, 21 January 2017
      - Added columns of 2MASS's RA, Dec, and observation date
+    Modified by Chun Ly, 22 January 2017
+     - Improve efficiency for runall=True with larger radius in IRSA.query_region
     '''
 
     n_sources = len(table)
@@ -525,53 +539,64 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
         t_c0 = coords.SkyCoord(ra=table['ra'], dec=table['dec'],
                                unit=(u.deg, u.deg))
 
-        n_val = n_sources if runall == True else 1
-        for ii in range(n_val):
-            table_2mass = IRSA.query_region(t_c0[ii], catalog='fp_psc',
-                                            radius=1*u.arcsec)
-            if len(table_2mass) == 0:
-                mag_str[ii] += 'JHK=None'
-            else:
-                tab0 = table_2mass[0]
-                mag_str[ii] += 'J=%5.2f  H=%5.2f  K=%5.2f' % \
+        # Mod on 22/01/2017 for efficiency with runall == True
+        rad0 = 5*u.arcmin if runall == True else 1*u.arcsec
+        table_2mass = IRSA.query_region(t_c0[0], catalog='fp_psc',
+                                        radius=rad0)
+        print table_2mass
+        JHK_str0 = ['JHK=None'] * n_sources
+        if len(table_2mass) > 0:
+            c_2mass = coords.SkyCoord(ra=table_2mass['ra'],
+                                      dec=table_2mass['dec'], unit=(u.deg))
+
+            idx_arr, idx_ref, d2d, d3d = t_c0.search_around_sky(c_2mass, 1*u.arcsec)
+
+            for jj in range(len(idx_arr)):
+                i1 = idx_arr[jj]
+                i2 = idx_ref[jj]
+                tab0 = table_2mass[i1]
+                JHK_str0[i2] = 'J=%5.2f  H=%5.2f  K=%5.2f' % \
                                (tab0['j_m'],tab0['h_m'],tab0['k_m'])
 
                 # + on 10/01/2017
-                col_Jmag[ii]  = tab0['j_m']
-                col_Hmag[ii]  = tab0['h_m']
-                col_Kmag[ii]  = tab0['k_m']
-                col_eJmag[ii] = tab0['j_cmsig']
-                col_eHmag[ii] = tab0['h_cmsig']
-                col_eKmag[ii] = tab0['k_cmsig']
+                col_Jmag[i2]  = tab0['j_m']
+                col_Hmag[i2]  = tab0['h_m']
+                col_Kmag[i2]  = tab0['k_m']
+                col_eJmag[i2] = tab0['j_cmsig']
+                col_eHmag[i2] = tab0['h_cmsig']
+                col_eKmag[i2] = tab0['k_cmsig']
 
                 # + on 21/01/2017
-                col_ra[ii]    = tab0['ra']
-                col_dec[ii]   = tab0['dec']
-                col_date[ii]  = tab0['xdate']
-        #endfor
+                col_ra[i2]    = tab0['ra']
+                col_dec[i2]   = tab0['dec']
+                col_date[i2]  = tab0['xdate']
+            #endfor
+        #endif
+
+        # + on 22/01/2017
+        mag_str = [a + b for a,b in zip(mag_str,JHK_str0)]
+
+        # + on 10/01/2017
+        n_cols = len(mag_table.colnames)
+        # Mod on 22/01/2017
+        vec0 = [col_ra, col_dec, col_Jmag, col_eJmag, col_Hmag,
+                col_eHmag, col_Kmag, col_eKmag, col_date]
+        mag_table.add_columns(vec0, np.repeat(n_cols-1, len(vec0)))
+
+        # + on 22/01/2017
+        pRA  = np.zeros(len(mag_table))
+        pDec = np.zeros(len(mag_table))
+
+        if len(table_2mass) > 0:
+            print mag_str
+            pRA, pDec = sdss_2mass_proper_motion(mag_table) # + on 21/01/2017
+
+        col_pRA  = Column(pRA, name='pRA')
+        col_pDec = Column(pDec, name='pDec')
+
+        n_cols = len(mag_table.colnames)
+        mag_table.add_columns([col_pRA, col_pDec], np.repeat(n_cols-1, 2))
     #endif
-
-    # + on 10/01/2017
-    mag_table = Table(mag_table)
-    n_cols = len(mag_table.colnames)
-    # Mod on 22/01/2017
-    vec0 = [col_ra, col_dec, col_Jmag, col_eJmag, col_Hmag,
-            col_eHmag, col_Kmag, col_eKmag, col_date]
-    mag_table.add_columns(vec0, np.repeat(n_cols-1, len(vec0)))
-
-    # + on 22/01/2017
-    pRA  = np.zeros(len(mag_table))
-    pDec = np.zeros(len(mag_table))
-
-    if ('JHK=None' not in mag_str[0]):
-        print mag_str
-        pRA, pDec = sdss_2mass_proper_motion(mag_table) # + on 21/01/2017
-
-    col_pRA  = Column(pRA, name='pRA')
-    col_pDec = Column(pDec, name='pDec')
-
-    n_cols = len(mag_table.colnames)
-    mag_table.add_columns([col_pRA, col_pDec], np.repeat(n_cols-1, 2))
 
     return mag_str, mag_table
 #enddef
@@ -872,7 +897,7 @@ def zcalbase_gal_gemini():
         # Select alignment stars based on SDSS
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
-             slitlength=slitlength, runall=False)
+             slitlength=slitlength, runall=True) #runall=False)
 
         # Merge PDF finding chart files for 2017A targets | + on 08/01/2017
         files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for

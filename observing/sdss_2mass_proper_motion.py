@@ -31,6 +31,8 @@ from astropy.time import Time
 
 from scipy.stats import linregress
 
+from matplotlib.backends.backend_pdf import PdfPages
+
 SDSS_fld      = ['ra','dec','raErr','decErr','objid','run','rerun','camcol',
                  'field','obj', 'type','mode','mjd']
                  
@@ -39,7 +41,7 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
-def main(tab0, silent=True, verbose=False):
+def main(tab0, out_pdf=None, silent=False, verbose=True):
     '''
     Main function to determine proper motion based on 2MASS and SDSS coordinates
 
@@ -64,6 +66,7 @@ def main(tab0, silent=True, verbose=False):
     Created by Chun Ly, 23 January 2017
      - Started as a copy of observing.find_nearby_bright_star.sdss_2mass_proper_motion
      - Decided to make it a standalone and to run on full sample
+     - Plotting of proper motion info added in later
     '''
 
     if silent == False:
@@ -82,6 +85,7 @@ def main(tab0, silent=True, verbose=False):
     if len(with_2mass) > 0:
         tab2 = tab0.copy()
         tab2 = tab2[with_2mass]
+        len2 = len(tab2) # later + on 23/01/2017
         c_sdss  = coords.SkyCoord(ra=tab2['ra'], dec=tab2['dec'], unit=(u.deg))
         c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
                                   unit=(u.deg))
@@ -89,7 +93,16 @@ def main(tab0, silent=True, verbose=False):
         ra_2mass  = c_2mass.ra.value
         dec_2mass = c_2mass.dec.value
 
-        for ii in range(len(tab2)):
+        # later + on 23/01/2017
+        if out_pdf == None:
+            out_pdf = 'sdss_2mass_proper_motion.pdf'
+        pp = PdfPages(out_pdf)
+        n_panels = 5
+
+        for ii in range(len2):
+            row = ii % n_panels
+            if row == 0: fig, ax0 = plt.subplots(5, 2)
+
             tab_SDSS = SDSS.query_region(c_sdss[ii], radius=2*u.arcsec,
                                          data_release=12,
                                          photoobj_fields=SDSS_phot_fld)
@@ -109,12 +122,71 @@ def main(tab0, silent=True, verbose=False):
             dec0  = [dec_2mass[ii]] + SDSS_dec.tolist()
 
             x0 = time0 - 2000.0
-            ra_regress  = linregress(x0, ra0)
-            dec_regress = linregress(x0, dec0)
-            pra0[with_2mass[ii]]  = ra_regress.slope * 3600.0 * 1E3
-            pdec0[with_2mass[ii]] = dec_regress.slope * 3600.0 * 1E3
+
+            # Mod on 23/01/2017
+            ra_fit  = linregress(x0, ra0)
+            dec_fit = linregress(x0, dec0)
+            pra0[with_2mass[ii]]  = ra_fit.slope * 3600.0 * 1E3
+            pdec0[with_2mass[ii]] = dec_fit.slope * 3600.0 * 1E3
+
+            # later + on 23/01/2017
+            y1 = (ra0-ra_fit.intercept) * 3600.0 * 1E3
+            y2 = (dec0-dec_fit.intercept) * 3600.0 * 1E3
+
+            # Red for 2MASS | later + on 23/01/2017
+            ax0[row][0].scatter(x0[0], y1[0], marker='o', facecolor='r',
+                                alpha=0.5, edgecolor='none')
+            ax0[row][1].scatter(x0[0], y2[0], marker='o', facecolor='r',
+                                alpha=0.5, edgecolor='none')
+
+            # Blue for SDSS | later + on 23/01/2017
+            ax0[row][0].scatter(x0[1:], y1[1:], marker='o', facecolor='b',
+                                alpha=0.5, edgecolor='none')
+            ax0[row][1].scatter(x0[1:], y2[1:], marker='o', facecolor='b',
+                                alpha=0.5, edgecolor='none')
+
+            # later + on 23/01/2017
+            t_x  = np.array([-5,10])
+            t_y1 = (ra_fit.slope*t_x) * 3600.0 * 1E3
+            t_y2 = (dec_fit.slope*t_x) * 3600.0 * 1E3
+            ax0[row][0].plot(t_x, t_y1, 'r--')
+            ax0[row][1].plot(t_x, t_y2, 'r--')
+
+            # later + on 23/01/2017
+            ax0[row][0].annotate(tab2['ID'][ii], [0.05,0.95], ha='left',
+                                 va='top', xycoords='axes fraction',
+                                 weight='semibold')
+
+            # later + on 23/01/2017
+            s_pRA  = r'$\mu$(RA) = %+0.3f' % pra0[with_2mass[ii]]
+            s_pDec = r'$\mu$(Dec) = %+0.3f' % pdec0[with_2mass[ii]]
+
+            # later + on 23/01/2017
+            ax0[row][0].annotate(s_pRA, [0.05,0.05], ha='left',
+                                 va='bottom', xycoords='axes fraction')
+            ax0[row][1].annotate(s_pDec, [0.05,0.05], ha='left',
+                                 va='bottom', xycoords='axes fraction')
+
+            # later + on 23/01/2017
+            if (ii == len2-1) and (len2 % n_panels != 0):
+                for aa in np.arange(len2 % n_panels, n_panels):
+                    ax0[aa][0].axis('off')
+                    ax0[aa][1].axis('off')
+
+            # later + on 23/01/2017
+            if (row == n_panels-1) or (ii == len(tab2)-1):
+                ax0[row][0].set_xlabel('Epoch - 2000.0')
+                ax0[row][1].set_xlabel('Epoch - 2000.0')
+                ax0[row][2].set_ylabel('RA - RA(J2000) [mas]')
+
+                fig.set_size_inches(8,8)
+                fig.savefig(pp, format='pdf', bbox_inches='tight')
         #endfor
     #endif
+
+    # + on 23/01/2017
+    if silent == False: print '### Writing : ', out_pdf
+    pp.close()
 
     if silent == False:
         print '### End sdss_2mass_proper_motion.main() | '+systime()

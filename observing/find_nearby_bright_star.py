@@ -298,6 +298,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Add image keyword option
     Modified by Chun Ly, 22 January 2017
      - Add [mag_table] array input to get proper motion
+     - Overlay 2MASS positions in red
     '''
 
     # + on 19/01/2017
@@ -338,6 +339,11 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     gc.show_markers([c1.ra.value], [c1.dec.value], layer='secondary',
                     edgecolor='blue', facecolor='none', marker='o', s=25,
                     linewidth=0.5)
+
+    # Overlay 2MASS coordinates in red | + on 22/01/2017
+    gc.show_markers(mag_table['ra_2mass'], mag_table['dec_2mass'],
+                    edgecolor='red', facecolor='none', marker='o',
+                    s=15, linewidth=0.5)
     
     # Label things in lower left text | + on 03/01/2017
     str_c_t  = c0.to_string('hmsdms').split(' ')
@@ -913,7 +919,7 @@ def zcalbase_gal_gemini():
         pdfmerge.merge(files, out_pdf_2017a)
 
     # + on 20/01/2017
-    do_step2 = 0
+    do_step2 = 1
     if do_step2:
         # Generate 2MASS finding chart with SDSS catalog | + on 20/01/2017
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,

@@ -106,6 +106,15 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             tab_SDSS = SDSS.query_region(c_sdss[ii], radius=2*u.arcsec,
                                          data_release=12,
                                          photoobj_fields=SDSS_phot_fld)
+
+            # Restrict to 1"
+            c_tab = coords.SkyCoord(tab_SDSS['ra'], tab_SDSS['dec'],
+                                    unit=(u.deg))
+
+            dist0 = c_sdss[ii].separation(c_tab).to(u.arcsec).value
+            in_rad = np.where(dist0 <= 1.0)[0]
+            tab_SDSS = tab_SDSS[in_rad]
+
             SDSS_date = Time(tab_SDSS['mjd'].data, format='mjd')
             SDSS_date.format='decimalyear'
 
@@ -158,14 +167,24 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                                  weight='semibold')
 
             # later + on 23/01/2017
-            s_pRA  = r'$\mu$(RA) = %+0.3f' % pra0[with_2mass[ii]]
-            s_pDec = r'$\mu$(Dec) = %+0.3f' % pdec0[with_2mass[ii]]
+            s_pRA  = r'$\mu_{\alpha}$ = %+0.3f [mas/yr]' % pra0[with_2mass[ii]]
+            s_pDec = r'$\mu_{\delta}$ = %+0.3f [mas/yr]' % pdec0[with_2mass[ii]]
+
+            ax0[row][0].set_xlim(t_x)
+            ax0[row][1].set_xlim(t_x)
 
             # later + on 23/01/2017
             ax0[row][0].annotate(s_pRA, [0.05,0.05], ha='left',
                                  va='bottom', xycoords='axes fraction')
             ax0[row][1].annotate(s_pDec, [0.05,0.05], ha='left',
                                  va='bottom', xycoords='axes fraction')
+
+            # later + on 23/01/2017
+            str_N = 'N(SDSS) = '+str(len(tab_SDSS))
+            ax0[row][0].annotate(str_N, [0.95,0.95], ha='right', va='top',
+                                 xycoords='axes fraction', fontsize='10')
+            ax0[row][1].annotate(str_N, [0.95,0.95], ha='right', va='top',
+                                 xycoords='axes fraction', fontsize='10')
 
             # later + on 23/01/2017
             if (ii == len2-1) and (len2 % n_panels != 0):
@@ -177,8 +196,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             if (row == n_panels-1) or (ii == len(tab2)-1):
                 ax0[row][0].set_xlabel('Epoch - 2000.0')
                 ax0[row][1].set_xlabel('Epoch - 2000.0')
-                ax0[row][2].set_ylabel('RA - RA(J2000) [mas]')
-
+                ax0[2][0].set_ylabel('RA - RA(J2000) [mas]') # Bug found here with index
+                ax0[2][1].set_ylabel('Dec - Dec(J2000) [mas]')
+                ax0[2][1].yaxis.set_label_position("right")
                 fig.set_size_inches(8,8)
                 fig.savefig(pp, format='pdf', bbox_inches='tight')
         #endfor

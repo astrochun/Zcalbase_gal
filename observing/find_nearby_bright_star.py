@@ -87,6 +87,8 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
        slit length
     Modified by Chun Ly, 9 January 2017
      - Fix longslit coordinates. Correct ra0 and dec0 this time
+    Modified by Chun Ly, 24 January 2017
+     - Force fk5 coordinate for astropy.coords
     '''
     
     if silent == False:
@@ -99,7 +101,8 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     ra_avg  = np.average([c0.ra.value, c1.ra.value])
     dec_avg = np.average([c0.dec.value, c1.dec.value])
 
-    c_ctr = coords.SkyCoord(ra=ra_avg, dec=dec_avg, unit=(u.degree,u.degree))
+    # Mod on 24/01/2017 for fk5
+    c_ctr = coords.SkyCoord(ra_avg, dec_avg, 'fk5', unit=(u.deg))
 
     # Get edges of longslit | Added later
     # Mod on 04/01/2017
@@ -456,6 +459,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
      - Added columns of 2MASS's RA, Dec, and observation date
     Modified by Chun Ly, 22 January 2017
      - Improve efficiency for runall=True with larger radius in IRSA.query_region
+    Modified by Chun Ly, 24 January 2017
+     - Force fk5 coordinate for astropy.coords
     '''
 
     n_sources = len(table)
@@ -493,8 +498,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
     col_date = Column(np.repeat('XXXX-XX-XX', n_sources), name='date_2mass')
 
     if TWOMASS == True:
-        t_c0 = coords.SkyCoord(ra=table['ra'], dec=table['dec'],
-                               unit=(u.deg, u.deg))
+        # Mod on 24/01/2017 for fk5
+        t_c0 = coords.SkyCoord(table['ra'], table['dec'], 'fk5', unit=(u.deg))
 
         # Mod on 22/01/2017 for efficiency with runall == True
         rad0 = 5*u.arcmin if runall == True else 1*u.arcsec
@@ -504,8 +509,9 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
 
         JHK_str0 = ['JHK=None'] * n_sources
         if len(table_2mass) > 0:
-            c_2mass = coords.SkyCoord(ra=table_2mass['ra'],
-                                      dec=table_2mass['dec'], unit=(u.deg))
+            # Mod on 24/01/2017 for fk5
+            c_2mass = coords.SkyCoord(table_2mass['ra'], table_2mass['dec'],
+                                      'fk5', unit=(u.deg))
 
             idx_arr, idx_ref, d2d, d3d = t_c0.search_around_sky(c_2mass, 1*u.arcsec)
 
@@ -646,6 +652,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Add image keyword option
     Modified by Chun Ly, 20 January 2017
      - Handle case of SDSS catalog but with 2MASS images for finding charts
+    Modified by Chun Ly, 24 January 2017
+     - Force fk5 coordinate for astropy.coords
     '''
 
     if silent == False:
@@ -676,7 +684,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
     mag_table0 = None # Initialize | + on 10/01/2017
     for ii in range(n_sources):
-        c0 = coords.SkyCoord(ra=RA[ii], dec=DEC[ii], unit=(u.hour, u.degree))
+        # Mod on 24/01/2017 for fk5
+        c0 = coords.SkyCoord(RA[ii], DEC[ii], 'fk5', unit=(u.hour, u.degree))
         # Moved up on 09/01/2017
         out_table_file = out_path + ID0[ii] + '.'+catalog+'.nearby.txt' 
 
@@ -691,7 +700,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
         # Get distance from target
         if len(xid) > 0:
-            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
+            # Mod on 24/01/2017 for fk5
+            c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5',
+                                 unit=(u.deg, u.deg))
             sep = c0.separation(c1).to(u.arcsec).value
             col1 = Column(sep, name='Dist(arcsec)')
             xid.add_column(col1)
@@ -723,7 +734,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             xid.sort([mag_filt,'Dist(arcsec)'])
 
             # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
-            c1 = coords.SkyCoord(xid['ra'], xid['dec'], unit=(u.deg, u.deg))
+            # Mod on 24/01/2017 for fk5
+            c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5', unit=(u.deg))
 
             if silent == False:
                 print '### Writing: ', out_table_file
@@ -761,8 +773,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Moved up on 20/01/2017 | + on 19/01/2017
             if '2MASS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.2MASS.fits.gz'
-                t_hdu = get_2mass_images(c0, out_fits,
-                                         band=image.replace('2MASS-',''))
+                if not exists(out_fits): # Mod on 24/01/2017 to over override
+                    t_hdu = get_2mass_images(c0, out_fits,
+                                             band=image.replace('2MASS-',''))
                 out_image = out_fits
 
             print '### out_fits : ', out_fits

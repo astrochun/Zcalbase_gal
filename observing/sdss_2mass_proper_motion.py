@@ -26,6 +26,7 @@ from astropy.table import Table, Column
 from astropy import coordinates as coords
 from astroquery.sdss import SDSS
 from astroquery.irsa import Irsa as IRSA
+from astroquery.vizier import Vizier # + on 24/01/2016
 
 from astropy.time import Time
 
@@ -40,6 +41,50 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMagErr_g', 'modelMag_r', 'modelMagErr_r',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
+
+def query_movers(c_arr, silent=False, verbose=True):
+    '''
+    Query MoVeRS program to see if sample is present (Theissen et al. 2016)
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 24 January 2017
+    '''
+
+    if silent == False:
+        print '### Begin sdss_2mass_proper_motion.query_movers() | '+systime()
+
+    n_sources = len(c_arr)
+
+    pRA0    = np.repeat(-999.999, n_sources)
+    pDec0   = np.repeat(-999.999, n_sources)
+    e_pRA0  = np.repeat(-999.999, n_sources)
+    e_pDec0 = np.repeat(-999.999, n_sources)
+
+    for ii in range(n_sources):
+        tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
+                                   catalog='J/AJ/151/41')
+        if len(tab0) != 0:
+            pRA0[ii]    = tab0[0]['pmRA']
+            pDec0[ii]   = tab0[0]['pmDE']
+            e_pRA0[ii]  = tab0[0]['e_pmRA']
+            e_pDec0[ii] = tab0[0]['e_pmDE']
+
+    arr0   = [pRA0, e_pRA0, pDec0, e_pDec0]
+    names0 = ('pmRA', 'e_pmRA', 'pmDec', 'e_pmDec')
+    tab0 = Table(arr0, names=names0)
+
+    if silent == False:
+        print '### End sdss_2mass_proper_motion.query_movers() | '+systime()
+
+    return tab0
+#enddef
 
 def main(tab0, out_pdf=None, silent=False, verbose=True):
     '''
@@ -90,12 +135,14 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
         c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
                                   unit=(u.deg))
 
+        movers_pm_tab = query_movers(c_sdss) # + on 24/01/2017
+        print movers_pm_tab
+
         ra_2mass  = c_2mass.ra.value
         dec_2mass = c_2mass.dec.value
 
         # later + on 23/01/2017
-        if out_pdf == None:
-            out_pdf = 'sdss_2mass_proper_motion.pdf'
+        if out_pdf == None: out_pdf = 'sdss_2mass_proper_motion.pdf'
         pp = PdfPages(out_pdf)
         n_panels = 5
 

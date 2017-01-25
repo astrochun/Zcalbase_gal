@@ -44,7 +44,8 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
 
 def query_movers(c_arr, silent=False, verbose=True):
     '''
-    Query MoVeRS program to see if sample is present (Theissen et al. 2016)
+    Query MoVeRS catalog (Theissen et al. 2016, AJ, 151, 41) to see if sample is
+    present
 
     Parameters
     ----------
@@ -112,6 +113,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
      - Started as a copy of observing.find_nearby_bright_star.sdss_2mass_proper_motion
      - Decided to make it a standalone and to run on full sample
      - Plotting of proper motion info added in later
+    Modified by Chun Ly, 23 January 2017
+     - Call query_movers() and annotate panel with MoVeRS information
     '''
 
     if silent == False:
@@ -213,9 +216,18 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                                  va='top', xycoords='axes fraction',
                                  weight='semibold')
 
+            # + on 24/01/2017
+            m_pRA,  m_e_pRA  = movers_pm_tab['pmRA'][ii], movers_pm_tab['e_pmRA'][ii]
+            m_pDec, m_e_pDec = movers_pm_tab['pmDec'][ii], movers_pm_tab['e_pmDec'][ii]
+            if m_pRA != -999.999:
+                s_pRA  = r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (m_pRA, m_e_pRA)+' (MoVeRS)\n'
+                s_pDec = r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (m_pDec, m_e_pDec)+ '(MoVeRS)\n'
+            else:
+                s_pRA, s_pDec = '', ''
+
             # later + on 23/01/2017
-            s_pRA  = r'$\mu_{\alpha}$ = %+0.3f [mas/yr]' % pra0[with_2mass[ii]]
-            s_pDec = r'$\mu_{\delta}$ = %+0.3f [mas/yr]' % pdec0[with_2mass[ii]]
+            s_pRA  += r'$\mu_{\alpha}$ = %+0.3f [mas/yr]' % pra0[with_2mass[ii]]
+            s_pDec += r'$\mu_{\delta}$ = %+0.3f [mas/yr]' % pdec0[with_2mass[ii]]
 
             ax0[row][0].set_xlim(t_x)
             ax0[row][1].set_xlim(t_x)

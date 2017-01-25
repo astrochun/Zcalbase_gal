@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 import astropy.units as u
 
-from astropy.table import Table, Column
+from astropy.table import Table, Column, vstack
 
 from astropy import coordinates as coords
 from astroquery.sdss import SDSS
@@ -87,6 +87,52 @@ def query_movers(c_arr, silent=False, verbose=True):
     return tab0
 #enddef
 
+def query_ucac4(c_arr, silent=False, verbose=True):
+    '''
+    Query UCAC4 catalog (Zacharias et al. 2013, AJ, 145, 44) to get proper motion
+    information
+
+    Parameters
+    ----------
+    c_arr : astropy.coordinates.sky_coordinate.SkyCoord
+      Set of coordinates to cross-match against
+
+    Returns
+    -------
+    ucac_tab : astropy.table.table.Table
+      Vizier table containing all information, including proper motion
+
+    Notes
+    -----
+    Created by Chun Ly, 25 January 2017
+    '''
+
+    if silent == False:
+        print '### Begin sdss_2mass_proper_motion.query_ucac4() | '+systime()
+
+    n_sources = len(c_arr)
+
+    cnt = 0
+    for ii in range(n_sources):
+        tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
+                                   catalog='I/322A')
+        if len(tab0) != 0:
+            if cnt == 0:
+                ucac_tab = tab0[0]
+            else:
+                ucac_tab = vstack([ucac_tab, tab0[0]])
+            cnt += 1
+        else:
+            ucac_tab.add_row()
+    #endfor
+    if silent == False: print '## cnt : ', cnt
+
+    if silent == False:
+        print '### End sdss_2mass_proper_motion.query_ucac4() | '+systime()
+
+    return ucac_tab
+#enddef
+
 def main(tab0, out_pdf=None, silent=False, verbose=True):
     '''
     Main function to determine proper motion based on 2MASS and SDSS coordinates
@@ -140,6 +186,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
 
         movers_pm_tab = query_movers(c_sdss) # + on 24/01/2017
         print movers_pm_tab
+
+        ucac_tab = query_ucac4(c_sdss) # + on 25/01/2017
+        print ucac_tab
 
         ra_2mass  = c_2mass.ra.value
         dec_2mass = c_2mass.dec.value

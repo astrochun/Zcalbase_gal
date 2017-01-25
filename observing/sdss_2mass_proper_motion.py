@@ -43,13 +43,18 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
-def query_movers(c_arr, silent=False, verbose=True):
+def query_movers(c_arr, col_ID, silent=False, verbose=True):
     '''
     Query MoVeRS catalog (Theissen et al. 2016, AJ, 151, 41) to see if sample is
     present
 
     Parameters
     ----------
+    c_arr : astropy.coordinates.sky_coordinate.SkyCoord
+      Set of coordinates to cross-match against
+
+    col_ID : astropy.table.column.Column
+      Astropy column containing the ID
 
     Returns
     -------
@@ -59,6 +64,7 @@ def query_movers(c_arr, silent=False, verbose=True):
     Created by Chun Ly, 24 January 2017
     Modified by Chun Ly, 25 January 2017
      - Output full MoVeRS table instead of just an astropy.table with proper motion
+     - Add col_ID input to include in table
     '''
 
     if silent == False:
@@ -89,10 +95,11 @@ def query_movers(c_arr, silent=False, verbose=True):
     if silent == False:
         print '### End sdss_2mass_proper_motion.query_movers() | '+systime()
 
+    movers_tab.add_column(col_ID, 0) # + on 25/01/2017
     return movers_tab
 #enddef
 
-def query_ucac4(c_arr, silent=False, verbose=True):
+def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
     '''
     Query UCAC4 catalog (Zacharias et al. 2013, AJ, 145, 44) to get proper motion
     information
@@ -102,6 +109,9 @@ def query_ucac4(c_arr, silent=False, verbose=True):
     c_arr : astropy.coordinates.sky_coordinate.SkyCoord
       Set of coordinates to cross-match against
 
+    col_ID : astropy.table.column.Column
+      Astropy column containing the ID
+
     Returns
     -------
     ucac_tab : astropy.table.table.Table
@@ -110,6 +120,7 @@ def query_ucac4(c_arr, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 25 January 2017
+     - Add col_ID input to include in table (later added)
     '''
 
     if silent == False:
@@ -134,6 +145,8 @@ def query_ucac4(c_arr, silent=False, verbose=True):
 
     if silent == False:
         print '### End sdss_2mass_proper_motion.query_ucac4() | '+systime()
+
+    ucac_tab.add_column(col_ID, 0) # later + on 25/01/2017
 
     return ucac_tab
 #enddef
@@ -171,12 +184,15 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
        SDSS data
      - Change call to query_movers() and draw proper motion (dashed green)
        over 2MASS and SDSS data
+     - Output ASCII table containing proper motion
     '''
 
     if silent == False:
         print '### Begin sdss_2mass_proper_motion.main() | '+systime()
 
     len0 = len(tab0)
+
+    out_path = os.path.dirname(out_pdf)+'/' # + on 25/01/2017
 
     with_2mass = np.array([idx for idx in range(len(tab0)) if
                            'XXXX' not in tab0['date_2mass'][idx]])
@@ -194,11 +210,21 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
         c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
                                   unit=(u.deg))
 
-        movers_tab = query_movers(c_sdss) # + on 24/01/2017
+        movers_tab = query_movers(c_sdss, tab2['ID']) # + on 24/01/2017
         print movers_tab
 
-        ucac_tab = query_ucac4(c_sdss) # + on 25/01/2017
+        # + on 25/01/2017
+        outfile1 = out_path+'Proper_Motions_Alignment_Stars.MoVeRS.txt'
+        if silent == False: print '### Writing : ', outfile1
+        movers_tab.write(outfile1, format='ascii.fixed_width_two_line')
+
+        ucac_tab = query_ucac4(c_sdss, tab2['ID']) # + on 25/01/2017
         #print ucac_tab
+
+        # + on 25/01/2017
+        outfile2 = out_path+'Proper_Motions_Alignment_Stars.UCAC4.txt'
+        if silent == False: print '### Writing : ', outfile2
+        ucac_tab.write(outfile2, format='ascii.fixed_width_two_line')
 
         ra_2mass  = c_2mass.ra.value
         dec_2mass = c_2mass.dec.value

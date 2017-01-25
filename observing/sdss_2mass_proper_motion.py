@@ -57,6 +57,8 @@ def query_movers(c_arr, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 24 January 2017
+    Modified by Chun Ly, 25 January 2017
+     - Output full MoVeRS table instead of just an astropy.table with proper motion
     '''
 
     if silent == False:
@@ -64,28 +66,30 @@ def query_movers(c_arr, silent=False, verbose=True):
 
     n_sources = len(c_arr)
 
-    pRA0    = np.repeat(-999.999, n_sources)
-    pDec0   = np.repeat(-999.999, n_sources)
-    e_pRA0  = np.repeat(-999.999, n_sources)
-    e_pDec0 = np.repeat(-999.999, n_sources)
-
+    cnt = 0
     for ii in range(n_sources):
         tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
                                    catalog='J/AJ/151/41')
         if len(tab0) != 0:
-            pRA0[ii]    = tab0[0]['pmRA']
-            pDec0[ii]   = tab0[0]['pmDE']
-            e_pRA0[ii]  = tab0[0]['e_pmRA']
-            e_pDec0[ii] = tab0[0]['e_pmDE']
-
-    arr0   = [pRA0, e_pRA0, pDec0, e_pDec0]
-    names0 = ('pmRA', 'e_pmRA', 'pmDec', 'e_pmDec')
-    tab0 = Table(arr0, names=names0)
+            if cnt == 0:
+                # Handle case when first match is not the first source
+                test_tab = tab0[0].copy()
+                test_tab.add_row()
+                test_tab = Table(test_tab[-1])
+                for jj in range(ii):
+                    test_tab.add_row()
+                movers_tab = test_tab
+                movers_tab = vstack([movers_tab, tab0[0]])
+            else:
+                movers_tab = vstack([movers_tab, tab0[0]])
+            cnt += 1
+        else:
+            if cnt != 0: movers_tab.add_row()
 
     if silent == False:
         print '### End sdss_2mass_proper_motion.query_movers() | '+systime()
 
-    return tab0
+    return movers_tab
 #enddef
 
 def query_ucac4(c_arr, silent=False, verbose=True):
@@ -163,7 +167,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     Modified by Chun Ly, 24 January 2017
      - Call query_movers() and annotate panel with MoVeRS information
     Modified by Chun Ly, 25 January 2017
-     - Call query_ucac4() and draw proper motion over 2MASS and SDSS data
+     - Call query_ucac4() and draw proper motion (dashed red) over 2MASS and
+       SDSS data
+     - Change call to query_movers() and draw proper motion (dashed green)
+       over 2MASS and SDSS data
     '''
 
     if silent == False:
@@ -187,8 +194,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
         c_2mass = coords.SkyCoord(ra=tab2['ra_2mass'], dec=tab2['dec_2mass'],
                                   unit=(u.deg))
 
-        movers_pm_tab = query_movers(c_sdss) # + on 24/01/2017
-        print movers_pm_tab
+        movers_tab = query_movers(c_sdss) # + on 24/01/2017
+        print movers_tab
 
         ucac_tab = query_ucac4(c_sdss) # + on 25/01/2017
         #print ucac_tab
@@ -263,21 +270,20 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             ax0[row][0].plot(t_x, t_y1, 'b--')
             ax0[row][1].plot(t_x, t_y2, 'b--')
 
-            # Draw UCAC4 proper motion | + on 25/01/2017
+            # Draw UCAC4 proper motion (red dashed) | + on 25/01/2017
             t_ucac = ucac_tab[ii]
             if t_ucac['_RAJ2000'] != 0.0:
-                ra_diff  = t_ucac['_RAJ2000'] - ra_fit.intercept
-                dec_diff = t_ucac['_DEJ2000'] - dec_fit.intercept
 
                 u_pRA,  u_e_pRA  = t_ucac['pmRA'], t_ucac['e_pmRA']
                 u_pDec, u_e_pDec = t_ucac['pmDE'], t_ucac['e_pmDE']
 
-                ucac_y1 = ra_diff + u_pRA  * t_x
-                ucac_y2 = ra_diff + u_pDec * t_x
+                ra_diff  = t_ucac['_RAJ2000'] - ra_fit.intercept
+                dec_diff = t_ucac['_DEJ2000'] - dec_fit.intercept
+                ucac_y1 = ra_diff  + u_pRA  * t_x
+                ucac_y2 = dec_diff + u_pDec * t_x
 
                 ax0[row][0].plot(t_x, ucac_y1, 'r--')
                 ax0[row][1].plot(t_x, ucac_y2, 'r--')
-
 
                 s_pRA =r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (u_pRA,u_e_pRA)+' (UCAC4)\n'
                 s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (u_pDec,u_e_pDec)+ ' (UCAC4)\n'
@@ -289,10 +295,21 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                                  va='top', xycoords='axes fraction',
                                  weight='semibold')
 
-            # + on 24/01/2017
-            m_pRA,  m_e_pRA  = movers_pm_tab['pmRA'][ii], movers_pm_tab['e_pmRA'][ii]
-            m_pDec, m_e_pDec = movers_pm_tab['pmDec'][ii], movers_pm_tab['e_pmDec'][ii]
-            if m_pRA != -999.999:
+            # Draw MoVeRS proper motion (green dashed) | + on 24/01/2017
+            # Mod on 25/01/2017
+            t_movers = movers_tab[ii]
+            if t_movers['_RAJ2000'] != 0.0:
+                m_pRA,  m_e_pRA  = t_movers['pmRA'], t_movers['e_pmRA']
+                m_pDec, m_e_pDec = t_movers['pmDE'], t_movers['e_pmDE']
+
+                ra_diff  = t_movers['_RAJ2000'] - ra_fit.intercept
+                dec_diff = t_movers['_DEJ2000'] - dec_fit.intercept
+                movers_y1 = ra_diff  + m_pRA  * t_x
+                movers_y2 = dec_diff + m_pDec * t_x
+
+                ax0[row][0].plot(t_x, movers_y1, 'g--')
+                ax0[row][1].plot(t_x, movers_y2, 'g--')
+
                 s_pRA +=r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (m_pRA,m_e_pRA)+' (MoVeRS)\n'
                 s_pDec+=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (m_pDec,m_e_pDec)+ '(MoVeRS)\n'
 
@@ -329,9 +346,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                 ax0[2][0].set_ylabel('RA - RA(J2000) [mas]') # Bug found here with index
                 ax0[2][1].set_ylabel('Dec - Dec(J2000) [mas]')
                 ax0[2][1].yaxis.set_label_position("right")
-                subplots_adjust(hspace=0.09) # + on 25/01/2017
+                subplots_adjust(left=0.10, right=0.95, top=0.98, bottom=0.10,
+                                hspace=0.09) # + on 25/01/2017
                 fig.set_size_inches(8,8)
-                fig.savefig(pp, format='pdf', bbox_inches='tight')
+                fig.savefig(pp, format='pdf') #, bbox_inches='tight')
             else: # Mod on 25/01/2017 to avoid x-axis tick labels
                 ax0[row][0].set_xticklabels([])
                 ax0[row][1].set_xticklabels([])

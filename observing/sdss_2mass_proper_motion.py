@@ -33,6 +33,7 @@ from astropy.time import Time
 from scipy.stats import linregress
 
 from matplotlib.backends.backend_pdf import PdfPages
+from pylab import subplots_adjust # + on 25/01/2017
 
 SDSS_fld      = ['ra','dec','raErr','decErr','objid','run','rerun','camcol',
                  'field','obj', 'type','mode','mjd']
@@ -159,8 +160,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
      - Started as a copy of observing.find_nearby_bright_star.sdss_2mass_proper_motion
      - Decided to make it a standalone and to run on full sample
      - Plotting of proper motion info added in later
-    Modified by Chun Ly, 23 January 2017
+    Modified by Chun Ly, 24 January 2017
      - Call query_movers() and annotate panel with MoVeRS information
+    Modified by Chun Ly, 25 January 2017
+     - Call query_ucac4() and draw proper motion over 2MASS and SDSS data
     '''
 
     if silent == False:
@@ -188,7 +191,7 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
         print movers_pm_tab
 
         ucac_tab = query_ucac4(c_sdss) # + on 25/01/2017
-        print ucac_tab
+        #print ucac_tab
 
         ra_2mass  = c_2mass.ra.value
         dec_2mass = c_2mass.dec.value
@@ -257,8 +260,29 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             t_x  = np.array([-5,10])
             t_y1 = (ra_fit.slope*t_x) * 3600.0 * 1E3
             t_y2 = (dec_fit.slope*t_x) * 3600.0 * 1E3
-            ax0[row][0].plot(t_x, t_y1, 'r--')
-            ax0[row][1].plot(t_x, t_y2, 'r--')
+            ax0[row][0].plot(t_x, t_y1, 'b--')
+            ax0[row][1].plot(t_x, t_y2, 'b--')
+
+            # Draw UCAC4 proper motion | + on 25/01/2017
+            t_ucac = ucac_tab[ii]
+            if t_ucac['_RAJ2000'] != 0.0:
+                ra_diff  = t_ucac['_RAJ2000'] - ra_fit.intercept
+                dec_diff = t_ucac['_DEJ2000'] - dec_fit.intercept
+
+                u_pRA,  u_e_pRA  = t_ucac['pmRA'], t_ucac['e_pmRA']
+                u_pDec, u_e_pDec = t_ucac['pmDE'], t_ucac['e_pmDE']
+
+                ucac_y1 = ra_diff + u_pRA  * t_x
+                ucac_y2 = ra_diff + u_pDec * t_x
+
+                ax0[row][0].plot(t_x, ucac_y1, 'r--')
+                ax0[row][1].plot(t_x, ucac_y2, 'r--')
+
+
+                s_pRA =r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (u_pRA,u_e_pRA)+' (UCAC4)\n'
+                s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (u_pDec,u_e_pDec)+ ' (UCAC4)\n'
+            else:
+                s_pRA, s_pDec = '', ''
 
             # later + on 23/01/2017
             ax0[row][0].annotate(tab2['ID'][ii], [0.05,0.95], ha='left',
@@ -269,10 +293,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             m_pRA,  m_e_pRA  = movers_pm_tab['pmRA'][ii], movers_pm_tab['e_pmRA'][ii]
             m_pDec, m_e_pDec = movers_pm_tab['pmDec'][ii], movers_pm_tab['e_pmDec'][ii]
             if m_pRA != -999.999:
-                s_pRA  = r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (m_pRA, m_e_pRA)+' (MoVeRS)\n'
-                s_pDec = r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (m_pDec, m_e_pDec)+ '(MoVeRS)\n'
-            else:
-                s_pRA, s_pDec = '', ''
+                s_pRA +=r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (m_pRA,m_e_pRA)+' (MoVeRS)\n'
+                s_pDec+=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (m_pDec,m_e_pDec)+ '(MoVeRS)\n'
 
             # later + on 23/01/2017
             s_pRA  += r'$\mu_{\alpha}$ = %+0.3f [mas/yr]' % pra0[with_2mass[ii]]
@@ -307,8 +329,12 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                 ax0[2][0].set_ylabel('RA - RA(J2000) [mas]') # Bug found here with index
                 ax0[2][1].set_ylabel('Dec - Dec(J2000) [mas]')
                 ax0[2][1].yaxis.set_label_position("right")
+                subplots_adjust(hspace=0.09) # + on 25/01/2017
                 fig.set_size_inches(8,8)
                 fig.savefig(pp, format='pdf', bbox_inches='tight')
+            else: # Mod on 25/01/2017 to avoid x-axis tick labels
+                ax0[row][0].set_xticklabels([])
+                ax0[row][1].set_xticklabels([])
         #endfor
     #endif
 

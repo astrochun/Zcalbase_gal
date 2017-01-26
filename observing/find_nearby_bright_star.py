@@ -36,7 +36,7 @@ from astroquery.irsa import Irsa as IRSA
 from astroquery.skyview import SkyView
 from astropy.time import Time # + on 21/01/2017
 
-import sdss_2mass_proper_motion
+import sdss_2mass_proper_motion # in Zcalbase_gal.observing
 import aplpy # + on 24/12/2016
 
 from PyMontage.scripts import montage_reproj # + on 02/01/2017

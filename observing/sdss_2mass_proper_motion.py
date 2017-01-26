@@ -43,6 +43,51 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
+def pm_position(tab0, epoch, silent=False, verbose=True):
+    '''
+    Determine RA/Dec at a given epoch
+
+    Parameters
+    ----------
+    tab0 : astropy.table.table.Table
+      Astropy table from UCAC4 or MoVeRS containing J2000 and proper motion
+      info. Note that ICRS WCS is adopted by default
+
+    epoch : float
+      The date in decimal year (e.g., 2017.00)
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 25 January 2017
+    '''
+
+    if silent == False:
+        print '### Begin sdss_2mass_proper_motion.pm_position() | '+systime()
+
+    c0 = coords.SkyCoord(tab0['_RAJ2000'], tab0['_DEJ2000'], 'icrs',
+                         unit=(u.deg))
+
+    dtime = epoch - 2000.0 # in years
+
+    # Note: pmRA for tab0 is in fact RA*cos(Dec). See Table 3 in:
+    # http://iopscience.iop.org/article/10.1088/0004-6256/145/2/44/
+    # Vizier notes say it is RA*cos(Dec) for both MoVeRS and UCAC4
+    # UCAC later released results with the cos(Dec) factor
+    pmRA = tab0['pmRA'] * dtime/np.cos(np.radians(c0.dec.value))
+    ra_off  = coords.Angle(pmRA, unit=u.marcsec)
+    dec_off = coords.Angle(tab0['pmDE'] * dtime, unit=u.marcsec)
+
+    new_c0 = coords.SkyCoord(c0.ra + ra_off, c0.dec + dec_off, 'icrs')
+
+    if silent == False:
+        print '### End sdss_2mass_proper_motion.pm_position() | '+systime()
+
+    return new_c0
+#enddef
+
 def query_movers(c_arr, col_ID, silent=False, verbose=True):
     '''
     Query MoVeRS catalog (Theissen et al. 2016, AJ, 151, 41) to see if sample

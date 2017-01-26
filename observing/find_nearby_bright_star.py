@@ -569,7 +569,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
          catalog='SDSS', image=None, format='commented_header',
-         slitlength=99*u.arcsec, runall=True, silent=False, verbose=True):
+         slitlength=99*u.arcsec, alignment_file='', pmfix=False,
+         runall=True, silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -654,6 +655,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Handle case of SDSS catalog but with 2MASS images for finding charts
     Modified by Chun Ly, 24 January 2017
      - Force fk5 coordinate for astropy.coords
+    Modified by Chun Ly, 25 January 2017
+     - Add pmfix and alignment_file keyword option to read in proper motion
+       information
     '''
 
     if silent == False:
@@ -676,133 +680,138 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
     ID0 = [ss.replace('*','') for ss in ID] # Clean things up 24/12/2016
 
-    if silent == False:
-        print '## Search criteria : '
-        print '## max_radius(arcsec) : ', max_radius.to(u.arcsec).value
-        print '## mag_limit : ', mag_limit
-        print '## filter selection : ', mag_filt
-
-    mag_table0 = None # Initialize | + on 10/01/2017
-    for ii in range(n_sources):
-        # Mod on 24/01/2017 for fk5
-        c0 = coords.SkyCoord(RA[ii], DEC[ii], 'fk5', unit=(u.hour, u.degree))
-        # Moved up on 09/01/2017
-        out_table_file = out_path + ID0[ii] + '.'+catalog+'.nearby.txt' 
-
-        if catalog == 'SDSS':
-            xid = SDSS.query_region(c0, radius=max_radius, data_release=12,
-                                    photoobj_fields=SDSS_phot_fld)
-
-        # + on 24/12/2016 | Moved up on 09/01/2017
-        if catalog == '2MASS':
-            xid = IRSA.query_region(c0, catalog='fp_psc', radius=max_radius)
-            good = np.where(xid[mag_filt] <= mag_limit)[0]
-
-        # Get distance from target
-        if len(xid) > 0:
-            # Mod on 24/01/2017 for fk5
-            c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5',
-                                 unit=(u.deg, u.deg))
-            sep = c0.separation(c1).to(u.arcsec).value
-            col1 = Column(sep, name='Dist(arcsec)')
-            xid.add_column(col1)
-
-        # Keep stars only (type == 6)
-        # http://www.sdss.org/dr12/algorithms/classify/#photo_class
-        # Keep primary target to deal with duplicate entries | 24/12/2016
-        # Avoid unusual mag values | Mod on 24/12/2016
-        # Fix SDSS.query_region problem with max_radius | Mod on 08/01/2017
-        if catalog == 'SDSS':
-            good = np.where((xid[mag_filt] <= mag_limit) &
-                            (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
-                            (xid['type'] == 6) & (xid['mode'] == 1) &
-                            (xid['Dist(arcsec)'] <= max_radius.to(u.arcsec).value))[0]
-
+    if pmfix == False:
         if silent == False:
-            print '## Finding nearby stars for '+ID[ii]+'. '+\
-                str(len(good))+' found.'
-            if len(good) == 0: print '## Skipping ahead.'
-        
-        # Mod on 02/01/2017 to handle python crash when [good] is empty
-        if len(good) > 0:
-            xid = xid[good]
+            print '## Search criteria : '
+            print '## max_radius(arcsec) : ', max_radius.to(u.arcsec).value
+            print '## mag_limit : ', mag_limit
+            print '## filter selection : ', mag_filt
 
-            # Sort by distance and then brightness
-            #xid.sort(['Dist(arcsec)',mag_filt])
-
-            # Sort by brightness and then distance | Mod on 08/01/2017
-            xid.sort([mag_filt,'Dist(arcsec)'])
-
-            # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
+        mag_table0 = None # Initialize | + on 10/01/2017
+        for ii in range(n_sources):
             # Mod on 24/01/2017 for fk5
-            c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5', unit=(u.deg))
+            c0 = coords.SkyCoord(RA[ii], DEC[ii], 'fk5', unit=(u.hour, u.degree))
+            # Moved up on 09/01/2017
+            out_table_file = out_path + ID0[ii] + '.'+catalog+'.nearby.txt'
+
+            if catalog == 'SDSS':
+                xid = SDSS.query_region(c0, radius=max_radius, data_release=12,
+                                        photoobj_fields=SDSS_phot_fld)
+
+            # + on 24/12/2016 | Moved up on 09/01/2017
+            if catalog == '2MASS':
+                xid = IRSA.query_region(c0, catalog='fp_psc', radius=max_radius)
+                good = np.where(xid[mag_filt] <= mag_limit)[0]
+
+            # Get distance from target
+            if len(xid) > 0:
+                # Mod on 24/01/2017 for fk5
+                c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5', unit=(u.deg))
+                sep = c0.separation(c1).to(u.arcsec).value
+                col1 = Column(sep, name='Dist(arcsec)')
+                xid.add_column(col1)
+
+            # Keep stars only (type == 6)
+            # http://www.sdss.org/dr12/algorithms/classify/#photo_class
+            # Keep primary target to deal with duplicate entries | 24/12/2016
+            # Avoid unusual mag values | Mod on 24/12/2016
+            # Fix SDSS.query_region problem with max_radius | Mod on 08/01/2017
+            if catalog == 'SDSS':
+                good = np.where((xid[mag_filt] <= mag_limit) &
+                                (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
+                                (xid['type'] == 6) & (xid['mode'] == 1) &
+                                (xid['Dist(arcsec)'] <= max_radius.to(u.arcsec).value))[0]
 
             if silent == False:
-                print '### Writing: ', out_table_file
-                asc.write(xid, out_table_file, format='fixed_width_two_line',
-                          overwrite=True)
+                print '## Finding nearby stars for '+ID[ii]+'. '+\
+                    str(len(good))+' found.'
+                if len(good) == 0: print '## Skipping ahead.'
+
+            # Mod on 02/01/2017 to handle python crash when [good] is empty
+            if len(good) > 0:
+                xid = xid[good]
+
+                # Sort by distance and then brightness
+                #xid.sort(['Dist(arcsec)',mag_filt])
+
+                # Sort by brightness and then distance | Mod on 08/01/2017
+                xid.sort([mag_filt,'Dist(arcsec)'])
+
+                # Fix bug so c1 is sorted consistently with [xid] | + on 03/01/2017
+                # Mod on 24/01/2017 for fk5
+                c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5', unit=(u.deg))
+
+                if silent == False:
+                    print '### Writing: ', out_table_file
+                    asc.write(xid, out_table_file, format='fixed_width_two_line',
+                              overwrite=True)
         
-            if catalog == 'SDSS':
-                # + on 9/01/2017
-                mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True,
-                                                  runall=runall)
+                if catalog == 'SDSS':
+                    # + on 9/01/2017
+                    mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True,
+                                                      runall=runall)
 
-                # + on 10/01/2017
-                name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),
-                                  name='ID')
-                mag_table.add_column(name_Col, 0)
-                if mag_table0 == None:
-                    mag_table0 = Table(mag_table[0])
-                else:
-                    mag_table0.add_row(mag_table[0])
+                    # + on 10/01/2017
+                    name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),
+                                      name='ID')
+                    mag_table.add_column(name_Col, 0)
+                    if mag_table0 == None:
+                        mag_table0 = Table(mag_table[0])
+                    else:
+                        mag_table0.add_row(mag_table[0])
 
-            # Moved up on 20/01/2017
-            if 'SDSS' in image:
-                out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
-                if not exists(out_fits):
-                    t_hdu = get_sdss_images(c0, out_fits,
-                                            band=image.replace('SDSS-',''))
+                # Moved up on 20/01/2017
+                if 'SDSS' in image:
+                    out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
+                    if not exists(out_fits):
+                        t_hdu = get_sdss_images(c0, out_fits,
+                                                band=image.replace('SDSS-',''))
 
-                # + on 06/01/2017
-                # Mod on 07/01/2017 to check if FITS file exists
-                out_image = finding_chart_fits_path + ID0[ii]+'.crop.SDSS.fits'
-                if not exists(out_image):
-                    montage_reproj.main(c0, fitsfile=out_fits, catalog=catalog,
-                                        out_image=out_image)
+                    # + on 06/01/2017
+                    # Mod on 07/01/2017 to check if FITS file exists
+                    out_image = finding_chart_fits_path + ID0[ii]+'.crop.SDSS.fits'
+                    if not exists(out_image):
+                        montage_reproj.main(c0, fitsfile=out_fits, catalog=catalog,
+                                            out_image=out_image)
 
-            # Moved up on 20/01/2017 | + on 19/01/2017
-            if '2MASS' in image:
-                out_fits = finding_chart_fits_path + ID0[ii]+'.2MASS.fits.gz'
-                if not exists(out_fits): # Mod on 24/01/2017 to over override
-                    t_hdu = get_2mass_images(c0, out_fits,
-                                             band=image.replace('2MASS-',''))
-                out_image = out_fits
+                # Moved up on 20/01/2017 | + on 19/01/2017
+                if '2MASS' in image:
+                    out_fits = finding_chart_fits_path + ID0[ii]+'.2MASS.fits.gz'
+                    if not exists(out_fits): # Mod on 24/01/2017 to over override
+                        t_hdu = get_2mass_images(c0, out_fits,
+                                                 band=image.replace('2MASS-',''))
+                    out_image = out_fits
 
-            print '### out_fits : ', out_fits
+                print '### out_fits : ', out_fits
 
-            out_pdf = finding_chart_path + ID0[ii]+'_'+catalog+'_'+image+'.pdf'
-            if catalog == 'SDSS' and ('SDSS' in image):
-                out_pdf = finding_chart_path + ID0[ii]+'.SDSS.pdf'
+                out_pdf = finding_chart_path + ID0[ii]+'_'+catalog+'_'+image+'.pdf'
+                if catalog == 'SDSS' and ('SDSS' in image):
+                    out_pdf = finding_chart_path + ID0[ii]+'.SDSS.pdf'
 
-            if catalog == '2MASS' and ('2MASS' in image):
-                out_pdf  = finding_chart_path + ID0[ii]+'.2MASS.pdf'
-            print '### out_pdf : ', out_pdf
+                if catalog == '2MASS' and ('2MASS' in image):
+                    out_pdf  = finding_chart_path + ID0[ii]+'.2MASS.pdf'
+                print '### out_pdf : ', out_pdf
 
-            # Mod on 02/01/2017 and 22/01/2017 for inputs
-            #if catalog == 'SDSS':
-            plot_finding_chart(out_image, ID0[ii], band0, c0, c1, mag_str,
-                               mag_table, slitlength=slitlength, catalog=catalog,
-                               image=image, out_pdf=out_pdf)
-        #endif
-    #endfor
+                # Mod on 02/01/2017 and 22/01/2017 for inputs
+                #if catalog == 'SDSS':
+                plot_finding_chart(out_image, ID0[ii], band0, c0, c1, mag_str,
+                                   mag_table, slitlength=slitlength, catalog=catalog,
+                                   image=image, out_pdf=out_pdf)
+            #endif
+        #endfor
 
-    # + on 10/01/2017
-    if catalog == 'SDSS':
-        out_mag_table = out_path + 'Alignment_Stars.txt'
-        if silent == False:
-            print '### Writing : ', out_mag_table
-        mag_table0.write(out_mag_table, format='ascii.fixed_width_two_line',
-                         overwrite=True)
+        # + on 10/01/2017
+        if catalog == 'SDSS':
+            out_mag_table = out_path + 'Alignment_Stars.txt'
+            if silent == False:
+                print '### Writing : ', out_mag_table
+                mag_table0.write(out_mag_table, format='ascii.fixed_width_two_line',
+                                 overwrite=True)
+
+    else: # For pmfix == True
+        if silent == False: print '### Reading : ', alignment_file
+        tab0 = asc.read(alignment_file)
+        sdss_2mass_proper_motion.main(tab0)
 
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()
@@ -837,6 +846,8 @@ def zcalbase_gal_gemini():
      - Write photometric ASCII catalog for 2017A GNIRS targets
     Modified by Chun Ly, 20 January 2017
      - Handle making 2MASS finding chart with SDSS coordinates
+    Modified by Chun Ly, 25 January 2017
+     - Run main() with proper motion information incorporated for finding chart
     '''
 
     import pdfmerge
@@ -908,3 +919,19 @@ def zcalbase_gal_gemini():
     print '### Writing : ', out_mag_table2
     asc.write(mag_table0[idx1], out_mag_table2, format='fixed_width_two_line',
               overwrite=True)
+
+    # Run through but use proper motion from UCAC4 or MoVeRS | + on 25/01/2017
+    do_step3 = 0
+    if do_step3:
+        # Generate 2MASS finding chart with SDSS catalog | + on 20/01/2017
+        main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='2MASS-H', slitlength=slitlength, runall=False,
+             alignment_file=out_mag_table2, pmfix=True)
+
+        # Merge PDF finding chart files for 2017A targets
+        files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for
+                 a in data2['ID']]
+        out_pdf_2017a = finding_chart_path+\
+                        'GNIRS_2017A_Targets_2MASS_FindingCharts.PMfix.pdf'
+        pdfmerge.merge(files, out_pdf_2017a)

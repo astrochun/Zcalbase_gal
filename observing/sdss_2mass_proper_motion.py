@@ -45,8 +45,8 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
 
 def query_movers(c_arr, col_ID, silent=False, verbose=True):
     '''
-    Query MoVeRS catalog (Theissen et al. 2016, AJ, 151, 41) to see if sample is
-    present
+    Query MoVeRS catalog (Theissen et al. 2016, AJ, 151, 41) to see if sample
+    is present
 
     Parameters
     ----------
@@ -63,7 +63,8 @@ def query_movers(c_arr, col_ID, silent=False, verbose=True):
     -----
     Created by Chun Ly, 24 January 2017
     Modified by Chun Ly, 25 January 2017
-     - Output full MoVeRS table instead of just an astropy.table with proper motion
+     - Output full MoVeRS table instead of just an astropy.table with proper
+       motion
      - Add col_ID input to include in table
     '''
 
@@ -101,8 +102,8 @@ def query_movers(c_arr, col_ID, silent=False, verbose=True):
 
 def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
     '''
-    Query UCAC4 catalog (Zacharias et al. 2013, AJ, 145, 44) to get proper motion
-    information
+    Query UCAC4 catalog (Zacharias et al. 2013, AJ, 145, 44) to get proper
+    motion information
 
     Parameters
     ----------
@@ -311,8 +312,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                 ax0[row][0].plot(t_x, ucac_y1, 'r--')
                 ax0[row][1].plot(t_x, ucac_y2, 'r--')
 
-                s_pRA =r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (u_pRA,u_e_pRA)+' (UCAC4)\n'
-                s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (u_pDec,u_e_pDec)+ ' (UCAC4)\n'
+                s_pRA =r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (u_pRA,u_e_pRA)+\
+                        ' (UCAC4)\n'
+                s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (u_pDec,u_e_pDec)+\
+                        ' (UCAC4)\n'
             else:
                 s_pRA, s_pDec = '', ''
 
@@ -336,8 +339,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                 ax0[row][0].plot(t_x, movers_y1, 'g--')
                 ax0[row][1].plot(t_x, movers_y2, 'g--')
 
-                s_pRA +=r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (m_pRA,m_e_pRA)+' (MoVeRS)\n'
-                s_pDec+=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (m_pDec,m_e_pDec)+ '(MoVeRS)\n'
+                s_pRA +=r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (m_pRA,m_e_pRA)+\
+                         ' (MoVeRS)\n'
+                s_pDec+=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (m_pDec,m_e_pDec)+\
+                         '(MoVeRS)\n'
 
             # later + on 23/01/2017
             s_pRA  += r'$\mu_{\alpha}$ = %+0.3f [mas/yr]' % pra0[with_2mass[ii]]

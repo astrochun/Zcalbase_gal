@@ -62,6 +62,8 @@ def pm_position(tab0, epoch, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 26 January 2017
+    Modified by Chun Ly, 27 January 2017
+     - Return c0 (coordinates for J2000)
     '''
 
     if silent == False:
@@ -85,7 +87,7 @@ def pm_position(tab0, epoch, silent=False, verbose=True):
     if silent == False:
         print '### End sdss_2mass_proper_motion.pm_position() | '+systime()
 
-    return new_c0
+    return new_c0, c0
 #enddef
 
 def query_movers(c_arr, col_ID, silent=False, verbose=True):

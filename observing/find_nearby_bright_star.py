@@ -36,7 +36,7 @@ from astroquery.irsa import Irsa as IRSA
 from astroquery.skyview import SkyView
 from astropy.time import Time # + on 21/01/2017
 
-import sdss_2mass_proper_motion # in Zcalbase_gal.observing
+import sdss_2mass_proper_motion as pm # in Zcalbase_gal.observing
 import aplpy # + on 24/12/2016
 
 from PyMontage.scripts import montage_reproj # + on 02/01/2017
@@ -157,10 +157,17 @@ def get_offsets(c_ref, c0):
     Notes
     -----
     Created by Chun Ly, 10 January 2017
+    Modified by Chun Ly, 27 January 2017
+     - Check to make sure frames are equivalent
     '''
 
-    # Give coordinate offsets from reference [c_ref] to target [c0]
-    dra0, ddec0 = c_ref.spherical_offsets_to(c0)
+    # + on 27/01/2017 for frame check
+    if c_ref.is_equivalent_frame(c0) == False:
+        c_ref0 = c_ref.transform_to(c0.frame)
+    else: c_ref0 = c_ref
+
+    # Give coordinate offsets from reference [c_ref0] to target [c0]
+    dra0, ddec0 = c_ref0.spherical_offsets_to(c0)
     dra0  = dra0.to(u.arcsec).value
     ddec0 = ddec0.to(u.arcsec).value
     dist0 = np.sqrt(dra0**2+ddec0**2)
@@ -169,7 +176,8 @@ def get_offsets(c_ref, c0):
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
                        out_pdf=None, slitlength=99*u.arcsec, catalog='SDSS',
-                       image=None, pmfix=False, silent=True, verbose=False):
+                       image=None, pmfix=False, c1_new=None, c1_2000=None,
+                       epoch=2000.0, silent=True, verbose=False):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -247,6 +255,9 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Add SDSS observation date to label
     Modified by Chun Ly, 26 January 2017
      - Add pmfix keyword option
+    Modified by Chun Ly, 27 January 2017
+     - Add c1_new, c1_2000, and epoch keywords option to update coordinates
+       and annotated text
     '''
 
     # + on 19/01/2017
@@ -274,7 +285,14 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     gc.set_tick_labels_format(xformat='hh:mm:ss', yformat='dd:mm')
     
     # Draw slit between target and nearest bright star | + on 03/01/2017
-    PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength)
+    # Mod on 27/01/2017 to handle pmfix case
+    do_pm = False
+    if pmfix == True and c1_new != None:
+        do_pm = True
+        print '## Using proper-motion based position'
+        PA, c_ctr, longslit_list = get_PA(c0, c1_new, slitlength=slitlength)
+    else:
+        PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength)
 
     gc.show_lines(longslit_list, layer='slit', color='black', linewidth=0.5)
     #gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
@@ -288,6 +306,12 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
                     edgecolor='blue', facecolor='none', marker='o', s=25,
                     linewidth=0.5)
 
+    # Draw green circle for new position at epoch | + on 27/01/2017
+    if do_pm == True:
+        gc.show_markers([c1_new.ra.value], [c1_new.dec.value], layer='',
+                        edgecolor='green', facecolor='none', marker='o', s=25,
+                        linewidth=0.5)
+
     # Overlay 2MASS coordinates in red | + on 22/01/2017
     gc.show_markers(mag_table['ra_2mass'], mag_table['dec_2mass'],
                     edgecolor='red', facecolor='none', marker='o',
@@ -297,20 +321,40 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     str_c_t  = c0.to_string('hmsdms').split(' ')
     str_c    = c_ctr.to_string('hmsdms').split(' ')
     str_c_bt = c1[0].to_string('hmsdms').split(' ')
-    dra, ddec, dist    = get_offsets(c1[0], c0)    # Mod on 10/01/2017
-    dra2, ddec2, dist2 = get_offsets(c1[0], c_ctr) # Mod on 10/01/2017
+
+    # Mod on 27/01/2017 for pmfix case
+    if do_pm == False:
+        dra, ddec, dist    = get_offsets(c1[0], c0)    # Mod on 10/01/2017
+        dra2, ddec2, dist2 = get_offsets(c1[0], c_ctr) # Mod on 10/01/2017
+    else:
+        dra, ddec, dist    = get_offsets(c1_new, c0)    # Mod on 10/01/2017
+        dra2, ddec2, dist2 = get_offsets(c1_new, c_ctr) # Mod on 10/01/2017
+
+    # + on 27/01/2017
+    if do_pm == True:
+        str_c_bt_new  = c1_new.to_string('hmsdms').split(' ')
+        str_c_bt_2000 = c1_2000.to_string('hmsdms').split(' ')
 
     # + on 23/01/2017
     obs_date = Time(mag_table['mjd'][0], format='mjd')
     obs_date.format='iso'
 
-    # Mod on 09/01/2017, 10/01/2017, 22/01/2017
+    # Mod on 09/01/2017, 10/01/2017, 22/01/2017, 27/01/2017
     bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
-    bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]+'\n'
+    bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]
+    if do_pm == True:
+        bt_txt += ' Epoch='+str(epoch)+'\n'
+    else: bt_txt +'\n'
     bt_txt += ('Slit PA = %7.3f' % PA) + ' deg\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
-    bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]
-    bt_txt += ' Date='+obs_date.value.split(" ")[0]+'\n' # + on 23/01/2017
+    if do_pm == False:
+        bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]
+        bt_txt += ' Date='+obs_date.value.split(" ")[0]+'\n' # + on 23/01/2017
+    else:
+        bt_txt += 'Offset Star: RA='+str_c_bt_2000[0]+', Dec='+str_c_bt_2000[1]
+        bt_txt += ' Epoch=J2000.0\n'
+        bt_txt += 'Offset Star: RA='+str_c_bt_new[0]+', Dec='+str_c_bt_new[1]
+        bt_txt += ' Epoch='+str(epoch)+'\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
     bt_txt += r'$\mu$(RA) = %+.3f $\mu$(Dec) = %+.3f' % (mag_table['pRA'][0],
                                                          mag_table['pDec'][0])
@@ -556,7 +600,7 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
         # Mod on 22/01/2017
         if len(table_2mass) > 0:
             if len(idx_arr) > 0:
-                pRA, pDec = sdss_2mass_proper_motion.old(mag_table)
+                pRA, pDec = pm.old(mag_table)
 
         col_pRA  = Column(pRA, name='pRA')
         col_pDec = Column(pDec, name='pDec')
@@ -665,6 +709,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Call sdss_2mass_proper_motion.main()
      - Add epoch keyword to pass to sdss_2mass_proper_motion.pm_position()
      - Add pm_out_pdf keyword to pass to sdss_2mass_proper_motion.main()
+    Modified by Chun Ly, 27 January 2017
     '''
 
     if silent == False:
@@ -693,7 +738,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         data0 = data0[idx1]
 
         pra0, pdec0, t_movers, \
-            t_ucac = sdss_2mass_proper_motion.main(a_tab0, pm_out_pdf)
+            t_ucac = pm.main(a_tab0, pm_out_pdf)
 
         # Adopt a 4-sigma criteria for trusting proper motion
         m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 4.0) &
@@ -709,8 +754,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             print '### : ', t_ucac['ID'][u_idx]
 
         if silent == False: print '### Adopted epoch : ', epoch
-        m_c0 = sdss_2mass_proper_motion.pm_position(t_movers, epoch)
-        u_c0 = sdss_2mass_proper_motion.pm_position(t_ucac,   epoch)
+        # Mod on 27/01/2017
+        m_c0, m_c0_2000 = pm.pm_position(t_movers, epoch)
+        u_c0, u_c0_2000 = pm.pm_position(t_ucac,   epoch)
 
     ID  = data0['ID'].data
     RA  = data0['RA'].data
@@ -846,10 +892,16 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
             # Mod on 02/01/2017 and 22/01/2017 for inputs
             #if catalog == 'SDSS':
+            # Mod on 27/01/2017
+            if pmfix == True:
+                c1_new, c1_2000 = None, None
+                if ii in m_idx: c1_new, c1_2000 = m_c0[ii], m_c0_2000[ii]
+                if ii in u_idx: c1_new, c1_2000 = u_c0[ii], u_c0_2000[ii]
             plot_finding_chart(out_image, ID0[ii], band0, c0, c1, mag_str,
                                mag_table, slitlength=slitlength,
                                catalog=catalog, image=image, out_pdf=out_pdf,
-                               pmfix=pmfix)
+                               pmfix=pmfix, c1_new=c1_new, c1_2000=c1_2000,
+                               epoch=epoch)
         #endif
     #endfor
 
@@ -924,7 +976,7 @@ def zcalbase_gal_gemini():
     # main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 
-    do_step1 = 1
+    do_step1 = 0
     if do_step1:
         # Select alignment stars based on SDSS
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,
@@ -940,7 +992,7 @@ def zcalbase_gal_gemini():
         pdfmerge.merge(files, out_pdf_2017a)
 
     # + on 20/01/2017
-    do_step2 = 1
+    do_step2 = 0
     if do_step2:
         # Generate 2MASS finding chart with SDSS catalog | + on 20/01/2017
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,
@@ -985,4 +1037,4 @@ def zcalbase_gal_gemini():
                  a in data2['ID']]
         out_pdf_2017a = finding_chart_path+\
                         'GNIRS_2017A_Targets_2MASS_FindingCharts.PMfix.pdf'
-        pdfmerge.merge(files, out_pdf_2017a)
+        #pdfmerge.merge(files, out_pdf_2017a)

@@ -61,7 +61,7 @@ def pm_position(tab0, epoch, silent=False, verbose=True):
 
     Notes
     -----
-    Created by Chun Ly, 25 January 2017
+    Created by Chun Ly, 26 January 2017
     '''
 
     if silent == False:

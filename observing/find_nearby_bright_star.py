@@ -169,7 +169,7 @@ def get_offsets(c_ref, c0):
 
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
                        out_pdf=None, slitlength=99*u.arcsec, catalog='SDSS',
-                       image=None, silent=True, verbose=False):
+                       image=None, pmfix=False, silent=True, verbose=False):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -245,6 +245,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Overlay 2MASS positions in red
     Modified by Chun Ly, 23 January 2017
      - Add SDSS observation date to label
+    Modified by Chun Ly, 26 January 2017
+     - Add pmfix keyword option
     '''
 
     # + on 19/01/2017
@@ -569,8 +571,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
          catalog='SDSS', image=None, format='commented_header',
-         slitlength=99*u.arcsec, alignment_file='', pmfix=False,
-         runall=True, silent=False, verbose=True):
+         slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
+         epoch=2000.0, pm_out_pdf=None, silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -658,6 +660,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 25 January 2017
      - Add pmfix and alignment_file keyword option to read in proper motion
        information
+    Modified by Chun Ly, 26 January 2017
+     - Re-organize so for loop over sources works for pmfix=True
+     - Call sdss_2mass_proper_motion.main()
+     - Add epoch keyword to pass to sdss_2mass_proper_motion.pm_position()
+     - Add pm_out_pdf keyword to pass to sdss_2mass_proper_motion.main()
     '''
 
     if silent == False:
@@ -680,13 +687,31 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     if pmfix == True:
         if silent == False: print '### Reading : ', alignment_file
         a_tab0 = asc.read(alignment_file)
-        sdss_2mass_proper_motion.main(a_tab0)
-        a_ID0 = [str0.replace('_off','') for str0 in a_tab0['ID']]
+        a_ID0  = [str0.replace('_off','') for str0 in a_tab0['ID']]
         idx1, idx2 = match_nosort_str(ID0, a_ID0)
         print '## idx1 : ', len(idx1)
         data0 = data0[idx1]
 
-        sdss_2mass_proper_motion.main(a_tab0)
+        pra0, pdec0, t_movers, \
+            t_ucac = sdss_2mass_proper_motion.main(a_tab0, pm_out_pdf)
+
+        # Adopt a 4-sigma criteria for trusting proper motion
+        m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 4.0) &
+                         (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= 4.0))[0]
+        u_idx = np.where((abs(t_ucac['pmRA']/t_ucac['e_pmRA']) >= 4.0) &
+                         (abs(t_ucac['pmDE']/t_ucac['e_pmDE']) >= 4.0))[0]
+
+        if len(m_idx) > 0:
+            print '### Will use MoVeRS proper motion for the following : '
+            print '### : ', t_movers['ID'][m_idx]
+        if len(u_idx) > 0:
+            print '### Will use UCAC4 proper motion for the following : '
+            print '### : ', t_ucac['ID'][u_idx]
+
+        if silent == False: print '### Adopted epoch : ', epoch
+        m_c0 = sdss_2mass_proper_motion.pm_position(t_movers, epoch)
+        u_c0 = sdss_2mass_proper_motion.pm_position(t_ucac,   epoch)
+
     ID  = data0['ID'].data
     RA  = data0['RA'].data
     DEC = data0['DEC'].data
@@ -758,8 +783,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
                 if silent == False:
                     print '### Writing: ', out_table_file
-                    asc.write(xid, out_table_file, format='fixed_width_two_line',
-                              overwrite=True)
+                    asc.write(xid, out_table_file, overwrite=True,
+                              format='fixed_width_two_line')
             else: skip0 = 1
         #endelse
 
@@ -822,8 +847,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Mod on 02/01/2017 and 22/01/2017 for inputs
             #if catalog == 'SDSS':
             plot_finding_chart(out_image, ID0[ii], band0, c0, c1, mag_str,
-                               mag_table, slitlength=slitlength, catalog=catalog,
-                               image=image, out_pdf=out_pdf)
+                               mag_table, slitlength=slitlength,
+                               catalog=catalog, image=image, out_pdf=out_pdf,
+                               pmfix=pmfix)
         #endif
     #endfor
 
@@ -944,13 +970,15 @@ def zcalbase_gal_gemini():
               overwrite=True)
 
     # Run through but use proper motion from UCAC4 or MoVeRS | + on 25/01/2017
-    do_step3 = 0
+    do_step3 = 1
     if do_step3:
         # Generate 2MASS finding chart with SDSS catalog | + on 20/01/2017
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.pdf'
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='2MASS-H', slitlength=slitlength, runall=False,
-             alignment_file=out_mag_table2, pmfix=True)
+             alignment_file=out_mag_table2, pmfix=True, epoch=2017.25,
+             pm_out_pdf=pm_out_pdf)
 
         # Merge PDF finding chart files for 2017A targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for

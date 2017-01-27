@@ -345,8 +345,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             # Draw UCAC4 proper motion (red dashed) | + on 25/01/2017
             t_ucac = ucac_tab[ii]
             if t_ucac['_RAJ2000'] != 0.0:
-
-                u_pRA,  u_e_pRA  = t_ucac['pmRA'], t_ucac['e_pmRA']
+                # Mod on 26/01/2017 to remove the cos(Dec) factor
+                cosd = np.cos(np.radians(t_ucac['_DEJ2000']))
+                u_pRA,  u_e_pRA  = t_ucac['pmRA']/cosd, t_ucac['e_pmRA']/cosd
                 u_pDec, u_e_pDec = t_ucac['pmDE'], t_ucac['e_pmDE']
 
                 ra_diff  = t_ucac['_RAJ2000'] - ra_fit.intercept
@@ -373,7 +374,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             # Mod on 25/01/2017
             t_movers = movers_tab[ii]
             if t_movers['_RAJ2000'] != 0.0:
-                m_pRA,  m_e_pRA  = t_movers['pmRA'], t_movers['e_pmRA']
+                # Mod on 26/01/2017 to remove the cos(Dec) factor
+                cosd = np.cos(np.radians(t_movers['_DEJ2000']))
+                m_pRA,  m_e_pRA  = t_movers['pmRA']/cosd, t_movers['e_pmRA']/cosd
                 m_pDec, m_e_pDec = t_movers['pmDE'], t_movers['e_pmDE']
 
                 ra_diff  = t_movers['_RAJ2000'] - ra_fit.intercept
@@ -439,7 +442,7 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     if silent == False:
         print '### End sdss_2mass_proper_motion.main() | '+systime()
 
-    return pra0, pdec0
+    return pra0, pdec0, movers_tab, ucac_tab
 #enddef
 
 def old(tab0, silent=True, verbose=False):

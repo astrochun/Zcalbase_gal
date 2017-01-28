@@ -258,6 +258,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     Modified by Chun Ly, 27 January 2017
      - Add c1_new, c1_2000, and epoch keywords option to update coordinates
        and annotated text
+    Modified by Chun Ly, 28 January 2017
+     - Add source of proper motion to [bt_txt]
     '''
 
     # + on 19/01/2017
@@ -356,8 +358,9 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
         bt_txt += 'Offset Star: RA='+str_c_bt_new[0]+', Dec='+str_c_bt_new[1]
         bt_txt += ' Epoch='+str(epoch)+'\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
-    bt_txt += r'$\mu$(RA) = %+.3f $\mu$(Dec) = %+.3f' % (mag_table['pRA'][0],
+    bt_txt += r'$\mu$(RA) = %+.2f $\mu$(Dec) = %+.2f' % (mag_table['pRA'][0],
                                                          mag_table['pDec'][0])
+    bt_txt += ' Source: '+mag_table['p_source'][0] # + on 28/01/2017
     bt_txt += '\n'+mag_str[0]
 
     gc.add_label(0.03, 0.125, bt_txt, color='magenta', relative=True,
@@ -507,6 +510,9 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
      - Improve efficiency for runall=True with larger radius in IRSA.query_region
     Modified by Chun Ly, 24 January 2017
      - Force fk5 coordinate for astropy.coords
+    Modified by Chun Ly, 28 January 2017
+     - Add p_source to indicate where proper motion comes from. This will be
+       updated later for UCAC4 or MoVeRS proper motion (see main())
     '''
 
     n_sources = len(table)
@@ -605,8 +611,12 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
         col_pRA  = Column(pRA, name='pRA')
         col_pDec = Column(pDec, name='pDec')
 
+        # + on 28/01/2017
+        col_p_src = Column(np.repeat('SDSS-2MASS', len(pRA)), name='p_source')
+
         n_cols = len(mag_table.colnames)
-        mag_table.add_columns([col_pRA, col_pDec], np.repeat(n_cols-1, 2))
+        mag_table.add_columns([col_pRA, col_pDec, col_p_src],
+                              np.repeat(n_cols-1, 3))
     #endif
 
     return mag_str, mag_table
@@ -710,6 +720,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Add epoch keyword to pass to sdss_2mass_proper_motion.pm_position()
      - Add pm_out_pdf keyword to pass to sdss_2mass_proper_motion.main()
     Modified by Chun Ly, 27 January 2017
+     - Get J2000 coordinates from sdss_2mass_proper_motion.pm_position()
+    Modified by Chun Ly, 28 January 2017
+     - Update proper motion to include UCAC or MoVeRS
     '''
 
     if silent == False:
@@ -840,10 +853,26 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Moved lower on 26/01/2017
             c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5', unit=(u.deg))
 
+            # Moved up on 28/01/2017
+            if pmfix == True:
+                c1_new, c1_2000 = None, None
+                if ii in m_idx: c1_new, c1_2000 = m_c0[ii], m_c0_2000[ii]
+                if ii in u_idx: c1_new, c1_2000 = u_c0[ii], u_c0_2000[ii]
+
             if catalog == 'SDSS':
                 # + on 9/01/2017
                 mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True,
                                                   runall=runall)
+
+                if c1_new != None:
+                    if ii in m_idx:
+                        mag_table['pRA'][0]      = t_movers['pmRA'][ii]
+                        mag_table['pDec'][0]     = t_movers['pmDE'][ii]
+                        mag_table['p_source'][0] = 'MoVeRS'
+                    if ii in u_idx:
+                        mag_table['pRA'][0]      = t_ucac['pmRA'][ii]
+                        mag_table['pDec'][0]     = t_ucac['pmDE'][ii]
+                        mag_table['p_source'][0] = 'UCAC4'
 
                 # + on 10/01/2017
                 name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),
@@ -892,11 +921,6 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
             # Mod on 02/01/2017 and 22/01/2017 for inputs
             #if catalog == 'SDSS':
-            # Mod on 27/01/2017
-            if pmfix == True:
-                c1_new, c1_2000 = None, None
-                if ii in m_idx: c1_new, c1_2000 = m_c0[ii], m_c0_2000[ii]
-                if ii in u_idx: c1_new, c1_2000 = u_c0[ii], u_c0_2000[ii]
             plot_finding_chart(out_image, ID0[ii], band0, c0, c1, mag_str,
                                mag_table, slitlength=slitlength,
                                catalog=catalog, image=image, out_pdf=out_pdf,

@@ -260,6 +260,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
        and annotated text
     Modified by Chun Ly, 28 January 2017
      - Add source of proper motion to [bt_txt]
+     - Improve annotated text for pmfix case and when image overlay is 2MASS
     '''
 
     # + on 19/01/2017
@@ -354,16 +355,17 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
         bt_txt += ' Date='+obs_date.value.split(" ")[0]+'\n' # + on 23/01/2017
     else:
         bt_txt += 'Offset Star: RA='+str_c_bt_2000[0]+', Dec='+str_c_bt_2000[1]
-        bt_txt += ' Epoch=J2000.0\n'
+        bt_txt += '  Epoch=J2000.0\n'
         bt_txt += 'Offset Star: RA='+str_c_bt_new[0]+', Dec='+str_c_bt_new[1]
-        bt_txt += ' Epoch='+str(epoch)+'\n'
+        bt_txt += '  Epoch='+str(epoch)+'\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
-    bt_txt += r'$\mu$(RA) = %+.2f $\mu$(Dec) = %+.2f' % (mag_table['pRA'][0],
-                                                         mag_table['pDec'][0])
-    bt_txt += ' Source: '+mag_table['p_source'][0] # + on 28/01/2017
+    bt_txt += r'$\mu(\alpha)$cos($\delta$) = %+.2f mas/yr, ' % mag_table['pRA'][0]
+    bt_txt += r'$\mu(\delta)$ = %+.2f mas/yr, Source: %s' % (mag_table['pDec'][0],
+                                                             mag_table['p_source'][0])
     bt_txt += '\n'+mag_str[0]
 
-    gc.add_label(0.03, 0.125, bt_txt, color='magenta', relative=True,
+    ctype = 'white' if ('2MASS' in fitsfile) else 'magenta'
+    gc.add_label(0.03, 0.15, bt_txt, color=ctype, relative=True,
                  ha='left', va='bottom', weight='medium', size='small')
 
     # Label upper left source, catalog, and band | + on 02/01/2017
@@ -1061,4 +1063,4 @@ def zcalbase_gal_gemini():
                  a in data2['ID']]
         out_pdf_2017a = finding_chart_path+\
                         'GNIRS_2017A_Targets_2MASS_FindingCharts.PMfix.pdf'
-        #pdfmerge.merge(files, out_pdf_2017a)
+        pdfmerge.merge(files, out_pdf_2017a)

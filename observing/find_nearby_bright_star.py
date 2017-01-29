@@ -752,8 +752,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## idx1 : ', len(idx1)
         data0 = data0[idx1]
 
-        pra0, pdec0, t_movers, \
-            t_ucac = pm.main(a_tab0, pm_out_pdf)
+        pra0, pdec0, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf)
 
         # Adopt a 4-sigma criteria for trusting proper motion
         m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 4.0) &
@@ -931,14 +930,17 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         #endif
     #endfor
 
+    # Output table for pmfix case | Mod on 29/01/2017
     if pmfix == False:
-        # + on 10/01/2017
-        if catalog == 'SDSS':
-            out_mag_table = out_path + 'Alignment_Stars.txt'
-            if silent == False:
-                print '### Writing : ', out_mag_table
-                mag_table0.write(out_mag_table, format='ascii.fixed_width_two_line',
-                                 overwrite=True)
+        out_mag_table = out_path + 'Alignment_Stars.txt'
+    else:
+        out_mag_table = alignment_file.replace('Stars.','Stars.PMfix.')
+
+    # + on 10/01/2017. Mod on 29/01/2017
+    if catalog == 'SDSS':
+        if silent == False: print '### Writing : ', out_mag_table
+        mag_table0.write(out_mag_table, format='ascii.fixed_width_two_line',
+                         overwrite=True)
 
     if silent == False:
         print '### End find_nearby_bright_star.main | '+systime()
@@ -1064,3 +1066,13 @@ def zcalbase_gal_gemini():
         out_pdf_2017a = finding_chart_path+\
                         'GNIRS_2017A_Targets_2MASS_FindingCharts.PMfix.pdf'
         pdfmerge.merge(files, out_pdf_2017a)
+
+        ## Get updated table with proper motion | + on 29/01/2017
+        #out_mag_table = out_path + 'Alignment_Stars.PMfix.txt'
+        #print '### Reading : ', out_mag_table
+        #mag_table0 = asc.read(out_mag_table)
+        #
+        #out_mag_table2 = out_path + 'Alignment_Stars.PMfix.2017a.txt'
+        #print '### Writing : ', out_mag_table2
+        #asc.write(mag_table0[idx1], out_mag_table2, overwrite=True,
+        #          format='fixed_width_two_line')

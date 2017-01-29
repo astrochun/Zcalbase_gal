@@ -43,6 +43,38 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
+def linregress_slope_err(x1, fit1):
+    '''
+    Determine error in the slope from linear regression
+
+    Parameters
+    ----------
+    x1 : np.array
+      Numpy array of x values
+
+    fit1 : scipy.stats._stats_mstats_common.LinregressResult
+      Result from scipy.stats.linregress
+
+    Returns
+    -------
+    sd_slope: float
+      The error on the slope
+
+    Notes
+    -----
+    Created by Chun Ly, 28 January 2017
+     - Note that the equation below are from wikipedia:
+       https://en.wikipedia.org/wiki/Regression_analysis
+     - See the following page for more info:
+       https://mail.scipy.org/pipermail/scipy-user/2008-May/016777.html
+    '''
+
+    mx  = x1.mean()
+    sx2 = ((x1-mx)**2).sum()
+    sd_slope = fit1.stderr * np.sqrt(1./sx2)
+    return sd_slope
+#enddef
+
 def pm_position(tab0, epoch, silent=False, verbose=True):
     '''
     Determine RA/Dec at a given epoch
@@ -201,7 +233,8 @@ def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
 
 def main(tab0, out_pdf=None, silent=False, verbose=True):
     '''
-    Main function to determine proper motion based on 2MASS and SDSS coordinates
+    Main function to determine proper motion based on 2MASS and SDSS
+    coordinates
 
     Parameters
     ----------
@@ -233,6 +266,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
      - Change call to query_movers() and draw proper motion (dashed green)
        over 2MASS and SDSS data
      - Output ASCII table containing proper motion
+    Modified by Chun Ly, 28 January 2017
+     - Overlay error bars for SDSS data
+     - Get linear regression standard error on the proper motion value
     '''
 
     if silent == False:
@@ -302,9 +338,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             SDSS_date.format='decimalyear'
 
             SDSS_ra     = tab_SDSS['ra'].data
-            SDSS_raErr  = tab_SDSS['raErr'].data
+            SDSS_raErr  = tab_SDSS['raErr'].data # in arcsec
             SDSS_dec    = tab_SDSS['dec'].data
-            SDSS_decErr = tab_SDSS['decErr'].data
+            SDSS_decErr = tab_SDSS['decErr'].data # in arcsec
 
             t_2mass = Time(tab2['date_2mass'][ii], format='iso')
             t_2mass.format='decimalyear'
@@ -318,12 +354,16 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             # Mod on 23/01/2017
             ra_fit  = linregress(x0, ra0)
             dec_fit = linregress(x0, dec0)
-            pra0[with_2mass[ii]]  = ra_fit.slope * 3600.0 * 1E3
-            pdec0[with_2mass[ii]] = dec_fit.slope * 3600.0 * 1E3
+            pra0[with_2mass[ii]]  = ra_fit.slope  * 3600.0 * 1E3 # mas/yr
+            pdec0[with_2mass[ii]] = dec_fit.slope * 3600.0 * 1E3 # mas/yr
+
+            # + on 28/01/2017
+            ra_fit_slope_err  = linregress_slope_err(x0, ra_fit)  * 3600.0*1E3
+            dec_fit_slope_err = linregress_slope_err(x0, dec_fit) * 3600.0*1E3
 
             # later + on 23/01/2017
-            y1 = (ra0-ra_fit.intercept) * 3600.0 * 1E3
-            y2 = (dec0-dec_fit.intercept) * 3600.0 * 1E3
+            y1 = (ra0  - ra_fit.intercept)  * 3600.0 * 1E3
+            y2 = (dec0 - dec_fit.intercept) * 3600.0 * 1E3
 
             # Red for 2MASS | later + on 23/01/2017
             ax0[row][0].scatter(x0[0], y1[0], marker='o', facecolor='r',
@@ -332,14 +372,21 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                                 alpha=0.5, edgecolor='none')
 
             # Blue for SDSS | later + on 23/01/2017
-            ax0[row][0].scatter(x0[1:], y1[1:], marker='o', facecolor='b',
-                                alpha=0.5, edgecolor='none')
-            ax0[row][1].scatter(x0[1:], y2[1:], marker='o', facecolor='b',
-                                alpha=0.5, edgecolor='none')
+            # Mod on 28/01/2017 to overlay errorbars
+            ax0[row][0].errorbar(x0[1:], y1[1:], yerr=SDSS_raErr*1E3,
+                                 marker='o', mfc='b', alpha=0.5, capsize=0,
+                                 fmt='', mec='none', linestyle='None')
+            ax0[row][1].errorbar(x0[1:], y2[1:], yerr=SDSS_decErr*1E3,
+                                 marker='o', mfc='b', alpha=0.5, capsize=0,
+                                 fmt='', mec='none', linestyle='None')
+            #ax0[row][0].scatter(x0[1:], y1[1:], marker='o', facecolor='b',
+            #                    alpha=0.5, edgecolor='none')
+            #ax0[row][1].scatter(x0[1:], y2[1:], marker='o', facecolor='b',
+            #                    alpha=0.5, edgecolor='none')
 
             # later + on 23/01/2017
             t_x  = np.array([-5,10])
-            t_y1 = (ra_fit.slope*t_x) * 3600.0 * 1E3
+            t_y1 = (ra_fit.slope*t_x)  * 3600.0 * 1E3
             t_y2 = (dec_fit.slope*t_x) * 3600.0 * 1E3
             ax0[row][0].plot(t_x, t_y1, 'b--')
             ax0[row][1].plot(t_x, t_y2, 'b--')
@@ -395,8 +442,11 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                          '(MoVeRS)\n'
 
             # later + on 23/01/2017
-            s_pRA  += r'$\mu_{\alpha}$ = %+0.3f [mas/yr]' % pra0[with_2mass[ii]]
-            s_pDec += r'$\mu_{\delta}$ = %+0.3f [mas/yr]' % pdec0[with_2mass[ii]]
+            # Mod on 28/01/2017 to show errorbars
+            s_pRA  += r'$\mu_{\alpha}$ = %+0.3f$\pm$%+0.3f [mas/yr]' % \
+                      (pra0[with_2mass[ii]], ra_fit_slope_err)
+            s_pDec += r'$\mu_{\delta}$ = %+0.3f$\pm$%+0.3f [mas/yr]' % \
+                      (pdec0[with_2mass[ii]], dec_fit_slope_err)
 
             ax0[row][0].set_xlim(t_x)
             ax0[row][1].set_xlim(t_x)

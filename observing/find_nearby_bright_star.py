@@ -342,7 +342,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     obs_date = Time(mag_table['mjd'][0], format='mjd')
     obs_date.format='iso'
 
-    # Mod on 09/01/2017, 10/01/2017, 22/01/2017, 27/01/2017
+    # Mod on 09/01/2017, 10/01/2017, 22/01/2017, 27/01/2017, 28/01/2017
     bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
     bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]
     if do_pm == True:
@@ -364,7 +364,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
                                                              mag_table['p_source'][0])
     bt_txt += '\n'+mag_str[0]
 
-    ctype = 'white' if ('2MASS' in fitsfile) else 'magenta'
+    ctype = 'white' if ('2MASS' in fitsfile) else 'magenta' # + on 28/01/2017
     gc.add_label(0.03, 0.15, bt_txt, color=ctype, relative=True,
                  ha='left', va='bottom', weight='medium', size='small')
 

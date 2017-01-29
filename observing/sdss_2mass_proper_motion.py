@@ -269,6 +269,7 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     Modified by Chun Ly, 28 January 2017
      - Overlay error bars for SDSS data
      - Get linear regression standard error on the proper motion value
+     - Include cos(dec) factor for muRA
     '''
 
     if silent == False:
@@ -284,6 +285,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     # Initialize | + on 22/01/2017
     pra0  = np.repeat(-999.999, len0)
     pdec0 = np.repeat(-999.999, len0)
+
+    scale1 = 3600.0 * 1E3 # conversion to mas from deg | + on 28/01/2017
 
     # Deal with those without 2MASS data | + on 22/01/2017
     if len(with_2mass) > 0:
@@ -354,16 +357,21 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             # Mod on 23/01/2017
             ra_fit  = linregress(x0, ra0)
             dec_fit = linregress(x0, dec0)
-            pra0[with_2mass[ii]]  = ra_fit.slope  * 3600.0 * 1E3 # mas/yr
-            pdec0[with_2mass[ii]] = dec_fit.slope * 3600.0 * 1E3 # mas/yr
 
-            # + on 28/01/2017
-            ra_fit_slope_err  = linregress_slope_err(x0, ra_fit)  * 3600.0*1E3
-            dec_fit_slope_err = linregress_slope_err(x0, dec_fit) * 3600.0*1E3
+            # cos(Dec) factor for muRA + on 28/01/2017
+            cosd = np.cos(np.radians(c_sdss[ii].dec.value))
+
+            # Mod on 28/01/2017
+            pra0[with_2mass[ii]]  = ra_fit.slope  * scale1 * cosd # mas/yr
+            pdec0[with_2mass[ii]] = dec_fit.slope * scale1        # mas/yr
+
+            # + on 28/01/2017. Later mod to include cosd factor
+            ra_fit_slope_err  = linregress_slope_err(x0, ra_fit)  * scale1*cosd
+            dec_fit_slope_err = linregress_slope_err(x0, dec_fit) * scale1
 
             # later + on 23/01/2017
-            y1 = (ra0  - ra_fit.intercept)  * 3600.0 * 1E3
-            y2 = (dec0 - dec_fit.intercept) * 3600.0 * 1E3
+            y1 = (ra0  - ra_fit.intercept)  * scale1
+            y2 = (dec0 - dec_fit.intercept) * scale1
 
             # Red for 2MASS | later + on 23/01/2017
             ax0[row][0].scatter(x0[0], y1[0], marker='o', facecolor='r',
@@ -395,8 +403,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             t_ucac = ucac_tab[ii]
             if t_ucac['_RAJ2000'] != 0.0:
                 # Mod on 26/01/2017 to remove the cos(Dec) factor
-                cosd = np.cos(np.radians(t_ucac['_DEJ2000']))
-                u_pRA,  u_e_pRA  = t_ucac['pmRA']/cosd, t_ucac['e_pmRA']/cosd
+                # Mod on 26/01/2017 to put the cos(Dec) factor back in
+                #cosd = np.cos(np.radians(t_ucac['_DEJ2000']))
+                u_pRA,  u_e_pRA  = t_ucac['pmRA'], t_ucac['e_pmRA']
                 u_pDec, u_e_pDec = t_ucac['pmDE'], t_ucac['e_pmDE']
 
                 ra_diff  = t_ucac['_RAJ2000'] - ra_fit.intercept
@@ -407,10 +416,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                 ax0[row][0].plot(t_x, ucac_y1, 'r--')
                 ax0[row][1].plot(t_x, ucac_y2, 'r--')
 
-                s_pRA =r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (u_pRA,u_e_pRA)+\
-                        ' (UCAC4)\n'
-                s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (u_pDec,u_e_pDec)+\
-                        ' (UCAC4)\n'
+                s_pRA =r'$\mu_{\alpha}$cos($\delta$) = %+0.3f$\pm$%0.3f' % \
+                        (u_pRA,u_e_pRA)+' (UCAC4)\n'
+                s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % \
+                        (u_pDec,u_e_pDec)+' (UCAC4)\n'
             else:
                 s_pRA, s_pDec = '', ''
 
@@ -424,8 +433,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             t_movers = movers_tab[ii]
             if t_movers['_RAJ2000'] != 0.0:
                 # Mod on 26/01/2017 to remove the cos(Dec) factor
-                cosd = np.cos(np.radians(t_movers['_DEJ2000']))
-                m_pRA,  m_e_pRA  = t_movers['pmRA']/cosd, t_movers['e_pmRA']/cosd
+                # Mod on 26/01/2017 to put the cos(Dec) factor back in
+                #cosd = np.cos(np.radians(t_movers['_DEJ2000']))
+                m_pRA,  m_e_pRA  = t_movers['pmRA'], t_movers['e_pmRA']
                 m_pDec, m_e_pDec = t_movers['pmDE'], t_movers['e_pmDE']
 
                 ra_diff  = t_movers['_RAJ2000'] - ra_fit.intercept
@@ -436,25 +446,26 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
                 ax0[row][0].plot(t_x, movers_y1, 'g--')
                 ax0[row][1].plot(t_x, movers_y2, 'g--')
 
-                s_pRA +=r'$\mu_{\alpha}$ = %+0.3f$\pm$%0.3f' % (m_pRA,m_e_pRA)+\
-                         ' (MoVeRS)\n'
-                s_pDec+=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % (m_pDec,m_e_pDec)+\
-                         '(MoVeRS)\n'
+                s_pRA +=r'$\mu_{\alpha}$cos($\delta$) = %+0.3f$\pm$%0.3f' % \
+                         (m_pRA,m_e_pRA)+' (MoVeRS)\n'
+                s_pDec+=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % \
+                         (m_pDec,m_e_pDec)+' (MoVeRS)\n'
 
+            # 2MASS-SDSS proper motion
             # later + on 23/01/2017
-            # Mod on 28/01/2017 to show errorbars
-            s_pRA  += r'$\mu_{\alpha}$ = %+0.3f$\pm$%+0.3f [mas/yr]' % \
+            # Mod on 28/01/2017 to report errors
+            s_pRA  += r'$\mu_{\alpha}$cos($\delta$) = %+0.3f$\pm$%0.3f [mas/yr]' % \
                       (pra0[with_2mass[ii]], ra_fit_slope_err)
-            s_pDec += r'$\mu_{\delta}$ = %+0.3f$\pm$%+0.3f [mas/yr]' % \
+            s_pDec += r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f [mas/yr]' % \
                       (pdec0[with_2mass[ii]], dec_fit_slope_err)
 
             ax0[row][0].set_xlim(t_x)
             ax0[row][1].set_xlim(t_x)
 
             # later + on 23/01/2017
-            ax0[row][0].annotate(s_pRA, [0.05,0.05], ha='left',
+            ax0[row][0].annotate(s_pRA, [0.05,0.05], ha='left', fontsize=11,
                                  va='bottom', xycoords='axes fraction')
-            ax0[row][1].annotate(s_pDec, [0.05,0.05], ha='left',
+            ax0[row][1].annotate(s_pDec, [0.05,0.05], ha='left', fontsize=11,
                                  va='bottom', xycoords='axes fraction')
 
             # later + on 23/01/2017

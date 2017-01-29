@@ -515,6 +515,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
     Modified by Chun Ly, 28 January 2017
      - Add p_source to indicate where proper motion comes from. This will be
        updated later for UCAC4 or MoVeRS proper motion (see main())
+    Modified by Chun Ly, 29 January 2017
+     - Add proper motion error columns to astropy Table
     '''
 
     n_sources = len(table)
@@ -605,20 +607,28 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
         pRA  = np.zeros(len(mag_table))
         pDec = np.zeros(len(mag_table))
 
+        # + on 29/01/2017
+        e_pRA  = np.zeros(len(mag_table))
+        e_pDec = np.zeros(len(mag_table))
+
         # Mod on 22/01/2017
         if len(table_2mass) > 0:
             if len(idx_arr) > 0:
                 pRA, pDec = pm.old(mag_table)
 
-        col_pRA  = Column(pRA, name='pRA')
+        col_pRA  = Column(pRA,  name='pRA')
         col_pDec = Column(pDec, name='pDec')
+
+        # + on 29/01/2017
+        col_e_pRA  = Column(e_pRA,  name='e_pRA')
+        col_e_pDec = Column(e_pDec, name='e_pDec')
 
         # + on 28/01/2017
         col_p_src = Column(np.repeat('SDSS-2MASS', len(pRA)), name='p_source')
 
         n_cols = len(mag_table.colnames)
-        mag_table.add_columns([col_pRA, col_pDec, col_p_src],
-                              np.repeat(n_cols-1, 3))
+        vec0 = [col_pRA, col_e_pRA, col_pDec, col_e_pDec, col_p_src]
+        mag_table.add_columns(vec0, np.repeat(n_cols-1, len(vec0)))
     #endif
 
     return mag_str, mag_table
@@ -752,7 +762,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## idx1 : ', len(idx1)
         data0 = data0[idx1]
 
-        pra0, pdec0, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf)
+        sdss_2mass_tab, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf)
 
         # Adopt a 4-sigma criteria for trusting proper motion
         m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 4.0) &
@@ -865,14 +875,26 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True,
                                                   runall=runall)
 
+                # Always initialize with the proper motion from multi-SDSS and
+                # 2MASS | + on 29/01/2017
+                if pmfix == True:
+                    mag_table['pRA'][0]    = sdss_2mass_tab['pra0'][ii]
+                    mag_table['pDec'][0]   = sdss_2mass_tab['pdec0'][ii]
+                    mag_table['e_pRA'][0]  = sdss_2mass_tab['e_pra0'][ii]
+                    mag_table['e_pDec'][0] = sdss_2mass_tab['e_pdec0'][ii]
+
                 if c1_new != None:
                     if ii in m_idx:
                         mag_table['pRA'][0]      = t_movers['pmRA'][ii]
                         mag_table['pDec'][0]     = t_movers['pmDE'][ii]
+                        mag_table['e_pRA'][0]    = t_movers['e_pmRA'][ii]
+                        mag_table['e_pDec'][0]   = t_movers['e_pmDE'][ii]
                         mag_table['p_source'][0] = 'MoVeRS'
                     if ii in u_idx:
                         mag_table['pRA'][0]      = t_ucac['pmRA'][ii]
                         mag_table['pDec'][0]     = t_ucac['pmDE'][ii]
+                        mag_table['e_pRA'][0]    = t_ucac['e_pmRA'][ii]
+                        mag_table['e_pDec'][0]   = t_ucac['e_pmDE'][ii]
                         mag_table['p_source'][0] = 'UCAC4'
 
                 # + on 10/01/2017

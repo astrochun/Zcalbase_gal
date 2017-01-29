@@ -286,6 +286,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     pra0  = np.repeat(-999.999, len0)
     pdec0 = np.repeat(-999.999, len0)
 
+    # + on 29/01/2017
+    e_pra0  = np.repeat(-999.999, len0)
+    e_pdec0 = np.repeat(-999.999, len0)
+
     scale1 = 3600.0 * 1E3 # conversion to mas from deg | + on 28/01/2017
 
     # Deal with those without 2MASS data | + on 22/01/2017
@@ -368,6 +372,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             # + on 28/01/2017. Later mod to include cosd factor
             ra_fit_slope_err  = linregress_slope_err(x0, ra_fit)  * scale1*cosd
             dec_fit_slope_err = linregress_slope_err(x0, dec_fit) * scale1
+
+            # + on 29/01/2017
+            e_pra0[with_2mass[ii]]  = ra_fit_slope_err
+            e_pdec0[with_2mass[ii]] = dec_fit_slope_err
 
             # later + on 23/01/2017
             y1 = (ra0  - ra_fit.intercept)  * scale1
@@ -505,7 +513,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     if silent == False:
         print '### End sdss_2mass_proper_motion.main() | '+systime()
 
-    return pra0, pdec0, movers_tab, ucac_tab
+    names0 = ('pra0', 'e_pra0', 'pdec0', 'e_pdec0')
+    sdss_2mass_tab = Table([pra0, e_pra0, pdec0, e_pdec0], names=names0)
+    return sdss_2mass_tab, movers_tab, ucac_tab
 #enddef
 
 def old(tab0, silent=True, verbose=False):

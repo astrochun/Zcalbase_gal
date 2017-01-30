@@ -349,7 +349,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]
     if do_pm == True:
         bt_txt += ' Epoch='+str(epoch)+'\n'
-    else: bt_txt +'\n'
+    else: bt_txt += '\n'
     bt_txt += ('Slit PA = %7.3f' % PA) + ' deg\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
     if do_pm == False:
@@ -741,6 +741,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 29 January 2017
      - Handle 2MASS-SDSS proper motion and pass those if reliable based on
        4-sigma criteria. Adopt MoVeRS and UCAC4 first
+    Modified by Chun Ly, 29 January 2017
+     - Change limit to 3-sigma to include DEEP14 proper motion
     '''
 
     if silent == False:
@@ -772,10 +774,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         t_s2, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf)
 
         # Adopt a 4-sigma criteria for trusting proper motion
-        m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 4.0) &
-                         (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= 4.0))[0]
-        u_idx = np.where((abs(t_ucac['pmRA']/t_ucac['e_pmRA']) >= 4.0) &
-                         (abs(t_ucac['pmDE']/t_ucac['e_pmDE']) >= 4.0))[0]
+        # Mod on 30/01/2017 to adopt 3-sigma instead
+        m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 3.0) &
+                         (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= 3.0))[0]
+        u_idx = np.where((abs(t_ucac['pmRA']/t_ucac['e_pmRA']) >= 3.0) &
+                         (abs(t_ucac['pmDE']/t_ucac['e_pmDE']) >= 3.0))[0]
 
         # + on 29/01/2017
         pm_source = np.zeros(len(data0))
@@ -886,8 +889,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             c1 = coords.SkyCoord(xid['ra'], xid['dec'], 'fk5', unit=(u.deg))
 
             # Moved up on 28/01/2017
+            c1_new, c1_2000 = None, None # Mod on 30/01/017 to handle bug with pmfix=False
             if pmfix == True:
-                c1_new, c1_2000 = None, None
                 if ii in m_idx: c1_new, c1_2000 = m_c0[ii], m_c0_2000[ii]
                 if ii in u_idx: c1_new, c1_2000 = u_c0[ii], u_c0_2000[ii]
                 if ii in s2_idx: c1_new, c1_2000 = s2_c0[ii], s2_c0_2000[ii] # + on 29/01/2017

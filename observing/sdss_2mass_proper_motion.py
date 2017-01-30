@@ -270,6 +270,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
      - Overlay error bars for SDSS data
      - Get linear regression standard error on the proper motion value
      - Include cos(dec) factor for muRA
+    Modified by Chun Ly, 29 January 2017
+     - Pass J2000 coordinates and number of coordinate data points
     '''
 
     if silent == False:
@@ -289,6 +291,11 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     # + on 29/01/2017
     e_pra0  = np.repeat(-999.999, len0)
     e_pdec0 = np.repeat(-999.999, len0)
+
+    # + on 29/01/2017
+    N_pm_points = np.repeat(0, len0)
+    raj2000  = np.repeat(-999.99999, len0)
+    decj2000 = np.repeat(-999.99999, len0)
 
     scale1 = 3600.0 * 1E3 # conversion to mas from deg | + on 28/01/2017
 
@@ -380,6 +387,10 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             # later + on 23/01/2017
             y1 = (ra0  - ra_fit.intercept)  * scale1
             y2 = (dec0 - dec_fit.intercept) * scale1
+
+            # + on 29/01/2017
+            raj2000[with_2mass[ii]]  = ra_fit.intercept
+            decj2000[with_2mass[ii]] = dec_fit.intercept
 
             # Red for 2MASS | later + on 23/01/2017
             ax0[row][0].scatter(x0[0], y1[0], marker='o', facecolor='r',
@@ -476,6 +487,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             ax0[row][1].annotate(s_pDec, [0.05,0.05], ha='left', fontsize=11,
                                  va='bottom', xycoords='axes fraction')
 
+            N_pm_points[with_2mass[ii]] = len(tab_SDSS)+1 # + on 29/01/2017
+
             # later + on 23/01/2017
             str_N = 'N(SDSS) = '+str(len(tab_SDSS))
             ax0[row][0].annotate(str_N, [0.95,0.95], ha='right', va='top',
@@ -513,8 +526,12 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     if silent == False:
         print '### End sdss_2mass_proper_motion.main() | '+systime()
 
-    names0 = ('pra0', 'e_pra0', 'pdec0', 'e_pdec0')
-    sdss_2mass_tab = Table([pra0, e_pra0, pdec0, e_pdec0], names=names0)
+    # Mod on 29/01/2017
+    names0 = ('ID', '_RAJ2000', '_DEJ2000', 'pmRA', 'e_pmRA', 'pmDE',
+              'e_pmDE', 'N_pm_points')
+    vec0   = [tab0['ID'], raj2000, decj2000, pra0, e_pra0,
+              pdec0, e_pdec0, N_pm_points]
+    sdss_2mass_tab = Table(vec0, names=names0)
     return sdss_2mass_tab, movers_tab, ucac_tab
 #enddef
 

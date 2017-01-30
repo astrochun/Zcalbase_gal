@@ -261,6 +261,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     Modified by Chun Ly, 28 January 2017
      - Add source of proper motion to [bt_txt]
      - Improve annotated text for pmfix case and when image overlay is 2MASS
+    Modified by Chun Ly, 29 January 2017
+     - Change annotated text for proper motion if c1_new is not available
     '''
 
     # + on 19/01/2017
@@ -359,9 +361,10 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
         bt_txt += 'Offset Star: RA='+str_c_bt_new[0]+', Dec='+str_c_bt_new[1]
         bt_txt += '  Epoch='+str(epoch)+'\n'
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
-    bt_txt += r'$\mu(\alpha)$cos($\delta$) = %+.2f mas/yr, ' % mag_table['pRA'][0]
-    bt_txt += r'$\mu(\delta)$ = %+.2f mas/yr, Source: %s' % (mag_table['pDec'][0],
-                                                             mag_table['p_source'][0])
+    if do_pm == True: # Mod on 30/01/2017
+        bt_txt += r'$\mu(\alpha)$cos($\delta$) = %+.2f mas/yr, ' % mag_table['pRA'][0]
+        bt_txt += r'$\mu(\delta)$ = %+.2f mas/yr, Source: %s' % \
+                  (mag_table['pDec'][0], mag_table['p_source'][0])
     bt_txt += '\n'+mag_str[0]
 
     ctype = 'white' if ('2MASS' in fitsfile) else 'magenta' # + on 28/01/2017
@@ -735,6 +738,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Get J2000 coordinates from sdss_2mass_proper_motion.pm_position()
     Modified by Chun Ly, 28 January 2017
      - Update proper motion to include UCAC or MoVeRS
+    Modified by Chun Ly, 29 January 2017
+     - Handle 2MASS-SDSS proper motion and pass those if reliable based on
+       4-sigma criteria. Adopt MoVeRS and UCAC4 first
     '''
 
     if silent == False:
@@ -762,7 +768,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## idx1 : ', len(idx1)
         data0 = data0[idx1]
 
-        sdss_2mass_tab, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf)
+        # SDSS-2MASS, MoVeRS, and UCAC4 proper motion catalogs
+        t_s2, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf)
 
         # Adopt a 4-sigma criteria for trusting proper motion
         m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 4.0) &
@@ -770,17 +777,31 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         u_idx = np.where((abs(t_ucac['pmRA']/t_ucac['e_pmRA']) >= 4.0) &
                          (abs(t_ucac['pmDE']/t_ucac['e_pmDE']) >= 4.0))[0]
 
+        # + on 29/01/2017
+        pm_source = np.zeros(len(data0))
+        pm_source[m_idx] = 1
+        pm_source[u_idx] = 2
+
+        # 2MASS-SDSS | + on 29/01/2017
+        s2_idx = np.where((abs(t_s2['pmRA']/t_s2['e_pmRA']) >= 4.0) &
+                          (abs(t_s2['pmDE']/t_s2['e_pmDE']) >= 4.0) &
+                          (pm_source == 0) & (t_s2['N_pm_points'] >= 5))[0]
+
         if len(m_idx) > 0:
             print '### Will use MoVeRS proper motion for the following : '
             print '### : ', t_movers['ID'][m_idx]
         if len(u_idx) > 0:
             print '### Will use UCAC4 proper motion for the following : '
             print '### : ', t_ucac['ID'][u_idx]
+        if len(s2_idx) > 0: # + on 29/01/2017
+            print '### Will use SDSS-2MASS proper motion for the following : '
+            print '### : ', t_s2['ID'][s2_idx]
 
         if silent == False: print '### Adopted epoch : ', epoch
         # Mod on 27/01/2017
-        m_c0, m_c0_2000 = pm.pm_position(t_movers, epoch)
-        u_c0, u_c0_2000 = pm.pm_position(t_ucac,   epoch)
+        m_c0, m_c0_2000   = pm.pm_position(t_movers, epoch)
+        u_c0, u_c0_2000   = pm.pm_position(t_ucac,   epoch)
+        s2_c0, s2_c0_2000 = pm.pm_position(t_s2,     epoch) # + on 29/01/2017
 
     ID  = data0['ID'].data
     RA  = data0['RA'].data
@@ -869,6 +890,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 c1_new, c1_2000 = None, None
                 if ii in m_idx: c1_new, c1_2000 = m_c0[ii], m_c0_2000[ii]
                 if ii in u_idx: c1_new, c1_2000 = u_c0[ii], u_c0_2000[ii]
+                if ii in s2_idx: c1_new, c1_2000 = s2_c0[ii], s2_c0_2000[ii] # + on 29/01/2017
 
             if catalog == 'SDSS':
                 # + on 9/01/2017
@@ -878,10 +900,10 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 # Always initialize with the proper motion from multi-SDSS and
                 # 2MASS | + on 29/01/2017
                 if pmfix == True:
-                    mag_table['pRA'][0]    = sdss_2mass_tab['pra0'][ii]
-                    mag_table['pDec'][0]   = sdss_2mass_tab['pdec0'][ii]
-                    mag_table['e_pRA'][0]  = sdss_2mass_tab['e_pra0'][ii]
-                    mag_table['e_pDec'][0] = sdss_2mass_tab['e_pdec0'][ii]
+                    mag_table['pRA'][0]    = t_s2['pmRA'][ii]
+                    mag_table['pDec'][0]   = t_s2['pmDE'][ii]
+                    mag_table['e_pRA'][0]  = t_s2['e_pmRA'][ii]
+                    mag_table['e_pDec'][0] = t_s2['e_pmDE'][ii]
 
                 if c1_new != None:
                     if ii in m_idx:

@@ -348,9 +348,13 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
     bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]
     if do_pm == True:
-        bt_txt += ' Epoch='+str(epoch)+'\n'
+        bt_txt += '  Epoch='+str(epoch)+'\n'
     else: bt_txt += '\n'
-    bt_txt += ('Slit PA = %7.3f' % PA) + ' deg\n'
+    bt_txt += ('Slit PA = %7.3f' % PA) + ' deg'
+    if do_pm == True:
+        bt_txt += '  Epoch='+str(epoch)+'\n'
+    else: bt_txt += '\n'
+
     bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
     if do_pm == False:
         bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]

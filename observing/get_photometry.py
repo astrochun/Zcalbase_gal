@@ -56,6 +56,8 @@ def SDF(mag_auto=False, silent=False, verbose=True):
      - Re-organized to handle both aperture fluxes and Kron aperture fluxes
     Modified by Chun Ly, 12 January 2017
      - Re-order filter list
+    Modified by Chun Ly, 2 February 2017
+     - Return table of photometry
     '''
     
     if silent == False: print '### Begin get_photometry.SDF | '+systime()
@@ -114,6 +116,8 @@ def SDF(mag_auto=False, silent=False, verbose=True):
 
     print tab0
     if silent == False: print '### End get_photometry.SDF | '+systime()
+
+    return tab0 # + on 02/02/2017
 #enddef
 
 def DEEP2(silent=False, verbose=True):
@@ -136,6 +140,8 @@ def DEEP2(silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 11 January 2017
+    Modified by Chun Ly, 2 February 2017
+     - Return table of photometry
     '''
 
     if silent == False: print '### Begin get_photometry.DEEP2 | '+systime()
@@ -187,6 +193,8 @@ def DEEP2(silent=False, verbose=True):
 
     print tab0
     if silent == False: print '### End get_photometry.DEEP2 | '+systime()
+
+    return tab0 # + on 02/02/2017
 #enddef
 
 def run_all():
@@ -194,6 +202,7 @@ def run_all():
     Run both SDF() and DEEP2() functions from above
     '''
 
-    SDF(mag_auto=False)
-    DEEP2()
+    # Mod on 02/02/2017
+    SDF_tab0   = SDF(mag_auto=False)
+    DEEP2_tab0 = DEEP2()
 

@@ -114,7 +114,7 @@ def SDF(mag_auto=False, silent=False, verbose=True):
     print cmd0
     exec(cmd0)
 
-    print tab0
+    if verbose == True: print tab0
     if silent == False: print '### End get_photometry.SDF | '+systime()
 
     return tab0 # + on 02/02/2017
@@ -191,7 +191,7 @@ def DEEP2(silent=False, verbose=True):
     print cmd0
     exec(cmd0)
 
-    print tab0
+    if verbose == True: print tab0
     if silent == False: print '### End get_photometry.DEEP2 | '+systime()
 
     return tab0 # + on 02/02/2017

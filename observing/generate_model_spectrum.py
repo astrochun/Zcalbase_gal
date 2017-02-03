@@ -16,6 +16,7 @@ from astropy.io import ascii as asc
 from astropy.io import fits
 
 import astropy.units as u
+import astropy.constants as const
 
 import numpy as np
 import array, time, sets
@@ -26,8 +27,8 @@ from astropy.table import Table
 
 from locate_em_lines import gaussian, gaussian_R
 
-def main(tab0, R_spec=3000.0, out_path='', unit0=u.micron, silent=False,
-         verbose=True):
+def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
+         silent=False, verbose=True):
 
     '''
     Main function() that generates a spectrum containing H-alpha, [NII],
@@ -57,12 +58,15 @@ def main(tab0, R_spec=3000.0, out_path='', unit0=u.micron, silent=False,
      - Add unit0 keyword to specify desired units for wavelength
      - Fix wavelength grid to be a set wavelength in observed space
      - Minor bug fix with spectrum normalize (need dl factor)
+     - Changed R_spec to km/s to provide an intrinsic gas velocity
+       for nebular emission lines. Most ETC will factor in spectral
+       resolution
     '''
     
     if silent == False:
         print '### Begin generate_model_spectrum.main | '+systime()
 
-    x_min0, x_max0 = 5000.0, 7000.0 # in Angstroms
+    x_min0, x_max0 = 5000.0, 9000.0 # in Angstroms
     
     n_sources = len(tab0)
 
@@ -90,12 +94,18 @@ def main(tab0, R_spec=3000.0, out_path='', unit0=u.micron, silent=False,
 
         for ll in range(len(lambda0)):
             o_lambda = lambda0[ll] * z0
-            
-            s_temp = gaussian_R(wave, o_lambda, R_spec)
+
+            # This is actually the inverse. Equivalent to a spectral resolution
+            # since gaussian_R accepts R_spec
+            R_vel = 1.0/(velocity/const.c.to(u.km/u.s))
+            #print ID0[ii], s_lambda0[ll], R_vel
+            s_temp = gaussian_R(wave, o_lambda, R_vel)
+            s_temp /= np.sum(s_temp)
+            #if ll == 0: print ii, np.sum(s_temp)
             if scale0[ll] != 0.0:
-                flux += s_temp * Ha_flux[ii] * dl * scale0[ll]
+                flux += s_temp * Ha_flux[ii] * scale0[ll] / dl
             else:
-                flux += s_temp * Ha_flux[ii] * dl * 10**(logNIIHa[ii])
+                flux += s_temp * Ha_flux[ii] * 10**(logNIIHa[ii]) / dl
 
         f_table = Table([wave * wave_scale, flux])
 
@@ -150,7 +160,7 @@ def gnirs_2017a(silent=False, verbose=True):
 
     print tab0
 
-    qR_spec = 7200/2.5
+    vel0 = 100.0 * u.km/u.s
 
     out_path = path0 + 'ETC/'
-    main(tab0, R_spec, out_path=out_path, unit0=u.nm)
+    main(tab0, velocity=vel0, out_path=out_path, unit0=u.nm)

@@ -26,9 +26,10 @@ import matplotlib.pyplot as plt
 from astropy.table import Table
 
 from locate_em_lines import gaussian, gaussian_R
+import get_photometry
 
 def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
-         silent=False, verbose=True):
+         lambda_cen=1.25*u.micron, silent=False, verbose=True):
 
     '''
     Main function() that generates a spectrum containing H-alpha, [NII],
@@ -61,6 +62,7 @@ def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
      - Changed R_spec to km/s to provide an intrinsic gas velocity
        for nebular emission lines. Most ETC will factor in spectral
        resolution
+     - Adopt non-zero continuum if magnitude column ('mag') is present in table
     '''
     
     if silent == False:
@@ -87,10 +89,19 @@ def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
 
         # Mod on 02/02/2017
         x_min, x_max = x_min0*z0, x_max0*z0
-        dl = 0.25
+        dl = 0.50 # in Angstrom
         wave = np.arange(x_min, x_max, dl) # rest wavelength
 
         flux = np.zeros(len(wave))
+
+        # Normalize spectrum based on optical data | + on 02/02/2017
+        if 'mag' in tab0.colnames:
+            f_nu = 10**(-0.4*(tab0['mag'][ii]-23.90)) * u.microJansky
+            f_nu = f_nu.to(u.erg/u.s/(u.cm**2)/u.Hz)
+            f_lambda = f_nu * const.c / (lambda_cen**2)
+            f_lambda0 = f_lambda.to(u.erg/u.s/(u.cm**2)/u.Angstrom).value
+            print ii, f_nu, f_lambda0
+            flux = np.repeat(f_lambda0, len(wave))
 
         for ll in range(len(lambda0)):
             o_lambda = lambda0[ll] * z0
@@ -137,14 +148,14 @@ def gnirs_2017a(silent=False, verbose=True):
     path0   = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
     infile1 = path0 + 'targets.2017a.txt'
 
-    path1   = r'/Users/cly/Google Drive/Documents/Proposals/2017A/Gemini/'
-    infile2 = path1 + 'PIT_SDF_DEEP2.bright.txt'
-
     if silent == False: print '### Reading : ', infile1
     tab1 = asc.read(infile1, format='commented_header')
 
     ID    = [str0.replace('*','') for str0 in tab1['ID']]
     zspec = tab1['redshift']
+
+    path1   = r'/Users/cly/Google Drive/Documents/Proposals/2017A/Gemini/'
+    infile2 = path1 + 'PIT_SDF_DEEP2.bright.txt'
 
     if silent == False: print '### Reading : ', infile2
     tab2 = asc.read(infile2)
@@ -155,12 +166,37 @@ def gnirs_2017a(silent=False, verbose=True):
     Ha_flux  = tab2['Ha_flux'][idx2]
     logNIIHa = tab2['logNIIHa'][idx2]
 
-    tab0 = Table([ID, zspec, Ha_flux, logNIIHa],
-                 names=('ID','zspec','Ha_flux','logNIIHa'))
+    # Get photometry
+    # later + on 02/02/2017
+    SDF_phot   = get_photometry.SDF(verbose=False)
+    DEEP2_phot = get_photometry.DEEP2(verbose=False)
+
+    s_idx1, s_idx2 = match_nosort_str(ID, SDF_phot['ID'])
+    d_idx1, d_idx2 = match_nosort_str(ID, DEEP2_phot['ID'])
+
+    #t0 = Table([DEEP2_phot['SDSS_Z'], DEEP2_phot['CFHT_Z'], DEEP2_phot['I']])
+    #print t0
+
+    i_mag1 = np.where(np.isfinite(DEEP2_phot['SDSS_Z']))[0]
+    i_mag2 = np.where(np.isfinite(DEEP2_phot['CFHT_Z']))[0]
+    deep2_mag = DEEP2_phot['I']
+    deep2_mag[i_mag1] = DEEP2_phot['SDSS_Z'][i_mag1]
+    deep2_mag[i_mag2] = DEEP2_phot['CFHT_Z'][i_mag2]
+
+    mag_phot0         = np.zeros(len(ID))
+    mag_phot0[s_idx1] = SDF_phot['J'][s_idx2]
+
+    mag_phot0[d_idx1] = deep2_mag[d_idx2]
+
+    print mag_phot0
+
+    tab0 = Table([ID, zspec, Ha_flux, logNIIHa, mag_phot0],
+                 names=('ID','zspec','Ha_flux','logNIIHa','mag'))
 
     print tab0
 
     vel0 = 100.0 * u.km/u.s
 
     out_path = path0 + 'ETC/'
-    main(tab0, velocity=vel0, out_path=out_path, unit0=u.nm)
+    main(tab0, velocity=vel0, out_path=out_path, unit0=u.nm,
+         lambda_cen=1.25*u.micron)

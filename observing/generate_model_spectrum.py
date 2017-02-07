@@ -29,7 +29,7 @@ from locate_em_lines import gaussian, gaussian_R
 import get_photometry
 
 def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
-         lambda_cen=1.25*u.micron, silent=False, verbose=True):
+         silent=False, verbose=True):
 
     '''
     Main function() that generates a spectrum containing H-alpha, [NII],
@@ -63,6 +63,9 @@ def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
        for nebular emission lines. Most ETC will factor in spectral
        resolution
      - Adopt non-zero continuum if magnitude column ('mag') is present in table
+    Modified by Chun Ly, 2 February 2017
+     - Remove lambda_cen keyword option
+     - Assume continuum is flat in F-nu
     '''
     
     if silent == False:
@@ -98,10 +101,11 @@ def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
         if 'mag' in tab0.colnames:
             f_nu = 10**(-0.4*(tab0['mag'][ii]-23.90)) * u.microJansky
             f_nu = f_nu.to(u.erg/u.s/(u.cm**2)/u.Hz)
-            f_lambda = f_nu * const.c / (lambda_cen**2)
+            #Assume that spectrum is flat in F_nu
+            f_lambda = f_nu * const.c / ((wave*u.Angstrom)**2)
             f_lambda0 = f_lambda.to(u.erg/u.s/(u.cm**2)/u.Angstrom).value
-            print ii, f_nu, f_lambda0
-            flux = np.repeat(f_lambda0, len(wave))
+            #print ii, f_nu, f_lambda0
+            flux = f_lambda0 #np.repeat(f_lambda0, len(wave))
 
         for ll in range(len(lambda0)):
             o_lambda = lambda0[ll] * z0
@@ -198,5 +202,5 @@ def gnirs_2017a(silent=False, verbose=True):
     vel0 = 100.0 * u.km/u.s
 
     out_path = path0 + 'ETC/'
-    main(tab0, velocity=vel0, out_path=out_path, unit0=u.nm,
-         lambda_cen=1.25*u.micron)
+    main(tab0, velocity=vel0, out_path=out_path, unit0=u.nm)
+    #lambda_cen=1.25*u.micron)

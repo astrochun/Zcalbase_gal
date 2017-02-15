@@ -159,6 +159,11 @@ def get_offsets(c_ref, c0):
     Created by Chun Ly, 10 January 2017
     Modified by Chun Ly, 27 January 2017
      - Check to make sure frames are equivalent
+    Modified by Chun Ly, 15 February 2017
+     - Bug found with spherical_offsets_to() for large offsets.
+       Re-computing using standard definition:
+        d(RA)  = (RA - RA0)  * cos(DEC0)
+        d(Dec) = (Dec - Dec0)
     '''
 
     # + on 27/01/2017 for frame check
@@ -167,9 +172,12 @@ def get_offsets(c_ref, c0):
     else: c_ref0 = c_ref
 
     # Give coordinate offsets from reference [c_ref0] to target [c0]
-    dra0, ddec0 = c_ref0.spherical_offsets_to(c0)
-    dra0  = dra0.to(u.arcsec).value
-    ddec0 = ddec0.to(u.arcsec).value
+    # Mod on 15/02/2017
+    dra0  = (c0.ra.deg - c_ref0.ra.deg)   * 3600.0 * np.cos(c_ref0.dec.radian)
+    ddec0 = (c0.dec.deg - c_ref0.dec.deg) * 3600.0
+    # dra0, ddec0 = c_ref0.spherical_offsets_to(c0)
+    # dra0  = dra0.to(u.arcsec).value
+    # ddec0 = ddec0.to(u.arcsec).value
     dist0 = np.sqrt(dra0**2+ddec0**2)
     return dra0, ddec0, dist0
 #enddef
@@ -1055,7 +1063,7 @@ def zcalbase_gal_gemini():
     # main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     #     max_radius=max_radius, mag_limit=17.0, catalog='2MASS', mag_filt='j_m')
 
-    do_step1 = 0
+    do_step1 = 1
     if do_step1:
         # Select alignment stars based on SDSS
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,
@@ -1071,7 +1079,7 @@ def zcalbase_gal_gemini():
         pdfmerge.merge(files, out_pdf_2017a)
 
     # + on 20/01/2017
-    do_step2 = 0
+    do_step2 = 1
     if do_step2:
         # Generate 2MASS finding chart with SDSS catalog | + on 20/01/2017
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,

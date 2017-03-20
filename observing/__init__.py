@@ -3,4 +3,5 @@ import locate_em_lines
 import sdss_2mass_proper_motion
 import generate_model_spectrum
 
+reload(get_photometry)
 reload(generate_model_spectrum)

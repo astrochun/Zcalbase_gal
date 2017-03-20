@@ -24,7 +24,8 @@ import glob
 from astropy.table import Table
 
 path0  = '/Users/cly/Dropbox/Observing/2017A/Gemini/'
-infile = path0 + 'targets.2017a.txt'
+#infile = path0 + 'targets.2017a.txt'
+infile = path0 + 'targets.txt'
 data0  = asc.read(infile, format='commented_header') # Mod on 15/01/2017
 N0     = len(data0)
 ID0    = data0['ID']

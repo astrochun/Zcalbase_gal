@@ -124,7 +124,7 @@ def main(tab0, velocity=100.0*u.km/u.s, out_path='', unit0=u.micron,
 
         f_table = Table([wave * wave_scale, flux])
 
-        outfile = out_path + ID0[ii]+'.spec.txt'
+        outfile = out_path + ID0[ii]+'.spec.sed' # Mod on 20/03/2017
         if silent == False: print '### Writing : ', outfile
         asc.write(f_table, outfile, format='no_header', overwrite=True)
 
@@ -174,6 +174,81 @@ def gnirs_2017a(silent=False, verbose=True):
     # later + on 02/02/2017
     SDF_phot   = get_photometry.SDF(verbose=False)
     DEEP2_phot = get_photometry.DEEP2(verbose=False)
+
+    s_idx1, s_idx2 = match_nosort_str(ID, SDF_phot['ID'])
+    d_idx1, d_idx2 = match_nosort_str(ID, DEEP2_phot['ID'])
+
+    #t0 = Table([DEEP2_phot['SDSS_Z'], DEEP2_phot['CFHT_Z'], DEEP2_phot['I']])
+    #print t0
+
+    i_mag1 = np.where(np.isfinite(DEEP2_phot['SDSS_Z']))[0]
+    i_mag2 = np.where(np.isfinite(DEEP2_phot['CFHT_Z']))[0]
+    deep2_mag = DEEP2_phot['I']
+    deep2_mag[i_mag1] = DEEP2_phot['SDSS_Z'][i_mag1]
+    deep2_mag[i_mag2] = DEEP2_phot['CFHT_Z'][i_mag2]
+
+    mag_phot0         = np.zeros(len(ID))
+    mag_phot0[s_idx1] = SDF_phot['J'][s_idx2]
+
+    mag_phot0[d_idx1] = deep2_mag[d_idx2]
+
+    print mag_phot0
+
+    tab0 = Table([ID, zspec, Ha_flux, logNIIHa, mag_phot0],
+                 names=('ID','zspec','Ha_flux','logNIIHa','mag'))
+
+    print tab0
+
+    vel0 = 100.0 * u.km/u.s
+
+    out_path = path0 + 'ETC/'
+    main(tab0, velocity=vel0, out_path=out_path, unit0=u.nm)
+    #lambda_cen=1.25*u.micron)
+
+def gnirs_2017b(silent=False, verbose=True):
+    '''
+    Function to run generate_model_spectrum.main() for Gemini-N/GNIRS
+    targets in 2017B program (pre-proposal planning)
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 20 March 2017
+    '''
+
+    path0   = r'/Users/cly/Google Drive/Documents/Proposals/2017B/Gemini/'
+    infile1 = path0 + 'targets.2017b.txt'
+
+    if silent == False: print '### Reading : ', infile1
+    tab1 = asc.read(infile1, format='commented_header')
+
+    ID    = [str0.replace('*','') for str0 in tab1['ID']]
+    zspec = tab1['redshift']
+
+    path1   = r'/Users/cly/Google Drive/Documents/Proposals/2017A/Gemini/'
+    infile2 = path1 + 'PIT_SDF_DEEP2.bright.txt'
+
+    if silent == False: print '### Reading : ', infile2
+    tab2 = asc.read(infile2)
+
+    ID2  = [str0.replace('#','') for str0 in tab2['ID']]
+    idx1, idx2 = match_nosort_str(ID, ID2)
+
+    Ha_flux  = tab2['Ha_flux'][idx2]
+    logNIIHa = tab2['logNIIHa'][idx2]
+
+    # Get photometry
+    # later + on 02/02/2017
+    SDF_phot   = get_photometry.SDF(verbose=False)
+    DEEP2_phot = get_photometry.DEEP2(verbose=False)
+
+    print DEEP2_phot
 
     s_idx1, s_idx2 = match_nosort_str(ID, SDF_phot['ID'])
     d_idx1, d_idx2 = match_nosort_str(ID, DEEP2_phot['ID'])

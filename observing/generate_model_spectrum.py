@@ -220,6 +220,8 @@ def gnirs_2017b(silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 20 March 2017
+    Modified by Chun Ly, 21 March 2017
+     - Write DEEP2 photometric catalog to file
     '''
 
     path0   = r'/Users/cly/Google Drive/Documents/Proposals/2017B/Gemini/'
@@ -248,7 +250,9 @@ def gnirs_2017b(silent=False, verbose=True):
     SDF_phot   = get_photometry.SDF(verbose=False)
     DEEP2_phot = get_photometry.DEEP2(verbose=False)
 
-    print DEEP2_phot
+    # + on 21/03/2017
+    asc.write(DEEP2_phot, path0+'DEEP2_phot_2017b.txt',
+              format='fixed_width_two_line')
 
     s_idx1, s_idx2 = match_nosort_str(ID, SDF_phot['ID'])
     d_idx1, d_idx2 = match_nosort_str(ID, DEEP2_phot['ID'])

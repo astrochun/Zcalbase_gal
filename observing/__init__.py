@@ -4,4 +4,6 @@ import sdss_2mass_proper_motion
 import generate_model_spectrum
 
 reload(get_photometry)
+reload(locate_em_lines)
+reload(sdss_2mass_proper_motion)
 reload(generate_model_spectrum)

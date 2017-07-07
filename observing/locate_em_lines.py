@@ -250,7 +250,7 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
 #enddef
 
 def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
-         format='commented_header', silent=False, verbose=True):
+         format0='commented_header', silent=False, verbose=True):
 
     '''
     Main function to read in catalog of sources and output PDF file
@@ -301,12 +301,14 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
      - Call gaussian_R() instead of using 
     Modified by Chun Ly, 4 January 2017
      - Add call to overlay_filter_trans()
+    Modified by Chun Ly, 7 July 2017
+     - Bug fix for ascii format
     '''
 
     if silent == False: print '### Begin locate_em_lines.main() | '+systime()
 
     if silent == False: print '### Reading : ', in_cat
-    cat_data = asc.read(in_cat)
+    cat_data = asc.read(in_cat, format=format0) # Mod on 07/07/2017
 
     ID    = cat_data['ID']
     zspec = cat_data['redshift']

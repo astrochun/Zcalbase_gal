@@ -303,6 +303,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
      - Add call to overlay_filter_trans()
     Modified by Chun Ly, 7 July 2017
      - Bug fix for ascii format
+     - Bug fix: integer value for n_pix
     '''
 
     if silent == False: print '### Begin locate_em_lines.main() | '+systime()
@@ -327,7 +328,7 @@ def main(in_cat, out_pdf, lambda0_min, lambda0_max, R_spec, instrument,
     rousselot_file = os.path.dirname(co_filename) + '/' + 'rousselot2000.dat'
     rousselot_data = asc.read(rousselot_file, format='commented_header')
     n_OH    = len(rousselot_data)
-    n_pix   = 27000.0
+    n_pix   = 27000 # Mod on 07/07/2017
     OH_bgd  = np.zeros(n_pix)
     lambda_OH  = np.arange(n_pix)
     for rr in range(n_OH):

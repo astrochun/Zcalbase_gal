@@ -1154,7 +1154,8 @@ def zcalbase_gal_gemini_2017b():
     Notes
     -----
     Created by Chun Ly, 7 July 2017
-     - Started as a copy of zcalbase_gal_gemini_2017b
+     - Started as a copy of zcalbase_gal_gemini()
+     - Minor fixes. Read in alignment table
     '''
 
     import pdfmerge
@@ -1183,9 +1184,9 @@ def zcalbase_gal_gemini_2017b():
         files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
                  a in data2['ID']]
 
-        out_pdf_2017a = finding_chart_path+\
-                        'GNIRS_2017A_Targets_SDSS_FindingCharts.bright.pdf'
-        pdfmerge.merge(files, out_pdf_2017a)
+        out_pdf_2017b = finding_chart_path+\
+                        'GNIRS_2017B_Targets_SDSS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2017b)
 
     do_step2 = 1
     if do_step2:
@@ -1194,29 +1195,33 @@ def zcalbase_gal_gemini_2017b():
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='2MASS-H', slitlength=slitlength, runall=False)
 
-        # Merge PDF finding chart files for 2017A targets
+        # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
                  a in data2['ID']]
-        out_pdf_2017a = finding_chart_path+\
-                        'GNIRS_2017A_Targets_2MASS_FindingCharts.bright.pdf'
-        pdfmerge.merge(files, out_pdf_2017a)
+        out_pdf_2017b = finding_chart_path+\
+                        'GNIRS_2017B_Targets_2MASS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2017b)
+
+    out_mag_table = out_path + 'Alignment_Stars.txt'
+    print '### Reading : ', out_mag_table
+    mag_table0 = asc.read(out_mag_table)
 
     # Run through but use proper motion from UCAC4 or MoVeRS
     do_step3 = 1
     if do_step3:
         # Generate 2MASS finding chart with SDSS catalog
         pm_out_pdf = path0 + 'sdss_2mass_proper_motion.pdf'
-        main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='2MASS-H', slitlength=slitlength, runall=False,
-             alignment_file=out_mag_table2, pmfix=True, epoch=2017.25,
+             alignment_file=out_mag_table, pmfix=True, epoch=2017.25,
              pm_out_pdf=pm_out_pdf)
 
-        # Merge PDF finding chart files for 2017A targets
+        # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for
                  a in data2['ID']]
-        out_pdf_2017a = finding_chart_path+\
-                        'GNIRS_2017A_Targets_2MASS_FindingCharts.PMfix.pdf'
+        out_pdf_2017b = finding_chart_path+\
+                        'GNIRS_2017B_Targets_2MASS_FindingCharts.PMfix.pdf'
         pdfmerge.merge(files, out_pdf_2017a)
 
 #enddef

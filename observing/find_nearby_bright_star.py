@@ -651,7 +651,7 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
 
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
-         catalog='SDSS', image=None, format='commented_header',
+         catalog='SDSS', image=None, format0='commented_header',
          slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
          epoch=2000.0, pm_out_pdf=None, silent=False, verbose=True):
 
@@ -755,6 +755,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
        4-sigma criteria. Adopt MoVeRS and UCAC4 first
     Modified by Chun Ly, 29 January 2017
      - Change limit to 3-sigma to include DEEP14 proper motion
+    Modified by Chun Ly, 7 July 2017
+     - Fix bug with ascii format
     '''
 
     if silent == False:
@@ -768,7 +770,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     if silent == False: print '### image : ', image
 
     if silent == False: print '### Reading : ', infile
-    data0 = asc.read(infile)
+    data0 = asc.read(infile, format=format0)
     ID    = data0['ID'].data
     ID0   = [ss.replace('*','') for ss in ID]
 

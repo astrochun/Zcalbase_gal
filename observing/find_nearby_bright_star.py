@@ -653,7 +653,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
          catalog='SDSS', image=None, format0='commented_header',
          slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
-         epoch=2000.0, pm_out_pdf=None, silent=False, verbose=True):
+         epoch=2000.0, pm_out_pdf=None, sig_min=3.0, silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -695,6 +695,10 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
     format : string
       Format of infile ASCII file. Default: "commented_header"
+
+    sig_min : float
+      Minimum number of sigma to use proper motion from UCAC4 or MoVERS
+      Default: 3.0
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -758,6 +762,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 7 July 2017
      - Fix bug with ascii format
      - Fix bug when movers table is empty
+    Modified by Chun Ly, 8 July 2017
+     - Add sig_min keyword to allow user to specify minimum for using PM info
     '''
 
     if silent == False:
@@ -791,12 +797,14 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         # Adopt a 4-sigma criteria for trusting proper motion
         # Mod on 30/01/2017 to adopt 3-sigma instead
         # Mod on 07/07/2017
+        log.info('### Using proper motion that is more reliable than '+str(sig_min)+'sigma')
+
         if t_movers['_RAJ2000'][0] != 0:
-            m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 3.0) &
-                             (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= 3.0))[0]
+            m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= sig_min) &
+                             (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= sig_min))[0]
         else: m_idx = []
-        u_idx = np.where((abs(t_ucac['pmRA']/t_ucac['e_pmRA']) >= 3.0) &
-                         (abs(t_ucac['pmDE']/t_ucac['e_pmDE']) >= 3.0))[0]
+        u_idx = np.where((abs(t_ucac['pmRA']/t_ucac['e_pmRA']) >= sig_min) &
+                         (abs(t_ucac['pmDE']/t_ucac['e_pmDE']) >= sig_min))[0]
 
         # + on 29/01/2017
         pm_source = np.zeros(len(data0))

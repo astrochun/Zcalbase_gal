@@ -757,6 +757,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Change limit to 3-sigma to include DEEP14 proper motion
     Modified by Chun Ly, 7 July 2017
      - Fix bug with ascii format
+     - Fix bug when movers table is empty
     '''
 
     if silent == False:
@@ -789,8 +790,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
         # Adopt a 4-sigma criteria for trusting proper motion
         # Mod on 30/01/2017 to adopt 3-sigma instead
-        m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 3.0) &
-                         (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= 3.0))[0]
+        # Mod on 07/07/2017
+        if t_movers['_RAJ2000'][0] != 0:
+            m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= 3.0) &
+                             (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= 3.0))[0]
+        else: m_idx = []
         u_idx = np.where((abs(t_ucac['pmRA']/t_ucac['e_pmRA']) >= 3.0) &
                          (abs(t_ucac['pmDE']/t_ucac['e_pmDE']) >= 3.0))[0]
 
@@ -816,7 +820,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
         if silent == False: print '### Adopted epoch : ', epoch
         # Mod on 27/01/2017
-        m_c0, m_c0_2000   = pm.pm_position(t_movers, epoch)
+        if len(m_idx) > 0: # Mod on 07/07/2017
+            m_c0, m_c0_2000   = pm.pm_position(t_movers, epoch)
         u_c0, u_c0_2000   = pm.pm_position(t_ucac,   epoch)
         s2_c0, s2_c0_2000 = pm.pm_position(t_s2,     epoch) # + on 29/01/2017
 
@@ -1222,6 +1227,6 @@ def zcalbase_gal_gemini_2017b():
                  a in data2['ID']]
         out_pdf_2017b = finding_chart_path+\
                         'GNIRS_2017B_Targets_2MASS_FindingCharts.PMfix.pdf'
-        pdfmerge.merge(files, out_pdf_2017a)
+        pdfmerge.merge(files, out_pdf_2017b)
 
 #enddef

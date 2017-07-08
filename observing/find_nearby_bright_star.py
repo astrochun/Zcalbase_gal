@@ -797,7 +797,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         # Adopt a 4-sigma criteria for trusting proper motion
         # Mod on 30/01/2017 to adopt 3-sigma instead
         # Mod on 07/07/2017
-        log.info('### Using proper motion that is more reliable than '+str(sig_min)+'sigma')
+        print '### Using proper motion that is more reliable than '+str(sig_min)+'sigma'
 
         if t_movers['_RAJ2000'][0] != 0:
             m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= sig_min) &
@@ -1169,6 +1169,10 @@ def zcalbase_gal_gemini_2017b():
     Created by Chun Ly, 7 July 2017
      - Started as a copy of zcalbase_gal_gemini()
      - Minor fixes. Read in alignment table
+    Modified by Chun Ly, 8 July 2017
+     - Adopt 2.5 sigma constraint on PM reliability
+     - Change epoch for 2017B observation planning: Using Nov 3 2017 as Field4
+       transits at midnight
     '''
 
     import pdfmerge
@@ -1227,8 +1231,8 @@ def zcalbase_gal_gemini_2017b():
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='2MASS-H', slitlength=slitlength, runall=False,
-             alignment_file=out_mag_table, pmfix=True, epoch=2017.25,
-             pm_out_pdf=pm_out_pdf)
+             alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
+             epoch=2017.84, pm_out_pdf=pm_out_pdf)
 
         # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for

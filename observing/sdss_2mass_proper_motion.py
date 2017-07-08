@@ -145,6 +145,8 @@ def query_movers(c_arr, col_ID, silent=False, verbose=True):
      - Output full MoVeRS table instead of just an astropy.table with proper
        motion
      - Add col_ID input to include in table
+    Modified by Chun Ly, 8 July 2017
+     - Bug fix: Handle empty movers table
     '''
 
     if silent == False:
@@ -175,7 +177,13 @@ def query_movers(c_arr, col_ID, silent=False, verbose=True):
     if silent == False:
         print '### End sdss_2mass_proper_motion.query_movers() | '+systime()
 
-    movers_tab.add_column(col_ID, 0) # + on 25/01/2017
+    # Mod on 08/07/2017
+    if cnt == 0:
+        ra  = np.zeros(n_sources)
+        dec = np.zeros(n_sources)
+        movers_tab = Table([ra,dec], names=('_RAJ2000','_DEJ2000'))
+    else:
+        movers_tab.add_column(col_ID, 0) # + on 25/01/2017
     return movers_tab
 #enddef
 
@@ -272,6 +280,9 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
      - Include cos(dec) factor for muRA
     Modified by Chun Ly, 29 January 2017
      - Pass J2000 coordinates and number of coordinate data points
+    Modified by Chun Ly, 8 July 2017
+     - Bug fix: Handle empty movers table
+     - Overwrite table if files exist
     '''
 
     if silent == False:
@@ -312,9 +323,11 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
         print movers_tab
 
         # + on 25/01/2017
-        outfile1 = out_path+'Proper_Motions_Alignment_Stars.MoVeRS.txt'
-        if silent == False: print '### Writing : ', outfile1
-        movers_tab.write(outfile1, format='ascii.fixed_width_two_line')
+        if movers_tab['_RAJ2000'][0] != 0:
+            outfile1 = out_path+'Proper_Motions_Alignment_Stars.MoVeRS.txt'
+            if silent == False: print '### Writing : ', outfile1
+            movers_tab.write(outfile1, format='ascii.fixed_width_two_line',
+                             overwrite=True)
 
         ucac_tab = query_ucac4(c_sdss, tab2['ID']) # + on 25/01/2017
         #print ucac_tab
@@ -322,7 +335,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
         # + on 25/01/2017
         outfile2 = out_path+'Proper_Motions_Alignment_Stars.UCAC4.txt'
         if silent == False: print '### Writing : ', outfile2
-        ucac_tab.write(outfile2, format='ascii.fixed_width_two_line')
+        ucac_tab.write(outfile2, format='ascii.fixed_width_two_line',
+                       overwrite=True)
 
         ra_2mass  = c_2mass.ra.value
         dec_2mass = c_2mass.dec.value

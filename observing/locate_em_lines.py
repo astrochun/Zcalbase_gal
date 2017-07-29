@@ -505,3 +505,32 @@ def zcalbase_gal_gemini_2017b():
 
     print '### End locate_em_lines.zcalbase_gal_gemini_2017b() | '+systime()
 #enddef
+
+def zcalbase_gal_mmt_2017c():
+    '''
+    Function to run main() but for MMT/MMIRS 2017C targets
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 28 July 2017
+    '''
+
+    print '### Begin locate_em_lines.zcalbase_gal_mmt_2017c() | '+systime()
+
+    path0 = '/Users/cly/Dropbox/Observing/2017C/MMT/'
+
+    R_spec = 2400.0/2.0 #7200/2.5 #3000.0
+
+    in_cat  = path0 + 'targets.2017c.txt'
+    out_pdf = path0 + 'locate_em_lines.2017c.pdf'
+    main(in_cat, out_pdf, 6400, 6800, R_spec, 'MMIRS')
+
+    print '### End locate_em_lines.zcalbase_gal_mmt_2017c() | '+systime()
+#enddef

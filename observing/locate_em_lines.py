@@ -174,7 +174,7 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
     Parameters
     ----------
     instrument : string
-      Name of instrument. Accepted values are currently: 'GNIRS'
+      Name of instrument. Accepted values are currently: 'GNIRS', 'MMIRS'
       The ASCII files should be placed in Filters/TELE/[instrument].
       See __filename__ for full path
 
@@ -187,6 +187,8 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
     Created by Chun Ly, 4 January 2017
     Modified by Chun Ly, 5 January 2017
      - Fix bug in truncation of str_annot for ax0.annotate()
+    Modified by Chun Ly, 28 July 2017
+     - Add MMIRS filters
     '''
 
     if silent == False:
@@ -197,7 +199,14 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
         filts  = ['X','J','H','K']
         files  = [trans_path+a.lower()+'_bl.dat' for a in filts]
         x_unit = u.micron # Unit of the wavelength
-        
+
+    # Include filters for MMT/MMIRS | + on 28/07/2107
+    if instrument == 'MMIRS':
+        trans_path = os.path.dirname(co_filename) + '/Filters/MMT/MMIRS/'
+        filts  = ['Y','zJ','J','H','HK','HK3','K']
+        files  = [trans_path+'mmirs_'+a.lower()+'.txt' for a in filts]
+        x_unit = u.nm # Unit of the wavelength
+
     if silent == False: print '### [files] : ', files
 
     if ax0 == None: ax0 = plt.gca()
@@ -211,8 +220,9 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
         data    = asc.read(files[ii])
         x_scale = x_unit.to(u.angstrom)
         x_Ang   = data['col1']*x_scale
+
         in_plot = np.where(((xlim[0] > np.min(x_Ang)) &
-                            (xlim[0] < np.max(x_Ang))) | 
+                            (xlim[0] < np.max(x_Ang))) |
                            ((xlim[1] > np.min(x_Ang)) &
                             (xlim[1] > np.max(x_Ang))))[0]
 

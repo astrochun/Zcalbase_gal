@@ -189,6 +189,7 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
      - Fix bug in truncation of str_annot for ax0.annotate()
     Modified by Chun Ly, 28 July 2017
      - Add MMIRS filters
+     - Handle filter profiles with too blue or red wavelength content
     '''
 
     if silent == False:
@@ -221,10 +222,16 @@ def overlay_filter_trans(instrument, lambda_val, in_range, ax0=None,
         x_scale = x_unit.to(u.angstrom)
         x_Ang   = data['col1']*x_scale
 
-        in_plot = np.where(((xlim[0] > np.min(x_Ang)) &
-                            (xlim[0] < np.max(x_Ang))) |
-                           ((xlim[1] > np.min(x_Ang)) &
-                            (xlim[1] > np.max(x_Ang))))[0]
+        # Handle non unity filter profiles | + on 28/07/2017
+        if max(data['col2'] > 90): data['col2'] /= 100.0
+
+        # Handle filter profiles with too blue or red wavelength content | + on 28/07/2017
+        abv = np.where(data['col2'] > 0.1)[0]
+        in_plot = np.where(((xlim[0] > np.min(x_Ang[abv])) &
+                            (xlim[0] < np.max(x_Ang[abv]))) |
+                           ((xlim[1] > np.min(x_Ang[abv])) &
+                            (xlim[1] > np.max(x_Ang[abv]))))[0]
+        in_plot = abv[in_plot]
 
         if len(in_plot) > 0:
             ax0.plot(x_Ang, data['col2'], '--', linewidth=1.0,

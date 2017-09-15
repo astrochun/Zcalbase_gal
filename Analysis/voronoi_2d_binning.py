@@ -241,7 +241,8 @@ MODIFICATION HISTORY:
       V3.1.0: Use cKDTree for un-weighted Voronoi Tessellation.
           Removed loop over bins from Lloyd's algorithm with CVT.
           MC, Oxford, 17 July 2017
-
+      V3.1.1: Allow for currentBin input
+          CLy, MMT, 15 September 2017
 """
 
 from __future__ import print_function
@@ -347,7 +348,7 @@ def _roundness(x, y, pixelSize):
 
 #----------------------------------------------------------------------
 
-def _accretion(x, y, signal, noise, targetSN, pixelsize, quiet, sn_func):
+def _accretion(x, y, signal, noise, targetSN, pixelsize, quiet, sn_func, currentBin=None):
     """
     Implements steps (i)-(v) in section 5.1 of Cappellari & Copin (2003)
 
@@ -365,7 +366,10 @@ def _accretion(x, y, signal, noise, targetSN, pixelsize, quiet, sn_func):
         else:
             raise ValueError("Dataset is large: Provide `pixelsize`")
 
-    currentBin = np.argmax(signal/noise)  # Start from the pixel with highest S/N
+    # Mod on 15/09/2017
+    if currentBin == None:
+        currentBin = np.argmax(signal/noise)  # Start from the pixel with highest S/N
+
     SN = sn_func(currentBin, signal, noise)
 
     # Rough estimate of the expected final bins number.
@@ -589,7 +593,7 @@ def _display_pixels(x, y, counts, pixelsize):
 
 def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
                          pixelsize=None, plot=True, quiet=True,
-                         sn_func=None, wvt=True):
+                         sn_func=None, wvt=True, currentBin=None):
     """
     PURPOSE:
           Perform adaptive spatial binning of Integral-Field Spectroscopic
@@ -639,7 +643,7 @@ def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
     if not quiet:
         print('Bin-accretion...')
     classe, pixelsize = _accretion(
-        x, y, signal, noise, targetSN, pixelsize, quiet, sn_func)
+        x, y, signal, noise, targetSN, pixelsize, quiet, sn_func, currentBin=currentBin)
     if not quiet:
         print(np.max(classe), ' initial bins.')
         print('Reassign bad bins...')

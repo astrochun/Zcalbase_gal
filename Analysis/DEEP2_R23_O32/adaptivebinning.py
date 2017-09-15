@@ -1,6 +1,12 @@
 ##Adaptive binning for DEEP2 data
 ##Number of galaxies n=
 
+'''
+   Notes
+   -----
+   Modified by Chun Ly, 15 September 2017
+    - Call voronoi_2d_binning with currentBin input
+'''
 
 from os import path
 import numpy as np
@@ -73,12 +79,11 @@ def voronoi_binning_DEEP2():
     avg_O32 = np.average(lO32)
 
     dist0      = np.sqrt((lR23-avg_R23)**2 + (lO32-avg_O32)**2)
-    currentbin = np.argmin(dist0)
+    currentBin = np.argmin(dist0)
     
-    binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale = voronoi_2d_binning(lR23, lO32,
-                                                                              signal, noise,
-                                                                              10, plot=1,
-                                                                              quiet=0)
+    binNum, xNode, yNode, xBar, yBar, \
+        sn, nPixels, scale = voronoi_2d_binning(lR23, lO32, signal, noise, 10, plot=1,
+                                                quiet=0, currentBin=currentBin)
     
     # Save to a text file the initial coordinates of each pixel together
     # with the corresponding bin number computed by this procedure.

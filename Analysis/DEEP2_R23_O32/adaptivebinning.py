@@ -12,8 +12,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 from astropy.table import vstack
 
-from voronoi_2d_binning import voronoi_2d_binning
-
+#from voronoi_2d_binning import voronoi_2d_binning
+from .. import voronoi_2d_binning
 
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/' 
 pdf_pages = PdfPages(fitspath+'R23_O32_bin01_scatter_and_hexbin_MasterGrid.pdf') #open pdf document

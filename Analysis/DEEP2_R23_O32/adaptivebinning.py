@@ -65,8 +65,20 @@ def voronoi_binning_DEEP2():
     signal = np.repeat(1, len(det3))
     noise = np.repeat(1, len(det3))
     #print np.min(R23[det3]), np.max(R23[det3])
+
+    # + on 15/09/2017
+    lR23 = np.log10(R23[det3])
+    lO32 = np.log10(O32[det3])
+    avg_R23 = np.average(lR23)
+    avg_O32 = np.average(lO32)
+
+    dist0      = np.sqrt((lR23-avg_R23)**2 + (lO32-avg_O32)**2)
+    currentbin = np.argmin(dist0)
     
-    binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale = voronoi_2d_binning(np.log10(R23[det3]), np.log10(O32[det3]), signal, noise, 10, plot=1, quiet=0)
+    binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale = voronoi_2d_binning(lR23, lO32,
+                                                                              signal, noise,
+                                                                              10, plot=1,
+                                                                              quiet=0)
     
     # Save to a text file the initial coordinates of each pixel together
     # with the corresponding bin number computed by this procedure.

@@ -19,4 +19,4 @@ How to use the documentation
 import Zcalbase-gal as Zcb
 """
 
-import observing
+#import observing

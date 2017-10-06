@@ -7,7 +7,9 @@
    Modified by Chun Ly, 15 September 2017
     - Call voronoi_2d_binning with currentBin input
    Modified by Reagen Leimbach, 5 October 2017
-    - Changed location of vornoi_2d_binning with relationship to adaptivebinning      and commented out all unnecessary print statments to fix bug
+    - Changed location of vornoi_2d_binning with relationship to adaptivebinning 
+      and commented out all unnecessary print statments to fix bug
+    - Add Ascii table that has the values calculated by voronoi_2d_binning 
 
 '''
 
@@ -91,21 +93,6 @@ def voronoi_binning_DEEP2():
     test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, 10, plot=True, pixelsize=0.1,
                                                  quiet=False, currentBin=currentBin)
     #print(test.shape)
-    '''for i in xrange(0,2813,8):
-        cla = np.array([test[i]])
-        clas = np.append(cla, i+7,)
-        #xno = np.array(test[i+1])
-        #yno = np.array(test[i+2])
-        #xBa = np.array(test[i+3])
-        #yBa = np.array(test[i+4])
-        #s   = np.array(test[i+5])
-        #are = np.array(test[i+6])
-        #sca = np.array(test[i+7])
-        return clas# , xno, yno, xBa, yBa, s, are, sca
-    pprint(cla.tolist())
-    pprint(xno.tolist())'''
-    
-    #classe, xnode, ynode, xBar, yBar, sn, area, scale
     
     # Save to a text file the initial coordinates of each pixel together
     # with the corresponding bin number computed by this procedure.
@@ -113,11 +100,12 @@ def voronoi_binning_DEEP2():
     # number required for any subsequent calculation on the bins.
     #
     #np.savetxt(fitspath+'voronoi_2d_binning_output.txt', lR23, lO32, binNum, xNode, yNode, xBar, yBar)
-    #print('xBar:', len(xBar), 'yBar:', len(yBar))
-    #tab0= Table([test[], ]) 
-    #asc.write(tab0, fitspath+'asc_table_voronoi.tbl')#, format='fixed_width_two_line')
+    n=('xnode','ynode','xBar','yBar','sn','area','scale')
+    tab0= Table([test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
+    asc.write(tab0, fitspath+'asc_table_voronoi.tbl')
+    print tab0
 
-    return test #binNum, xNode, yNode, _
+    #return test
 #-----------------------------------------------------------------------------
 
 #if __name__ == '__main__':
@@ -127,7 +115,7 @@ def voronoi_binning_DEEP2():
 
 
 '''
-I think what is happening in that the plot section is looking for 
+
 
 
 

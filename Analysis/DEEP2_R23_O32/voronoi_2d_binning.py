@@ -700,12 +700,12 @@ def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
         plt.legend()
         plt.pause(1)  # allow plot to appear in certain cases
 
-    print('classe : ',classe)
-    print('xnode: ',xnode)
-    print('xBar : ',xBar)
-    print('sn : ',sn)
-    print('area : ',area)
-    print('scale : ',scale)
+    print('classe : ',len(classe), classe)
+    print('xnode: ',len(xnode), xnode)
+    print('xBar : ',len(xBar), xBar)
+    print('sn : ',len(sn), sn)
+    print('area : ',len(area), area)
+    print('scale : ',len(scale), scale)
 
     print(type(classe), type(xnode), type(ynode), type(xBar), type(yBar))
     print(type(sn), type(area), type(scale))

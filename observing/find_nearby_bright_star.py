@@ -1271,8 +1271,8 @@ def zcalbase_gal_mmt_2017b():
 
     finding_chart_fits_path = '/Users/cly/data/Observing/MMIRS/Finding_Charts/'
 
-    max_radius = 95. * u.arcsec
-    slitlength = 99 * u.arcsec
+    max_radius = 120.   * u.arcsec
+    slitlength = 4 * 60 * u.arcsec
 
     infile2 = path0 + 'targets.2017b.txt'
     print '### Reading : ', infile2

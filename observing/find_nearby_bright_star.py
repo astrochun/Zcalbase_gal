@@ -581,8 +581,10 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
         JHK_str0 = ['JHK=None'] * n_sources
         if len(table_2mass) > 0:
             # Mod on 24/01/2017 for fk5
-            c_2mass = coords.SkyCoord(table_2mass['ra'], table_2mass['dec'],
-                                      'fk5', unit=(u.deg))
+            # Mod on 06/10/2017 - Use full coordinate instead of rounded values
+            c_2mass = coords.SkyCoord(table_2mass['clon'], table_2mass['clat'], 'fk5')
+            #c_2mass = coords.SkyCoord(table_2mass['ra'], table_2mass['dec'],
+            #                          'fk5', unit=(u.deg))
 
             idx_arr, idx_ref, d2d, d3d = t_c0.search_around_sky(c_2mass, 1*u.arcsec)
 

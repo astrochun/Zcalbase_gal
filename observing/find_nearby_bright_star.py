@@ -961,6 +961,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # Moved up on 20/01/2017
             if 'SDSS' in image:
                 out_fits = finding_chart_fits_path + ID0[ii]+'.SDSS.fits.gz'
+                print out_fits
                 if not exists(out_fits):
                     t_hdu = get_sdss_images(c0, out_fits,
                                             band=image.replace('SDSS-',''))
@@ -1244,7 +1245,7 @@ def zcalbase_gal_gemini_2017b():
 #enddef
 
 
-def zcalbase_gal_mmt_2017c():
+def zcalbase_gal_mmt_2017b():
     '''
     Function to run find_nearby_bright_star.main() but for 2017C MMT/MMIRS
     targets
@@ -1264,7 +1265,7 @@ def zcalbase_gal_mmt_2017c():
 
     import pdfmerge
 
-    path0                   = '/Users/cly/Dropbox/Observing/2017C/MMT/'
+    path0                   = '/Users/cly/Dropbox/Observing/2017B/MMT/'
     out_path                = path0 + 'Alignment_Stars/'
     finding_chart_path      = path0 + 'Finding_Charts/'
 
@@ -1273,7 +1274,7 @@ def zcalbase_gal_mmt_2017c():
     max_radius = 95. * u.arcsec
     slitlength = 99 * u.arcsec
 
-    infile2 = path0 + 'targets.2017c.txt'
+    infile2 = path0 + 'targets.2017b.txt'
     print '### Reading : ', infile2
     data2   = asc.read(infile2, format='commented_header')
 
@@ -1284,13 +1285,13 @@ def zcalbase_gal_mmt_2017c():
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              slitlength=slitlength, runall=True) #runall=False)
 
-        # Merge PDF finding chart files for 2017C targets
+        # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
                  a in data2['ID']]
 
-        out_pdf_2017c = finding_chart_path+\
-                        'MMIRS_2017C_Targets_SDSS_FindingCharts.bright.pdf'
-        pdfmerge.merge(files, out_pdf_2017c)
+        out_pdf_2017b = finding_chart_path+\
+                        'MMIRS_2017B_Targets_SDSS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2017b)
 
     do_step2 = 1
     if do_step2:
@@ -1299,12 +1300,12 @@ def zcalbase_gal_mmt_2017c():
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='2MASS-H', slitlength=slitlength, runall=False)
 
-        # Merge PDF finding chart files for 2017C targets
+        # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
                  a in data2['ID']]
-        out_pdf_2017c = finding_chart_path+\
+        out_pdf_2017b = finding_chart_path+\
                         'MMIRS_2017C_Targets_2MASS_FindingCharts.bright.pdf'
-        pdfmerge.merge(files, out_pdf_2017c)
+        pdfmerge.merge(files, out_pdf_2017b)
 
     out_mag_table = out_path + 'Alignment_Stars.txt'
     print '### Reading : ', out_mag_table
@@ -1321,11 +1322,11 @@ def zcalbase_gal_mmt_2017c():
              alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
              epoch=2017.84, pm_out_pdf=pm_out_pdf)
 
-        # Merge PDF finding chart files for 2017C targets
+        # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for
                  a in data2['ID']]
-        out_pdf_2017c = finding_chart_path+\
-                        'MMIRS_2017C_Targets_2MASS_FindingCharts.PMfix.pdf'
-        pdfmerge.merge(files, out_pdf_2017c)
+        out_pdf_2017b = finding_chart_path+\
+                        'MMIRS_2017B_Targets_2MASS_FindingCharts.PMfix.pdf'
+        pdfmerge.merge(files, out_pdf_2017b)
 
 #enddef

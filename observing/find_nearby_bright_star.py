@@ -1265,6 +1265,7 @@ def zcalbase_gal_mmt_2017b():
      - Started as a copy of zcalbase_gal_gemini_2017b()
     Modified by Chun Ly, 8 October 2017
      - No longer generate 2MASS finding charts with proper motion fix
+     - Fix typo bug
     '''
 
     import pdfmerge
@@ -1327,7 +1328,7 @@ def zcalbase_gal_mmt_2017b():
              epoch=2017.84, pm_out_pdf=pm_out_pdf)
 
         # Merge PDF finding chart files for 2017B targets
-        files = [finding_chart_path+a.replace('*','')+'_SDSS.PMfix.pdf' for
+        files = [finding_chart_path+a.replace('*','')+'.SDSS.PMfix.pdf' for
                  a in data2['ID']]
         out_pdf_2017b = finding_chart_path+\
                         'MMIRS_2017B_Targets_SDSS_FindingCharts.PMfix.pdf'

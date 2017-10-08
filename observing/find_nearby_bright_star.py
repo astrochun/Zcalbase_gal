@@ -50,7 +50,7 @@ SDSS_phot_fld = SDSS_fld + ['modelMag_u', 'modelMagErr_u', 'modelMag_g',
                             'modelMag_i', 'modelMagErr_i', 'modelMag_z',
                             'modelMagErr_z']
 
-def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
+def get_PA(c0, c1, slitlength=99*u.arcsec, MMT=False, silent=True, verbose=False):
     '''
     Function to determine the PA on the sky and central coordinates given
     two WCS coordinates
@@ -62,6 +62,9 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
 
     c1 : `astropy.coordinates` object
       Central coordinate of nearby bright star
+
+    MMT : boolean
+      Indicate if finding charts are for MMT (makes it simpler)
 
     silent : boolean
       Turns off stdout messages. Default: True
@@ -89,6 +92,8 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
      - Fix longslit coordinates. Correct ra0 and dec0 this time
     Modified by Chun Ly, 24 January 2017
      - Force fk5 coordinate for astropy.coords
+    Modified by Chun Ly,  8 October 2017
+     - Handle MMT: Use bright star coordinate as center
     '''
     
     if silent == False:
@@ -98,8 +103,12 @@ def get_PA(c0, c1, slitlength=99*u.arcsec, silent=True, verbose=False):
     PAr = np.radians(PA)
 
     # Get central coordinate
-    ra_avg  = np.average([c0.ra.value, c1.ra.value])
-    dec_avg = np.average([c0.dec.value, c1.dec.value])
+    # Mod on 08/10/2017
+    if MMT == False:
+        ra_avg  = np.average([c0.ra.value, c1.ra.value])
+        dec_avg = np.average([c0.dec.value, c1.dec.value])
+    else:
+        ra_avg, dec_avg = c1.ra.value, c1.dec.value
 
     # Mod on 24/01/2017 for fk5
     c_ctr = coords.SkyCoord(ra_avg, dec_avg, 'fk5', unit=(u.deg))
@@ -276,6 +285,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Change annotated text for proper motion if c1_new is not available
     Modified by Chun Ly,  8 October 2017
      - Add MMT keyword
+     - Pass MMT keyword to get_PA()
     '''
 
     # + on 19/01/2017
@@ -308,9 +318,9 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     if pmfix == True and c1_new != None:
         do_pm = True
         print '## Using proper-motion based position'
-        PA, c_ctr, longslit_list = get_PA(c0, c1_new, slitlength=slitlength)
+        PA, c_ctr, longslit_list = get_PA(c0, c1_new, slitlength=slitlength, MMT=MMT)
     else:
-        PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength)
+        PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength, MMT=MMT)
 
     gc.show_lines(longslit_list, layer='slit', color='black', linewidth=0.5)
     #gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)

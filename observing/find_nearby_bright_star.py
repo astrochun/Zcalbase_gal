@@ -185,7 +185,7 @@ def get_offsets(c_ref, c0):
 def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
                        out_pdf=None, slitlength=99*u.arcsec, catalog='SDSS',
                        image=None, pmfix=False, c1_new=None, c1_2000=None,
-                       epoch=2000.0, silent=True, verbose=False):
+                       epoch=2000.0, MMT=False, silent=True, verbose=False):
     '''
     Function to plot FITS images with WCS on the x- and y-axes
 
@@ -215,6 +215,9 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     out_pdf : string
       Output PDF filename.
       Default: based on [fitsfile], replacing '.fits.gz' or '.fits' with '.pdf'
+
+    MMT : boolean
+      Indicate if finding charts are for MMT (makes it simpler)
 
     silent : boolean
       Turns off stdout messages. Default: True
@@ -271,6 +274,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Improve annotated text for pmfix case and when image overlay is 2MASS
     Modified by Chun Ly, 29 January 2017
      - Change annotated text for proper motion if c1_new is not available
+    Modified by Chun Ly,  8 October 2017
+     - Add MMT keyword
     '''
 
     # + on 19/01/2017
@@ -326,9 +331,10 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
                         linewidth=0.5)
 
     # Overlay 2MASS coordinates in red | + on 22/01/2017
-    gc.show_markers(mag_table['ra_2mass'], mag_table['dec_2mass'],
-                    edgecolor='red', facecolor='none', marker='o',
-                    s=15, linewidth=0.5)
+    if not MMT: # Mod on 08/10/2017
+        gc.show_markers(mag_table['ra_2mass'], mag_table['dec_2mass'],
+                        edgecolor='red', facecolor='none', marker='o',
+                        s=15, linewidth=0.5)
     
     # Label things in lower left text | + on 03/01/2017
     str_c_t  = c0.to_string('hmsdms').split(' ')
@@ -655,7 +661,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
          catalog='SDSS', image=None, format0='commented_header',
          slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
-         epoch=2000.0, pm_out_pdf=None, sig_min=3.0, silent=False, verbose=True):
+         epoch=2000.0, pm_out_pdf=None, sig_min=3.0, MMT=False,
+         silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -701,6 +708,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     sig_min : float
       Minimum number of sigma to use proper motion from UCAC4 or MoVERS
       Default: 3.0
+
+    MMT : boolean
+      Indicate if finding charts are for MMT (makes it simpler)
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -766,6 +776,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Fix bug when movers table is empty
     Modified by Chun Ly, 8 July 2017
      - Add sig_min keyword to allow user to specify minimum for using PM info
+    Modified by Chun Ly,  8 October 2017
+     - Add MMT keyword
     '''
 
     if silent == False:
@@ -1003,7 +1015,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                                mag_table, slitlength=slitlength,
                                catalog=catalog, image=image, out_pdf=out_pdf,
                                pmfix=pmfix, c1_new=c1_new, c1_2000=c1_2000,
-                               epoch=epoch)
+                               epoch=epoch, MMT=MMT)
         #endif
     #endfor
 
@@ -1266,6 +1278,7 @@ def zcalbase_gal_mmt_2017b():
     Modified by Chun Ly, 8 October 2017
      - No longer generate 2MASS finding charts with proper motion fix
      - Fix typo bug
+     - Handle MMT case in main()
     '''
 
     import pdfmerge
@@ -1288,7 +1301,7 @@ def zcalbase_gal_mmt_2017b():
         # Select alignment stars based on SDSS
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
-             slitlength=slitlength, runall=True) #runall=False)
+             slitlength=slitlength, runall=True, MMT=True) #runall=False)
 
         # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
@@ -1303,7 +1316,7 @@ def zcalbase_gal_mmt_2017b():
         # Generate 2MASS finding chart with SDSS catalog
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
-             image='2MASS-H', slitlength=slitlength, runall=False)
+             image='2MASS-H', slitlength=slitlength, runall=False, MMT=True)
 
         # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
@@ -1325,7 +1338,7 @@ def zcalbase_gal_mmt_2017b():
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
-             epoch=2017.84, pm_out_pdf=pm_out_pdf)
+             epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True)
 
         # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'.SDSS.PMfix.pdf' for

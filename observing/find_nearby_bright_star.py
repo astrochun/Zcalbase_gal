@@ -1263,6 +1263,8 @@ def zcalbase_gal_mmt_2017b():
     -----
     Created by Chun Ly, 30 July 2017
      - Started as a copy of zcalbase_gal_gemini_2017b()
+    Modified by Chun Ly, 8 October 2017
+     - No longer generate 2MASS finding charts with proper motion fix
     '''
 
     import pdfmerge
@@ -1306,7 +1308,7 @@ def zcalbase_gal_mmt_2017b():
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
                  a in data2['ID']]
         out_pdf_2017b = finding_chart_path+\
-                        'MMIRS_2017C_Targets_2MASS_FindingCharts.bright.pdf'
+                        'MMIRS_2017B_Targets_2MASS_FindingCharts.bright.pdf'
         pdfmerge.merge(files, out_pdf_2017b)
 
     out_mag_table = out_path + 'Alignment_Stars.txt'
@@ -1320,15 +1322,15 @@ def zcalbase_gal_mmt_2017b():
         pm_out_pdf = path0 + 'sdss_2mass_proper_motion.pdf'
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
-             image='2MASS-H', slitlength=slitlength, runall=False,
+             image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
              epoch=2017.84, pm_out_pdf=pm_out_pdf)
 
         # Merge PDF finding chart files for 2017B targets
-        files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for
+        files = [finding_chart_path+a.replace('*','')+'_SDSS.PMfix.pdf' for
                  a in data2['ID']]
         out_pdf_2017b = finding_chart_path+\
-                        'MMIRS_2017B_Targets_2MASS_FindingCharts.PMfix.pdf'
+                        'MMIRS_2017B_Targets_SDSS_FindingCharts.PMfix.pdf'
         pdfmerge.merge(files, out_pdf_2017b)
 
 #enddef

@@ -337,6 +337,7 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
      - Overwrite table if files exist
     Modified by Chun Ly, 9 October 2017
      - Add UCAC5 keyword; handle UCAC5 case
+     - Change output file suffix for UCAC5; Update annotation text for UCAC5
     '''
 
     if silent == False:
@@ -390,8 +391,11 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
             ucac_tab = query_ucac5(c_sdss, tab2['ID'])
         #print ucac_tab
 
-        # + on 25/01/2017
+        # + on 25/01/2017. Mod on 09/10/2017
         outfile2 = out_path+'Proper_Motions_Alignment_Stars.UCAC4.txt'
+        if UCAC5 == True:
+            outfile2 = outfile2.replace('UCAC4','UCAC5')
+
         if silent == False: print '### Writing : ', outfile2
         ucac_tab.write(outfile2, format='ascii.fixed_width_two_line',
                        overwrite=True)
@@ -511,6 +515,10 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
                         (u_pRA,u_e_pRA)+' (UCAC4)\n'
                 s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % \
                         (u_pDec,u_e_pDec)+' (UCAC4)\n'
+                # + on 09/10/2017
+                if UCAC5 == True:
+                    s_pRA  = s_pRA.replace('UCAC4','UCAC5')
+                    s_pDec = s_pDec.replace('UCAC4','UCAC5')
             else:
                 s_pRA, s_pDec = '', ''
 

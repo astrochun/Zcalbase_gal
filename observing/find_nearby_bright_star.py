@@ -288,6 +288,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Pass MMT keyword to get_PA()
     Modified by Chun Ly, 9 October 2017
      - Avoid plotting blue circles for pmfix == True
+     - Adjust text label for MMT
     '''
 
     # + on 19/01/2017
@@ -376,7 +377,12 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
 
     # Mod on 09/01/2017, 10/01/2017, 22/01/2017, 27/01/2017, 28/01/2017
     bt_txt  = 'Target: RA='+str_c_t[0]+', Dec='+str_c_t[1]+'\n\n'
-    bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]
+
+    if not MMT:
+        bt_txt += 'Slit Center: RA='+str_c[0]+', Dec='+str_c[1]
+    else:
+        bt_txt += 'Slit Align. Coord.: RA='+str_c[0]+', Dec='+str_c[1]
+
     if do_pm == True:
         bt_txt += '  Epoch='+str(epoch)+'\n'
     else: bt_txt += '\n'
@@ -385,7 +391,11 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
         bt_txt += '  Epoch='+str(epoch)+'\n'
     else: bt_txt += '\n'
 
-    bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
+    if not MMT:
+        bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n\n' % (dra2, ddec2, dist2)
+    else:
+        bt_txt += '\n'
+
     if do_pm == False:
         bt_txt += 'Offset Star: RA='+str_c_bt[0]+', Dec='+str_c_bt[1]
         bt_txt += ' Date='+obs_date.value.split(" ")[0]+'\n' # + on 23/01/2017
@@ -394,7 +404,12 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
         bt_txt += '  Epoch=J2000.0\n'
         bt_txt += 'Offset Star: RA='+str_c_bt_new[0]+', Dec='+str_c_bt_new[1]
         bt_txt += '  Epoch='+str(epoch)+'\n'
-    bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
+
+    if not MMT:
+        bt_txt += 'Offsets : (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
+    else:
+        bt_txt += 'Offset Dist to Target: (%+.3f", %+.3f");  %.2f"\n' % (dra, ddec, dist)
+
     if do_pm == True: # Mod on 30/01/2017
         bt_txt += r'$\mu(\alpha)$cos($\delta$) = %+.2f mas/yr, ' % mag_table['pRA'][0]
         bt_txt += r'$\mu(\delta)$ = %+.2f mas/yr, Source: %s' % \

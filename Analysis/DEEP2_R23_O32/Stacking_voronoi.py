@@ -45,7 +45,7 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         stack_2d = fits.getdata(outfile)
         
     for rr in range(n_bins+1):
-        #print rr, stack_2d.shape
+        print rr, stack_2d.shape
         index= np.where(voronoi[2]== rr)[0]   
         subgrid= image2DM[index]
 
@@ -80,6 +80,7 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         ax2.plot(wave, Spect1D, linewidth=0.5)
         ax2.set_xlabel('Wavelength')
         ax2.set_ylabel('Spectra 1D')
+        #ax2.set_title('Bin Number =')
         ax2.minorticks_on()
         #ax.set_xlim(np.log10(xlim))
         ax2.set_ylim([0,np.nanmax(Spect1D)])
@@ -137,7 +138,7 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
 def run_Stacking_Master_mask():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    name = 'Stacking_Voronoi_masked.pdf'
+    name = 'Stacking_Voronoi_masked_output.pdf'
     maskM = fits.getdata(fitspath+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits') 
     MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header, mask=maskM)
     

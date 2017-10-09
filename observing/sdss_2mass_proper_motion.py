@@ -291,7 +291,7 @@ def query_ucac5(c_arr, col_ID, silent=False, verbose=True):
     return ucac_tab
 #enddef
 
-def main(tab0, out_pdf=None, silent=False, verbose=True):
+def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
     '''
     Main function to determine proper motion based on 2MASS and SDSS
     coordinates
@@ -335,6 +335,8 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
     Modified by Chun Ly, 8 July 2017
      - Bug fix: Handle empty movers table
      - Overwrite table if files exist
+    Modified by Chun Ly, 9 October 2017
+     - Add UCAC5 keyword; handle UCAC5 case
     '''
 
     if silent == False:
@@ -381,7 +383,11 @@ def main(tab0, out_pdf=None, silent=False, verbose=True):
             movers_tab.write(outfile1, format='ascii.fixed_width_two_line',
                              overwrite=True)
 
-        ucac_tab = query_ucac4(c_sdss, tab2['ID']) # + on 25/01/2017
+        # Mod on 09/10/2017
+        if UCAC5 == False:
+            ucac_tab = query_ucac4(c_sdss, tab2['ID']) # + on 25/01/2017
+        else:
+            ucac_tab = query_ucac5(c_sdss, tab2['ID'])
         #print ucac_tab
 
         # + on 25/01/2017

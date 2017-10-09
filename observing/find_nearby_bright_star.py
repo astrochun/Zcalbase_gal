@@ -283,9 +283,11 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Improve annotated text for pmfix case and when image overlay is 2MASS
     Modified by Chun Ly, 29 January 2017
      - Change annotated text for proper motion if c1_new is not available
-    Modified by Chun Ly,  8 October 2017
+    Modified by Chun Ly, 8 October 2017
      - Add MMT keyword
      - Pass MMT keyword to get_PA()
+    Modified by Chun Ly, 9 October 2017
+     - Avoid plotting blue circles for pmfix == True
     '''
 
     # + on 19/01/2017
@@ -318,9 +320,11 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     if pmfix == True and c1_new != None:
         do_pm = True
         print '## Using proper-motion based position'
-        PA, c_ctr, longslit_list = get_PA(c0, c1_new, slitlength=slitlength, MMT=MMT)
+        PA, c_ctr, longslit_list = get_PA(c0, c1_new, slitlength=slitlength,
+                                          MMT=MMT)
     else:
-        PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength, MMT=MMT)
+        PA, c_ctr, longslit_list = get_PA(c0, c1[0], slitlength=slitlength,
+                                          MMT=MMT)
 
     gc.show_lines(longslit_list, layer='slit', color='black', linewidth=0.5)
     #gc.show_rectangles([c_ctr.ra.value], [c_ctr.dec.value], 1/3600.0, 99/3600.0)
@@ -330,9 +334,11 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
                     edgecolor='red', facecolor='red', marker='+', s=25)
 
     # + on 02/01/2017
-    gc.show_markers([c1.ra.value], [c1.dec.value], layer='secondary',
-                    edgecolor='blue', facecolor='none', marker='o', s=25,
-                    linewidth=0.5)
+    # Mod on 09/10/2017
+    if pmfix != True:
+        gc.show_markers([c1.ra.value], [c1.dec.value], layer='secondary',
+                        edgecolor='blue', facecolor='none', marker='o', s=25,
+                        linewidth=0.5)
 
     # Draw green circle for new position at epoch | + on 27/01/2017
     if do_pm == True:

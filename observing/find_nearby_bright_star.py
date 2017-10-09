@@ -1319,6 +1319,7 @@ def zcalbase_gal_mmt_2017b():
      - Handle MMT case in main()
     Modified by Chun Ly, 9 October 2017
      - Use UCAC5 proper motion
+     - Rename output sdss_2mass proper motion file
     '''
 
     import pdfmerge
@@ -1373,7 +1374,7 @@ def zcalbase_gal_mmt_2017b():
     do_step3 = 1
     if do_step3:
         # Generate 2MASS finding chart with SDSS catalog
-        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.pdf'
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.UCAC5.pdf'
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='SDSS', slitlength=slitlength, runall=False,

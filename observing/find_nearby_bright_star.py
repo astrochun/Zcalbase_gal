@@ -677,7 +677,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
          catalog='SDSS', image=None, format0='commented_header',
          slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
-         epoch=2000.0, pm_out_pdf=None, sig_min=3.0, MMT=False,
+         epoch=2000.0, pm_out_pdf=None, sig_min=3.0, MMT=False, UCAC5=False,
          silent=False, verbose=True):
 
     '''
@@ -792,8 +792,10 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Fix bug when movers table is empty
     Modified by Chun Ly, 8 July 2017
      - Add sig_min keyword to allow user to specify minimum for using PM info
-    Modified by Chun Ly,  8 October 2017
+    Modified by Chun Ly, 8 October 2017
      - Add MMT keyword
+    Modified by Chun Ly, 9 October 2017
+     - Add UCAC5 keyword; Handle UCAC5 case
     '''
 
     if silent == False:
@@ -822,7 +824,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         data0 = data0[idx1]
 
         # SDSS-2MASS, MoVeRS, and UCAC4 proper motion catalogs
-        t_s2, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf)
+        # Mod on 09/10/2017
+        t_s2, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf, UCAC5=UCAC5)
 
         # Adopt a 4-sigma criteria for trusting proper motion
         # Mod on 30/01/2017 to adopt 3-sigma instead
@@ -977,7 +980,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                         mag_table['pDec'][0]     = t_ucac['pmDE'][ii]
                         mag_table['e_pRA'][0]    = t_ucac['e_pmRA'][ii]
                         mag_table['e_pDec'][0]   = t_ucac['e_pmDE'][ii]
-                        mag_table['p_source'][0] = 'UCAC4'
+                        # Mod on 09/10/2017
+                        if UCAC5 == False:
+                            mag_table['p_source'][0] = 'UCAC4'
+                        else:
+                            mag_table['p_source'][0] = 'UCAC5'
 
                 # + on 10/01/2017
                 name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),
@@ -1295,6 +1302,8 @@ def zcalbase_gal_mmt_2017b():
      - No longer generate 2MASS finding charts with proper motion fix
      - Fix typo bug
      - Handle MMT case in main()
+    Modified by Chun Ly, 9 October 2017
+     - Use UCAC5 proper motion
     '''
 
     import pdfmerge
@@ -1354,7 +1363,7 @@ def zcalbase_gal_mmt_2017b():
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
-             epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True)
+             epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True)
 
         # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'.SDSS.PMfix.pdf' for

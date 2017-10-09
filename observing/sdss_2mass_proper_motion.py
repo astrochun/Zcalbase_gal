@@ -239,6 +239,58 @@ def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
     return ucac_tab
 #enddef
 
+def query_ucac5(c_arr, col_ID, silent=False, verbose=True):
+    '''
+    Query UCAC5 catalog (Zacharias et al. 2017, AJ, 153, 166) to get proper
+    motion information
+
+    Parameters
+    ----------
+    c_arr : astropy.coordinates.sky_coordinate.SkyCoord
+      Set of coordinates to cross-match against
+
+    col_ID : astropy.table.column.Column
+      Astropy column containing the ID
+
+    Returns
+    -------
+    ucac_tab : astropy.table.table.Table
+      Vizier table containing all information, including proper motion
+
+    Notes
+    -----
+    Created by Chun Ly, 9 October 2017
+     - Started as copy of query_ucac4()
+    '''
+
+    if silent == False:
+        print '### Begin sdss_2mass_proper_motion.query_ucac5() | '+systime()
+
+    n_sources = len(c_arr)
+
+    cnt = 0
+    for ii in range(n_sources):
+        tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
+                                   catalog='I/340/ucac5')
+        if len(tab0) != 0:
+            if cnt == 0:
+                ucac_tab = tab0[0]
+            else:
+                ucac_tab = vstack([ucac_tab, tab0[0]])
+            cnt += 1
+        else:
+            ucac_tab.add_row()
+    #endfor
+    if silent == False: print '## cnt : ', cnt
+
+    if silent == False:
+        print '### End sdss_2mass_proper_motion.query_ucac5() | '+systime()
+
+    ucac_tab.add_column(col_ID, 0) # later + on 25/01/2017
+
+    return ucac_tab
+#enddef
+
 def main(tab0, out_pdf=None, silent=False, verbose=True):
     '''
     Main function to determine proper motion based on 2MASS and SDSS

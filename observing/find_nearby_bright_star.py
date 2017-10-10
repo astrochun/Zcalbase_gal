@@ -289,6 +289,8 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
     Modified by Chun Ly, 9 October 2017
      - Avoid plotting blue circles for pmfix == True
      - Adjust text label for MMT
+    Modified by Chun Ly, 10 October 2017
+     - Handle obs date for 2MASS catalog
     '''
 
     # + on 19/01/2017
@@ -371,8 +373,11 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
         str_c_bt_new  = c1_new.to_string('hmsdms').split(' ')
         str_c_bt_2000 = c1_2000.to_string('hmsdms').split(' ')
 
-    # + on 23/01/2017
-    obs_date = Time(mag_table['mjd'][0], format='mjd')
+    # + on 23/01/2017. Mod on 10/10/2017
+    if catalog == 'SDSS':
+        obs_date = Time(mag_table['mjd'][0], format='mjd')
+    if catalog == '2MASS':
+        obs_date = Time(mag_table['xdate'][0])
     obs_date.format='iso'
 
     # Mod on 09/01/2017, 10/01/2017, 22/01/2017, 27/01/2017, 28/01/2017
@@ -811,6 +816,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Add MMT keyword
     Modified by Chun Ly, 9 October 2017
      - Add UCAC5 keyword; Handle UCAC5 case
+    Modified by Chun Ly, 10 October 2017
+     - Handle using 2MASS catalog
+     - Add PM info to table for both SDSS and 2MASS catalogs
     '''
 
     if silent == False:
@@ -894,7 +902,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## mag_limit : ', mag_limit
         print '## filter selection : ', mag_filt
 
-    mag_table0 = None # Initialize | + on 10/01/2017
+    # Mod on 10/10/2017
+    mag_table0 = [] #None # Initialize | + on 10/01/2017
     for ii in range(n_sources):
         # Mod on 24/01/2017 for fk5
         c0 = coords.SkyCoord(RA[ii], DEC[ii], 'fk5', unit=(u.hour, u.degree))
@@ -975,40 +984,54 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                 mag_str, mag_table = sdss_mag_str(xid, TWOMASS=True,
                                                   runall=runall)
 
-                # Always initialize with the proper motion from multi-SDSS and
-                # 2MASS | + on 29/01/2017
-                if pmfix == True:
-                    mag_table['pRA'][0]    = t_s2['pmRA'][ii]
-                    mag_table['pDec'][0]   = t_s2['pmDE'][ii]
-                    mag_table['e_pRA'][0]  = t_s2['e_pmRA'][ii]
-                    mag_table['e_pDec'][0] = t_s2['e_pmDE'][ii]
+            # + on 10/10/2017
+            if catalog == '2MASS':
+                mag_str = ['JHK=None'] * len(xid)
+                for mm in range(len(xid)):
+                    tab0 = xid[mm]
+                    mag_str[mm] = 'J=%5.2f  H=%5.2f  K=%5.2f' % \
+                                  (tab0['j_m'],tab0['h_m'],tab0['k_m'])
 
-                if c1_new != None:
-                    if ii in m_idx:
-                        mag_table['pRA'][0]      = t_movers['pmRA'][ii]
-                        mag_table['pDec'][0]     = t_movers['pmDE'][ii]
-                        mag_table['e_pRA'][0]    = t_movers['e_pmRA'][ii]
-                        mag_table['e_pDec'][0]   = t_movers['e_pmDE'][ii]
-                        mag_table['p_source'][0] = 'MoVeRS'
-                    if ii in u_idx:
-                        mag_table['pRA'][0]      = t_ucac['pmRA'][ii]
-                        mag_table['pDec'][0]     = t_ucac['pmDE'][ii]
-                        mag_table['e_pRA'][0]    = t_ucac['e_pmRA'][ii]
-                        mag_table['e_pDec'][0]   = t_ucac['e_pmDE'][ii]
-                        # Mod on 09/10/2017
-                        if UCAC5 == False:
-                            mag_table['p_source'][0] = 'UCAC4'
-                        else:
-                            mag_table['p_source'][0] = 'UCAC5'
+                mag_table = xid
 
-                # + on 10/01/2017
-                name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),
-                                  name='ID')
-                mag_table.add_column(name_Col, 0)
-                if mag_table0 == None:
-                    mag_table0 = Table(mag_table[0])
-                else:
-                    mag_table0.add_row(mag_table[0])
+            # Always initialize with the proper motion from multi-SDSS and
+            # 2MASS | + on 29/01/2017
+            # Move out of SDSS if statement, so that proper motion is included
+            # for both SDSS and 2MASS | Mod on 10/10/2017
+            if pmfix == True:
+                mag_table['pRA'][0]    = t_s2['pmRA'][ii]
+                mag_table['pDec'][0]   = t_s2['pmDE'][ii]
+                mag_table['e_pRA'][0]  = t_s2['e_pmRA'][ii]
+                mag_table['e_pDec'][0] = t_s2['e_pmDE'][ii]
+
+            if c1_new != None:
+                if ii in m_idx:
+                    mag_table['pRA'][0]      = t_movers['pmRA'][ii]
+                    mag_table['pDec'][0]     = t_movers['pmDE'][ii]
+                    mag_table['e_pRA'][0]    = t_movers['e_pmRA'][ii]
+                    mag_table['e_pDec'][0]   = t_movers['e_pmDE'][ii]
+                    mag_table['p_source'][0] = 'MoVeRS'
+                if ii in u_idx:
+                    mag_table['pRA'][0]      = t_ucac['pmRA'][ii]
+                    mag_table['pDec'][0]     = t_ucac['pmDE'][ii]
+                    mag_table['e_pRA'][0]    = t_ucac['e_pmRA'][ii]
+                    mag_table['e_pDec'][0]   = t_ucac['e_pmDE'][ii]
+                    # Mod on 09/10/2017
+                    if UCAC5 == False:
+                        mag_table['p_source'][0] = 'UCAC4'
+                    else:
+                        mag_table['p_source'][0] = 'UCAC5'
+
+            # + on 10/01/2017
+            # Mod on 10/10/2017 to work for both SDSS and 2MASS
+            name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),
+                              name='ID')
+            mag_table.add_column(name_Col, 0)
+            print mag_table0
+            if len(mag_table0) == 0: #== None:
+                mag_table0 = Table(mag_table[0])
+            else:
+                mag_table0.add_row(mag_table[0])
 
             # Moved up on 20/01/2017
             if 'SDSS' in image:
@@ -1321,6 +1344,8 @@ def zcalbase_gal_mmt_2017b():
      - Use UCAC5 proper motion
      - Rename output sdss_2mass proper motion file
      - Use proper length for longslit (~7 arcmin)
+    Modified by Chun Ly, 10 October 2017
+     - do_step4: Run with 2MASS catalog input without proper motion
     '''
 
     import pdfmerge
@@ -1402,10 +1427,10 @@ def zcalbase_gal_mmt_2017b():
              epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True)
 
         # Merge PDF finding chart files for 2017B targets
-        files = [finding_chart_path+a.replace('*','')+'_2MASS_SDSS.PMfix.pdf' for
+        files = [finding_chart_path+a.replace('*','')+'_2MASS_SDSS.pdf' for
                  a in data2['ID']]
         out_pdf_2017b = finding_chart_path+\
-                        'MMIRS_2017B_Targets_2MASS-SDSS_FindingCharts.PMfix.pdf'
+                        'MMIRS_2017B_Targets_2MASS-SDSS_FindingCharts.pdf'
         pdfmerge.merge(files, out_pdf_2017b)
 
 #enddef

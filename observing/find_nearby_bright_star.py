@@ -1299,7 +1299,7 @@ def zcalbase_gal_gemini_2017b():
 
 def zcalbase_gal_mmt_2017b():
     '''
-    Function to run find_nearby_bright_star.main() but for 2017C MMT/MMIRS
+    Function to run find_nearby_bright_star.main() but for 2017B MMT/MMIRS
     targets
 
     Parameters
@@ -1320,6 +1320,7 @@ def zcalbase_gal_mmt_2017b():
     Modified by Chun Ly, 9 October 2017
      - Use UCAC5 proper motion
      - Rename output sdss_2mass proper motion file
+     - Use proper length for longslit (~7 arcmin)
     '''
 
     import pdfmerge
@@ -1330,8 +1331,9 @@ def zcalbase_gal_mmt_2017b():
 
     finding_chart_fits_path = '/Users/cly/data/Observing/MMIRS/Finding_Charts/'
 
-    max_radius = 120.   * u.arcsec
-    slitlength = 4 * 60 * u.arcsec
+    # Mod on 09/10/2017
+    max_radius = 120. * u.arcsec
+    slitlength = 2048 * 0.201 * u.arcsec #4 * 60 * u.arcsec
 
     infile2 = path0 + 'targets.2017b.txt'
     print '### Reading : ', infile2

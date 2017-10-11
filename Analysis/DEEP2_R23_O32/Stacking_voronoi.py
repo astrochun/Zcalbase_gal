@@ -35,22 +35,22 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
     if mask !=None:
         image2DM = np.ma.masked_array(image2DM, mask)       
 
-    n_bins = np.int(np.max(voronoi[2]))
+    n_bins = np.int(np.max(voronoi[2])) 
     
     outfile = name.replace('.pdf', '.fits')  #fits file name and initialization 
     if not exists(outfile):
-        stack_2d = np.zeros((n_bins+1, len(wave)), dtype = np.float64)
+        stack_2d = np.zeros((n_bins+1, len(wave)), dtype = np.float64) 
     else:
         #print 'reading ', outfile
         stack_2d = fits.getdata(outfile)
         
-    for rr in range(n_bins+1):
-        print rr, stack_2d.shape
+    for rr in xrange(n_bins+1): 
+        #print rr, stack_2d.shape
         index= np.where(voronoi[2]== rr)[0]   
         subgrid= image2DM[index]
 
         if exists(outfile):
-            Spect1D = stack_2d[rr]
+            Spect1D = stack_2d[rr] 
         else:
             if mask != None:                         
                 Spect1D = np.ma.mean(subgrid, axis=0)
@@ -92,9 +92,8 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         
         for x in xcoor: ax2.axvline(x=x, linewidth= 0.3, color= 'k')
         
-        fig.set_size_inches(8,11)
         
-        
+        '''Inset that focuses on 4363
         x1, x2  = 4200, 4500
         ind= np.where((wave>= x1) & (wave<= x2))[0]
         sig, med = np.nanstd(Spect1D[ind]), np.nanmedian(Spect1D[ind])
@@ -104,13 +103,16 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         axins.set_xlim([x1, x2])
         axins.set_ylim([y1, y2])
         axins.minorticks_on()
-                
+        
         for x in xcoor: axins.axvline(x=x, linewidth= 0.3, color= 'r')
         
         # draw a bbox of the region of the inset axes in the parent axes and
         # connecting lines between the bbox and the inset axes area
-        mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="k", ls='dashed', lw=0.5)
+        mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="k", ls='dashed', lw=0.5)'''
 
+        #Plotting Zoomed in on 4363
+        
+        fig.set_size_inches(8,11)
         fig.tight_layout()
         plt.draw()
         pdf_pages.savefig(fig)
@@ -129,7 +131,9 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         #i_x, i_y = np.where(stack_2d == 0)
         #print len(i_x), len(i_y)
         #stack_2d[i_x,i_y] = np.nan
-        fits.writeto(outfile, stack_2d[0:n_bins], header, overwrite= True)
+        fits.writeto(outfile, stack_2d, header, overwrite= True)
+
+   
     
 
 
@@ -145,7 +149,7 @@ def run_Stacking_Master_mask():
 def run_Stacking_Master():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    name = 'Stacking_Voronoi.pdf'
+    name = 'Stacking_Voronoi_output.pdf'
     MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header)
     
 

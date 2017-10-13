@@ -1434,3 +1434,90 @@ def zcalbase_gal_mmt_2017b():
         pdfmerge.merge(files, out_pdf_2017b)
 
 #enddef
+
+def zcalbase_gal_mmt_2017b_extras():
+    '''
+    Function to run find_nearby_bright_star.main() but for 2017B MMT/MMIRS
+    additional targets
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 12 October 2017
+     - Started as a copy of zcalbase_gal_mmt_2017b()
+    '''
+
+    import pdfmerge
+
+    path0                   = '/Users/cly/Dropbox/Observing/2017B/MMT/'
+    out_path                = path0 + 'Alignment_Stars2/'
+    finding_chart_path      = path0 + 'Finding_Charts2/'
+
+    finding_chart_fits_path = '/Users/cly/data/Observing/MMIRS/Finding_Charts/'
+
+    # Mod on 09/10/2017
+    max_radius = 95. * u.arcsec
+    slitlength = 2048 * 0.201 * u.arcsec #4 * 60 * u.arcsec
+
+    infile2 = path0 + 'targets.2017b.extras.txt'
+    print '### Reading : ', infile2
+    data2   = asc.read(infile2, format='commented_header')
+
+    do_step1 = 1
+    if do_step1:
+        # Select alignment stars based on SDSS
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             slitlength=slitlength, runall=True, MMT=True)
+
+        # Merge PDF finding chart files for 2017B targets
+        files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
+                 a in data2['ID']]
+
+        out_pdf_2017b = finding_chart_path+\
+                        'MMIRS_2017B_Targets_SDSS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2017b)
+
+    do_step2 = 1
+    if do_step2:
+        # Generate 2MASS finding chart with SDSS catalog
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='2MASS-H', slitlength=slitlength, runall=False, MMT=True)
+
+        # Merge PDF finding chart files for 2017B targets
+        files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
+                 a in data2['ID']]
+        out_pdf_2017b = finding_chart_path+\
+                        'MMIRS_2017B_Targets_2MASS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2017b)
+
+    out_mag_table = out_path + 'Alignment_Stars.txt'
+    print '### Reading : ', out_mag_table
+    mag_table0 = asc.read(out_mag_table)
+
+    # Run through but use proper motion from UCAC4 or MoVeRS
+    do_step3 = 1
+    if do_step3:
+        # Generate SDSS finding chart with SDSS catalog
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.UCAC5.pdf'
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='SDSS', slitlength=slitlength, runall=False,
+             alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
+             epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True)
+
+        # Merge PDF finding chart files for 2017B targets
+        files = [finding_chart_path+a.replace('*','')+'.SDSS.PMfix.pdf' for
+                 a in data2['ID']]
+        out_pdf_2017b = finding_chart_path+\
+                        'MMIRS_2017B_Targets_SDSS_FindingCharts.PMfix.pdf'
+        pdfmerge.merge(files, out_pdf_2017b)
+
+#enddef

@@ -698,7 +698,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          catalog='SDSS', image=None, format0='commented_header',
          slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
          epoch=2000.0, pm_out_pdf=None, sig_min=3.0, MMT=False, UCAC5=False,
-         silent=False, verbose=True):
+         outfile1='', outfile2='', silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -747,6 +747,12 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
     MMT : boolean
       Indicate if finding charts are for MMT (makes it simpler)
+
+    outfile1 : str
+      Full path for output ASCII file containing proper motion from MoVERS
+
+    outfile2 : str
+      Full path for output ASCII file containing proper motion from UCAC
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -819,6 +825,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 10 October 2017
      - Handle using 2MASS catalog
      - Add PM info to table for both SDSS and 2MASS catalogs
+    Modified by Chun Ly, 23 October 2017
+     - Add outfile1 and outfile2 keyword input option
     '''
 
     if silent == False:
@@ -847,8 +855,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         data0 = data0[idx1]
 
         # SDSS-2MASS, MoVeRS, and UCAC4 proper motion catalogs
-        # Mod on 09/10/2017
-        t_s2, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf, UCAC5=UCAC5)
+        # Mod on 09/10/2017, 23/10/2017
+        t_s2, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf, outfile1=outfile1,
+                                         outfile2=outfile2, UCAC5=UCAC5)
 
         # Adopt a 4-sigma criteria for trusting proper motion
         # Mod on 30/01/2017 to adopt 3-sigma instead
@@ -1451,6 +1460,8 @@ def zcalbase_gal_mmt_2017b_extras():
     -----
     Created by Chun Ly, 12 October 2017
      - Started as a copy of zcalbase_gal_mmt_2017b()
+    Modified by Chun Ly, 12 October 2017
+     - Handle specific output files for MoVeRs and UCAC5 proper motion tables
     '''
 
     import pdfmerge
@@ -1506,12 +1517,15 @@ def zcalbase_gal_mmt_2017b_extras():
     do_step3 = 1
     if do_step3:
         # Generate SDSS finding chart with SDSS catalog
-        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.UCAC5.pdf'
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion_extras.UCAC5.pdf'
+        outfile1 = path0 + 'Proper_Motions_Alignment_Stars_extras.MoVeRs.txt'
+        outfile2 = path0 + 'Proper_Motions_Alignment_Stars_extras.UCAC5.txt'
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
-             epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True)
+             epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True,
+             outfile1=outfile1, outfile2=outfile2)
 
         # Merge PDF finding chart files for 2017B targets
         files = [finding_chart_path+a.replace('*','')+'.SDSS.PMfix.pdf' for

@@ -221,7 +221,7 @@ def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
     cnt = 0
 
     # + on 23/10/2017
-    temp = Vizier.get_catalogs(catalog='I/340/ucac5')
+    temp = Vizier.get_catalogs(catalog='I/322A')
     ucac_tab = Table(dtype=temp[0].dtype)
 
     for ii in range(n_sources):
@@ -394,7 +394,7 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
         print movers_tab
 
         # + on 25/01/2017
-        if movers_tab['_RAJ2000'][0] != 0:
+        if len(movers_tab['_RAJ2000']) != 0:
             outfile1 = out_path+'Proper_Motions_Alignment_Stars.MoVeRS.txt'
             if silent == False: print '### Writing : ', outfile1
             movers_tab.write(outfile1, format='ascii.fixed_width_two_line',

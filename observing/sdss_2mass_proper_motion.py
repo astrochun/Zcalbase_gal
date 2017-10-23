@@ -307,7 +307,8 @@ def query_ucac5(c_arr, col_ID, silent=False, verbose=True):
     return ucac_tab
 #enddef
 
-def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
+def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, silent=False,
+         verbose=True):
     '''
     Main function to determine proper motion based on 2MASS and SDSS
     coordinates
@@ -316,6 +317,12 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
     ----------
     tab0 : astropy.table.table.Table
       Table containing alignment stars SDSS and 2MASS information
+
+    outfile1 : str
+      Full path for output ASCII file containing proper motion from MoVERS
+
+    outfile2 : str
+      Full path for output ASCII file containing proper motion from UCAC
 
     silent : boolean
       Turns off stdout messages. Default: True
@@ -354,6 +361,8 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
     Modified by Chun Ly, 9 October 2017
      - Add UCAC5 keyword; handle UCAC5 case
      - Change output file suffix for UCAC5; Update annotation text for UCAC5
+    Modified by Chun Ly, 23 October 2017
+     - Add outfile1 and outfile2 keyword input option
     '''
 
     if silent == False:
@@ -395,7 +404,8 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
 
         # + on 25/01/2017
         if len(movers_tab['_RAJ2000']) != 0:
-            outfile1 = out_path+'Proper_Motions_Alignment_Stars.MoVeRS.txt'
+            if outfile1 == '': # Mod on 23/10/2017
+                outfile1 = out_path+'Proper_Motions_Alignment_Stars.MoVeRS.txt'
             if silent == False: print '### Writing : ', outfile1
             movers_tab.write(outfile1, format='ascii.fixed_width_two_line',
                              overwrite=True)
@@ -408,7 +418,8 @@ def main(tab0, out_pdf=None, UCAC5=False, silent=False, verbose=True):
         #print ucac_tab
 
         # + on 25/01/2017. Mod on 09/10/2017
-        outfile2 = out_path+'Proper_Motions_Alignment_Stars.UCAC4.txt'
+        if outfile2 == '': # Mod on 23/10/2017
+            outfile2 = out_path+'Proper_Motions_Alignment_Stars.UCAC4.txt'
         if UCAC5 == True:
             outfile2 = outfile2.replace('UCAC4','UCAC5')
 

@@ -261,6 +261,8 @@ def query_ucac5(c_arr, col_ID, silent=False, verbose=True):
     -----
     Created by Chun Ly, 9 October 2017
      - Started as copy of query_ucac4()
+    Modified by Chun Ly, 23 October 2017
+     - Bug fix: When first source has no UCAC catalog
     '''
 
     if silent == False:
@@ -269,17 +271,24 @@ def query_ucac5(c_arr, col_ID, silent=False, verbose=True):
     n_sources = len(c_arr)
 
     cnt = 0
+
+    # + on 23/10/2017
+    temp = Vizier.get_catalogs(catalog='I/340/ucac5')
+    ucac_tab = Table(dtype=temp[0].dtype)
+
     for ii in range(n_sources):
         tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
                                    catalog='I/340/ucac5')
+
         if len(tab0) != 0:
-            if cnt == 0:
-                ucac_tab = tab0[0]
+            if len(ucac_tab) == 0: # Mod on 23/10/2017
+                ucac_tab.add_row(tab0[0])
             else:
                 ucac_tab = vstack([ucac_tab, tab0[0]])
             cnt += 1
         else:
             ucac_tab.add_row()
+
     #endfor
     if silent == False: print '## cnt : ', cnt
 

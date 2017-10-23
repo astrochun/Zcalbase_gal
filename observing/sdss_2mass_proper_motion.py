@@ -209,6 +209,8 @@ def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
     -----
     Created by Chun Ly, 25 January 2017
      - Add col_ID input to include in table (later added)
+    Modified by Chun Ly, 23 October 2017
+     - Bug fix: When first source has no UCAC catalog
     '''
 
     if silent == False:
@@ -217,6 +219,11 @@ def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
     n_sources = len(c_arr)
 
     cnt = 0
+
+    # + on 23/10/2017
+    temp = Vizier.get_catalogs(catalog='I/340/ucac5')
+    ucac_tab = Table(dtype=temp[0].dtype)
+
     for ii in range(n_sources):
         tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
                                    catalog='I/322A')

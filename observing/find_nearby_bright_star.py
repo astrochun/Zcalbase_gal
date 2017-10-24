@@ -1462,6 +1462,9 @@ def zcalbase_gal_mmt_2017b_extras():
      - Started as a copy of zcalbase_gal_mmt_2017b()
     Modified by Chun Ly, 12 October 2017
      - Handle specific output files for MoVeRs and UCAC5 proper motion tables
+    Modified by Chun Ly, 23 October 2017
+     - Increase max_radius to 120 arcseconds
+     - Decrease PM sigma from 2.5 to 2.0
     '''
 
     import pdfmerge
@@ -1473,7 +1476,7 @@ def zcalbase_gal_mmt_2017b_extras():
     finding_chart_fits_path = '/Users/cly/data/Observing/MMIRS/Finding_Charts/'
 
     # Mod on 09/10/2017
-    max_radius = 95. * u.arcsec
+    max_radius = 120. * u.arcsec
     slitlength = 2048 * 0.201 * u.arcsec #4 * 60 * u.arcsec
 
     infile2 = path0 + 'targets.2017b.extras.txt'
@@ -1523,7 +1526,7 @@ def zcalbase_gal_mmt_2017b_extras():
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='SDSS', slitlength=slitlength, runall=False,
-             alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
+             alignment_file=out_mag_table, pmfix=True, sig_min=2.0,
              epoch=2017.84, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True,
              outfile1=outfile1, outfile2=outfile2)
 

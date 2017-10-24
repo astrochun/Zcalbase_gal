@@ -211,6 +211,8 @@ def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
      - Add col_ID input to include in table (later added)
     Modified by Chun Ly, 23 October 2017
      - Bug fix: When first source has no UCAC catalog
+     - Bug fix: Proper astropy.table format to deal with:
+                ValueError: Mismatch between number of vals and columns
     '''
 
     if silent == False:
@@ -221,17 +223,18 @@ def query_ucac4(c_arr, col_ID, silent=False, verbose=True):
     cnt = 0
 
     # + on 23/10/2017
-    temp = Vizier.get_catalogs(catalog='I/322A')
+    c_test = coords.SkyCoord(ra=0.0, dec=0.0, unit=u.deg) # This get '_r' column
+    temp   = Vizier.query_region(c_test, radius=10*u.arcmin, catalog='I/322A')
     ucac_tab = Table(dtype=temp[0].dtype)
 
     for ii in range(n_sources):
         tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
                                    catalog='I/322A')
         if len(tab0) != 0:
-            if cnt == 0:
-                ucac_tab = tab0[0]
-            else:
-                ucac_tab = vstack([ucac_tab, tab0[0]])
+            #if cnt == 0:
+            #    ucac_tab = tab0[0]
+            #else:
+            ucac_tab = vstack([ucac_tab, tab0[0]])
             cnt += 1
         else:
             ucac_tab.add_row()

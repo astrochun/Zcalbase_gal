@@ -29,6 +29,12 @@ xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51,
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
 
+def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
+    box_kernel = Box1DKernel(width)
+    smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
+    return smooth
+
+
 def Master_Stacking(wave, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
     
@@ -45,7 +51,6 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
     if not exists(outfile):
         stack_2d = np.zeros((n_bins+1, len(wave)), dtype = np.float64) 
     else:
-        #print 'reading ', outfile
         stack_2d = fits.getdata(outfile)
         
     for rr in xrange(n_bins+1): #n_bins+1 looping over bins starting at bin #0 
@@ -62,8 +67,12 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
             else:
                 Spect1D = np.nanmean(subgrid, axis=0)
 
-                
         stack_2d[rr] = Spect1D
+
+        #stack_2d[rr] = Spect1D
+        #stack_2d[rr] = np.cumsum(Spect1D)
+        #print 'Spect1D:' , Spect1D
+        #print 'index : ', index
 
         #Compute number of spectra at a given wavelength
         a = ma.count(subgrid, axis=0)
@@ -80,7 +89,8 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
             
         
         #ax2 plot
-        ax2.plot(wave, Spect1D, linewidth=0.5)
+        y_smooth = movingaverage_box1D(Spect1D, 5, boundary='extend')
+        ax2.plot(wave, y_smooth, linewidth=0.5)
         ax2.set_xlabel('Wavelength')
         ax2.set_ylabel('Spectra 1D')
         #ax2.set_title('Bin Number =')
@@ -145,7 +155,7 @@ def run_Stacking_Master_mask():
     maskM = fits.getdata(fitspath+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits') 
     MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header, mask=maskM)
 
-#Function that runs Master_Stacking and calls necessary inputs (without mask)    
+    #Function that runs Master_Stacking and calls necessary inputs (without mask)    
 def run_Stacking_Master():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
@@ -153,7 +163,7 @@ def run_Stacking_Master():
     MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header)
     
 
-#Plotting Zoomed in on 4363
+#Plotting Zoomed in on 4363: I need wave and Spect1D
 def zoom_plot_4363():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
@@ -214,4 +224,3 @@ def zoom_plot_4363():
     print 'Done!'
 
     
-

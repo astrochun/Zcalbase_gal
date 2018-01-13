@@ -1538,3 +1538,98 @@ def zcalbase_gal_mmt_2017b_extras():
         pdfmerge.merge(files, out_pdf_2017b)
 
 #enddef
+
+def zcalbase_gal_gemini_2018a():
+    '''
+    Function to run find_nearby_bright_star.main() but for Gemini-N/GNIRS
+    targets
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 13 January 2018
+     - Copied from zcalbase_gal_gemini()
+    '''
+
+    import pdfmerge
+
+    path0                   = '/Users/cly/Dropbox/Observing/2018A/Gemini/'
+    infile                  = path0 + 'targets.2018a.txt'
+    out_path                = path0 + 'Alignment_Stars/'
+    finding_chart_path      = path0 + 'Finding_Charts/'
+
+    finding_chart_fits_path = '/Users/cly/data/Observing/Gemini/Finding_Charts/'
+
+    max_radius = 95. * u.arcsec
+
+    slitlength = 99 * u.arcsec
+
+    print '### Reading : ', infile
+    data2 = asc.read(infile, format='commented_header')
+
+    do_step1 = 1
+    if do_step1:
+        # Select alignment stars based on SDSS
+        main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             slitlength=slitlength, runall=True) #runall=False)
+
+        # Merge PDF finding chart files for 2018A targets
+        files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
+                 a in data2['ID']]
+        #print files
+        out_pdf_2018a = finding_chart_path+\
+                        'GNIRS_2018A_Targets_SDSS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2018a)
+
+    do_step2 = 1
+    if do_step2:
+        # Generate 2MASS finding chart with SDSS catalog
+        main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='2MASS-H', slitlength=slitlength, runall=False)
+
+        # Merge PDF finding chart files for 2018A targets
+        files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
+                 a in data2['ID']]
+        out_pdf_2018a = finding_chart_path+\
+                        'GNIRS_2018A_Targets_2MASS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2018a)
+
+    # Write Alignment Star photometric catalog
+    out_mag_table = out_path + 'Alignment_Stars.txt'
+    print '### Reading : ', out_mag_table
+    mag_table0 = asc.read(out_mag_table)
+
+    ID1 = [str.replace('_off','') for str in mag_table0['ID']]
+    ID2 = [str.replace('*','') for str in data2['ID']]
+
+    idx2, idx1 = match_nosort_str(ID2, ID1)
+    out_mag_table2 = out_path + 'Alignment_Stars.2018a.txt'
+    print '### Writing : ', out_mag_table2
+    asc.write(mag_table0[idx1], out_mag_table2, format='fixed_width_two_line',
+              overwrite=True)
+
+    # Run through but use proper motion from UCAC4 or MoVeRS
+    do_step3 = 1
+    if do_step3:
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.pdf'
+        main(infile, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='2MASS-H', slitlength=slitlength, runall=False,
+             alignment_file=out_mag_table2, pmfix=True, epoch=2018.25,
+             pm_out_pdf=pm_out_pdf)
+
+        # Merge PDF finding chart files for 2018A targets
+        files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for
+                 a in data2['ID']]
+        out_pdf_2018a = finding_chart_path+\
+                        'GNIRS_2018A_Targets_2MASS_FindingCharts.PMfix.pdf'
+        pdfmerge.merge(files, out_pdf_2018a)
+#enddef

@@ -1555,6 +1555,7 @@ def zcalbase_gal_gemini_2018a():
     -----
     Created by Chun Ly, 13 January 2018
      - Copied from zcalbase_gal_gemini()
+     - Use UCAC5 proper motion
     '''
 
     import pdfmerge
@@ -1616,15 +1617,15 @@ def zcalbase_gal_gemini_2018a():
     asc.write(mag_table0[idx1], out_mag_table2, format='fixed_width_two_line',
               overwrite=True)
 
-    # Run through but use proper motion from UCAC4 or MoVeRS
+    # Run through but use proper motion from UCAC5 or MoVeRS
     do_step3 = 1
     if do_step3:
-        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.pdf'
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.UCAC5.pdf'
         main(infile, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='2MASS-H', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table2, pmfix=True, epoch=2018.25,
-             pm_out_pdf=pm_out_pdf)
+             pm_out_pdf=pm_out_pdf, UCAC5=True)
 
         # Merge PDF finding chart files for 2018A targets
         files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.PMfix.pdf' for

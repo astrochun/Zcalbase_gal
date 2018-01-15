@@ -551,3 +551,33 @@ def zcalbase_gal_mmt_2017c():
 
     print '### End locate_em_lines.zcalbase_gal_mmt_2017c() | '+systime()
 #enddef
+
+def zcalbase_gal_gemini_2018a():
+    '''
+    Function to run main() but for Gemini-N/GNIRS 2018A targets
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 7 July 2017
+    '''
+
+    print '### Begin locate_em_lines.zcalbase_gal_gemini_2018a() | '+systime()
+
+    path0 = '/Users/cly/Dropbox/Observing/2018A/Gemini/'
+
+    # Resolution of spectrograph
+    R_spec = 7200/(1.0/0.3) # for 1" slit. R=7200 for J, 2-pix slit (0.3"
+
+    in_cat  = path0 + 'targets.2018a.txt'
+    out_pdf = path0 + 'locate_em_lines.2018a.pdf'
+    main(in_cat, out_pdf, 6400, 6800, R_spec, 'GNIRS')
+
+    print '### End locate_em_lines.zcalbase_gal_gemini_2018a() | '+systime()
+#enddef

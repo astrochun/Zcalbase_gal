@@ -827,6 +827,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Add PM info to table for both SDSS and 2MASS catalogs
     Modified by Chun Ly, 23 October 2017
      - Add outfile1 and outfile2 keyword input option
+    Modified by Chun Ly, 14 January 2018
+     - Bug fix: Handle MoVERS proper motion (check that all targets do not have rather than
+       first entry)
     '''
 
     if silent == False:
@@ -864,7 +867,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         # Mod on 07/07/2017
         print '### Using proper motion that is more reliable than '+str(sig_min)+'sigma'
 
-        if t_movers['_RAJ2000'][0] != 0:
+        no_movers = np.where(t_movers['_RAJ2000'] == 0.0)[0]
+        if len(no_movers) != len(t_movers):
             m_idx = np.where((abs(t_movers['pmRA']/t_movers['e_pmRA']) >= sig_min) &
                              (abs(t_movers['pmDE']/t_movers['e_pmDE']) >= sig_min))[0]
         else: m_idx = []

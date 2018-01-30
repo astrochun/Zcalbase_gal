@@ -13,6 +13,7 @@ from matplotlib.gridspec import GridSpec
 from pylab import subplots_adjust
 from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
+import scipy.integrate as integ
 
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
@@ -40,7 +41,7 @@ a1= 1.5
 s2 = 1
 a2 = 1.8
 
-x_signal = [4363.21,4958.91,5006.84, 3835.38, 3970.07, 4101.73, 4340.46, 4861.32]
+x_signal =  [4363.21,4958.91,5006.84, 3835.38, 3970.07, 4101.73, 4340.46, 4861.32] #[5006.84]
 
 
 def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
@@ -64,20 +65,20 @@ def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,keyword):
 
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
-    print med0, max0 
+    #print med0, max0 
     if keyword == 'Single': 
         p0 = [working_wave, 1.0, max0, med0] #must have some reasonable values
-        print p0  #p0 = [working_wave, sigma, amplitude (max0), constant (med0)]
+        #print p0  #p0 = [working_wave, sigma, amplitude (max0), constant (med0)]
 
         para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
         o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
-        print o1
+        #print o1
 
     if keyword == 'Balmer':
         p0 = [working_wave, 1.0, max0, med0,s2, -0.1*max0] #must have some reasonable values
         para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)
-        print para_bound
-        print working_wave,  min(x0[x_idx]), max(x0[x_idx]), 
+        #print para_bound
+        #print working_wave,  min(x0[x_idx]), max(x0[x_idx]), 
 
         o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
     
@@ -88,7 +89,7 @@ def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,keyword):
        
 
         o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
-
+    #print o1
     return o1, med0, max0
   
 
@@ -131,43 +132,76 @@ def zoom_gauss_plot(working_wave,keyword = '',outpdf=''):
      
 
         #Calculating Flux: Signal Line Fit
-        x_sigsnip = np.where((np.abs((x0-working_wave))/np.abs(o1[1]))<=2.5)[0]
-        if keyword == 'Single':
-            gauss0=gauss(x0[x_sigsnip],*o1)
-        if keyword == 'Balmer':
-            gauss0 = double_gauss(x0[x_sigsnip], *o1)
-        if keyword == 'Oxy2':
-            gauss0 = oxy2_gauss(x0[x_sigsnip], *o1)
+       
         dx = x0[2]-x0[1]  #0.16866575
-        flux_g = np.sum((gauss0-o1[3])*dx)    #flux from gaussian distribution 
+        if keyword == 'Single':
+            x_sigsnip = np.where((np.abs((x0-working_wave))/o1[1])<=2.5)[0]
+            gauss0=gauss(x0,*o1)
+            
+        if keyword == 'Balmer':
+            x_sigsnip = np.where(np.abs((x0-working_wave))/o1[1]<=2.5 )[0] #fix
+            gauss0 = double_gauss(x0, *o1)
+            o1_neg = [o1[0], o1[4], o1[5], o1[3]]
+            neg0   = gauss(x0, *o1_neg)
+            gauss0_diff = gauss0 - neg0
+            y_norm_diff = y_norm[x_sigsnip]-neg0[x_sigsnip]
+
+        if keyword == 'Oxy2':
+            x_sigsnip = np.where(((x0-working_wave)/o1[1]>=-2.5) & ((x0-working_wave)/o1[4]<=2.5))[0]
+            #print len(x_sigsnip) #, x_sigsnip
+            gauss0 =  oxy2_gauss(x0[x_sigsnip], *o1)
+            
+        if keyword == 'Single' or keyword == 'Oxy2':
+            flux_g = np.sum((gauss0-o1[3])*dx)    #flux from gaussian distribution 
+            flux_s = np.sum((y_norm[x_sigsnip]-o1[3])*dx)  #flux from snipping method (spectral flux)where snip off sigma >2.5
+
+        if keyword == 'Balmer':
+            flux_g = np.sum(gauss0_diff*dx)
+            flux_s = np.sum(y_norm_diff*dx)
+
         
-        flux_s= np.sum((y_norm[x_sigsnip]-o1[3])*dx)    #flux from snipping method (spectral flux)where snip off sigma >2.5
+
+
         if rr == 0: print 'o1', o1, flux_g, flux_s, x_sigsnip
+
+        #Calculating Gauss 
+        if keyword == 'Single':
+            gauss1 = gauss(x0,*o1)
+        if keyword == 'Balmer':
+            gauss1 = double_gauss(x0,*o1)
+        if keyword == 'Oxy2':
+            gauss1 = oxy2_gauss(x0,*o1)
+
+        #Residuals
+        #print gauss0[x_sigsnip]
+        if keyword == 'Single' or keyword == 'Balmer':
+            resid = y_smooth[x_sigsnip]-gauss0[x_sigsnip]+0.2  #addition of 0.2 to move the residuals up 0.2 on the y-axis
+        if keyword == 'Oxy2':
+            resid = y_smooth[x_sigsnip]-gauss1[x_sigsnip]
+        #print(resid)
 
 
         #Plotting
         emis= t_ax.plot(wave, y_smooth,'k', linewidth=0.75, label= 'Emission')
-        if keyword == 'Oxy2':
-            t_ax.set_xlim([x1+45,x2-45])
-        else:
-            t_ax.set_xlim([x1,x2])
-
-        if keyword == 'Single':
-            gauss0=gauss(x0,*o1)
-        if keyword == 'Balmer':
-            gauss0= double_gauss(x0,*o1)
-        if keyword == 'Oxy2':
-            gauss0 = oxy2_gauss(x0,*o1)
+        #if keyword == 'Oxy2':
+        t_ax.set_xlim([x1+45,x2-45])
+        '''else:
+            t_ax.set_xlim([x1,x2])'''
 
 
-        t_ax.plot(x0,gauss0, 'b--', linewidth= 0.65, label= 'Gauss Fit')
-        t_ax.legend(loc=4, ncol=2, fontsize = 6)
+        t_ax.plot(x0,gauss1, 'b--', linewidth= 0.65, label= 'Gauss Fit')
+        t_ax.plot(x0[x_sigsnip],resid, 'r', linestyle= 'dashed', marker='.', markersize=0.5, linewidth = 0.001, label= 'Residuals')
+
+
+        #if keyword == 'Single' or keyword == 'Balmer' : t_ax.axhline(y=0.2, color='k--', linewidth=0.01)
+        #if keyword == 'Oxy2': t_ax.axhline(y=0, 'k--', linewidth=0.01)
+        t_ax.legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 4)
         
         txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
         txt0 += 'R_23%.3f O32 %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])  #$\overline{x}$:$\overline{y}$:
         txt0 += 'S/N: %.3f  Scale: %.3f N: %.3f\n' % (asc_tab['sn'][rr], asc_tab['scale'][rr], asc_tab['area'][rr]) 
         txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
-        txt0 += 'Flux_G: %.3f Flux_S %.3f' %(flux_g, flux_s)
+        txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s)
         
        
         t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '6')
@@ -215,8 +249,8 @@ def zoom_gauss_plot(working_wave,keyword = '',outpdf=''):
 
 
 def zm_general():
-    #x_signal = [4363.21,4958.91,5006.84]
-    #x_balmer = [3835.38, 3970.07, 4101.73, 4340.46, 4861.32] #3797.90
+    x_signal = [4363.21,4958.91,5006.84]
+    x_balmer = [3835.38, 3970.07, 4101.73, 4340.46, 4861.32] #3797.90
     s=1.0
     a= 1.0
 
@@ -225,22 +259,24 @@ def zm_general():
     a1= 4.7
     s2 = 1
     a2 = -1.8
-    key = 'Oxy2' #'Balmer' # 'Single'
-    '''for aa in x_signal:
+    key=   'Single' # 'Oxy2' #'Balmer' #
+    for aa in x_signal:
         outpdf = fitspath+'Stacking_Voronoi_Zoomed_Gauss_'+str(np.int(aa))+'.pdf'
         print outpdf
-        m0 = zoom_gauss_plot(aa, keyword= key, outpdf=outpdf)'''
+        m0 = zoom_gauss_plot(aa, keyword= key, outpdf=outpdf)
 
     '''for aa in x_balmer:
         outpdf = fitspath+'Stacking_Voronoi_Zoomed_Balmer_'+str(np.int(aa))+'.pdf'
         print outpdf
         m0 = zoom_gauss_plot(aa, keyword=key, outpdf=outpdf)'''
 
-    if key == 'Oxy2':
+    '''if key == 'Oxy2':
         working_wave = 3726.16 #3727.5
         outpdf = fitspath+'Stacking_Voronoi_Zoomed_OxygenII_'+str(np.int(working_wave))+'.pdf'
         print outpdf
-        m0 = zoom_gauss_plot(working_wave, keyword=key, outpdf=outpdf)
+        m0 = zoom_gauss_plot(working_wave, keyword=key, outpdf=outpdf)'''
+
+
 
 
 #erg/s/sm^2/A

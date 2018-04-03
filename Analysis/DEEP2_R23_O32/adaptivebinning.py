@@ -1,5 +1,5 @@
 ##Adaptive binning for DEEP2 data
-##Number of galaxies n=
+##Running Voronoi code 
 
 '''
    Notes
@@ -24,8 +24,7 @@ from astropy.table import Table
 from astropy.table import vstack
 from pprint import pprint
 
-#from voronoi_2d_binning import voronoi_2d_binning
-#from .. import voronoi_2d_binning
+
 import voronoi_2d_binning
 
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/' 
@@ -80,6 +79,8 @@ def voronoi_binning_DEEP2():
     #print np.min(R23[det3]), np.max(R23[det3])
 
     # + on 15/09/2017
+    rR23 = R23[det3]
+    rO32 = O32[det3]
     lR23 = np.log10(R23[det3])
     lO32 = np.log10(O32[det3])
     avg_R23 = np.average(lR23)
@@ -90,20 +91,22 @@ def voronoi_binning_DEEP2():
     print currentBin
 
     #binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale
-    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, 10, plot=True, pixelsize=0.1,
-                                                 quiet=False, currentBin=currentBin)
+    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, 10, plot=True, pixelsize=0.1,quiet=False, currentBin=currentBin)
     #print(test.shape)
-    
+
+    print np.sum(test[6])
     # Save to a text file the initial coordinates of each pixel together
     # with the corresponding bin number computed by this procedure.
     # binNum uniquely specifies the bins and for this reason it is the only
     # number required for any subsequent calculation on the bins.
     #
-    #np.savetxt(fitspath+'voronoi_2d_binning_output.txt', lR23, lO32, binNum, xNode, yNode, xBar, yBar)
-    n=('xnode','ynode','xBar','yBar','sn','area','scale')
-    tab0= Table([test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
-    asc.write(tab0, fitspath+'asc_table_voronoi.tbl')
-    print tab0
+    np.savetxt(fitspath+'Mar21_voronoi_2d_binning_output.txt', np.column_stack([rR23,rO32, lR23, lO32, test[0]])) #test[0]=classe = binnumber 
+    #fmt='%6.3f %6.3f %5i')
+    
+    #n=('xnode','ynode','xBar','yBar','sn','area','scale')
+    #tab0= Table([test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
+    #asc.write(tab0, fitspath+'asc_table_voronoi.tbl')
+    #print tab0
 
     #return test
 #-----------------------------------------------------------------------------
@@ -114,9 +117,3 @@ def voronoi_binning_DEEP2():
 
 
 
-'''
-
-
-
-
-'''

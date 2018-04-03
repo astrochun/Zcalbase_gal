@@ -29,7 +29,8 @@ asc_tab = asc.read(tab)
 
 stack2D, header = fits.getdata(stacking_vor, header=True)
 wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-
+Spect_1D = fits.getdata(fitspath+'Stacking_Voronoi_masked_output.fits')
+dispersion = header['CDELT1']
 
 #If 'x0' is infeasible error occurs, check the para_bound values to make sure the expected values are within the range set up upper and lower limits. 
 
@@ -54,6 +55,13 @@ lambda0 =[3727.00, 3797.90, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4340.46
 line_type = ['Oxy2','Balmer', 'Balmer', 'Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer', 'Single', 'Single']
 
 line_name = ['OII_3727','H_10','H_9','NeIII','HDELTA', 'HGAMMA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007', 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730']
+
+
+lineflag = np.zeros(len(wave))
+for ii in lambda0:   
+    idx = np.where(np.absolute(wave - ii)<=5)[0]
+    if len(idx) > 0:
+        lineflag[idx] = 1
 
 def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     box_kernel = Box1DKernel(width)
@@ -98,7 +106,24 @@ def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,line_type):
         o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
    
     return o1, med0, max0
-  
+
+#calculating rms
+
+def rms_func(lambda_in, line_name,sigma_array, scalefact):
+    x_idx = np.where((wave-lambda_in)<=100 & (lineflag==0))[0]
+    ini_sig = np.zeros(Spect_1D.shape[0])
+    for rr in range(Spect_1D.shape[0]):
+        y0 = stack2D[rr]
+        sigma = np.std(y0[x_idx])
+
+       
+        pix =  5* sigma_array[rr]* dispersion 
+        s_pix = np.sqrt(pix)
+
+        ini_sig[rr]= s_pix * sigma * dispersion
+   
+    return ini_sig/scalefact
+
 
 #Plotting Zoomed 
 def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
@@ -134,7 +159,7 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
 
         row = rr / nrows % ncols
         col = rr % ncols
-        print row, col
+        #print row, col
         if rr % (nrows*ncols) == 0:
             fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols, squeeze = False)
                 #endif
@@ -158,7 +183,7 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
             gauss0=gauss(x0,*o1)
             
         if line_type == 'Balmer':
-            x_sigsnip = np.where(np.abs((x0-working_wave))/o1[1]<=2.5 )[0] #fix
+            x_sigsnip = np.where(np.abs((x0-working_wave))/o1[1]<=2.5 )[0] 
             gauss0 = double_gauss(x0, *o1)
             o1_neg = [o1[0], o1[4], o1[5], o1[3]]
             neg0   = gauss(x0, *o1_neg)
@@ -166,7 +191,8 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
             y_norm_diff = y_norm[x_sigsnip]-neg0[x_sigsnip]
 
         if line_type == 'Oxy2':
-            x_sigsnip = np.where(((x0-working_wave)/o1[1]>=-2.5) & ((x0-working_wave)/o1[4]<=2.5))[0]
+            con1 = 3728.91/3726.16
+            x_sigsnip = np.where(((x0-working_wave)/o1[1]>=-2.5) & ((x0-working_wave*con1)/o1[4]<=2.5))[0]
             #print len(x_sigsnip) #, x_sigsnip
             gauss0 =  oxy2_gauss(x0, *o1)
             
@@ -181,11 +207,11 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
         
 
 
-        if rr == 0: print 'o1', o1, flux_g, flux_s, x_sigsnip
+        #if rr == 0: print 'o1', o1, flux_g, flux_s, x_sigsnip
 
 
         #Filling In Arrays
-       
+        print flux_g, type(flux_g)
         flux_g_array[rr] = flux_g 
         flux_s_array[rr] = flux_s
         sigma_array[rr]= o1[1]
@@ -245,7 +271,7 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
                 for zz in range(ncols): ax_arr[kk,zz].axis('off')
 
             xlabels = t_ax.get_xticklabels()
-            print 'xlabels : ', xlabels
+            #print 'xlabels : ', xlabels
             for yy in range(rr,rr-ncols,-1):
                 y_col = yy % ncols
                 y_row = yy / nrows % ncols
@@ -262,28 +288,31 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
             fig.savefig(pdf_pages, format='pdf')
         
     
-
-        '''if rr == 18:
-            np.savez('/Users/reagenleimbach/Desktop/Zcalbase_gal/resid_test.npz',
-                     x0=x0, x_sigsnip=x_sigsnip, gauss0=gauss0, resid=resid,y_smooth=y_smooth)'''
-
-#Creating Table: first have to initialize arrays, flux_g, sigma, a, median, merge tables, ascii files, combining tables with V(vertical)_stack or  H(horizontal)_stack under astropy tables 
     #endfor
 
+    ini_sig1= rms_func(working_wave,line_name,sigma_array, scalefact)
 
-    #Writing Ascii Table
-    if not exists(fitspath+'asc_table_flux_gaussian_'+str(np.int(working_wave))+'.tbl'):
-        n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm')
+    #Writing Ascii Tables and Fits Tables
+    out_ascii = fitspath+ '/P_asc_table_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
+    out_fits = fitspath+'/P_Flux_Outputs'+line_name+'.fits'
+    if not exists(out_ascii):
+        n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS')
         n = tuple([line_name + '_' + val for val in n])
+        tab0 = Table([ flux_g_array, flux_s_array,sigma_array,median_array,norm_array,ini_sig1], names=n)
+        asc.write(tab0, out_ascii, format='fixed_width_two_line')
+        #fits.writeto(out_fits, tab0)
+         
+    out_ascii_single = fitspath+'/P_asc_table_Average_R23_O32_Values_Voronoi.tbl'
+    if not exists(out_ascii_single):
         n2= ('R_23_Average', 'O_32_Average', 'N_Galaxies', 'S/N')
-        tab0 = Table([ flux_g_array, flux_s_array,sigma_array,median_array,norm_array], names=n)
         tab1 = Table([R_23_array, O_32_array, N_gal_array, sn_array], names=n2)
-        asc.write(tab0, fitspath+'asc_table_flux_gaussian_'+str(np.int(working_wave))+'.tbl', format='fixed_width_two_line')
-        asc.write(tab1, fitspath+'asc_table_Average_R23_O32_Values_Voronoi.tbl', format='fixed_width_two_line')
+        asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
 
 
-    #Writing Fits Table (First Draft)
-    if not exists(fitspath+'Flux_Outputs'+line_name+'.fits'):
+
+
+       
+        '''
         print 'Starting fits'
         #header['Comment'] = 'This fits file contains the calculated and observed fluxs for emission line stated in file name'
         c1 = fits.Column(name='Flux_Gaussian'+line_name, format= 'K', array=flux_g_array)
@@ -291,11 +320,12 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
         c3 = fits.Column(name='Sigma'+line_name,  format= 'K', array=sigma_array)
         c4 = fits.Column(name='Median'+line_name,  format= 'K', array=median_array)
         c5 = fits.Column(name='Norm'+line_name, format= 'K',  array=norm_array)
+        c6 = fits.Column(name='RMS'+line_name, format= 'K',  array=ini_sig1)
 
         #fits_cols = fits.ColDefs([c1,c2,c3,c4,c5])
-        f_tab= fits.BinTableHDU.from_columns([c1,c2,c3,c4,c5])
+        f_tab= fits.BinTableHDU.from_columns([c1,c2,c3,c4,c5,c6])
         
-        f_tab.writeto(fitspath+'Flux_Outputs'+line_name+'.fits', overwrite= True)
+        f_tab.writeto(fitspath+'/Mar19_outputs/Flux_Outputs'+line_name+'.fits', overwrite= True)'''
 
         
     pdf_pages.close()
@@ -323,17 +353,17 @@ def zm_general():
     for ii in range(len(lambda0)+1):
      
         if line_type[ii] == 'Single':
-            outpdf = fitspath+'Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+'/P_Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
             m0 = zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
         if line_type[ii] == 'Balmer': 
-            outpdf = fitspath+'Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+'/P_Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
             m0 = zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
             
         if line_type[ii] == 'Oxy2': 
-            outpdf = fitspath+'Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+'/P_Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
             m0 = zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 

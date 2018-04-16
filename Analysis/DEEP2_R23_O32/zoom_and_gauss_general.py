@@ -84,28 +84,47 @@ def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,line_type):
 
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
-    #print med0, max0 
+    #do we need to calculate the xbar,s2 values in the Balmer fits 
+    print med0, max0
+
+    fail = 0
     if line_type == 'Single': 
         p0 = [working_wave, 1.0, max0, med0] #must have some reasonable values
        
         para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
-        o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
-       
 
+        try:
+            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
+        except ValueError:
+            print 'fail'
+            fail = 1
+            
     if line_type == 'Balmer':
-        p0 = [working_wave, 1.0, max0, med0,s2, -0.1*max0] #must have some reasonable values
-        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)
+        p0 = [working_wave, 1.0, max0, med0, s2, -0.5*max0] #must have some reasonable values
+        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)
 
-        o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
-    
+        print 'get_gaussian_fit, p0 : ', p0
+
+        try:
+            o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
+        except ValueError:
+            print 'fail'
+            fail = 1
 
     if line_type == 'Oxy2':
         p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0] #must have some reasonable values
         para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0, 100.0)
-       
-        o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
+
+        try:
+            o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound) #verbose= True)
+        except ValueError:
+            print 'fail'
+            fail = 1
    
-    return o1, med0, max0
+    if not fail:
+        return o1, med0, max0
+    else:
+        return None, med0, max0
 
 #calculating rms
 
@@ -174,57 +193,55 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
 
         o1, med0, max0  = get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx, line_type)
      
-
         #Calculating Flux: Signal Line Fit
-       
-        dx = x0[2]-x0[1]  #0.16866575
-        if line_type == 'Single':
-            x_sigsnip = np.where((np.abs((x0-working_wave))/o1[1])<=2.5)[0]
-            gauss0=gauss(x0,*o1)
+
+        if type(o1) != type(None):
+            dx = x0[2]-x0[1]  #0.16866575
+            if line_type == 'Single':
+                x_sigsnip = np.where((np.abs((x0-working_wave))/o1[1])<=2.5)[0]
+                gauss0=gauss(x0,*o1)
             
-        if line_type == 'Balmer':
-            x_sigsnip = np.where(np.abs((x0-working_wave))/o1[1]<=2.5 )[0] 
-            gauss0 = double_gauss(x0, *o1)
-            o1_neg = [o1[0], o1[4], o1[5], o1[3]]
-            neg0   = gauss(x0, *o1_neg)
-            gauss0_diff = gauss0 - neg0
-            y_norm_diff = y_norm[x_sigsnip]-neg0[x_sigsnip]
+            if line_type == 'Balmer':
+                x_sigsnip = np.where(np.abs((x0-working_wave))/o1[1]<=2.5 )[0] 
+                gauss0 = double_gauss(x0, *o1)
+                o1_neg = [o1[0], o1[4], o1[5], o1[3]]
+                neg0   = gauss(x0, *o1_neg)
+                gauss0_diff = gauss0 - neg0
+                y_norm_diff = y_norm[x_sigsnip]-neg0[x_sigsnip]
 
-        if line_type == 'Oxy2':
-            con1 = 3728.91/3726.16
-            x_sigsnip = np.where(((x0-working_wave)/o1[1]>=-2.5) & ((x0-working_wave*con1)/o1[4]<=2.5))[0]
-            #print len(x_sigsnip) #, x_sigsnip
-            gauss0 =  oxy2_gauss(x0, *o1)
+            if line_type == 'Oxy2':
+                con1 = 3728.91/3726.16
+                x_sigsnip = np.where(((x0-working_wave)/o1[1]>=-2.5) & ((x0-working_wave*con1)/o1[4]<=2.5))[0]
+                #print len(x_sigsnip) #, x_sigsnip
+                gauss0 =  oxy2_gauss(x0, *o1)
             
-        if line_type == 'Single' or line_type == 'Oxy2':
-            flux_g = np.sum((gauss0-o1[3])*dx)    #flux from gaussian distribution 
-            flux_s = np.sum((y_norm[x_sigsnip]-o1[3])*dx)  #flux from snipping method (spectral flux)where snip off sigma >2.5
+            if line_type == 'Single' or line_type == 'Oxy2':
+                flux_g = np.sum((gauss0-o1[3])*dx)    #flux from gaussian distribution 
+                flux_s = np.sum((y_norm[x_sigsnip]-o1[3])*dx)  #flux from snipping method (spectral flux)where snip off sigma >2.5
 
-        if line_type == 'Balmer':
-            flux_g = np.sum(gauss0_diff*dx)
-            flux_s = np.sum(y_norm_diff*dx)
+            if line_type == 'Balmer':
+                flux_g = np.sum(gauss0_diff*dx)
+                flux_s = np.sum(y_norm_diff*dx)
 
-        
+    
+            #if rr == 0: print 'o1', o1, flux_g, flux_s, x_sigsnip
 
+            
+            #Filling In Arrays
+            # print flux_g, type(flux_g)
+            flux_g_array[rr] = flux_g 
+            flux_s_array[rr] = flux_s
+            sigma_array[rr]= o1[1]
+            median_array[rr] = o1[3]
+            norm_array[rr] = max0
+            sn_array[rr] = asc_tab['sn'][rr]
+            N_gal_array[rr] = asc_tab['area'][rr]
+            R_23_array[rr] = asc_tab['xBar'][rr]
+            O_32_array[rr] = asc_tab['yBar'][rr]
 
-        #if rr == 0: print 'o1', o1, flux_g, flux_s, x_sigsnip
-
-
-        #Filling In Arrays
-        print flux_g, type(flux_g)
-        flux_g_array[rr] = flux_g 
-        flux_s_array[rr] = flux_s
-        sigma_array[rr]= o1[1]
-        median_array[rr] = o1[3]
-        norm_array[rr] = max0
-        sn_array[rr] = asc_tab['sn'][rr]
-        N_gal_array[rr] = asc_tab['area'][rr]
-        R_23_array[rr] = asc_tab['xBar'][rr]
-        O_32_array[rr] = asc_tab['yBar'][rr]
-
-        #Residuals
-        resid = y_norm[x_sigsnip]-gauss0[x_sigsnip] + o1[3]  
-        #print len(resid), len(x_sigsnip), len(gauss0)
+            #Residuals
+            resid = y_norm[x_sigsnip]-gauss0[x_sigsnip] + o1[3]  
+            #print len(resid), len(x_sigsnip), len(gauss0)
 
 
         #Plotting
@@ -293,8 +310,8 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
     ini_sig1= rms_func(working_wave,line_name,sigma_array, scalefact)
 
     #Writing Ascii Tables and Fits Tables
-    out_ascii = fitspath+ '/P_asc_table_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
-    out_fits = fitspath+'/P_Flux_Outputs'+line_name+'.fits'
+    out_ascii = fitspath+ '/asc_table_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
+    out_fits = fitspath+'/Flux_Outputs'+line_name+'.fits'
     if not exists(out_ascii):
         n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS')
         n = tuple([line_name + '_' + val for val in n])
@@ -302,7 +319,7 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
         asc.write(tab0, out_ascii, format='fixed_width_two_line')
         #fits.writeto(out_fits, tab0)
          
-    out_ascii_single = fitspath+'/P_asc_table_Average_R23_O32_Values_Voronoi.tbl'
+    out_ascii_single = fitspath+'/asc_table_Average_R23_O32_Values_Voronoi.tbl'
     if not exists(out_ascii_single):
         n2= ('R_23_Average', 'O_32_Average', 'N_Galaxies', 'S/N')
         tab1 = Table([R_23_array, O_32_array, N_gal_array, sn_array], names=n2)
@@ -335,11 +352,11 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
 
 def zm_general():
    
-    lambda0 =[3726.16, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]
+    lambda0 =[3726.16, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4363.21, 4861.32, 4958.91, 5006.84]
  
-    line_type = ['Oxy2', 'Balmer', 'Single', 'Single', 'Balmer', 'Balmer', 'Balmer', 'Single', 'Balmer', 'Single', 'Single']
+    line_type = ['Oxy2', 'Balmer', 'Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer', 'Single', 'Single']
 
-    line_name = ['OII_3727','H_9','NeIII','HeI','HEPSIL', 'HDELTA','HGAMMA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']   # 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730'] #'H_10' line not fitted because the 'x0 is infeasible' error occurred. In future go back and change para_bounds so that the line can be fit
+    line_name = ['OII_3727','H_9','NeIII','HeI','HEPSIL', 'HDELTA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']   # 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730'] #'H_10' line not fitted because the 'x0 is infeasible' error occurred. In future go back and change para_bounds so that the line can be fit  4340.46
 
     s=1.0
     a= 1.0
@@ -351,21 +368,21 @@ def zm_general():
     a2 = -1.8
 
     for ii in range(len(lambda0)+1):
-     
+        print lambda0[ii], line_type[ii], line_name[ii]
         if line_type[ii] == 'Single':
-            outpdf = fitspath+'/P_Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+'/Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            m0 = zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
         if line_type[ii] == 'Balmer': 
-            outpdf = fitspath+'/P_Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+'/Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            m0 = zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
             
         if line_type[ii] == 'Oxy2': 
-            outpdf = fitspath+'/P_Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+'/Stacking_Voronoi_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            m0 = zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
 
         
@@ -378,7 +395,7 @@ def zm_general():
 
 #erg/s/sm^2/A
 #plot residuals 
-#learn how to integrate
+
 
 
 #Unnecessary Codes:

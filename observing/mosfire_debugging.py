@@ -21,12 +21,97 @@ import matplotlib.pyplot as plt
 from astropy.table import Table
 from astropy import log
 
-from MOSFIRE import Options, Wavelength, IO, CSU, Fit
+from MOSFIRE import Options, Wavelength, IO, CSU, Fit, Detector
+
+__version__ = 0.1
 
 #from MOSFIRE import Background, Combine, Detector, Flats, IO, Options, Rectify, Wavelength, Extract
 
 flatops = Options.flat
 waveops = Options.wavelength
+
+def make_pixel_flat(data, results, options, outfile, inputs, lampsOff=None):
+    '''
+    Convert a flat image into a flat field
+    '''
+
+    def pixel_min(y): return int(np.floor(np.min(y)))
+    def pixel_max(y): return int(np.ceil(np.max(y)))
+
+    def collapse_flat_box(dat):
+        '''Collapse data to the spectral axis (0)'''
+        v = np.median(dat, axis=0).ravel()
+
+        return v
+
+    flat = np.ones(shape=Detector.npix)
+
+    hdu = fits.PrimaryHDU((data/flat).astype(np.float32))
+    hdu.header.set("version", __version__, "DRP version")
+    i = 0
+    for flatname in inputs:
+        nm = flatname.split("/")[-1]
+        hdu.header.set("infile%2.2i" % i, nm)
+        i += 1
+
+    slitno = 0
+    for result in results[0:-1]:
+        slitno += 1
+
+        hdu.header.set("targ%2.2i" % slitno, result["Target_Name"])
+
+        bf = result["bottom"]
+        tf = result["top"]
+        try:
+            hpps = result["hpps"]
+        except:
+            error( "No half power points for this slit")
+            hpps = [0, Detector.npix[0]]
+
+        xs = np.arange(hpps[0], hpps[1])
+
+        top = pixel_min(tf(xs))
+        bottom = pixel_max(bf(xs))
+
+        hdu.header.set("top%2.2i" % slitno, top)
+        hdu.header.set("bottom%2.2i" % slitno, bottom)
+
+        log.info( "%s] Bounding top/bottom: %i/%i" % (result["Target_Name"],
+                                                      bottom, top))
+
+        v = collapse_flat_box(data[bottom:top,hpps[0]:hpps[1]])
+
+        x2048 = np.arange(Options.npix)
+        v = np.poly1d(np.polyfit(xs,v,
+            options['flat-field-order']))(xs).ravel()
+
+        for i in np.arange(bottom-1, top+1):
+            flat[i,hpps[0]:hpps[1]] = v
+
+    log.info("Producing Pixel Flat...")
+    for r in range(len(results)-1):
+        theslit = results[r]
+
+        try:
+            bf = theslit["bottom"]
+            tf = theslit["top"]
+        except:
+            pdb.set_trace()
+
+        for i in range(hpps[0], hpps[1]):
+            top = int(np.floor(tf(i)))
+            bottom = int(np.ceil(bf(i)))
+
+            data[top:bottom, i] = flat[top:bottom,i]
+
+    hdu.data = (data/flat).astype(np.float32)
+    bad = np.abs(hdu.data-1.0) > 0.5
+    hdu.data[bad] = 1.0
+    hdu.data = hdu.data.filled(1)
+    if os.path.exists(outfile):
+            os.remove(outfile)
+    hdu.writeto(outfile)
+    log.info("Done.")
 
 def fit_edge_poly(xposs, xposs_missing, yposs, order):
     '''

@@ -555,8 +555,11 @@ def main(path, maskname, band, silent=False, verbose=True):
     results = find_and_fit_edges(data, header, bs, flatops,
                                  edgeThreshold=450.0)
 
+    out = path+"pixelflat_2d_%s_CLtest.fits" % (band)
+    make_pixel_flat(data, results, flatops, out, flatlist, lampsOff=True)
+
     if silent == False: log.info('### End main : '+systime())
 
-    return bs
+    return results
 #enddef
 

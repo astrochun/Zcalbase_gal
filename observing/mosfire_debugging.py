@@ -514,6 +514,9 @@ def main(path, maskname, band, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 18 June 2018
+
+    Modified by Chun Ly, 19 June 2018
+     - Create Table summarizing results of find_and_fit_edges()
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -554,6 +557,30 @@ def main(path, maskname, band, silent=False, verbose=True):
 
     results = find_and_fit_edges(data, header, bs, flatops,
                                  edgeThreshold=450.0)
+
+    n_targets = len(results)-1
+    Name      = [''] * n_targets
+    yposs_top = np.zeros(n_targets)
+    yposs_bot = np.zeros(n_targets)
+    hpps      = np.zeros((2,n_targets))
+    top       = np.zeros(n_targets)
+    bottom    = np.zeros(n_targets)
+
+    for ii in range(n_targets):
+        tmp = results[ii]
+        Name[ii] = tmp['Target_Name']
+        if len(tmp['yposs_top']) > 0:
+            yposs_top[ii] = np.max(tmp['yposs_top'])
+        if len(tmp['yposs_bot']) > 0:
+            yposs_bot[ii] = np.min(tmp['yposs_bot'])
+        hpps[:,ii] = results[ii]['hpps']
+        #top[ii]    = np.max(tmp['top'])
+        #bottom[ii] = np.min(tmp['bottom'])
+
+    arr0  = [Name, yposs_top, yposs_bot, hpps[0,:], hpps[1,:]]
+    name0 = ('Name', 'yposs_top', 'yposs_bot', 'hpps0', 'hpps1')
+    tab0  = Table(arr0, names=name0)
+    tab0.pprint(max_lines=-1, max_width=-1)
 
     out = path+"pixelflat_2d_%s_CLtest.fits" % (band)
     make_pixel_flat(data, results, flatops, out, flatlist, lampsOff=True)

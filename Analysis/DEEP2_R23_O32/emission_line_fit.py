@@ -71,7 +71,7 @@ def get_func():
 
 def all_fit():
     for rr in xcoor:
-        name = 'Stacking_Voronoi_Zoomed.pdf'
+        name = 'Stacking_Voronoi_Zoomed_new.pdf'
         y0 = stack2D[2]
         x0 = wave[x_idx2]
         pdf_pages = PdfPages(fitspath+name)

@@ -91,7 +91,7 @@ def voronoi_binning_DEEP2():
     print currentBin
 
     #binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale
-    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, 10, plot=True, pixelsize=0.1,quiet=False, currentBin=currentBin)
+    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, 14, plot=True, pixelsize=0.1,quiet=False, currentBin=currentBin)
     #print(test.shape)
 
     print np.sum(test[6])
@@ -100,12 +100,16 @@ def voronoi_binning_DEEP2():
     # binNum uniquely specifies the bins and for this reason it is the only
     # number required for any subsequent calculation on the bins.
     #
-    np.savetxt(fitspath+'Mar21_voronoi_2d_binning_output.txt', np.column_stack([rR23,rO32, lR23, lO32, test[0]])) #test[0]=classe = binnumber 
+    txt= np.savetxt(fitspath+'New_voronoi_2d_binning_output.txt', np.column_stack([rR23,rO32, lR23, lO32, test[0]])) #test[0]=classe = binnumber 
     #fmt='%6.3f %6.3f %5i')
-    
-    #n=('xnode','ynode','xBar','yBar','sn','area','scale')
-    #tab0= Table([test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
-    #asc.write(tab0, fitspath+'asc_table_voronoi.tbl')
+
+    n=('xnode','ynode','xBar','yBar','sn','area','scale')
+    tab0= Table([test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
+    asc.write(tab0, fitspath+'asc_table_voronoi_14.tbl')
+
+    n2=('R23', 'O32', 'log(R23)', 'log(O32)','N_bin')
+    tab2= Table([rR23, rO32, lR23, lO32, test[0]], names=n2)
+    asc.write(tab2, fitspath+'voronoi_2d_binning_output_14.tbl', format='fixed_width_two_line')
     #print tab0
 
     #return test

@@ -433,6 +433,9 @@ def find_and_fit_edges(data, header, bs, options,edgeThreshold=450):
                 xposs_bot_missing, yposs_bot, scatter_bot_this) = find_edge_pair(
                     data, y, options["edge-fit-width"],edgeThreshold=edgeThreshold)
 
+            print xposs_top_next, xposs_top_next_missing, yposs_top_next
+            print xposs_bot, xposs_bot_missing, yposs_bot, scatter_bot_this
+
             ok = np.where((xposs_bot > hpps[0]) & (xposs_bot < hpps[1]))
             ok2 = np.where((xposs_bot_missing > hpps[0]) & (xposs_bot_missing <
                 hpps[1]))

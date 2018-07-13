@@ -420,7 +420,7 @@ def find_and_fit_edges(data, header, bs, options,edgeThreshold=450):
         hpps = Wavelength.estimate_half_power_points(
                 bs.scislit_to_csuslit(target+1)[0], header, bs)
         ''' This might be where the bug is for J2 -- CL & SM '''
-        log.info("y = %i | hpps = %.1f  %.1f " % y, hpps[0], hpps[1])
+        log.info("y = %i | hpps = %.1f  %.1f " % (y, hpps[0], hpps[1]))
         if y == 1:
             xposs_bot = [1024]
             xposs_bot_missing = []

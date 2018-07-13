@@ -406,6 +406,7 @@ def find_and_fit_edges(data, header, bs, options,edgeThreshold=450):
         y = max(y, 1)
         # select a 6 pixel wide section of the vertical profile around the slit center
         threshold_area = vertical_profile[spatial_centers[target]-3:spatial_centers[target]+3]
+        log.info('threshold area : %f' % np.mean(threshold_area))
         # uses 80% of the ADU counts in the threshold area to estimate the threshold to use in defining the slits
         edgeThreshold = np.mean(threshold_area)*0.8
         #if edgeThreshold > 450:

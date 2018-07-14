@@ -223,7 +223,7 @@ def find_edge_pair(data, y, roi_width, edgeThreshold=450):
         # Modified from 450 as the hard coded threshold to one that
         # can be controlled by a keyword
         if (np.median(v) < edgeThreshold):
-            log.warn('median < edgeThreshold : %i', i)
+            log.warn('median < edgeThreshold : %i' % i)
             xposs_top_missing.append(xp)
             xposs_bot_missing.append(xp)
             continue

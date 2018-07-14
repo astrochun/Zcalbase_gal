@@ -199,7 +199,6 @@ def find_edge_pair(data, y, roi_width, edgeThreshold=450):
     def select_roi(data, roi_width):
         v = data[y-roi_width:y+roi_width, xp-2:xp+2]
         v = np.median(v, axis=1) # Axis = 1 is spatial direction
-        print '## : ', v
         return v
 
 
@@ -224,6 +223,7 @@ def find_edge_pair(data, y, roi_width, edgeThreshold=450):
         # Modified from 450 as the hard coded threshold to one that
         # can be controlled by a keyword
         if (np.median(v) < edgeThreshold):
+            log.warn('median < edgeThreshold : %i', i)
             xposs_top_missing.append(xp)
             xposs_bot_missing.append(xp)
             continue

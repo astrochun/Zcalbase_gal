@@ -409,8 +409,8 @@ def find_and_fit_edges(data, header, bs, options,edgeThreshold=450):
         log.info('threshold area : %f' % np.mean(threshold_area))
         # uses 80% of the ADU counts in the threshold area to estimate the threshold to use in defining the slits
         edgeThreshold = np.mean(threshold_area)*0.8
-        #if edgeThreshold > 450:
-        #    edgeThreshold = 450
+        if edgeThreshold > 450:
+            edgeThreshold = 450
 
         log.info("[%2.2i] Finding Slit Edges for %s ending at %4.0i. Slit "
                  "composed of %i CSU slits" % ( target,

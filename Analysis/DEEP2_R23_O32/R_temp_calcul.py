@@ -1,3 +1,7 @@
+#Calculates the R value, electron temperature, and metallicity from the flux table
+#produced by the zoom_and_gauss_general functions
+#
+#Currently running: Grid
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab as pl
@@ -16,30 +20,34 @@ from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
 import scipy.integrate as integ
 from mpl_toolkits.mplot3d import Axes3D
+import sys
+
+#For generalizing for several users
+from getpass import getuser
 
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-
+'''
 #Voronoi10
 #Spectral R23 and O32: Averages that are calculated from the flux calculations: spectral averages
 spectral = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10/Voronoi_combined_flux_table.tbl'
 data1 = asc.read(spectral)
-'''
+
 #Grid
-spectral = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Grid_method/grid_combined_flux_table.tbl'
-data1 = asc.read(spectral)'''
+spectral = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Grid_method/Grid_combined_flux_table.tbl'
+data1 = asc.read(spectral)
 
 #Voronoi14
 spectral = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi14_combined_flux_table.tbl'
 data1 = asc.read(spectral)
 
-
+#Ascii Table Calls 
 OIII5007 = data1['OIII_5007_Flux_Observed'].data
 OIII4959 = data1['OIII_4958_Flux_Observed'].data
 OIII4363 = data1['OIII_4363_Flux_Observed'].data
 HBETA    = data1['HBETA_Flux_Observed'].data
 OII3727  = data1['OII_3727_Flux_Observed'].data
-R23      = data1['R_23_Average'].data
-O32      = data1['O_32_Average'].data
+R23_avg      = data1['R_23_Average'].data
+O32_avg      = data1['O_32_Average'].data
 N_Galaxy = data1['N_Galaxies'].data
 
 SN_5007       = data1['OIII_5007_S/N'].data
@@ -47,6 +55,27 @@ SN_4959       = data1['OIII_4958_S/N'].data
 SN_4363       = data1['OIII_4363_S/N'].data
 SN_HBETA      = data1['HBETA_S/N'].data
 SN_3727       = data1['OII_3727_S/N'].data
+
+
+#Fits Table Calls
+OIII5007 = header['OIII_5007_Flux_Observed']
+OIII4959 =  header['OIII_4958_Flux_Observed']
+OIII4363 =  header['OIII_4363_Flux_Observed']
+HBETA    =  header['HBETA_Flux_Observed']
+OII3727  =  header['OII_3727_Flux_Observed']
+R23_avg      =  header['R_23_Average']
+O32_avg      =  header['O_32_Average']
+N_Galaxy =  header['N_Galaxies']
+
+SN_5007       =  header['OIII_5007_S/N']
+SN_4959       =  header['OIII_4958_S/N']
+SN_4363       =  header['OIII_4363_S/N']
+SN_HBETA      =  header['HBETA_S/N']
+SN_3727       =  header['OII_3727_S/N']
+
+R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
+O32_composite = np.log10((1.33*OIII5007)/OII3727)
+'''
 
 #Constants
 
@@ -90,38 +119,35 @@ def metalicity_calculation(T_e):
     O_d_ion = 10**(O_d_ion_log)
     com_O = O_s_ion + O_d_ion
     com_O_log = np.log10(com_O) +12
-    '''t = 1e-4 * Te
-    x = 1e-4 * 1e3 * t**(-0.5)
 
-    dist_t = 1e-4 * dist_Te
-    dist_x = (1e-4 * 1e3 * dist_t**(-0.5))
+    return O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log
 
-    lOIIIHb      = np.log10((OIII4959 + OIII5007)/HB)
-    dist_lOIIIHb = np.log10((OIII4959_dist + OIII5007_dist)/HB_dist)
 
-    # T2-T3 RELATION
-    if andrews == False:
-        print '### Using Izotov et al. (2006) T2-T3 relation'
-        t2   = -0.577 + t*(2.065-0.498*t)
-        mark = np.where(t >= 2.075)[0]
-        if len(mark) > 0:
-            t2[mark] = 1.57067
-    else:
-        print '### Using Andrews & Martini (2013) T2-T3 relation'     
-        t2   = 0.7*t + (3000.-1300.)/1e4
-        mark = np.where(t >= 2.0)
-        if len(mark) > 0: 
-            t2[mark] = 1.57
-    #endelse
+def run_function(combine_fits, header, fitspath, out_ascii, out_fits, pdf_name):
+    #Fits Table Calls
+    print header
+    OIII5007 = header['OIII_5007_Flux_Observed']
+    OIII4959 =  header['OIII_4958_Flux_Observed']
+    OIII4363 =  header['OIII_4363_Flux_Observed']
+    HBETA    =  header['HBETA_Flux_Observed']
+    OII3727  =  header['OII_3727_Flux_Observed']
+    R23_avg      =  header['R_23_Average']
+    O32_avg      =  header['O_32_Average']
+    N_Galaxy =  header['N_Galaxies']
+    
+    SN_5007       =  header['OIII_5007_S/N']
+    SN_4959       =  header['OIII_4958_S/N']
+    SN_4363       =  header['OIII_4363_S/N']
+    SN_HBETA      =  header['HBETA_S/N']
+    SN_3727       =  header['OII_3727_S/N']
+    
+    R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
+    O32_composite = np.log10((1.33*OIII5007)/OII3727)
 
-    x2 = 1e-4 * 1e3 * t2**(-0.5)
-    TOII = t2 * 1e4'''
 
-    return O_s_ion , O_d_ion, com_O_log
-def run_function():
     R_value = R_calculation()
     T_e = temp_calculation(R_value)
-    O_s_ion, O_d_ion, com_O_log = metalicity_calculation(T_e)
+    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e)
     
     print R_value
     print T_e
@@ -129,22 +155,25 @@ def run_function():
     print O_s_ion, O_d_ion
 
    
-    #valid_T_e = [7284.30776602, 7718.16922375, 8605.17485391, 8609.03697828, 10320.26788653, 10332.93036254, 10773.16786121, 11076.54040316, 11579.32008455, 11774.61655556, 11956.34906994,  12273.56242391, 12482.29559535, 15202.11770306, 16070.1413722, 20520.22534753]
 
     #Ascii Table
-    out_ascii = fitspath+ '/Voronoi14_temperatures_metalicity_asc_table.tbl'
+    #out_ascii = fitspath+ '/Grid_temperatures_metalicity_asc_table.tbl'
+    #out_fits = fitspath+ '/Grid_temperatures_metalicity_asc_table.fits'
     if not exists(out_ascii):
-        n=  ('R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log')
+        n=  ('R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log')
         
-        tab0 = Table([ R23, O32, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)
+        tab0 = Table([ R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)
         asc.write(tab0, out_ascii, format='fixed_width_two_line')
-    
+
+ 
+        tab0.write(out_fits,format = 'fits')
+
     #Plots
-    name = 'Voronoi14_temperature_vs_R23.pdf'
-    pdf_pages = PdfPages(fitspath+name)
+    #name = 'Grid_temperature_vs_R23.pdf'
+    pdf_pages = PdfPages(fitspath+pdf_name)
 
     fig1, ax1 = plt.subplots()
-    ax1.scatter(T_e, R23, marker = '.')
+    ax1.scatter(T_e, R23_composite, marker = '.')
     ax1.set_xlabel('Temperature (K)')
     ax1.set_ylabel('R_23')
     ax1.set_title('Temperatures_vs_R23')
@@ -152,14 +181,33 @@ def run_function():
     pdf_pages.savefig()
      
     fig2, ax2 = plt.subplots()
-    ax2.scatter(T_e, O32, marker = '.')
+    ax2.scatter(T_e, O32_composite, marker = '.')
     ax2.set_xlabel('Temperature (K)')
     ax2.set_ylabel('O_32')
     ax2.set_title('Temperatures_vs_O32')
     ax2.set_xlim(1000,21500)
     pdf_pages.savefig()
 
+    fig3, ax3 = plt.subplots()
+    ax3.scatter(R23_composite, com_O_log, marker = '.')
+    ax3.set_xlabel('R23')
+    ax3.set_ylabel('12+log(O/H) Te')
+    #ax2.set_title('Insert Title')
+    #ax2.set_xlim(1000,21500)
+    pdf_pages.savefig()
+
+    fig3, ax4 = plt.subplots()
+    ax4.scatter(O32_composite, com_O_log, marker = '.')
+    ax4.set_xlabel('O32')
+    ax4.set_ylabel('12+log(O/H) Te')
+    #ax2.set_title('Insert Title')
+    #ax2.set_xlim(1000,21500)
+    pdf_pages.savefig()
+    
+
     pdf_pages.close()
+
+    
 
     '''#Histogram
     name = 'Temperature_histogram.pdf'
@@ -177,7 +225,7 @@ def run_function():
     ax_3d.set_ylabel('O_32')
     ax_3d.set_zlabel('Temperature')
     ax_3d.set_zlim(4000,26000)
-    ax_3d.scatter(R23, O32, T_e, marker='.', linewidths = None)
+    ax_3d.scatter(R23_composite, O32_composite, T_e, marker='.', linewidths = None)
     plt.show()
     
    
@@ -188,3 +236,6 @@ def run_function():
 propagation distrubution function... monticarlo'''
 
 #3D plots
+
+
+#Plot O/H values and try the linear plots on the voronoi 14 values 

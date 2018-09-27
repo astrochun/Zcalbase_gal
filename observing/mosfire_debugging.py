@@ -199,7 +199,6 @@ def find_edge_pair(data, y, roi_width, edgeThreshold=450):
     def select_roi(data, roi_width):
         v = data[y-roi_width:y+roi_width, xp-2:xp+2]
         v = np.median(v, axis=1) # Axis = 1 is spatial direction
-
         return v
 
 
@@ -224,6 +223,7 @@ def find_edge_pair(data, y, roi_width, edgeThreshold=450):
         # Modified from 450 as the hard coded threshold to one that
         # can be controlled by a keyword
         if (np.median(v) < edgeThreshold):
+            # log.warn('median < edgeThreshold : %i' % i)
             xposs_top_missing.append(xp)
             xposs_bot_missing.append(xp)
             continue
@@ -406,10 +406,11 @@ def find_and_fit_edges(data, header, bs, options,edgeThreshold=450):
         y = max(y, 1)
         # select a 6 pixel wide section of the vertical profile around the slit center
         threshold_area = vertical_profile[spatial_centers[target]-3:spatial_centers[target]+3]
+        log.info('threshold area : %f' % np.mean(threshold_area))
         # uses 80% of the ADU counts in the threshold area to estimate the threshold to use in defining the slits
         edgeThreshold = np.mean(threshold_area)*0.8
-        #if edgeThreshold > 450:
-        #    edgeThreshold = 450
+        if edgeThreshold > 450:
+            edgeThreshold = 450
 
         log.info("[%2.2i] Finding Slit Edges for %s ending at %4.0i. Slit "
                  "composed of %i CSU slits" % ( target,
@@ -420,6 +421,7 @@ def find_and_fit_edges(data, header, bs, options,edgeThreshold=450):
         hpps = Wavelength.estimate_half_power_points(
                 bs.scislit_to_csuslit(target+1)[0], header, bs)
         ''' This might be where the bug is for J2 -- CL & SM '''
+        log.info("y = %i | hpps = %.1f  %.1f " % (y, hpps[0], hpps[1]))
         if y == 1:
             xposs_bot = [1024]
             xposs_bot_missing = []
@@ -430,6 +432,9 @@ def find_and_fit_edges(data, header, bs, options,edgeThreshold=450):
             (xposs_top_next, xposs_top_next_missing, yposs_top_next, xposs_bot,
                 xposs_bot_missing, yposs_bot, scatter_bot_this) = find_edge_pair(
                     data, y, options["edge-fit-width"],edgeThreshold=edgeThreshold)
+
+            print xposs_top_next, xposs_top_next_missing, yposs_top_next
+            print xposs_bot, xposs_bot_missing, yposs_bot, scatter_bot_this
 
             ok = np.where((xposs_bot > hpps[0]) & (xposs_bot < hpps[1]))
             ok2 = np.where((xposs_bot_missing > hpps[0]) & (xposs_bot_missing <

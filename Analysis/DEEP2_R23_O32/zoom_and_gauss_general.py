@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pylab as pl
+#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack, hstack
@@ -16,17 +16,19 @@ from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
 import scipy.integrate as integ
 
-#from  import _init_ as chun_codes
+#Imports Error propagation codes from chun_codes
+from chun_codes import random_pdf, compute_onesig_pdf
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 '''
 #Grid File
 outfile_grid = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Stacking_Wave_vs_Spect1D_Masked_MasterGrid_Average_bin025.fits'
 stack2D, header = fits.getdata(outfile_grid, header=True)
 wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
 Spect_1D = fits.getdata(outfile_grid)
-dispersion = header['CDELT1']'''
-'''
+dispersion = header['CDELT1']
+
+
 
 
 #Voronoi10
@@ -43,7 +45,7 @@ stack2D, header = fits.getdata(stacking_vor, header=True)
 wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
 Spect_1D = fits.getdata(fitspath+'Stacking_Voronoi_masked_output.fits')
 dispersion = header['CDELT1']
-'''
+
 #Voronoi14
 outfilevoronoi = '/Users/reagenleimbach/Desktop/Zcalbase_gal/voronoi_2d_binning_output_14.txt'
 voronoi = np.loadtxt(outfilevoronoi)
@@ -57,7 +59,7 @@ asc_tab = asc.read(tab)
 stack2D, header = fits.getdata(stacking_vor, header=True)
 wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
 Spect_1D = fits.getdata(fitspath+'Stacking_Voronoi_14_masked_output.fits')
-dispersion = header['CDELT1']
+dispersion = header['CDELT1']'''
 
 
 #If 'x0' is infeasible error occurs, check the para_bound values to make sure the expected values are within the range set up upper and lower limits. 
@@ -78,18 +80,18 @@ a2 = 1.8
 #['OIII_4363','OIII_4959','OIII_5007','NeIII','','HDELTA','HGAMMA']
 #6548.10, 6562.80, 6583.60, 6717.42, 6730.78]'''
 
-lambda0 =[3727.00, 3797.90, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]
+#lambda0 =[3727.00, 3797.90, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]
  
-line_type = ['Oxy2','Balmer', 'Balmer', 'Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer', 'Single', 'Single']
+#line_type = ['Oxy2','Balmer', 'Balmer', 'Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer', 'Single', 'Single']
 
-line_name = ['OII_3727','H_10','H_9','NeIII','HDELTA', 'HGAMMA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007', 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730']
+#line_name = ['OII_3727','H_10','H_9','NeIII','HDELTA', 'HGAMMA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007'] #, 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730']
 
-
+'''
 lineflag = np.zeros(len(wave))
 for ii in lambda0:   
     idx = np.where(np.absolute(wave - ii)<=5)[0]
     if len(idx) > 0:
-        lineflag[idx] = 1
+        lineflag[idx] = 1'''
 
 def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     box_kernel = Box1DKernel(width)
@@ -156,7 +158,7 @@ def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,line_type):
 
 #calculating rms
 
-def rms_func(lambda_in, y0, sigma_array, scalefact):
+def rms_func(wave,dispersion,lineflag, lambda_in, y0, sigma_array, scalefact):
     x_idx = np.where((np.abs(wave-lambda_in)<=100) & (lineflag==0))[0]
     #ini_sig = np.zeros(Spect_1D.shape[0])
     #for rr in range(Spect_1D.shape[0]):
@@ -177,16 +179,22 @@ def rms_func(lambda_in, y0, sigma_array, scalefact):
    
     return ini_sig/scalefact, RMS_pix
 
-
+def error_prop_chuncodes(x_arr, dx):
+    #x_arr = np.random.random_integers(10,10)
+    x_pdf = random_pdf(x_arr,0.5)
+    return x_pdf
+    
+#for each individual stack
+#electron temperature and the R23 and O32 values 
 #Plotting Zoomed 
-def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
+def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, Spect_1D, working_wave, lambda0, lineflag,  line_type = '',outpdf='', line_name=''):
     '''image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     Spect_1D = fits.getdata(fitspath+'Stacking_Voronoi_masked_output.fits')
     if outpdf == '':
         name = 'Stacking_Voronoi_Zoomed_Gauss_generalexperiment.pdf'
         outpdf = fitspath + name'''
-
+    if dataset != 'Grid': asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
     nrows = 4
     ncols = 4
@@ -194,18 +202,56 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
     x0 = wave#[x_idx]
     scalefact = 1e-17
 
-
+    '''narr_gr = np.asarray(N_arr_grid)
+    oarr_gr = np.asarray(O32_grid)
+    rarr_gr = np.asarray(R23_grid)
+    print narr_gr, type(narr_gr)
+    print rarr_gr, type(rarr_gr)
+    print oarr_gr, type(oarr_gr)'''
     #Initializing Arrays
-    flux_g_array = np.zeros(Spect_1D.shape[0])
-    flux_s_array = np.zeros(Spect_1D.shape[0])
-    sigma_array = np.zeros(Spect_1D.shape[0])
-    median_array = np.zeros(Spect_1D.shape[0])
-    norm_array = np.zeros(Spect_1D.shape[0])
-    RMS_array = np.zeros(Spect_1D.shape[0])
-    SN_array = np.zeros(Spect_1D.shape[0])
-    N_gal_array = np.zeros(Spect_1D.shape[0])
-    R_23_array = np.zeros(Spect_1D.shape[0])
-    O_32_array = np.zeros(Spect_1D.shape[0])
+    if dataset == 'Grid':
+        flux_g_array = np.zeros(Spect_1D.shape[0])
+        flux_s_array = np.zeros(Spect_1D.shape[0])
+        sigma_array = np.zeros(Spect_1D.shape[0])
+        median_array = np.zeros(Spect_1D.shape[0])
+        norm_array = np.zeros(Spect_1D.shape[0])
+        RMS_array = np.zeros(Spect_1D.shape[0])
+        SN_array = np.zeros(Spect_1D.shape[0])
+
+        
+        outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
+        grid_data = np.load(outfile025)
+
+        N_arr_grid = grid_data['N_arr0']
+        R23_grid = grid_data['R23_grid']
+        O32_grid = grid_data['O32_grid']
+        for rr in range(len(R23_grid)):
+            for oo in range(len(O32_grid)):
+                R_23_array = R23_grid[rr]
+                O_32_array = O32_grid[oo]
+                index= grid_data['T_arr'][rr,oo]
+                N_gal_array = len(index)
+                print R_23_array, O_32_array, N_gal_array  #3 dimensional array 
+    else: 
+        flux_g_array = np.zeros(Spect_1D.shape[0])
+        flux_s_array = np.zeros(Spect_1D.shape[0])
+        sigma_array = np.zeros(Spect_1D.shape[0])
+        median_array = np.zeros(Spect_1D.shape[0])
+        norm_array = np.zeros(Spect_1D.shape[0])
+        RMS_array = np.zeros(Spect_1D.shape[0])
+        SN_array = np.zeros(Spect_1D.shape[0])
+        N_gal_array = np.zeros(Spect_1D.shape[0])
+        R_23_array = np.zeros(Spect_1D.shape[0])
+        O_32_array = np.zeros(Spect_1D.shape[0])
+
+    '''#Initialize Error Propogation
+    flux_g_err = np.zeros(Spect_1D.shape[0])
+    flux_s_err = np.zeros(Spect_1D.shape[0])
+    sigma_err = np.zeros(Spect_1D.shape[0])
+    median_err = np.zeros(Spect_1D.shape[0])
+    norm_err = np.zeros(Spect_1D.shape[0])
+    RMS_err = np.zeros(Spect_1D.shape[0])
+    SN_err = np.zeros(Spect_1D.shape[0])'''
 
     for rr in range(Spect_1D.shape[0]):
         #print range(Spect_1D.shape[0])
@@ -261,10 +307,10 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
 
 
             #Calculating RMS
-            ini_sig1, RMS_pix= rms_func(working_wave, y0, o1[1], scalefact)
+            ini_sig1, RMS_pix= rms_func(wave,dispersion,lineflag,working_wave, y0, o1[1], scalefact)
 
             #Line Flag Checking Plots
-            pdf= line_flag_check(working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr)
+            pdf= line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr)
             #if rr == 0: print 'o1', o1, flux_g, flux_s, x_sigsnip
 
             
@@ -277,15 +323,34 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
             norm_array[rr] = max0
             RMS_array[rr] = ini_sig1
             SN_array[rr] = (flux_s/ini_sig1)
-            N_gal_array[rr] = asc_tab['area'][rr]
-            R_23_array[rr] = asc_tab['xBar'][rr]
-            O_32_array[rr] = asc_tab['yBar'][rr]
+            if dataset == 'Grid': 
+                
+                N_gal_array[rr] = narr_gr[rr]    # asc_tab['area'][rr]
+                R_23_array[rr] = rarr_gr[rr]            #asc_tab['xBar'][rr]
+                O_32_array[rr] = oarr_gr[rr]     #asc_tab['yBar'][rr]'''
+            if dataset != 'Grid':
+                N_gal_array[rr] = asc_tab['area'][rr]
+                R_23_array[rr] = asc_tab['xBar'][rr]
+                O_32_array[rr] = asc_tab['yBar'][rr]
+                
+            #R_23_array[rr] = asc_tab['xBar'][rr]
+            #O_32_array[rr] = asc_tab['yBar'][rr]
 
             #print RMS_array[rr]
             #Residuals
             resid = y_norm[x_sigsnip]-gauss0[x_sigsnip] + o1[3]  
             #print len(resid), len(x_sigsnip), len(gauss0)
 
+            
+
+            '''#Error Propogation 
+            flux_g_err[rr] = error_prop_chuncodes(flux_g,1)
+            flux_s_err[rr] = error_prop_chuncodes(flux_s,1)
+            sigma_err[rr] =  error_prop_chuncodes(o1[1],1)
+            median_err[rr] = error_prop_chuncodes(o1[3],1)
+            norm_err[rr] =   error_prop_chuncodes(max0,1)
+            RMS_err[rr] =    error_prop_chuncodes(ini_sig1,1)
+            SN_err[rr] =     error_prop_chuncodes(flux_s/ini_sig1,1)'''
 
         #Plotting
         #if not exists(fitspath+ 'Stacking_Voronoi_Zoomed_Gauss_generalexperiment.pdf'):
@@ -304,13 +369,21 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
             #if keyword == 'Single' or keyword == 'Balmer' : t_ax.axhline(y=o1[3], color='k--', linewidth=0.01)
  
         
-        
-            txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
-            txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])  #$\overline{x}$:$\overline{y}$:
-            txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], asc_tab['area'][rr]) 
-            txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
-            txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
-            txt0 += 'S/N: %.3f' %(SN_array[rr])
+            if dataset == 'Grid':
+                #txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                txt0  = 'R_23: %.3f O_32: %.3f\n' % (R_23_array[rr],O_32_array[rr])  #$\overline{x}$:$\overline{y}$:
+                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
+                txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
+                txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
+                txt0 += 'S/N: %.3f' %(SN_array[rr])
+
+            else:
+                txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])  #$\overline{x}$:$\overline{y}$:
+                txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], asc_tab['area'][rr]) 
+                txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
+                txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
+                txt0 += 'S/N: %.3f' %(SN_array[rr])
         
        
             t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
@@ -362,10 +435,19 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
         #plt.draw()
         #fig.savefig(pdfpages2, format='pdf')
     #endfor
-
+    '''
+    #Error Propogation 
+    flux_g_err = error_prop_chuncodes(flux_g_array,1)
+    flux_s_err = error_prop_chuncodes(flux_s_array,1)
+    sigma_err =  error_prop_chuncodes(sigma_array,1)
+    median_err = error_prop_chuncodes(median_array,1)
+    norm_err =   error_prop_chuncodes(norm_array,1)
+    RMS_err =    error_prop_chuncodes(RMS_array,1)
+    SN_err =     error_prop_chuncodes(SN_array,1)'''
+     
     #Writing Ascii Tables and Fits Tables
-    out_ascii = fitspath+ '/Voronoi14_asc_table_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
-    out_fits = fitspath+'/Voronoi14_Flux_Outputs'+line_name+'.fits'
+    out_ascii = fitspath+'/'+dataset+'_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
+    out_fits = fitspath+'/'+dataset+'_Flux_gaussian_'+line_name+'.fits'
     #if not exists(out_ascii):
     n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS', 'S/N')
     n = tuple([line_name + '_' + val for val in n])
@@ -373,12 +455,11 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
         #fits.writeto(out_fits, tab0)
          
-    out_ascii_single = fitspath+'/Voronoi14_asc_table_Average_R23_O32_Values.tbl'
+    out_ascii_single = fitspath+'/'+dataset+'_Average_R23_O32_Values.tbl'
     if not exists(out_ascii_single):
         n2= ('R_23_Average', 'O_32_Average', 'N_Galaxies', 'RMS')
         tab1 = Table([R_23_array, O_32_array, N_gal_array, RMS_array], names=n2)
         asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
-
 
 
 
@@ -406,48 +487,40 @@ def zoom_gauss_plot(working_wave,line_type = '',outpdf='', line_name=''):
 
 
 
-def zm_general():
-   
-    lambda0 =[3726.16, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4363.21, 4861.32, 4958.91, 5006.84]
- 
-    line_type = ['Oxy2', 'Balmer', 'Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer', 'Single', 'Single']
+def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, Spect_1D, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab):
+    
 
-    line_name = ['OII_3727','H_9','NeIII','HeI','HEPSIL', 'HDELTA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']   # 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730'] #'H_10' line not fitted because the 'x0 is infeasible' error occurred. In future go back and change para_bounds so that the line canbe fit  4340.46
-
-    s=1.0
-    a= 1.0
-
-    c = 1
-    s1=-0.3
-    a1= 4.7
-    s2 = 1
-    a2 = -1.8
-
-    for ii in range(len(lambda0)+1):
+    for ii in range(len(lambda0)):
         #print lambda0[ii], line_type[ii], line_name[ii]
         if line_type[ii] == 'Single':
-            outpdf = fitspath+'/Stacking_Voronoi14_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, Spect_1D,lambda0[ii], lambda0, lineflag, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
+            #print outpdf 'created'
+            
         if line_type[ii] == 'Balmer': 
-            outpdf = fitspath+'/Stacking_Voronoi14_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, Spect_1D, lambda0[ii], lambda0, lineflag, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+
+            #print outpdf 'created'
             
         if line_type[ii] == 'Oxy2': 
-            outpdf = fitspath+'/Stacking_Voronoi14_Zoomed_Gauss_'+line_name[ii]+'.pdf'
+            outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            zoom_gauss_plot(lambda0[ii], line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, Spect_1D, lambda0[ii], lambda0, lineflag, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
+            #print outpdf 'created'
+            
 
         
 
-def line_flag_check(working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr):
+def line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr):
     #print 'run line_flag_check'
 
     #New plots for lineflagging
-    pdfpages2 = PdfPages(fitspath + '/Voronoi14_lineflag_check_'+line_name+'.pdf')
+    pdfpages2 = PdfPages(fitspath + '/' +dataset+'_lineflag_check_'+line_name+'.pdf')
     t_ax2 = ax_arr[row,col]
     t_ax2.plot(wave, y_norm, 'k', linewidth=0.6, label='Emission')
     t_ax2.set_xlim([working_wave+150,working_wave-45])

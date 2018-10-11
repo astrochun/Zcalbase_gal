@@ -1,9 +1,9 @@
 ##In this file, I define the stacking code in a function that runs over the master grid
 ##Creates a pdf and a fits file
-##fits file for his code is given the name of the PDF file 
+##fits file for this code is given the name of the PDF file 
 import numpy as np
 import matplotlib.pyplot as plt
-import pylab as pl
+#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
@@ -17,13 +17,13 @@ from pylab import subplots_adjust
 from astropy.convolution import Box1DKernel, convolve
 
 #fitspath='/astrochun/Zcalbase_gal/Analysis/DEEP2_R23_O32/'
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 
-outfile01 = 'Arrays_R23O32bin01MasterGrid.npz'
+#outfile01 = 'Arrays_R23O32bin01MasterGrid.npz'
 #outfile025 = '/astrochun/Zcalbase_gal/Analysis/DEEP2_R23_O32/Arrays_R23O32bin025MasterGrid.npz'
-outfile025 = fitspath + '/Results_Graphs_Arrays_Etc/Arrays_R23O32bin025MasterGrid.npz'
-grid_data = np.load(outfile025)
+#outfile025 = fitspath + '/Results_Graphs_Arrays_Etc/Arrays_R23O32bin025MasterGrid.npz'
+#grid_data = np.load(outfile025)
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 
 
@@ -35,7 +35,7 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
     return smooth
 
-def Master_Stacking(wave, image2D, name, header, mask= None):
+def Master_Stacking(fitspath, wave, grid_data, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
     
     R23_grid = grid_data['R23_grid']
@@ -48,13 +48,13 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
     image2DM = np.nan_to_num(image2D) 
     
     if mask !=None:
-        image2DM = np.ma.masked_array(image2DM, mask)       
-
+        image2DM = np.ma.masked_array(image2DM, mask)
+        
     outfile = name.replace('.pdf', '.fits')  #fits file name and initialization 
     if not exists(outfile):
         stack_2d = np.zeros((len(R23_grid)*len(O32_grid), len(wave)), dtype=np.float64)
     else:
-        print 'reading ', outfile
+        #print 'reading ', outfile
         stack_2d = fits.getdata(outfile)
         
     count = 0
@@ -74,8 +74,8 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
                         Spect1D = np.nanmean(subgrid, axis=0)
 
                     stack_2d[count] = Spect1D
-                print "stack_2d",[rr], Spect1D
-                if rr ==0 and oo == 0: print index
+                #print "stack_2d",[rr], Spect1D
+                #if rr ==0 and oo == 0: print index
 
                 #Compute number of spectra at a given wavelength
                 a = ma.count(subgrid, axis=0)
@@ -148,22 +148,22 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         #i_x, i_y = np.where(stack_2d == 0)
         #print len(i_x), len(i_y)
         #stack_2d[i_x,i_y] = np.nan
-    fits.writeto(outfile, stack_2d[0:count], header, overwrite= True)
+    fits.writeto(fitspath+outfile, stack_2d[0:count], header, overwrite= True)
     
 
-print('Starting MasterGrid')
-def run_Stacking_Master_mask():
+#print('Starting MasterGrid')
+def run_Stacking_Master_mask(fitspath, name,grid_data):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    name = 'Stacking_Wave_vs_Spect1D_Masked_MasterGrid_Average_bin025.pdf'
-    maskM = fits.getdata(fitspath+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits') 
-    MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header, mask=maskM)
+    #name = 'Stacking_Wave_vs_Spect1D_Masked_MasterGrid_Average_bin025.pdf'
+    maskM = fits.getdata(fitspath_ini+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits') 
+    MasterStack0 = Master_Stacking(fitspath, wavemaster, grid_data,image2DM, name, header, mask=maskM)
     
-def run_Stacking_Master():
+def run_Stacking_Master(fitspath, name,grid_data):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    name = 'Stacking_Wave_vs_Spect1D_MasterGrid_Average_bin025.pdf'
-    MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header)
+    #name = 'Stacking_Wave_vs_Spect1D_MasterGrid_Average_bin025.pdf'
+    MasterStack0 = Master_Stacking(fitspath, wavemaster,grid_data, image2DM, name, header)
     
 
 #run_Stacking_Master_mask()

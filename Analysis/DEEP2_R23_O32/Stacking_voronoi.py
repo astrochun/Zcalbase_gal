@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pylab as pl
+#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
@@ -12,18 +12,22 @@ import numpy.ma as ma
 from matplotlib.gridspec import GridSpec
 from pylab import subplots_adjust
 from astropy.convolution import Box1DKernel, convolve
+from astropy.table import vstack, hstack
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+#from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 
-tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi.tbl'
+#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+
+tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
+tab1= '/Users/reagenleimbach/Desktop/Zcalbase_gal/voronoi_2d_binning_output_14.tbl'
 asc_tab = asc.read(tab)
 
+voronoi = asc.read(tab1)
 
-
-outfilevoronoi = '/Users/reagenleimbach/Desktop/Zcalbase_gal/voronoi_2d_binning_output.txt'
+'''outfilevoronoi = '/Users/reagenleimbach/Desktop/Zcalbase_gal/New_voronoi_2d_binning_output.txt'
 voronoi = np.loadtxt(outfilevoronoi)
-voronoi = voronoi.transpose()
-xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
+voronoi = voronoi.transpose()'''
+xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32,5006.84]
 
 
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
@@ -35,7 +39,7 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     return smooth
 
 
-def Master_Stacking(wave, image2D, name, header, mask= None):
+def Master_Stacking(fitspath, voronoi_data, wave, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
     
 
@@ -45,8 +49,11 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
     if mask !=None:
         image2DM = np.ma.masked_array(image2DM, mask)       
 
-    n_bins = np.int(np.max(voronoi[2])) 
-    
+    last_column = voronoi['N_bin'].data
+    print last_column
+    n_bins = np.max(last_column)     #np.max(voronoi[]))
+    #n_bins = 14
+    print 'n_bins:', n_bins   #this should print out as 13 not 1
     outfile = name.replace('.pdf', '.fits')  #fits file name and initialization 
     if not exists(outfile):
         stack_2d = np.zeros((n_bins+1, len(wave)), dtype = np.float64) 
@@ -55,7 +62,7 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         
     for rr in xrange(n_bins+1): #n_bins+1 looping over bins starting at bin #0 
         #print rr, stack_2d.shape
-        index= np.where(voronoi[2]== rr)[0]   
+        index= np.where(last_column== rr)[0]   
         subgrid= image2DM[index]
 
         if exists(outfile):
@@ -68,6 +75,7 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
                 Spect1D = np.nanmean(subgrid, axis=0)
 
         stack_2d[rr] = Spect1D
+        print "stack_2d",[rr], Spect1D
 
         #stack_2d[rr] = Spect1D
         #stack_2d[rr] = np.cumsum(Spect1D)
@@ -104,7 +112,15 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         #ax2.annotate(str0, (0.05,0.95), xycoords='axes fraction', ha='left', va='top', weight='bold')
         
         for x in xcoor: ax2.axvline(x=x, linewidth= 0.3, color= 'k')
+
+        txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+        txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])  #$\overline{x}$:$\overline{y}$:
+        txt0 += 'Scale: %.3f N: %.3f\n' % (asc_tab['scale'][rr], asc_tab['area'][rr]) 
+        #txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
+        #txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s)
         
+       
+        ax2.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '12')
         
         '''Inset that focuses on 4363
         x1, x2  = 4200, 4500
@@ -143,31 +159,60 @@ def Master_Stacking(wave, image2D, name, header, mask= None):
         #i_x, i_y = np.where(stack_2d == 0)
         #print len(i_x), len(i_y)
         #stack_2d[i_x,i_y] = np.nan
-        fits.writeto(outfile, stack_2d, header, overwrite= True)
+        T_fits_name = fitspath + outfile
+        fits.writeto(T_fits_name, stack_2d, header, overwrite= True)
 
    
     
 #Function that runs Master_Stacking and calls necessary inputs (including mask)
-def run_Stacking_Master_mask():
-    image2DM, header = fits.getdata(RestframeMaster, header=True)
-    wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    name = 'Stacking_Voronoi_masked_output.pdf'
-    maskM = fits.getdata(fitspath+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits') 
-    MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header, mask=maskM)
+def run_Stacking_Master_mask(fitspath,voronoi_data, Stack_name):
+    '''image2DM, header = fits.getdata(RestframeMaster, header=True)
+    #det3, data3 = general.get_det3()
+    for ii in range(1,5):
+        file1 = fitspath+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
+        data  = Table(fits.getdata(file1))
+        if ii == 1:
+            data0 = data
+        else:
+            data0 = vstack([data0, data])
+    #fits.writeto(fitspath+'f3_0716/DEEP2_Fields_combined', data0)
+        #print 'data0 : ', len(data0)
+    O2 = data0['OII_FLUX_MOD']
+    O3 = 1.33*data0['OIIIR_FLUX_MOD']
+    Hb = data0['HB_FLUX_MOD']
+     
+    SNR2 = data0['OII_SNR']
+    SNR3 = data0['OIIIR_SNR']
+    SNRH = data0['HB_SNR']
+    #SNR code: This rules out major outliers by only using specified data
+    det3 = np.where((SNR2 >= 3) & (SNR3 >= 3) & (SNRH >= 3) &
+                    (O2 > 0) & (O3 > 0) & (Hb>0))[0]'''
 
-    #Function that runs Master_Stacking and calls necessary inputs (without mask)    
-def run_Stacking_Master():
+
+    data3 = data0[det3]
+
+    
+    image2D = image2DM[det3]
+    print len(image2D)
+    wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+    name = 'Stacking_Voronoi_14_masked_output.pdf'
+    maskM = fits.getdata(fitspath+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits')
+    mask= maskM[det3]
+    MasterStack0 = Master_Stacking(fitspath, voronoi_data, wavemaster, image2D, Stack_name, header, mask=mask)
+
+#Function that runs Master_Stacking and calls necessary inputs (without mask)    
+def run_Stacking_Master(fitspath,voronoi_data, Stack_name):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    name = 'Stacking_Voronoi_output.pdf'
-    MasterStack0 = Master_Stacking(wavemaster, image2DM, name, header)
+    #name = 'Stacking_Voronoi_14_output.pdf'
+    MasterStack0 = Master_Stacking(fitspath, voronoi_data, wavemaster, image2DM, Stack_name, header, mask=None)
     
 
-#Plotting Zoomed in on 4363: I need wave and Spect1D
+#Plotting Zoomed in on 4363
 def zoom_plot_4363():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    Spect_1D= fits.getdata(fitspath+'Stacking_Voronoi_masked_output.fits')
+    Spect_1D = fits.getdata(fitspath+'Stacking_Voronoi_masked_output.fits')
     name = 'Stacking_Voronoi_Zoomed_4363.pdf'
     pdf_pages = PdfPages(fitspath+name)
     nrows = 4
@@ -185,15 +230,17 @@ def zoom_plot_4363():
         t_ax = ax_arr[row,col]
         
         x1, x2  = 4200, 4500
-        
-        t_ax.plot(wave, [rr], linewidth=0.5)
+
+        y_smooth = movingaverage_box1D(Spect_1D[rr], 5, boundary='extend')
+
+        t_ax.plot(wave, y_smooth, linewidth=0.5)
         t_ax.set_xlim([x1,x2])
         #t_ax.set_xlabel('Wavelength')
         #t_ax.set_ylabel('Spectra 1D')
         for x in xcoor: t_ax.axvline(x=x, linewidth= 0.3, color= 'k')
 
         txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
-        txt0 += '$\overline{x}$:%.3f  $\overline{y}$: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
+        txt0 += 'R_23%.3f O32 %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])  #$\overline{x}$:$\overline{y}$:
         txt0 += 'S/N: %.3f  Scale: %.3f N: %.3f\n' % (asc_tab['sn'][rr], asc_tab['scale'][rr], asc_tab['area'][rr])
        
         t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '6')
@@ -223,4 +270,64 @@ def zoom_plot_4363():
     pdf_pages.close()
     print 'Done!'
 
+#Plotting Zoomed in on 5007    
+def zoom_plot_5007():
+    image2DM, header = fits.getdata(RestframeMaster, header=True)
+    wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+    Spect_1D = fits.getdata(fitspath+'Stacking_Voronoi_masked_output.fits')
+    name = 'Stacking_Voronoi_Zoomed_5007.pdf'
+    pdf_pages = PdfPages(fitspath+name)
+    nrows = 4
+    ncols = 4
     
+    for rr in range(Spect_1D.shape[0]):
+
+        row = rr / nrows % ncols
+        col = rr % ncols
+        print row, col
+        if rr % (nrows*ncols) == 0:
+            fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols, squeeze = False)
+                #endif
+       
+        t_ax = ax_arr[row,col]
+        
+        x1, x2  = 4950, 5050
+
+        y_smooth = movingaverage_box1D(Spect_1D[rr], 5, boundary='extend')
+
+        t_ax.plot(wave, y_smooth, linewidth=0.5)
+        t_ax.set_xlim([x1,x2])
+        #t_ax.set_xlabel('Wavelength')
+        #t_ax.set_ylabel('Spectra 1D')
+        for x in xcoor: t_ax.axvline(x=x, linewidth= 0.3, color= 'k')
+
+        txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+        txt0 += 'R_23%.3f O32 %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])  #$\overline{x}$:$\overline{y}$:
+        txt0 += 'S/N: %.3f  Scale: %.3f N: %.3f\n' % (asc_tab['sn'][rr], asc_tab['scale'][rr], asc_tab['area'][rr])
+       
+        t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '6')
+
+        if row != nrows-1:
+            t_ax.set_xticklabels([]) 
+        else: t_ax.set_xlabel('Wavelength')
+
+        if col == 0:
+             t_ax.set_ylabel('Spect_1D')
+        else: t_ax.set_yticklabels([])
+    
+        if (rr % (nrows*ncols) == nrows*ncols-1) or rr == Spect_1D.shape[0]-1: 
+            subplots_adjust(left=0.2, right=0.98, bottom=0.06, top=0.95,
+                            hspace=0.0)
+            
+            #if t_ax > Spect_1D.shape[0]: fig.delaxes(t_ax) #use a for loop 
+
+            fig.set_size_inches(11,8)
+            plt.draw()
+            fig.savefig(pdf_pages, format='pdf')
+        
+    
+
+                                             
+    #endfor
+    pdf_pages.close()
+    print 'Done!'

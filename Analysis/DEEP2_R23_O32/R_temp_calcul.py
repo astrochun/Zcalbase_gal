@@ -4,7 +4,7 @@
 #Currently running: Grid
 import numpy as np
 import matplotlib.pyplot as plt
-import pylab as pl
+#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack, hstack
@@ -57,7 +57,7 @@ SN_HBETA      = data1['HBETA_S/N'].data
 SN_3727       = data1['OII_3727_S/N'].data
 
 
-#Fits Table Calls
+#Fits Table Calls (This is incorrect)
 OIII5007 = header['OIII_5007_Flux_Observed']
 OIII4959 =  header['OIII_4958_Flux_Observed']
 OIII4363 =  header['OIII_4363_Flux_Observed']
@@ -86,7 +86,7 @@ c = 0.98062
 
 #Calculations on page 37 of paper
 
-def R_calculation():
+def R_calculation(OIII4363, OIII5007, OIII4959):
   
     R_value = OIII4363/(OIII5007+OIII4959)
     return R_value
@@ -98,7 +98,7 @@ def temp_calculation(R):
     return T_e
 
 
-def metalicity_calculation(T_e):
+def metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727):
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
     #t_2 = 0.7*t_3 +0.17
@@ -123,31 +123,34 @@ def metalicity_calculation(T_e):
     return O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log
 
 
-def run_function(combine_fits, header, fitspath, out_ascii, out_fits, pdf_name):
+def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii):  #combine_fits, header
     #Fits Table Calls
-    print header
-    OIII5007 = header['OIII_5007_Flux_Observed']
-    OIII4959 =  header['OIII_4958_Flux_Observed']
-    OIII4363 =  header['OIII_4363_Flux_Observed']
-    HBETA    =  header['HBETA_Flux_Observed']
-    OII3727  =  header['OII_3727_Flux_Observed']
-    R23_avg      =  header['R_23_Average']
-    O32_avg      =  header['O_32_Average']
-    N_Galaxy =  header['N_Galaxies']
-    
-    SN_5007       =  header['OIII_5007_S/N']
-    SN_4959       =  header['OIII_4958_S/N']
-    SN_4363       =  header['OIII_4363_S/N']
-    SN_HBETA      =  header['HBETA_S/N']
-    SN_3727       =  header['OII_3727_S/N']
-    
+    #combine_fits, header = fits.getdata(combine_flux_table, header = True)
+    combine_fits= asc.read(combine_flux_ascii)
+
+    #Ascii Table Calls 
+    OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
+    OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
+    OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
+    HBETA    = combine_fits['HBETA_Flux_Observed'].data
+    OII3727  = combine_fits['OII_3727_Flux_Observed'].data
+    R23_avg      = combine_fits['R_23_Average'].data
+    O32_avg      = combine_fits['O_32_Average'].data
+    N_Galaxy = combine_fits['N_Galaxies'].data
+
+    SN_5007       = combine_fits['OIII_5007_S/N'].data
+    SN_4959       = combine_fits['OIII_4958_S/N'].data
+    SN_4363       = combine_fits['OIII_4363_S/N'].data
+    SN_HBETA      = combine_fits['HBETA_S/N'].data
+    SN_3727       = combine_fits['OII_3727_S/N'].data
+
     R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
     O32_composite = np.log10((1.33*OIII5007)/OII3727)
 
 
-    R_value = R_calculation()
+    R_value = R_calculation(OIII4363, OIII5007, OIII4959)
     T_e = temp_calculation(R_value)
-    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e)
+    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727)
     
     print R_value
     print T_e

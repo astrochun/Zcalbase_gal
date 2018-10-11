@@ -27,10 +27,10 @@ from pprint import pprint
 
 import voronoi_2d_binning
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/' 
+#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/' 
 
 #Creates a fits table 
-for ii in range(1,5):
+'''for ii in range(1,5):
     file1 = fitspath+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
     data  = Table(fits.getdata(file1))
     if ii == 1:
@@ -53,14 +53,14 @@ SNRH = data0['HB_SNR']
 
 #SNR code: This rules out major outliers by only using specified data
 det3 = np.where((SNR2 >= 3) & (SNR3 >= 3) & (SNRH >= 3) &
-                (O2 > 0) & (O3 > 0) & (Hb>0))[0]
+                (O2 > 0) & (O3 > 0) & (Hb>0))[0]'''
 
 #print np.min(R23[det3]), np.max(R23[det3]), np.mean(R23[det3]), np.min(O32[det3]), np.max(O32[det3]), np.mean(O32[det3])
 #print len(det3)
 
 
 
-def voronoi_binning_DEEP2():
+def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3):
     #file_dir = path.dirname(path.realpath(__file__))  # path of this procedure, edit this to correct path
 
     #x, y, signal, noise = (fitspath+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits', upack=1, skiprows=3)
@@ -100,16 +100,16 @@ def voronoi_binning_DEEP2():
     # binNum uniquely specifies the bins and for this reason it is the only
     # number required for any subsequent calculation on the bins.
     #
-    txt= np.savetxt(fitspath+'New_voronoi_2d_binning_output.txt', np.column_stack([rR23,rO32, lR23, lO32, test[0]])) #test[0]=classe = binnumber 
+    txt= np.savetxt(txt_file, np.column_stack([rR23,rO32, lR23, lO32, test[0]])) #test[0]=classe = binnumber 
     #fmt='%6.3f %6.3f %5i')
 
     n=('xnode','ynode','xBar','yBar','sn','area','scale')
     tab0= Table([test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
-    asc.write(tab0, fitspath+'asc_table_voronoi_14.tbl')
+    asc.write(tab0, asc_table1)
 
     n2=('R23', 'O32', 'log(R23)', 'log(O32)','N_bin')
     tab2= Table([rR23, rO32, lR23, lO32, test[0]], names=n2)
-    asc.write(tab2, fitspath+'voronoi_2d_binning_output_14.tbl', format='fixed_width_two_line')
+    asc.write(tab2, asc_table2, format='fixed_width_two_line')
     #print tab0
 
     #return test

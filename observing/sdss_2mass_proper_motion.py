@@ -313,6 +313,63 @@ def query_ucac5(c_arr, col_ID, silent=False, verbose=True):
     return ucac_tab
 #enddef
 
+def query_gaia(c_arr, col_ID, silent=False, verbose=True):
+    '''
+    Query GAIA DR2 catalog (Gaia Collaobration, 2018) to get proper
+    motion information
+
+    Parameters
+    ----------
+    c_arr : astropy.coordinates.sky_coordinate.SkyCoord
+      Set of coordinates to cross-match against
+
+    col_ID : astropy.table.column.Column
+      Astropy column containing the ID
+
+    Returns
+    -------
+    gaia_tab : astropy.table.table.Table
+      Vizier table containing all information, including proper motion
+
+    Notes
+    -----
+    Created by Chun Ly, 15 October 2018
+     - Started as copy of query_ucac5()
+    '''
+
+    if silent == False:
+        print '### Begin sdss_2mass_proper_motion.query_gaia() | '+systime()
+
+    n_sources = len(c_arr)
+
+    cnt = 0
+
+    # + on 23/10/2017
+    c_test = coords.SkyCoord(ra=0.0, dec=0.0, unit=u.deg) # This get '_r' column
+    temp   = Vizier.query_region(c_test, radius=10*u.arcmin, catalog='I/345/gai2')
+    gaia_tab = Table(dtype=temp[0].dtype)
+
+    for ii in range(n_sources):
+        tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
+                                   catalog='I/345/gaia2')
+
+        if len(tab0) != 0:
+            gaia_tab = vstack([gaia_tab, tab0[0]])
+            cnt += 1
+        else:
+            gaia_tab.add_row()
+
+    #endfor
+    if silent == False: print '## cnt : ', cnt
+
+    if silent == False:
+        print '### End sdss_2mass_proper_motion.query_gaia() | '+systime()
+
+    gaia_tab.add_column(col_ID, 0) # later + on 25/01/2017
+
+    return gaia_tab
+#enddef
+
 def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, silent=False,
          verbose=True):
     '''

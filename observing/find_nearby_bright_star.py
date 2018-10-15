@@ -1658,7 +1658,7 @@ def zcalbase_gal_mmt_2018b():
 
     import pdfmerge
 
-    path0                   = '/Users/cly/Dropbox/Observing/2018B/MMT/'
+    path0                   = '/Users/cly/Dropbox/Observing/2018B/MMIRS/'
     out_path                = path0 + 'Alignment_Stars/'
     finding_chart_path      = path0 + 'Finding_Charts/'
 

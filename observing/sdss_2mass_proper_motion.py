@@ -335,6 +335,8 @@ def query_gaia(c_arr, col_ID, silent=False, verbose=True):
     -----
     Created by Chun Ly, 15 October 2018
      - Started as copy of query_ucac5()
+    Modified by Chun Ly, 1 October 2018
+     - Fix typo in catalog ID name
     '''
 
     if silent == False:
@@ -346,7 +348,7 @@ def query_gaia(c_arr, col_ID, silent=False, verbose=True):
 
     # + on 23/10/2017
     c_test = coords.SkyCoord(ra=0.0, dec=0.0, unit=u.deg) # This get '_r' column
-    temp   = Vizier.query_region(c_test, radius=10*u.arcmin, catalog='I/345/gai2')
+    temp   = Vizier.query_region(c_test, radius=10*u.arcmin, catalog='I/345/gaia2')
     gaia_tab = Table(dtype=temp[0].dtype)
 
     for ii in range(n_sources):

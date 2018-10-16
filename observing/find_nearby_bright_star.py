@@ -1666,6 +1666,8 @@ def zcalbase_gal_mmt_2018b():
     Notes
     -----
     Created by Chun Ly, 7 October 2018
+    Modified by Chun Ly, 16 October 2018
+     - Use GAIA DR2 instead of UCAC5
     '''
 
     import pdfmerge
@@ -1716,16 +1718,17 @@ def zcalbase_gal_mmt_2018b():
     print '### Reading : ', out_mag_table
     mag_table0 = asc.read(out_mag_table)
 
-    # Run through but use proper motion from UCAC4 or MoVeRS
+    # Run through but use proper motion from GAIA2 or MoVeRS
     do_step3 = 1
     if do_step3:
         # Generate SDSS finding chart with SDSS catalog
-        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.UCAC5.pdf'
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.GAIA2.pdf'
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
-             epoch=2018.87, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True)
+             epoch=2018.87, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
+             GAIA=True)
 
         # Merge PDF finding chart files for 2018B targets
         files = [finding_chart_path+a.replace('*','')+'.SDSS.PMfix.pdf' for
@@ -1737,13 +1740,14 @@ def zcalbase_gal_mmt_2018b():
     do_step4 = 1
     if do_step4:
         # Generate SDSS finding chart with 2MASS catalog with PM
-        pm_out_pdf = path0 + 'sdss_2mass_proper_motion_2MASS.UCAC5.pdf'
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion_2MASS.GAIA2.pdf'
         out_mag_table = out_path + 'Alignment_Stars_2MASS.txt'
         main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
              max_radius=max_radius, mag_limit=19.0, mag_filt='j_m',
              catalog='2MASS', image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=False, sig_min=2.5,
-             epoch=2018.87, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=True)
+             epoch=2018.87, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
+             GAIA=True)
 
         # Merge PDF finding chart files for 2018B targets
         files = [finding_chart_path+a.replace('*','')+'_2MASS_SDSS.pdf' for

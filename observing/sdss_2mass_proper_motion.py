@@ -370,8 +370,8 @@ def query_gaia(c_arr, col_ID, silent=False, verbose=True):
     return gaia_tab
 #enddef
 
-def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, silent=False,
-         verbose=True):
+def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, GAIA=False,
+         silent=False, verbose=True):
     '''
     Main function to determine proper motion based on 2MASS and SDSS
     coordinates
@@ -426,6 +426,8 @@ def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, silent=False
      - Change output file suffix for UCAC5; Update annotation text for UCAC5
     Modified by Chun Ly, 23 October 2017
      - Add outfile1 and outfile2 keyword input option
+    Modified by Chun Ly, 16 October 2018
+     - Add GAIA keyword option; Call query_gaia
     '''
 
     if silent == False:
@@ -473,18 +475,22 @@ def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, silent=False
             movers_tab.write(outfile1, format='ascii.fixed_width_two_line',
                              overwrite=True)
 
-        # Mod on 09/10/2017
-        if UCAC5 == False:
-            ucac_tab = query_ucac4(c_sdss, tab2['ID']) # + on 25/01/2017
+        # Mod on 09/10/2017, 16/10/2018
+        if GAIA == True:
+            ucac_tab = query_gaia(c_sdss, tab2['ID'])
         else:
-            ucac_tab = query_ucac5(c_sdss, tab2['ID'])
-        #print ucac_tab
+            if UCAC5 == False:
+                ucac_tab = query_ucac4(c_sdss, tab2['ID']) # + on 25/01/2017
+            else:
+                ucac_tab = query_ucac5(c_sdss, tab2['ID'])
 
         # + on 25/01/2017. Mod on 09/10/2017
         if outfile2 == '': # Mod on 23/10/2017
             outfile2 = out_path+'Proper_Motions_Alignment_Stars.UCAC4.txt'
-        if UCAC5 == True:
-            outfile2 = outfile2.replace('UCAC4','UCAC5')
+            if UCAC5 == True:
+                outfile2 = outfile2.replace('UCAC4','UCAC5')
+            if GAIA == True:
+                outfile2 = out_path+'Proper_Motions_Alignment_Stars.GAIA2.txt'
 
         if silent == False: print '### Writing : ', outfile2
         ucac_tab.write(outfile2, format='ascii.fixed_width_two_line',

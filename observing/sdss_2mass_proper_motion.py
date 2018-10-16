@@ -428,6 +428,7 @@ def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, GAIA=False,
      - Add outfile1 and outfile2 keyword input option
     Modified by Chun Ly, 16 October 2018
      - Add GAIA keyword option; Call query_gaia
+     - Update annotated strings for GAIA
     '''
 
     if silent == False:
@@ -611,10 +612,14 @@ def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, GAIA=False,
                         (u_pRA,u_e_pRA)+' (UCAC4)\n'
                 s_pDec=r'$\mu_{\delta}$ = %+0.3f$\pm$%0.3f' % \
                         (u_pDec,u_e_pDec)+' (UCAC4)\n'
-                # + on 09/10/2017
-                if UCAC5 == True:
-                    s_pRA  = s_pRA.replace('UCAC4','UCAC5')
-                    s_pDec = s_pDec.replace('UCAC4','UCAC5')
+                if GAIA == False:
+                    # + on 09/10/2017
+                    if UCAC5 == True:
+                        s_pRA  = s_pRA.replace('UCAC4','UCAC5')
+                        s_pDec = s_pDec.replace('UCAC4','UCAC5')
+                else:
+                    s_pRA  = s_pRA.replace('UCAC4','GAIA2')
+                    s_pDec = s_pDec.replace('UCAC4','GAIA2')
             else:
                 s_pRA, s_pDec = '', ''
 

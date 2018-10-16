@@ -698,7 +698,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
          catalog='SDSS', image=None, format0='commented_header',
          slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
          epoch=2000.0, pm_out_pdf=None, sig_min=3.0, MMT=False, UCAC5=False,
-         outfile1='', outfile2='', silent=False, verbose=True):
+         GAIA=False, outfile1='', outfile2='', silent=False, verbose=True):
 
     '''
     Main function to find nearby star
@@ -830,6 +830,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     Modified by Chun Ly, 14 January 2018
      - Bug fix: Handle MoVERS proper motion (check that all targets do not have rather than
        first entry)
+    Modified by Chun Ly, 15 October 2018
+     - Add GAIA keyword
     '''
 
     if silent == False:
@@ -857,10 +859,11 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## idx1 : ', len(idx1)
         data0 = data0[idx1]
 
-        # SDSS-2MASS, MoVeRS, and UCAC4 proper motion catalogs
+        # SDSS-2MASS, MoVeRS, and UCAC5/GAIA proper motion catalogs
         # Mod on 09/10/2017, 23/10/2017
         t_s2, t_movers, t_ucac = pm.main(a_tab0, pm_out_pdf, outfile1=outfile1,
-                                         outfile2=outfile2, UCAC5=UCAC5)
+                                         outfile2=outfile2, UCAC5=UCAC5,
+                                         GAIA=GAIA)
 
         # Adopt a 4-sigma criteria for trusting proper motion
         # Mod on 30/01/2017 to adopt 3-sigma instead
@@ -889,7 +892,13 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             print '### Will use MoVeRS proper motion for the following : '
             print '### : ', t_movers['ID'][m_idx]
         if len(u_idx) > 0:
-            print '### Will use UCAC4 proper motion for the following : '
+            if GAIA == False:
+                if UCAC5 == False:
+                    print '### Will use UCAC4 proper motion for the following : '
+                else:
+                    print '### Will use UCAC5 proper motion for the following : '
+            else:
+                print '### Will use GAIA2 proper motion for the following : '
             print '### : ', t_ucac['ID'][u_idx]
         if len(s2_idx) > 0: # + on 29/01/2017
             print '### Will use SDSS-2MASS proper motion for the following : '
@@ -899,8 +908,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         # Mod on 27/01/2017
         if len(m_idx) > 0: # Mod on 07/07/2017
             m_c0, m_c0_2000   = pm.pm_position(t_movers, epoch)
-        u_c0, u_c0_2000   = pm.pm_position(t_ucac,   epoch)
-        s2_c0, s2_c0_2000 = pm.pm_position(t_s2,     epoch) # + on 29/01/2017
+        u_c0, u_c0_2000   = pm.pm_position(t_ucac, epoch)
+        s2_c0, s2_c0_2000 = pm.pm_position(t_s2,   epoch) # + on 29/01/2017
 
     ID  = data0['ID'].data
     RA  = data0['RA'].data
@@ -1029,12 +1038,15 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                     mag_table['pDec'][0]     = t_ucac['pmDE'][ii]
                     mag_table['e_pRA'][0]    = t_ucac['e_pmRA'][ii]
                     mag_table['e_pDec'][0]   = t_ucac['e_pmDE'][ii]
-                    # Mod on 09/10/2017
-                    if UCAC5 == False:
-                        mag_table['p_source'][0] = 'UCAC4'
+                    if GAIA == False:
+                        # Mod on 09/10/2017
+                        if UCAC5 == False:
+                            mag_table['p_source'][0] = 'UCAC4'
+                        else:
+                            mag_table['p_source'][0] = 'UCAC5'
                     else:
-                        mag_table['p_source'][0] = 'UCAC5'
-
+                        mag_table['p_source'][0] = 'GAIA2'
+                            
             # + on 10/01/2017
             # Mod on 10/10/2017 to work for both SDSS and 2MASS
             name_Col = Column(np.repeat(ID0[ii]+'_off',len(mag_str)),

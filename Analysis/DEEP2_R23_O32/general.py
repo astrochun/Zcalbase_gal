@@ -22,7 +22,7 @@ import glob
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Grid_method_110/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10_1018/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -104,7 +104,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #Option to Change: Masking the night sky emission lines 
         if mask == True:
             Stack_name = 'Stacking_Wave_vs_Spect1D_Masked_MasterGrid_bin'+str(binstr)+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master_mask(fitspath, Stack_name,grid_data)
+            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, Stack_name,grid_data)
         else:
             Stack_name = 'Stacking_Wave_vs_Spect1D_MasterGrid_bin'+str(binstr)+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data)
@@ -168,7 +168,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #print header_combine_fits
         out_ascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
         out_fits = fitspath+ '/Grid_temperatures_metalicity.fits'
-        pdf_name = 'Grid_Temp_Composite_Metallicity'
+        pdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
 
         R_temp_calcul.run_function(fitspath, out_ascii, out_fits, pdf_name, combine_flux_ascii)  #combine_fits, header_combine_fits,
 
@@ -196,7 +196,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         if dataset == 'Voronoi10':
             sn_size = 10
             txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
-            asc_table1 = fitspath+'voronoi10_binning_averages.tbl'
+            asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
             asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
             
         if dataset == 'Voronoi14':
@@ -216,27 +216,28 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #Option to Change: 
         if dataset == "Voronoi10": outfile = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
         if dataset == "Voronoi14": outfile = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
-        
-        voronoi_data = asc.read(outfile)
+        print '### outfile for datadet3: '+outfile
+        voronoi_data = outfile #asc.read(outfile)
         
 
         #Option to Change: Masking the night sky emission lines 
         if mask == True:
             Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master_mask(fitspath, voronoi_data, Stack_name)
+            Stacking_voronoi.run_Stacking_Master_mask(det3, data3, fitspath_ini, fitspath, voronoi_data, asc_table1, Stack_name)
         else:
             Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master(fitspath, voronoi_data, Stack_name)
+            Stacking_voronoi.run_Stacking_Master(det3, data3, fitspath_ini, fitspath, voronoi_data, Stack_name)
 
         #Outfile and pdf both use name
-        print 'finished with stacking,' + Stack_name + 'pdf and fits files created'
+        print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
 
 
 
         #Zoom_and_gauss_general
 
         Stack_name= Stack_name.replace('.pdf', '.fits')
-        outfile_voronoi = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi14_104/' + Stack_name
+        #outfile_voronoi = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi14_1011/' + Stack_name
+        outfile_voronoi = fitspath+ Stack_name
         #stack2D, header = fits.open(outfile_voronoi, ignore_missing_end = True)
         stack2D, header = fits.getdata(outfile_voronoi,header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
@@ -249,12 +250,13 @@ def run_R23_O32_analysis(dataset,mask='None'):
             if len(idx) > 0:
                 lineflag[idx] = 1
 
-        if dataset == 'Voronoi10':
-            tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_10.tbl'
-            #asc_tab = asc.read(tab)
-        else: 
+        #tab = asc_table1
+        '''if dataset == 'Voronoi10':
             tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
             #asc_tab = asc.read(tab)
+        else: 
+            tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_10.tbl'
+            #asc_tab = asc.read(tab)'''
             
         #Option to change: Constants used as initial guesses for gaussian fit
         s=1.0
@@ -265,8 +267,8 @@ def run_R23_O32_analysis(dataset,mask='None'):
         a1= 4.7
         s2 = 1
         a2 = -1.8
-
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, Spect_1D, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab)
+        #print 'tab='+ tab
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, Spect_1D, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
         print 'finished gaussian emission fitting pdf and tables created'
 
@@ -275,8 +277,9 @@ def run_R23_O32_analysis(dataset,mask='None'):
         intro = fitspath + dataset+'_Average_R23_O32_Values.tbl'
         asc_intro = asc.read(intro)
         table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl' )
-        combine_flux_fits = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'+dataset+'_combined_flux_table.fits'
-        combine_flux_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'+dataset+'_combined_flux_table.tbl'
+        combine_flux_fits = fitspath+dataset+'_combined_flux_table.fits'
+        combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
+        print combine_flux_ascii
         hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
 
         print dataset+'_combine_flux_table created'
@@ -292,7 +295,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #combine_fits = fits.getdata(combine_flux_ascii, header = True)
         out_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
         out_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
-        pdf_name = dataset+'_Temp_Composite_Metallicity'
+        pdf_name = dataset+'_Temp_Composite_Metallicity.pdf'
 
         R_temp_calcul.run_function(fitspath, out_ascii, out_fits, pdf_name, combine_flux_ascii)
 

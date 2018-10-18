@@ -18,11 +18,11 @@ from astropy.table import vstack, hstack
 
 #fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
-tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
+'''tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
 tab1= '/Users/reagenleimbach/Desktop/Zcalbase_gal/voronoi_2d_binning_output_14.tbl'
 asc_tab = asc.read(tab)
 
-voronoi = asc.read(tab1)
+voronoi = asc.read(tab1)'''
 
 '''outfilevoronoi = '/Users/reagenleimbach/Desktop/Zcalbase_gal/New_voronoi_2d_binning_output.txt'
 voronoi = np.loadtxt(outfilevoronoi)
@@ -39,18 +39,19 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     return smooth
 
 
-def Master_Stacking(fitspath, voronoi_data, wave, image2D, name, header, mask= None):
+def Master_Stacking(fitspath, voronoi_data, asc_table1, wave, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
     
-
+    voronoi_data = asc.read(voronoi_data)
+    asc_tab = asc.read(asc_table1)
     #image2D = np.array(image2DM)
     image2DM = np.nan_to_num(image2D) 
     
     if mask !=None:
         image2DM = np.ma.masked_array(image2DM, mask)       
 
-    last_column = voronoi['N_bin'].data
-    print last_column
+    last_column = voronoi_data['N_bin'].data
+    print last_column, len(last_column)
     n_bins = np.max(last_column)     #np.max(voronoi[]))
     #n_bins = 14
     print 'n_bins:', n_bins   #this should print out as 13 not 1
@@ -61,7 +62,7 @@ def Master_Stacking(fitspath, voronoi_data, wave, image2D, name, header, mask= N
         stack_2d = fits.getdata(outfile)
         
     for rr in xrange(n_bins+1): #n_bins+1 looping over bins starting at bin #0 
-        #print rr, stack_2d.shape
+        print rr, stack_2d.shape
         index= np.where(last_column== rr)[0]   
         subgrid= image2DM[index]
 
@@ -165,11 +166,11 @@ def Master_Stacking(fitspath, voronoi_data, wave, image2D, name, header, mask= N
    
     
 #Function that runs Master_Stacking and calls necessary inputs (including mask)
-def run_Stacking_Master_mask(fitspath,voronoi_data, Stack_name):
-    '''image2DM, header = fits.getdata(RestframeMaster, header=True)
+def run_Stacking_Master_mask(det3, data3, fitspath_ini, fitspath,voronoi_data, asc_table1, Stack_name):
+    image2DM, header = fits.getdata(RestframeMaster, header=True)
     #det3, data3 = general.get_det3()
     for ii in range(1,5):
-        file1 = fitspath+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
+        file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
         data  = Table(fits.getdata(file1))
         if ii == 1:
             data0 = data
@@ -186,7 +187,7 @@ def run_Stacking_Master_mask(fitspath,voronoi_data, Stack_name):
     SNRH = data0['HB_SNR']
     #SNR code: This rules out major outliers by only using specified data
     det3 = np.where((SNR2 >= 3) & (SNR3 >= 3) & (SNRH >= 3) &
-                    (O2 > 0) & (O3 > 0) & (Hb>0))[0]'''
+                    (O2 > 0) & (O3 > 0) & (Hb>0))[0]
 
 
     data3 = data0[det3]
@@ -196,16 +197,16 @@ def run_Stacking_Master_mask(fitspath,voronoi_data, Stack_name):
     print len(image2D)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     name = 'Stacking_Voronoi_14_masked_output.pdf'
-    maskM = fits.getdata(fitspath+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits')
+    maskM = fits.getdata(fitspath_ini+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits')
     mask= maskM[det3]
-    MasterStack0 = Master_Stacking(fitspath, voronoi_data, wavemaster, image2D, Stack_name, header, mask=mask)
+    MasterStack0 = Master_Stacking(fitspath, voronoi_data, asc_table1, wavemaster, image2D, Stack_name, header, mask=mask)
 
 #Function that runs Master_Stacking and calls necessary inputs (without mask)    
 def run_Stacking_Master(fitspath,voronoi_data, Stack_name):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     #name = 'Stacking_Voronoi_14_output.pdf'
-    MasterStack0 = Master_Stacking(fitspath, voronoi_data, wavemaster, image2DM, Stack_name, header, mask=None)
+    MasterStack0 = Master_Stacking(fitspath, voronoi_data, asc_table1, wavemaster, image2DM, Stack_name, header, mask=None)
     
 
 #Plotting Zoomed in on 4363

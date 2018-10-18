@@ -194,6 +194,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     if outpdf == '':
         name = 'Stacking_Voronoi_Zoomed_Gauss_generalexperiment.pdf'
         outpdf = fitspath + name'''
+    print 'tab='+tab
     if dataset != 'Grid': asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
     nrows = 4
@@ -208,6 +209,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     print narr_gr, type(narr_gr)
     print rarr_gr, type(rarr_gr)
     print oarr_gr, type(oarr_gr)'''
+
     #Initializing Arrays
     if dataset == 'Grid':
         flux_g_array = np.zeros(Spect_1D.shape[0])
@@ -221,17 +223,26 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
         
         outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
         grid_data = np.load(outfile025)
-
+       
         N_arr_grid = grid_data['N_arr0']
         R23_grid = grid_data['R23_grid']
         O32_grid = grid_data['O32_grid']
+        #Attempt 1
         for rr in range(len(R23_grid)):
             for oo in range(len(O32_grid)):
                 R_23_array = R23_grid[rr]
                 O_32_array = O32_grid[oo]
                 index= grid_data['T_arr'][rr,oo]
                 N_gal_array = len(index)
-                print R_23_array, O_32_array, N_gal_array  #3 dimensional array 
+                print R_23_array, O_32_array, N_gal_array  #3 dimensional array
+
+        #Attempt 2
+        data = np.zeros(110,3)
+        for rr in range(len(R23_grid)):
+            for oo in range(len(O32_grid)): 
+                data0 = np.array([R23_grid[rr], O32_grid[oo], N_arr_grid[rr,oo]])
+                
+                print data
     else: 
         flux_g_array = np.zeros(Spect_1D.shape[0])
         flux_s_array = np.zeros(Spect_1D.shape[0])

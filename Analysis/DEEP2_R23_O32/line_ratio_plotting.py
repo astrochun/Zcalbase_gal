@@ -19,7 +19,7 @@ import scipy.integrate as integ
 
 import general
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi14_104/'
+#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi14_104/'
 
 
 
@@ -61,18 +61,24 @@ O32_raw_voronoi = data0['O_32_Average']
 spectral = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Grid_method/grid_combined_flux_table.tbl'
 data1 = asc.read(spectral)'''
 
-def Plotting_Data1(fitspath, combine_flux_ascii, asc_table1, dataset):
+def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
+    
     line_plot = fitspath +dataset+'_line_ratio_plots.pdf'
+    
+    #combine_flux_ascii = fitspath+dataset#+'_combined_flux_table.tbl'
+    print "### combine_flux_ascii : "+combine_flux_ascii 
     fitted_data = asc.read(combine_flux_ascii)
-    if dataset != 'Grid': raw_data = asc.read(asc_table1)
-    if dataset == 'Grid': raw_data = np.load(asc_table1)
 
+    print "### asc_table1 : "+asc_table1
+    if dataset == 'Grid': raw_data = np.load(asc_table1)
+    else: raw_data = asc.read(asc_table1)
+    
     OII = fitted_data['OII_3727_Flux_Observed']
     OIII4959 = fitted_data['OIII_4958_Flux_Observed']
     OIII5007 = fitted_data['OIII_5007_Flux_Observed']
     H_BETA = fitted_data['HBETA_Flux_Observed']
     binnum = fitted_data['N_Galaxies']
-
+    print 'binnum:', binnum, len(binnum)
     pdf_pages = PdfPages(line_plot)
     nrows = 4
     ncols = 4
@@ -103,6 +109,7 @@ def Plotting_Data1(fitspath, combine_flux_ascii, asc_table1, dataset):
         R23_raw = raw_data['xBar']
         O32_raw = raw_data['yBar']
         binnum_raw = raw_data['area']
+        print 'binnum_raw', binnum_raw, len(binnum_raw) 
     #for aa in range(len(binnum)+1): print R23_raw[aa], O32_raw[aa]#, binnum_raw[aa]
 
     if dataset != 'Grid':
@@ -111,16 +118,16 @@ def Plotting_Data1(fitspath, combine_flux_ascii, asc_table1, dataset):
                 print 'equal',binnum[rr], binnum_raw[rr]
             #print 'R23 composite vs raw' R23_composite[rr], R23_raw[rr]
             #print 'O32 composite vs raw' O32_composite[rr], O32_raw[rr]
-            else: print binnum +'and'+ binnum_raw +'not equal'
+            #else: print binnum,  binnum_raw +'not equal...NOOOOO'
         
     #R23= np.log10(R23_composite/R23_raw)
     #O32= np.log10(O32_composite/O32_raw)
-
+    print 'R23_raw: as calculated by the grid or voronoi code', R23_raw, 'O32_raw: as calculated by the grid or voronoi code', O32_raw
+    print 'R23_composite: as calculated from observations', R23_composite, 'O32_composite: as calculated from observations', O32_composite 
     fig, ax_arr = plt.subplots()
     ax_arr.scatter(R23_raw,R23_composite, marker= 'o', facecolor= 'none', edgecolor ='b',label= 'R23 Ratio: Vornoi Raw vs. Composite')
-    #ax_arr.scatter(R23_original,R23_composite, marker= 'o', facecolor= 'none', edgecolor ='g',label= 'R23 Ratio: Line Averaged vs. Composite')
-    #ax_arr.scatter(R23_raw_voronoi, R23_original, marker= 'o', facecolor= 'none', edgecolor ='r',label= 'R23 Ratio: Vornoi Average vs. Line Averaged')
     ax_arr.legend(loc=0)
+    ax_arr.set_title('Vornoi Raw vs. Composite for R23')
     #for rr in range(len(data1)):
         #if binnum[rr] <= 30: ax_arr.annotate(str(binnum[rr]), (R23_raw_voronoi[rr],R23_composite[rr]), xycoords='data')
     ax_arr.set_xlabel(r'Raw log($R_{23}$)')
@@ -134,9 +141,8 @@ def Plotting_Data1(fitspath, combine_flux_ascii, asc_table1, dataset):
 
     fig, ax_arr = plt.subplots()
     ax_arr.scatter(O32_raw,O32_composite, marker= 'o', facecolor= 'none', edgecolor ='b', label= 'O32 Ratio: Vornoi Raw vs. Composite')
-    #ax_arr.scatter(O32_original,O32_composite, marker= 'o', facecolor= 'none', edgecolor ='g',label= 'O32 Ratio: Line Averaged vs. Composite')
-    #ax_arr.scatter(O32_raw_voronoi, O32_original, marker= 'o', facecolor= 'none', edgecolor ='r', label= 'O32 Ratio: Vornoi Average vs. Line Averaged')
     ax_arr.legend(loc=0)
+    ax_arr.set_title('Vornoi Raw vs. Composite for O32')
     #for oo in range(len(data1)):
         #if binnum[oo] <= 30: ax_arr.annotate(str(binnum[oo]), (O32_raw_voronoi[oo],O32_composite[oo]), xycoords='data')
         

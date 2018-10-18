@@ -1,3 +1,5 @@
+#Voronoi Plot option is line 685: currently commented out
+
 """
 #####################################################################
 
@@ -678,15 +680,15 @@ def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
         print('Fractional S/N scatter (%):', np.std(sn[~w] - targetSN, ddof=1)/targetSN*100)
         print('Elapsed time: %.2f seconds' % (clock() - t))
     
-    if plot:
+    '''if plot:
         plt.clf()
         plt.subplot(211)
         rnd = np.argsort(np.random.random(xnode.size))  # Randomize bin colors
-        _display_pixels(x, y, rnd[classe], pixelsize)
-        plt.plot(xnode, ynode, '+w', scalex=False, scaley=False) # do not rescale after imshow()
-        plt.xlabel('R (arcsec)')
-        plt.ylabel('R (arcsec)')
-        plt.title('Map of Voronoi bins')
+        #_display_pixels(x, y, rnd[classe], pixelsize)
+        #plt.plot(xnode, ynode, '+w', scalex=False, scaley=False) # do not rescale after imshow()
+        #plt.xlabel('R (arcsec)')
+        #plt.ylabel('R (arcsec)')
+        #plt.title('Map of Voronoi bins')
 
         plt.subplot(212)
         rad = np.sqrt(xBar**2 + yBar**2)  # Use centroids, NOT generators
@@ -698,7 +700,7 @@ def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
             plt.plot(rad[w], sn[w], 'xb', label='single spaxels')
         plt.axhline(targetSN)
         plt.legend()
-        plt.pause(1)  # allow plot to appear in certain cases
+        plt.pause(1)  # allow plot to appear in certain cases'''
 
     print('classe : ',classe)
     print('xnode: ',xnode)

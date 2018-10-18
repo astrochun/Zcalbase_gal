@@ -195,15 +195,15 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     ax3.scatter(R23_composite, com_O_log, marker = '.')
     ax3.set_xlabel('R23')
     ax3.set_ylabel('12+log(O/H) Te')
-    #ax2.set_title('Insert Title')
+    ax3.set_title('R23 vs. Composite Metalicity')
     #ax2.set_xlim(1000,21500)
     pdf_pages.savefig()
 
-    fig3, ax4 = plt.subplots()
+    fig4, ax4 = plt.subplots()
     ax4.scatter(O32_composite, com_O_log, marker = '.')
     ax4.set_xlabel('O32')
     ax4.set_ylabel('12+log(O/H) Te')
-    #ax2.set_title('Insert Title')
+    ax4.set_title('O32 vs. Composite Metalicity')
     #ax2.set_xlim(1000,21500)
     pdf_pages.savefig()
     

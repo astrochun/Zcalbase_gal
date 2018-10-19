@@ -22,7 +22,7 @@ import glob
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10_1018/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Gridmethod_1018/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -104,7 +104,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #Option to Change: Masking the night sky emission lines 
         if mask == True:
             Stack_name = 'Stacking_Wave_vs_Spect1D_Masked_MasterGrid_bin'+str(binstr)+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, Stack_name,grid_data)
+            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, dataset, Stack_name,grid_data)
         else:
             Stack_name = 'Stacking_Wave_vs_Spect1D_MasterGrid_bin'+str(binstr)+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data)
@@ -123,7 +123,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         Spect_1D = fits.getdata(outfile_grid)
         dispersion = header['CDELT1']
-
+        out_ascii = fitspath+'/'+dataset+'binning_averages.tbl'
 
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   
@@ -140,7 +140,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         s2 = 1
         a2 = -1.8
 
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, Spect_1D, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,outfile025)#, N_gal_array=N_arr_grid, R_23_array=R23_grid, O_32_array=O32_grid)
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, Spect_1D, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,out_ascii)#, N_gal_array=N_arr_grid, R_23_array=R23_grid, O_32_array=O32_grid)
 
         print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
 
@@ -157,7 +157,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         
         #line_ratio_plotting
         #I need to go back through and figure out what is the average and what is the composite
-        line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, outfile025)
+        line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, out_ascii)
 
         print "got through"
 

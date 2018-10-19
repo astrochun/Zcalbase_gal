@@ -195,7 +195,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
         name = 'Stacking_Voronoi_Zoomed_Gauss_generalexperiment.pdf'
         outpdf = fitspath + name'''
     print 'tab='+tab
-    if dataset != 'Grid': asc_tab = asc.read(tab)
+    asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
     nrows = 4
     ncols = 4
@@ -219,9 +219,12 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
         norm_array = np.zeros(Spect_1D.shape[0])
         RMS_array = np.zeros(Spect_1D.shape[0])
         SN_array = np.zeros(Spect_1D.shape[0])
+        N_gal_array = np.zeros(Spect_1D.shape[0])
+        R_23_array = np.zeros(Spect_1D.shape[0])
+        O_32_array = np.zeros(Spect_1D.shape[0])
 
         
-        outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
+        '''outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
         grid_data = np.load(outfile025)
        
         N_arr_grid = grid_data['N_arr0']
@@ -242,7 +245,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             for oo in range(len(O32_grid)): 
                 data0 = np.array([R23_grid[rr], O32_grid[oo], N_arr_grid[rr,oo]])
                 
-                print data
+                print data'''
     else: 
         flux_g_array = np.zeros(Spect_1D.shape[0])
         flux_s_array = np.zeros(Spect_1D.shape[0])
@@ -334,15 +337,15 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             norm_array[rr] = max0
             RMS_array[rr] = ini_sig1
             SN_array[rr] = (flux_s/ini_sig1)
-            if dataset == 'Grid': 
+            #if dataset == 'Grid': 
                 
-                N_gal_array[rr] = narr_gr[rr]    # asc_tab['area'][rr]
-                R_23_array[rr] = rarr_gr[rr]            #asc_tab['xBar'][rr]
-                O_32_array[rr] = oarr_gr[rr]     #asc_tab['yBar'][rr]'''
-            if dataset != 'Grid':
-                N_gal_array[rr] = asc_tab['area'][rr]
-                R_23_array[rr] = asc_tab['xBar'][rr]
-                O_32_array[rr] = asc_tab['yBar'][rr]
+                #N_gal_array[rr] = narr_gr[rr]    # asc_tab['area'][rr]
+                #R_23_array[rr] = rarr_gr[rr]            #asc_tab['xBar'][rr]
+                #O_32_array[rr] = oarr_gr[rr]     #asc_tab['yBar'][rr]
+            #if dataset != 'Grid':
+            N_gal_array[rr] = asc_tab['area'][rr]
+            R_23_array[rr] = asc_tab['xBar'][rr]
+            O_32_array[rr] = asc_tab['yBar'][rr]
                 
             #R_23_array[rr] = asc_tab['xBar'][rr]
             #O_32_array[rr] = asc_tab['yBar'][rr]

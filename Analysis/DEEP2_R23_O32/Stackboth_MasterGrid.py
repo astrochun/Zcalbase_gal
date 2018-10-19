@@ -16,6 +16,8 @@ from matplotlib.gridspec import GridSpec
 from pylab import subplots_adjust
 from astropy.convolution import Box1DKernel, convolve
 
+import general
+
 #fitspath='/astrochun/Zcalbase_gal/Analysis/DEEP2_R23_O32/'
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
@@ -35,9 +37,10 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
     return smooth
 
-def Master_Stacking(fitspath, wave, grid_data, image2D, name, header, mask= None):
+def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
-    
+
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3= general.get_det3()
     R23_grid = grid_data['R23_grid']
     O32_grid = grid_data['O32_grid']
     #print len(grid_data['T_arr'][:,0])
@@ -56,14 +59,26 @@ def Master_Stacking(fitspath, wave, grid_data, image2D, name, header, mask= None
     else:
         #print 'reading ', outfile
         stack_2d = fits.getdata(outfile)
-        
+
+    avg_R23 = np.zeros(len(R23_grid)*len(O32_grid))
+    avg_O32 = np.zeros(len(R23_grid)*len(O32_grid))
+    R23_node = np.zeros(len(R23_grid)*len(O32_grid))
+    O32_node = np.zeros(len(R23_grid)*len(O32_grid))
+    N_gal = np.zeros(len(R23_grid)*len(O32_grid))
     count = 0
     for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
             index= grid_data['T_arr'][rr,oo]
-            if len(index) >10:   
+            
+            
+            if len(index) >10:
+                R23_node[count] = R23_grid[rr]
+                O32_node[count] = O32_grid[oo]
+                avg_R23[count]  = np.average(np.log10(R23)[index])
+                avg_O32[count]  = np.average(np.log10(O32)[index])
+                N_gal[count] = len(index)
                 subgrid= image2DM[index]
-
+                
                 if exists(outfile):
                     Spect1D = stack_2d[count]
                 else:
@@ -149,15 +164,23 @@ def Master_Stacking(fitspath, wave, grid_data, image2D, name, header, mask= None
         #print len(i_x), len(i_y)
         #stack_2d[i_x,i_y] = np.nan
     fits.writeto(fitspath+outfile, stack_2d[0:count], header, overwrite= True)
-    
 
+    #Writing Ascii Tables and Fits Tables
+    out_ascii = fitspath+'/'+dataset+'binning_averages.tbl'
+    
+    n=  ('xnode', 'ynode', 'xBar', 'yBar', 'area')
+    tab0 = Table([R23_node, O32_node,avg_R23,avg_O32, N_gal], names=n)
+    asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
+        #fits.writeto(out_fits, tab0)
+
+        
 #print('Starting MasterGrid')
-def run_Stacking_Master_mask(fitspath, name,grid_data):
+def run_Stacking_Master_mask(det3, data3, fitspath,dataset, name,grid_data):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     #name = 'Stacking_Wave_vs_Spect1D_Masked_MasterGrid_Average_bin025.pdf'
     maskM = fits.getdata(fitspath_ini+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits') 
-    MasterStack0 = Master_Stacking(fitspath, wavemaster, grid_data,image2DM, name, header, mask=maskM)
+    MasterStack0 = Master_Stacking(fitspath,dataset, wavemaster, grid_data,image2DM, name, header, mask=maskM)
     
 def run_Stacking_Master(fitspath, name,grid_data):
     image2DM, header = fits.getdata(RestframeMaster, header=True)

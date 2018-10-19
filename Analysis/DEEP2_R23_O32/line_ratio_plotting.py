@@ -70,8 +70,7 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     fitted_data = asc.read(combine_flux_ascii)
 
     print "### asc_table1 : "+asc_table1
-    if dataset == 'Grid': raw_data = np.load(asc_table1)
-    else: raw_data = asc.read(asc_table1)
+    raw_data = asc.read(asc_table1)
     
     OII = fitted_data['OII_3727_Flux_Observed']
     OIII4959 = fitted_data['OIII_4958_Flux_Observed']
@@ -91,25 +90,11 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
         print R23_comp, O32_comp
         R23_composite[ii]= R23_comp
         O32_composite[ii]= O32_comp
-
-    if dataset == 'Grid':
-
-        R23_raw = np.zeros(binnum.shape[0])
-        O32_raw = np.zeros(binnum.shape[0])
-        for xx in range(len(R23_raw)):
-            for oo in range(len(O32_raw)):
-                R23_ra = raw_data['R23_grid'][xx,oo]
-                O32_ra = raw_data['O32_grid'][xx,oo]
-                print R23_raw, O32_raw
-                R23_raw[xx]= R23_ra
-                O32_raw[xx]= O32_ra
-                binnum_raw = raw_data['N_arr0'][xx,oo]
-                print binnum_raw
-    else: 
-        R23_raw = raw_data['xBar']
-        O32_raw = raw_data['yBar']
-        binnum_raw = raw_data['area']
-        print 'binnum_raw', binnum_raw, len(binnum_raw) 
+    
+    R23_raw = raw_data['xBar']
+    O32_raw = raw_data['yBar']
+    binnum_raw = raw_data['area']
+    print 'binnum_raw', binnum_raw, len(binnum_raw) 
     #for aa in range(len(binnum)+1): print R23_raw[aa], O32_raw[aa]#, binnum_raw[aa]
 
     if dataset != 'Grid':
@@ -127,7 +112,7 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     fig, ax_arr = plt.subplots()
     ax_arr.scatter(R23_raw,R23_composite, marker= 'o', facecolor= 'none', edgecolor ='b',label= 'R23 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
-    ax_arr.set_title('Vornoi Raw vs. Composite for R23')
+    ax_arr.set_title(dataset+' Raw vs. Composite for R23')
     #for rr in range(len(data1)):
         #if binnum[rr] <= 30: ax_arr.annotate(str(binnum[rr]), (R23_raw_voronoi[rr],R23_composite[rr]), xycoords='data')
     ax_arr.set_xlabel(r'Raw log($R_{23}$)')
@@ -142,7 +127,7 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     fig, ax_arr = plt.subplots()
     ax_arr.scatter(O32_raw,O32_composite, marker= 'o', facecolor= 'none', edgecolor ='b', label= 'O32 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
-    ax_arr.set_title('Vornoi Raw vs. Composite for O32')
+    ax_arr.set_title(dataset+'Raw vs. Composite for O32')
     #for oo in range(len(data1)):
         #if binnum[oo] <= 30: ax_arr.annotate(str(binnum[oo]), (O32_raw_voronoi[oo],O32_composite[oo]), xycoords='data')
         

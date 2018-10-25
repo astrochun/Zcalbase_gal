@@ -78,7 +78,7 @@ def color_for_bin():
 
 
 def R23vsO32_plot():
-    pdf_name= 'R23vsO32_color.pdf'
+    pdf_name= 'R23vsO32_color_comandavg.pdf'
     pdf_pages = PdfPages(fitspath+pdf_name)
 
     #logR23 = asc_table['log(R23)']
@@ -86,6 +86,10 @@ def R23vsO32_plot():
 
     com_O_log= temp_table['com_O_log']
     temp = temp_table['Temperature']
+    R23_com = temp_table['R23_Composite']
+    O32_com = temp_table['O32_Composite']
+    n_gal = temp_table['N_Galaxies']
+    
     print com_O_log
     
     xBar = asc_table1['xBar']
@@ -101,8 +105,13 @@ def R23vsO32_plot():
     print 'min, max, c: ', vmin, vmax, c
     #scat= plt.scatter(logR23, logO32, c= logR23, vmin= min(logR23), vmax = max(logR23), marker ='.', cmap =cm )
     scat= plt.scatter(xBar, yBar, c= c, vmin= vmin, vmax =vmax , marker ='.', cmap =cm )
+    scat_com = plt.scatter(R23_com, O32_com, c= c, vmin= vmin, vmax =vmax , marker ='*', cmap =cm )
     cax = plt.axes([0.9,0.15, 0.8, 0.75])
     cbar = plt.colorbar(scat, cax=cax, orientation= 'vertical', label = 'Oxygen Abundance')
+    for rr in range(len(n_gal)):
+        ax1.annotate(str(n_gal[rr]), (xBar[rr],yBar[rr]), xycoords='data', fontsize= 5)
+    for oo in range(len(n_gal)):
+        ax1.annotate(str(n_gal[oo]), (R23_com[oo],O32_com[oo]), xycoords='data', fontsize= 5, fontweight='bold')
     ax1.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for DEEP2')
     ax1.set_xlabel(r'log($R_{23}$)')
     ax1.set_ylabel(r'log($O_{32}$)')

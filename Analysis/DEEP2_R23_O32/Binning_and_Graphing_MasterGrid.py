@@ -71,8 +71,8 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
 
     #Plotting
     label0 = 'Field = data0[det3], N='+str(len(det3))
-    x = np.log10(R23[det3])
-    y = np.log10(O32[det3])
+    x = np.log10(R23)
+    y = np.log10(O32)
     finite0 = np.where((np.isfinite(x)) & (np.isfinite(y)))[0]
     x = x[finite0]
     y = y[finite0]

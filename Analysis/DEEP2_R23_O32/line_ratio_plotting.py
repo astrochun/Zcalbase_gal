@@ -144,7 +144,7 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
 
 
 
-
+####The rest of this code is not fully developed###
 #RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
 def average_vals_bin2(): 

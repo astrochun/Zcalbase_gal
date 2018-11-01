@@ -171,12 +171,23 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
  
         tab0.write(out_fits,format = 'fits')
 
+
+    B_com_R23, BR23, B_com_O32, BO32 = R23_O32_relations_BIAN()
+
     #Plots
     #name = 'Grid_temperature_vs_R23.pdf'
     pdf_pages = PdfPages(fitspath+pdf_name)
-
+    color_len = len(R23_composite)
+    
+    color_arr = plt.cm.get_cmap('rainbow')
+    #color_arr = [b,g,y]
+    #for i in range(len(R23_composite)):
+        #color_arr[i]= cmap[i]
+    #print 'color_arr', color_arr
+    #print len(color_arr)
+    #print color_len
     fig1, ax1 = plt.subplots()
-    ax1.scatter(T_e, R23_composite, marker = '.')
+    ax1.scatter(T_e, R23_composite, marker = '.')#, color=color_arr[kk])
     ax1.set_xlabel('Temperature (K)')
     ax1.set_ylabel('R_23')
     ax1.set_title('Temperatures_vs_R23')
@@ -196,6 +207,7 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     ax3.set_xlabel('R23')
     ax3.set_ylabel('12+log(O/H) Te')
     ax3.set_title('R23 vs. Composite Metalicity')
+    ax3.plot(BR23,B_com_R23, 'k')
     #ax2.set_xlim(1000,21500)
     pdf_pages.savefig()
 
@@ -204,6 +216,7 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     ax4.set_xlabel('O32')
     ax4.set_ylabel('12+log(O/H) Te')
     ax4.set_title('O32 vs. Composite Metalicity')
+    ax4.plot(BO32, B_com_O32, 'k')
     #ax2.set_xlim(1000,21500)
     pdf_pages.savefig()
     
@@ -233,6 +246,24 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     
    
 
+def R23_O32_relations_BIAN():
+    x =np.zeros(100)
+    y =np.zeros(100)
+    for a in range(5,11,100):
+        c = 138.0430 - 54.8284*a + 7.2954*(a^2) -0.32293*(a^3)
+        x[a] = a #np.append(x,a)
+        y[a] = c #np.append(y,c)
+    t = np.zeros(100)
+    z = np.zeros(100)
+    for b in range(-1,1,100):
+        d = 8.54 - 0.59*b
+        t[b] = b #np.append(t,b)
+        z[b] = d #np.append(z,d)
+    print x, y, t, z
+
+    return x, y, t, z 
+
+'''We will adopt a S/N of 3.  So if you get S/N < 3, you should automatically fix the 4363 flux to the 3-sigma limit.  We can use H-gamma to get the line width to determine how many pixels.'''
 #log(O/H)
 #error propagation
 '''we have a flux and an sigma flux = flux/signa to noise
@@ -242,3 +273,36 @@ propagation distrubution function... monticarlo'''
 
 
 #Plot O/H values and try the linear plots on the voronoi 14 values 
+
+
+def color_dict(gradient):
+  ''' Takes in a list of RGB sub-lists and returns dictionary of
+    colors in RGB and hex form for use in a graphing function
+    defined later on '''
+  return {"hex":[RGB_to_hex(RGB) for RGB in gradient],
+      "r":[RGB[0] for RGB in gradient],
+      "g":[RGB[1] for RGB in gradient],
+      "b":[RGB[2] for RGB in gradient]}
+
+
+def linear_gradient(start_hex, finish_hex="#FFFFFF", n=10):
+  ''' returns a gradient list of (n) colors between
+    two hex colors. start_hex and finish_hex
+    should be the full six-digit color string,
+    inlcuding the number sign ("#FFFFFF") '''
+  # Starting and ending colors in RGB form
+  s = hex_to_RGB(start_hex)
+  f = hex_to_RGB(finish_hex)
+  # Initilize a list of the output colors with the starting color
+  RGB_list = [s]
+  # Calcuate a color at each evenly spaced value of t from 1 to n
+  for t in range(1, n):
+    # Interpolate RGB vector for color at the current value of t
+    curr_vector = [
+      int(s[j] + (float(t)/(n-1))*(f[j]-s[j]))
+      for j in range(3)
+    ]
+    # Add it to our list of output colors
+    RGB_list.append(curr_vector)
+
+  return color_dict(RGB_list)

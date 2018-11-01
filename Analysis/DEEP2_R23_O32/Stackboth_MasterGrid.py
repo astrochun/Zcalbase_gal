@@ -65,11 +65,12 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     R23_node = np.zeros(len(R23_grid)*len(O32_grid))
     O32_node = np.zeros(len(R23_grid)*len(O32_grid))
     N_gal = np.zeros(len(R23_grid)*len(O32_grid))
+    #color_arr = np.zeros(len(R23_grid)*len(O32_grid))
     count = 0
     for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
             index= grid_data['T_arr'][rr,oo]
-            
+            print 'rr, oo, T_arr', rr, oo, index
             
             if len(index) >10:
                 R23_node[count] = R23_grid[rr]
@@ -78,6 +79,11 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
                 avg_O32[count]  = np.average(np.log10(O32)[index])
                 N_gal[count] = len(index)
                 subgrid= image2DM[index]
+
+                #if avg_R23[count] < 0.50 : color= float(g) #plt.cm.get_cmap('Greens')
+                #if 0.50<= avg_R23[count] < 0.90 : color= float(b)  #plt.cm.get_cmap('Blues')
+                #if 0.90 <= avg_R23[count] : color= float(r) #plt.cm.get_cmap('Reds')
+                #color_arr[count] = color
                 
                 if exists(outfile):
                     Spect1D = stack_2d[count]

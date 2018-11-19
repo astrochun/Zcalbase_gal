@@ -22,16 +22,17 @@ import glob
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Gridmethod_1029/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10_1119/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 
-lambda0 =[3726.16, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4363.21, 4861.32, 4958.91, 5006.84]
- 
-line_type = ['Oxy2', 'Balmer', 'Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer', 'Single', 'Single']
+lambda0 =[3726.16, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  #, '4101.73, 4363.21, 4861.32']
+        #[3726.16, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4363.21, 4861.32, 4958.91, 5006.84]
 
-line_name = ['OII_3727','H_9','NeIII','HeI','HEPSIL', 'HDELTA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']   # 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730'] #'H_10' line not fitted because the 'x0 is infeasible' error occurred. In future go back and change para_bounds so that the line canbe fit  4340.46; this is the reason why we have two lists of xcoor and lambda0
+line_type = ['Oxy2', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single', 'Balmer', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single']
+
+line_name = ['OII_3727','H_10', 'H_9','NeIII','Hzeta','HeI','3967', 'HEPSIL', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']   # 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730'] #'H_10' line not fitted because the 'x0 is infeasible' error occurred. In future go back and change para_bounds so that the line canbe fit  4340.46; this is the reason why we have two lists of xcoor and lambda0
 
 def exclude_outliers(objno):
     flag = np.zeros(len(objno), dtype=int)
@@ -235,10 +236,6 @@ def run_R23_O32_analysis(dataset,mask='None'):
             asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
             asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
 
-        #txt_file has the rR32 =R32[det3], rO32 = O32[det3]
-        #asc_table1 has xnode,ynode,xBar,yBar is what line_plotting data considers the raw data
-        #asc_table2 has rR23, rO32, and logs 
-
         adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
 
 
@@ -253,10 +250,10 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #Option to Change: Masking the night sky emission lines 
         if mask == True:
             Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master_mask(det3, data3, fitspath_ini, fitspath, voronoi_data, asc_table1, Stack_name)
+            Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data,det3, asc_table1, Stack_name)
         else:
             Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master(det3, data3, fitspath_ini, fitspath, voronoi_data, Stack_name)
+            Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data,det3, Stack_name)
 
         #Outfile and pdf both use name
         print 'finished with stacking,' + Stack_name + ' pdf and fits files created'

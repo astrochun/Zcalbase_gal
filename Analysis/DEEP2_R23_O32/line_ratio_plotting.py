@@ -119,7 +119,6 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     ax_arr.set_ylabel(r'Composite log($R_{23}$)')
 
     ax_arr.plot([0.0,1.3], [0.0,1.3], 'k-')
-    #ax_arr.plot([0.7962914706935305],[0.826262793371], 'ro')
     
     #plt.draw()
     fig.savefig(pdf_pages, format='pdf')

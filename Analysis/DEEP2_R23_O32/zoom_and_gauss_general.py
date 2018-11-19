@@ -194,7 +194,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     if outpdf == '':
         name = 'Stacking_Voronoi_Zoomed_Gauss_generalexperiment.pdf'
         outpdf = fitspath + name'''
-    print 'tab='+tab
+    #print 'tab='+tab
     asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
     nrows = 4

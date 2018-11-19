@@ -79,10 +79,18 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
     #print np.min(R23[det3]), np.max(R23[det3])
 
     # + on 15/09/2017
-    rR23 = R23[det3]
+    '''rR23 = R23[det3]
     rO32 = O32[det3]
     lR23 = np.log10(R23[det3])
     lO32 = np.log10(O32[det3])
+    avg_R23 = np.average(lR23)
+    avg_O32 = np.average(lO32)'''
+
+    #Updated on 09/11/2018 to reflect change in get_det3() function in general code
+    rR23 = R23
+    rO32 = O32
+    lR23 = np.log10(R23)
+    lO32 = np.log10(O32)
     avg_R23 = np.average(lR23)
     avg_O32 = np.average(lO32)
 

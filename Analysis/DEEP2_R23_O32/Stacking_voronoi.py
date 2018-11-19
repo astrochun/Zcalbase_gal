@@ -29,6 +29,7 @@ voronoi = np.loadtxt(outfilevoronoi)
 voronoi = voronoi.transpose()'''
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32,5006.84]
 
+import general 
 
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
@@ -166,33 +167,10 @@ def Master_Stacking(fitspath, voronoi_data, asc_table1, wave, image2D, name, hea
    
     
 #Function that runs Master_Stacking and calls necessary inputs (including mask)
-def run_Stacking_Master_mask(det3, data3, fitspath_ini, fitspath,voronoi_data, asc_table1, Stack_name):
-    image2DM, header = fits.getdata(RestframeMaster, header=True)
-    #det3, data3 = general.get_det3()
-    for ii in range(1,5):
-        file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
-        data  = Table(fits.getdata(file1))
-        if ii == 1:
-            data0 = data
-        else:
-            data0 = vstack([data0, data])
-    #fits.writeto(fitspath+'f3_0716/DEEP2_Fields_combined', data0)
-        #print 'data0 : ', len(data0)
-    O2 = data0['OII_FLUX_MOD']
-    O3 = 1.33*data0['OIIIR_FLUX_MOD']
-    Hb = data0['HB_FLUX_MOD']
-     
-    SNR2 = data0['OII_SNR']
-    SNR3 = data0['OIIIR_SNR']
-    SNRH = data0['HB_SNR']
-    #SNR code: This rules out major outliers by only using specified data
-    det3 = np.where((SNR2 >= 3) & (SNR3 >= 3) & (SNRH >= 3) &
-                    (O2 > 0) & (O3 > 0) & (Hb>0))[0]
-
-
-    data3 = data0[det3]
-
+def run_Stacking_Master_mask(fitspath_ini, fitspath,voronoi_data, det3,asc_table1, Stack_name):
     
+    #R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3= general.get_det3()
+    image2DM, header = fits.getdata(RestframeMaster, header=True)
     image2D = image2DM[det3]
     print len(image2D)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
@@ -209,6 +187,11 @@ def run_Stacking_Master(fitspath,voronoi_data, Stack_name):
     MasterStack0 = Master_Stacking(fitspath, voronoi_data, asc_table1, wavemaster, image2DM, Stack_name, header, mask=None)
     
 
+
+
+
+
+#NOT CURRENTLY IN USE
 #Plotting Zoomed in on 4363
 def zoom_plot_4363():
     image2DM, header = fits.getdata(RestframeMaster, header=True)

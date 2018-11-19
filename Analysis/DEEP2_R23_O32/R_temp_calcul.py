@@ -25,7 +25,7 @@ import sys
 #For generalizing for several users
 from getpass import getuser
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 '''
 #Voronoi10
 #Spectral R23 and O32: Averages that are calculated from the flux calculations: spectral averages
@@ -89,20 +89,26 @@ c = 0.98062
 def R_calculation(OIII4363, OIII5007, OIII4959):
   
     R_value = OIII4363/(OIII5007+OIII4959)
-    return R_value
+    '''R_std = SN_4363 /((SN_5007^2 +SN_4959^2)^(1/2))'''
+    return R_value   #, R_std
+
+'''Grid nan calculations R = 0.2137069695
+T = -50,454.467
+'''
 
 def temp_calculation(R):
     #T_e = a(-log(R)-b)^(-c)
-    T_e =  a*(-np.log10(R)-b)**(-1*c)      #np.zeros(len(OIII5007))
-  
-    return T_e
+    T_e =  a*(-np.log10(R)-b)**(-1*c)     
+    '''T_e_std = a*(-np.log10(R_std)-b)**(-1*c)'''
+    print T_e   #, T_e_std
+    return T_e   #, T_e_std
 
 
 def metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727):
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
     #t_2 = 0.7*t_3 +0.17
-    #What is x?
+
     '''t = 1e-4 * T_e
     x = 1e-4 * 1e3 * t**(-0.5)'''
     
@@ -122,46 +128,111 @@ def metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727):
 
     return O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log
 
+def limit_function(combine_flux_ascii):
+    #next step: plot the data sets for data he is sending using the plots from R_temp_cal
+    #hgamma/hgamma_sn*3 = 3sigma
 
+    combine_fits= asc.read(combine_flux_ascii)
+
+    Hgamma = combine_fits['Hgamma_Flux_Observed'].data
+    Hgamma_SN    = combine_fits['Hgamma_S/N'].data
+
+    up_temp = (Hgamma/Hgamma_SN) *3
+
+    print 'up_temp', up_temp
+    return up_temp
+    
 def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii):  #combine_fits, header
     #Fits Table Calls
     #combine_fits, header = fits.getdata(combine_flux_table, header = True)
     combine_fits= asc.read(combine_flux_ascii)
 
+    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
+
     #Ascii Table Calls 
     OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
     OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
     OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
+    Hgamma = combine_fits['Hgamma_Flux_Observed'].data
     HBETA    = combine_fits['HBETA_Flux_Observed'].data
     OII3727  = combine_fits['OII_3727_Flux_Observed'].data
     R23_avg      = combine_fits['R_23_Average'].data
     O32_avg      = combine_fits['O_32_Average'].data
     N_Galaxy = combine_fits['N_Galaxies'].data
 
+    SN_Hgamma    = combine_fits['Hgamma_S/N'].data
     SN_5007       = combine_fits['OIII_5007_S/N'].data
     SN_4959       = combine_fits['OIII_4958_S/N'].data
     SN_4363       = combine_fits['OIII_4363_S/N'].data
     SN_HBETA      = combine_fits['HBETA_S/N'].data
     SN_3727       = combine_fits['OII_3727_S/N'].data
 
+
+    der_R23 = derived['R23'].data
+    der_O32 = derived['O32'].data
+    der_Te = derived['Te'].data
+    er_OH_log = derived['OH'].data
+    der_OH_log = np.log10(er_OH_log)
+
     R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
     O32_composite = np.log10((1.33*OIII5007)/OII3727)
 
-
-    R_value = R_calculation(OIII4363, OIII5007, OIII4959)
-    T_e = temp_calculation(R_value)
-    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727)
+    print 'R23_composite', R23_composite
+    print 'O32_composite', O32_composite 
+    #Using 3 sigma flux to find upper limit 
+    #this is a flux value; now you have to send it back through to calculate the new signal to noise
     
-    print R_value
-    print T_e
-    print min(T_e), max(T_e)
-    print O_s_ion, O_d_ion
+    up_limit = (Hgamma/SN_Hgamma) *3
+    print 'up_limit', up_limit
 
-   
+    '''R_value_up= R_calculation(up_limit, OIII5007, OIII4959)   #, SN_4636, SN_5007, SN_495)
+    T_e_up= temp_calculation(R_value_up)  #, R_std)
+    O_s_ion_up, O_d_ion_up, com_O_log_up, log_O_s_up, log_O_d_up = metalicity_calculation(T_e_up,OIII5007, OIII4959, up_limit, HBETA, OII3727)
+    
+    #Raw Data
+    R_value= R_calculation(OIII4363, OIII5007, OIII4959)   #, SN_4636, SN_5007, SN_495)
+    T_e= temp_calculation(R_value)  #, R_std)
+    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727)'''
+
+    R_value = np.zeros(len(OIII5007))
+    T_e = np.zeros(len(OIII5007))
+    O_s_ion = np.zeros(len(OIII5007))
+    O_d_ion = np.zeros(len(OIII5007))
+    com_O_log = np.zeros(len(OIII5007))
+    
+    for ii in range(len(OIII5007)):
+        print SN_4363[ii]
+        if SN_4363[ii] >= 3:
+            print 'regular'
+            R_value_cal= R_calculation(OIII4363[ii], OIII5007[ii], OIII4959[ii])   #, SN_4636, SN_5007, SN_495)
+            T_e_cal= temp_calculation(R_value_cal)  #, R_std)
+            O_s_ion_cal, O_d_ion_cal, com_O_log_cal, log_O_s_cal, log_O_d_cal = metalicity_calculation(T_e_cal,OIII5007[ii], OIII4959[ii], OIII4363[ii], HBETA[ii], OII3727[ii])
+
+            R_value[ii] = R_value_cal
+            T_e[ii] = T_e_cal
+            O_s_ion[ii] = O_s_ion_cal
+            O_d_ion[ii] = O_d_ion_cal
+            com_O_log[ii] = com_O_log_cal
+        else:
+            print 'upper limit'
+            R_value_up_cal= R_calculation(up_limit[ii], OIII5007[ii], OIII4959[ii])   #, SN_4636, SN_5007, SN_495)
+            T_e_up_cal= temp_calculation(R_value_up_cal)  #, R_std)
+            O_s_ion_up_cal, O_d_ion_up_cal, com_O_log_up_cal, log_O_s_up_cal, log_O_d_up_cal = metalicity_calculation(T_e_up_cal,OIII5007[ii], OIII4959[ii], up_limit[ii], HBETA[ii], OII3727[ii])
+
+            R_value[ii] = R_value_up_cal
+            T_e[ii] = T_e_up_cal
+            O_s_ion[ii] = O_s_ion_up_cal
+            O_d_ion[ii] = O_d_ion_up_cal
+            com_O_log[ii] = com_O_log_up_cal
+
+    
+    #fill in the nan detections and refill anything less than 3 sigma in with these values
+    #set it so that function requires you to enter a sigma value into the original function which I think it does but you just need to pass it all the way through
 
     #Ascii Table
     #out_ascii = fitspath+ '/Grid_temperatures_metalicity_asc_table.tbl'
     #out_fits = fitspath+ '/Grid_temperatures_metalicity_asc_table.fits'
+
     if not exists(out_ascii):
         n=  ('R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log')
         
@@ -188,6 +259,7 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     #print color_len
     fig1, ax1 = plt.subplots()
     ax1.scatter(T_e, R23_composite, marker = '.')#, color=color_arr[kk])
+    ax1.scatter(der_Te, der_R23, marker = '*', color = 'k')
     ax1.set_xlabel('Temperature (K)')
     ax1.set_ylabel('R_23')
     ax1.set_title('Temperatures_vs_R23')
@@ -196,6 +268,7 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
      
     fig2, ax2 = plt.subplots()
     ax2.scatter(T_e, O32_composite, marker = '.')
+    ax2.scatter(der_Te, der_O32, marker = '*', color = 'k')
     ax2.set_xlabel('Temperature (K)')
     ax2.set_ylabel('O_32')
     ax2.set_title('Temperatures_vs_O32')
@@ -204,19 +277,21 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
 
     fig3, ax3 = plt.subplots()
     ax3.scatter(R23_composite, com_O_log, marker = '.')
+    ax3.scatter(der_R23, der_OH_log, marker = '*', color = 'k')
     ax3.set_xlabel('R23')
     ax3.set_ylabel('12+log(O/H) Te')
     ax3.set_title('R23 vs. Composite Metalicity')
-    ax3.plot(BR23,B_com_R23, 'k')
+    #ax3.plot(BR23,B_com_R23, 'k')
     #ax2.set_xlim(1000,21500)
     pdf_pages.savefig()
 
     fig4, ax4 = plt.subplots()
     ax4.scatter(O32_composite, com_O_log, marker = '.')
+    ax4.scatter(der_O32,der_OH_log, marker = '*', color = 'k')
     ax4.set_xlabel('O32')
     ax4.set_ylabel('12+log(O/H) Te')
     ax4.set_title('O32 vs. Composite Metalicity')
-    ax4.plot(BO32, B_com_O32, 'k')
+    #ax4.plot(BO32, B_com_O32, 'k')
     #ax2.set_xlim(1000,21500)
     pdf_pages.savefig()
     
@@ -259,7 +334,7 @@ def R23_O32_relations_BIAN():
         d = 8.54 - 0.59*b
         t[b] = b #np.append(t,b)
         z[b] = d #np.append(z,d)
-    print x, y, t, z
+    #print x, y, t, z
 
     return x, y, t, z 
 

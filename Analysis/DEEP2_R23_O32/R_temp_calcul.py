@@ -168,11 +168,13 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     SN_3727       = combine_fits['OII_3727_S/N'].data
 
 
-    der_R23 = derived['R23'].data
-    der_O32 = derived['O32'].data
+    er_R23 = derived['R23'].data
+    er_O32 = derived['O32'].data
+    der_R23 = np.log10(er_R23)
+    der_O32 = np.log10(er_O32)
     der_Te = derived['Te'].data
-    er_OH_log = derived['OH'].data
-    der_OH_log = np.log10(er_OH_log)
+    der_OH = derived['OH'].data
+    #der_OH_log = np.log10(er_OH_log)
 
     R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
     O32_composite = np.log10((1.33*OIII5007)/OII3727)
@@ -277,7 +279,7 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
 
     fig3, ax3 = plt.subplots()
     ax3.scatter(R23_composite, com_O_log, marker = '.')
-    ax3.scatter(der_R23, der_OH_log, marker = '*', color = 'k')
+    ax3.scatter(der_R23, der_OH, marker = '*', color = 'k')
     ax3.set_xlabel('R23')
     ax3.set_ylabel('12+log(O/H) Te')
     ax3.set_title('R23 vs. Composite Metalicity')
@@ -287,7 +289,7 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
 
     fig4, ax4 = plt.subplots()
     ax4.scatter(O32_composite, com_O_log, marker = '.')
-    ax4.scatter(der_O32,der_OH_log, marker = '*', color = 'k')
+    ax4.scatter(der_O32,der_OH, marker = '*', color = 'k')
     ax4.set_xlabel('O32')
     ax4.set_ylabel('12+log(O/H) Te')
     ax4.set_title('O32 vs. Composite Metalicity')

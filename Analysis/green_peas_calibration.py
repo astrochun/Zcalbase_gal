@@ -23,6 +23,27 @@ import glob
 from astropy.table import Table
 from astropy import log
 
+def jiang18(x, y):
+    '''
+    Function to return log(R23) based on metallicity and [OIII]/[OII] flux ratio
+
+    Parameters
+    ----------
+     x : 12+log(O/H)
+     y : log([OIII]/[OII])
+    '''
+
+    a = -24.135
+    b =   6.1523
+    c =  -0.37866
+    d =  -0.147
+    e =  -7.071
+
+    logR23 = a + b*x + c * x**2 - d * (e + x) * y
+
+    return logR23
+#enddef
+
 def main(silent=False, verbose=True):
 
     '''

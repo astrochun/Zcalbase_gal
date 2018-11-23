@@ -71,6 +71,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=5, silent=False, verbose=True):
 
     fig, ax = plt.subplots()
 
+    # Grid of 12+log(O/H)
+    x_arr = np.arange(min(OH),max(OH),0.05)
+
     y_min = np.min(lO32)
     y_max = np.max(lO32)
 
@@ -87,6 +90,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=5, silent=False, verbose=True):
             ax.scatter(lR23[idx], OH[idx], color=ctype[ii], marker='o', alpha=0.5,
                        label=ii_label)
 
+            j18_logR23 = jiang18(x_arr, np.average(lO32[idx]))
+
+            ax.plot(j18_logR23, x_arr, color=ctype[ii], linestyle='dashed')
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})$')
     ax.legend(loc='upper left', fontsize=10)

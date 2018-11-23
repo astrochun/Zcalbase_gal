@@ -137,6 +137,6 @@ def DEEP2_OIII4363():
     #print np.min(lR23), np.max(lR23)
     #print np.min(OH), np.max(OH)
     out_pdf = path0 + 'DEEP2_R23_O32_Jiang18.pdf'
-    main(lR23, lO32, OH, out_pdf)
+    main(lR23, lO32, OH, out_pdf, xra=[0.7,1.05], yra=[7.3,8.6])
 
 #enddef

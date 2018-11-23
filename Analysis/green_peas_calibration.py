@@ -79,13 +79,14 @@ def main(lR23, lO32, OH, out_pdf, n_bins=5, silent=False, verbose=True):
 
     dy = (y_max-y_min)/n_bins
 
-    ctype = ['red','green','blue','magenta','cyan']
+    ctype = ['red','magenta','green','cyan','blue']
 
     for ii in range(n_bins):
         y_ii_min = y_min + ii * dy
         y_ii_max = y_min + (ii+1) * dy
-        idx = np.where((lO32 >= y_ii_min) & (lO32 < y_ii_max))[0]
-        ii_label = r' %.2f < $\log(O_{32})$ < %.2f' % (y_ii_min, y_ii_max)
+        idx = np.where((lO32 >= y_ii_min) & (lO32 <= y_ii_max))[0]
+        ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
+                                                               len(idx))
         if len(idx) > 0:
             ax.scatter(lR23[idx], OH[idx], color=ctype[ii], marker='o', alpha=0.5,
                        label=ii_label)

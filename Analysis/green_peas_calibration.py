@@ -76,6 +76,10 @@ def main(lR23, lO32, OH, out_pdf, silent=False, verbose=True):
 
     ax.scatter(lR23, OH)
 
+    ax.set_xlabel(r'$\log(R_{23})$')
+    ax.set_ylabel(r'$12+\log({\rm O/H})$')
+    fig.savefig(out_pdf)
+
     if silent == False: log.info('### End main : '+systime())
 #enddef
 

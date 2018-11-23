@@ -42,7 +42,8 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, xra=[], yra=[], silent=False,
+         verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -107,6 +108,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, silent=False, verbose=True):
                         va='bottom', fontsize=8)
 
             ax.plot(j18_logR23, x_arr, color=ctype[ii], linestyle='dashed')
+
+    ax.set_xlim(xra)
+    ax.set_ylim(yra)
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})$')
     ax.legend(loc='upper left', fontsize=10)

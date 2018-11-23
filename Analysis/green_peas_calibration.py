@@ -42,7 +42,7 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=5, silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -100,7 +100,11 @@ def main(lR23, lO32, OH, out_pdf, n_bins=5, silent=False, verbose=True):
             ax.scatter(lR23[idx], OH[idx], color=ctype[ii], marker='o', alpha=0.5,
                        label=ii_label)
 
-            j18_logR23 = jiang18(x_arr, np.average(lO32[idx]))
+            lO32_avg = np.average(lO32[idx])
+            j18_logR23 = jiang18(x_arr, lO32_avg)
+            ax.annotate('%.2f' % lO32_avg, [j18_logR23[-1], x_arr[-1]],
+                        color=ctype[ii], xycoords='data', ha='center',
+                        va='bottom', fontsize=8)
 
             ax.plot(j18_logR23, x_arr, color=ctype[ii], linestyle='dashed')
     ax.set_xlabel(r'$\log(R_{23})$')
@@ -126,6 +130,8 @@ def DEEP2_OIII4363():
     lO32 = np.log10(data['O32'])
     OH   = data['OH']
 
+    #print np.min(lR23), np.max(lR23)
+    #print np.min(OH), np.max(OH)
     out_pdf = path0 + 'DEEP2_R23_O32_Jiang18.pdf'
     main(lR23, lO32, OH, out_pdf)
 

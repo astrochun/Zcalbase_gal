@@ -77,13 +77,22 @@ def main(lR23, lO32, OH, out_pdf, n_bins=5, silent=False, verbose=True):
     y_min = np.min(lO32)
     y_max = np.max(lO32)
 
-    dy = (y_max-y_min)/n_bins
+    sort0   = np.argsort(lO32)
+    y_sort0 = lO32[sort0]
+
+    bin_pts = np.int(len(lO32)/n_bins)
+
+    bin_start = np.zeros(n_bins)
+    bin_end   = np.zeros(n_bins)
+    for ii in range(n_bins):
+        bin_start[ii] = y_sort0[ii*bin_pts]
+        bin_end[ii]   = y_sort0[(ii+1)*bin_pts-1]
 
     ctype = ['red','magenta','green','cyan','blue']
 
     for ii in range(n_bins):
-        y_ii_min = y_min + ii * dy
-        y_ii_max = y_min + (ii+1) * dy
+        y_ii_min = bin_start[ii] #bin_y_min + ii * dy
+        y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy
         idx = np.where((lO32 >= y_ii_min) & (lO32 <= y_ii_max))[0]
         ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
                                                                len(idx))

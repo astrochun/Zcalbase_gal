@@ -79,3 +79,21 @@ def main(lR23, lO32, OH, out_pdf, silent=False, verbose=True):
     if silent == False: log.info('### End main : '+systime())
 #enddef
 
+def DEEP2_OIII4363():
+
+    path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    infile = path0 + 'DEEP2_R23_O32_derived.tbl'
+
+    log.info('### Reading : '+infile)
+
+    data = asc.read(infile)
+
+    lR23 = np.log10(data['R23'])
+    lO32 = np.log10(data['O32'])
+    OH   = data['OH']
+
+    out_pdf = path0 + 'DEEP2_R23_O32_Jiang18.pdf'
+    main(lR23, lO32, OH, out_pdf)
+
+#enddef

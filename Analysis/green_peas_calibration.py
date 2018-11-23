@@ -11,9 +11,7 @@ import sys, os
 from chun_codes import systime
 
 from os.path import exists
-import commands
 from astropy.io import ascii as asc
-from astropy.io import fits
 
 import numpy as np
 
@@ -44,13 +42,16 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def main(silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, silent=False, verbose=True):
 
     '''
-    Main function for green_peas_calibration
+    Main function to plot dataset against Jiang+ (2018) calibration
 
     Parameters
     ----------
+    lR23 : log(R_23)
+    lO32 : log([OIII]/[OII])
+    OH   : 12+log(O/H)
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -63,12 +64,18 @@ def main(silent=False, verbose=True):
 
     Notes
     -----
-    Created by Chun Ly, XX
+    Created by Chun Ly, 23 November 2018
     '''
 
-    
     if silent == False: log.info('### Begin main : '+systime())
-    
+
+    fig, ax = plt.subplots()
+
+    y_min = np.min(lO32)
+    y_max = np.max(lO32)
+
+    ax.scatter(lR23, OH)
+
     if silent == False: log.info('### End main : '+systime())
 #enddef
 

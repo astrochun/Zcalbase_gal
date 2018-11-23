@@ -42,7 +42,7 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=5, silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -74,10 +74,23 @@ def main(lR23, lO32, OH, out_pdf, silent=False, verbose=True):
     y_min = np.min(lO32)
     y_max = np.max(lO32)
 
-    ax.scatter(lR23, OH)
+    dy = (y_max-y_min)/n_bins
+
+    ctype = ['red','green','blue','magenta','cyan']
+
+    for ii in range(n_bins):
+        y_ii_min = y_min + ii * dy
+        y_ii_max = y_min + (ii+1) * dy
+        idx = np.where((lO32 >= y_ii_min) & (lO32 < y_ii_max))[0]
+        ii_label = r' %.2f < $\log(O_{32})$ < %.2f' % (y_ii_min, y_ii_max)
+        if len(idx) > 0:
+            ax.scatter(lR23[idx], OH[idx], color=ctype[ii], marker='o', alpha=0.5,
+                       label=ii_label)
 
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})$')
+    ax.legend(loc='upper left', fontsize=10)
+
     fig.savefig(out_pdf)
 
     if silent == False: log.info('### End main : '+systime())

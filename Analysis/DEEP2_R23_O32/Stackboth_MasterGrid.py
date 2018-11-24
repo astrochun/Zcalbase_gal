@@ -169,7 +169,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     #Writing Ascii Tables and Fits Tables
     out_ascii = fitspath+'/'+dataset+'binning_averages.tbl'
 
-    ID = np.arange(0,len(R_node), 1, dtype = int)
+    ID = np.arange(0,len(R23_node), 1, dtype = int)
     n=  ('ID','xnode', 'ynode', 'xBar', 'yBar', 'area')
     tab0 = Table([ID, R23_node, O32_node,avg_R23,avg_O32, N_gal], names=n)
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')

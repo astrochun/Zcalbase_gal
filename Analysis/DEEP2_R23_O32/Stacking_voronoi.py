@@ -53,8 +53,7 @@ def Master_Stacking(fitspath, voronoi_data, asc_table1, wave, image2D, name, hea
 
     last_column = voronoi_data['N_bin'].data
     print last_column, len(last_column)
-    n_bins = np.max(last_column)     #np.max(voronoi[]))
-    #n_bins = 14
+    n_bins = np.max(last_column)    
     print 'n_bins:', n_bins   #this should print out as 13 not 1
     outfile = name.replace('.pdf', '.fits')  #fits file name and initialization 
     if not exists(outfile):

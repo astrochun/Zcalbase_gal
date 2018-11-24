@@ -77,6 +77,7 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     OIII5007 = fitted_data['OIII_5007_Flux_Observed']
     H_BETA = fitted_data['HBETA_Flux_Observed']
     binnum = fitted_data['N_Galaxies']
+    ID = fitted_data['ID']
     print 'binnum:', binnum, len(binnum)
     pdf_pages = PdfPages(line_plot)
     nrows = 4
@@ -113,6 +114,8 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     ax_arr.scatter(R23_raw,R23_composite, marker= 'o', facecolor= 'none', edgecolor ='b',label= 'R23 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset+' Raw vs. Composite for R23')
+    for rr in range(len(ID)):
+        ax_arr.annotate(ID[rr], (R23_raw[rr], R23_composite[rr]))
     #for rr in range(len(data1)):
         #if binnum[rr] <= 30: ax_arr.annotate(str(binnum[rr]), (R23_raw_voronoi[rr],R23_composite[rr]), xycoords='data')
     ax_arr.set_xlabel(r'Raw log($R_{23}$)')
@@ -127,6 +130,9 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     ax_arr.scatter(O32_raw,O32_composite, marker= 'o', facecolor= 'none', edgecolor ='b', label= 'O32 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset+'Raw vs. Composite for O32')
+    for oo in range(len(ID)):
+        ax_arr.annotate(ID[oo], (O32_raw[oo], O32_composite[oo]))
+
     #for oo in range(len(data1)):
         #if binnum[oo] <= 30: ax_arr.annotate(str(binnum[oo]), (O32_raw_voronoi[oo],O32_composite[oo]), xycoords='data')
         

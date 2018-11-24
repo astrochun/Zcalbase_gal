@@ -102,7 +102,9 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
     #binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale
     test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, targetSN=sn_size, plot=True, pixelsize=0.1,quiet=False, currentBin=currentBin)
     #print(test.shape)
-
+    
+    ID = np.arange(0,len(test[1]), 1, dtype = int)
+    print ID
     print np.sum(test[6])
     # Save to a text file the initial coordinates of each pixel together
     # with the corresponding bin number computed by this procedure.
@@ -112,12 +114,12 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
     txt= np.savetxt(txt_file, np.column_stack([rR23,rO32, lR23, lO32, test[0]])) #test[0]=classe = binnumber 
     #fmt='%6.3f %6.3f %5i')
 
-    n=('xnode','ynode','xBar','yBar','sn','area','scale')
-    tab0= Table([test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
+    n=('ID','xnode','ynode','xBar','yBar','sn','area','scale')
+    tab0= Table([ID, test[1], test[2], test[3], test[4], test[5], test[6], test[7]], names=n)
     asc.write(tab0, asc_table1)
 
     n2=('R23', 'O32', 'log(R23)', 'log(O32)','N_bin')
-    tab2= Table([rR23, rO32, lR23, lO32, test[0]], names=n2)
+    tab2= Table([ rR23, rO32, lR23, lO32, test[0]], names=n2)
     asc.write(tab2, asc_table2, format='fixed_width_two_line')
     #print tab0
 

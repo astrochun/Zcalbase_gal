@@ -238,7 +238,6 @@ def run_R23_O32_analysis(dataset,mask='None'):
 
         adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
 
-
         #Stacking_voronoi
         #Option to Change: 
         if dataset == "Voronoi10": outfile = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
@@ -278,12 +277,12 @@ def run_R23_O32_analysis(dataset,mask='None'):
                 lineflag[idx] = 1
 
         #tab = asc_table1
-        '''if dataset == 'Voronoi10':
+        if dataset == 'Voronoi10':
             tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
             #asc_tab = asc.read(tab)
         else: 
             tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_10.tbl'
-            #asc_tab = asc.read(tab)'''
+            #asc_tab = asc.read(tab)
             
         #Option to change: Constants used as initial guesses for gaussian fit
         s=1.0

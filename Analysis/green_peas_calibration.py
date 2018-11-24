@@ -140,3 +140,22 @@ def DEEP2_OIII4363():
     main(lR23, lO32, OH, out_pdf, xra=[0.7,1.05], yra=[7.3,8.6])
 
 #enddef
+
+def MACT_OIII4363():
+
+    path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    infile = path0 + 'MACT_R23_O32_derived.tbl'
+
+    log.info('### Reading : '+infile)
+
+    data = asc.read(infile)
+
+    lR23 = np.log10(data['R23'])
+    lO32 = np.log10(data['O32'])
+    OH   = data['OH']
+
+    out_pdf = path0 + 'MACT_R23_O32_Jiang18.pdf'
+    main(lR23, lO32, OH, out_pdf, n_bins=6, xra=[0.3,1.15], yra=[7.25,8.7])
+
+#enddef

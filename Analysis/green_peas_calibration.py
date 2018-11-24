@@ -8,7 +8,7 @@ calibration that is based on green pea galaxies
 
 import sys, os
 
-from chun_codes import systime
+from chun_codes import systime, match_nosort_str
 
 from os.path import exists
 from astropy.io import ascii as asc
@@ -150,6 +150,11 @@ def MACT_OIII4363():
     log.info('### Reading : '+infile)
 
     data = asc.read(infile)
+
+    dup = ['Keck10', 'Keck17', 'Keck22', 'Keck25']
+    d_idx1, d_idx2 = match_nosort_str(data['ID'].data, dup)
+
+    data.remove_rows(d_idx1)
 
     lR23 = np.log10(data['R23'])
     lO32 = np.log10(data['O32'])

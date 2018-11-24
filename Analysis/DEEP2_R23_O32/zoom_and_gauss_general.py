@@ -211,52 +211,17 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     print oarr_gr, type(oarr_gr)'''
 
     #Initializing Arrays
-    if dataset == 'Grid':
-        flux_g_array = np.zeros(Spect_1D.shape[0])
-        flux_s_array = np.zeros(Spect_1D.shape[0])
-        sigma_array = np.zeros(Spect_1D.shape[0])
-        median_array = np.zeros(Spect_1D.shape[0])
-        norm_array = np.zeros(Spect_1D.shape[0])
-        RMS_array = np.zeros(Spect_1D.shape[0])
-        SN_array = np.zeros(Spect_1D.shape[0])
-        N_gal_array = np.zeros(Spect_1D.shape[0])
-        R_23_array = np.zeros(Spect_1D.shape[0])
-        O_32_array = np.zeros(Spect_1D.shape[0])
 
-        
-        '''outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
-        grid_data = np.load(outfile025)
-       
-        N_arr_grid = grid_data['N_arr0']
-        R23_grid = grid_data['R23_grid']
-        O32_grid = grid_data['O32_grid']
-        #Attempt 1
-        for rr in range(len(R23_grid)):
-            for oo in range(len(O32_grid)):
-                R_23_array = R23_grid[rr]
-                O_32_array = O32_grid[oo]
-                index= grid_data['T_arr'][rr,oo]
-                N_gal_array = len(index)
-                print R_23_array, O_32_array, N_gal_array  #3 dimensional array
-
-        #Attempt 2
-        data = np.zeros(110,3)
-        for rr in range(len(R23_grid)):
-            for oo in range(len(O32_grid)): 
-                data0 = np.array([R23_grid[rr], O32_grid[oo], N_arr_grid[rr,oo]])
-                
-                print data'''
-    else: 
-        flux_g_array = np.zeros(Spect_1D.shape[0])
-        flux_s_array = np.zeros(Spect_1D.shape[0])
-        sigma_array = np.zeros(Spect_1D.shape[0])
-        median_array = np.zeros(Spect_1D.shape[0])
-        norm_array = np.zeros(Spect_1D.shape[0])
-        RMS_array = np.zeros(Spect_1D.shape[0])
-        SN_array = np.zeros(Spect_1D.shape[0])
-        N_gal_array = np.zeros(Spect_1D.shape[0])
-        R_23_array = np.zeros(Spect_1D.shape[0])
-        O_32_array = np.zeros(Spect_1D.shape[0])
+    flux_g_array = np.zeros(Spect_1D.shape[0])
+    flux_s_array = np.zeros(Spect_1D.shape[0])
+    sigma_array = np.zeros(Spect_1D.shape[0])
+    median_array = np.zeros(Spect_1D.shape[0])
+    norm_array = np.zeros(Spect_1D.shape[0])
+    RMS_array = np.zeros(Spect_1D.shape[0])
+    SN_array = np.zeros(Spect_1D.shape[0])
+    N_gal_array = np.zeros(Spect_1D.shape[0])
+    R_23_array = np.zeros(Spect_1D.shape[0])
+    O_32_array = np.zeros(Spect_1D.shape[0])
 
     '''#Initialize Error Propogation
     flux_g_err = np.zeros(Spect_1D.shape[0])
@@ -382,7 +347,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
             #if keyword == 'Single' or keyword == 'Balmer' : t_ax.axhline(y=o1[3], color='k--', linewidth=0.01)
  
-        
+            #ADD ID TO THE GRID METHOD
             if dataset == 'Grid':
                 #txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
                 txt0  = 'R_23: %.3f O_32: %.3f\n' % (R_23_array[rr],O_32_array[rr])  #$\overline{x}$:$\overline{y}$:
@@ -392,7 +357,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
                 txt0 += 'S/N: %.3f' %(SN_array[rr])
 
             else:
-                txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                txt0 = r'ID: %.3f  xnode=%.3f  ynode=%.3f' % (asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
                 txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])  #$\overline{x}$:$\overline{y}$:
                 txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], asc_tab['area'][rr]) 
                 txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
@@ -460,25 +425,26 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     SN_err =     error_prop_chuncodes(SN_array,1)'''
      
     #Writing Ascii Tables and Fits Tables
+    ID = asc_tab['ID'].data
     out_ascii = fitspath+'/'+dataset+'_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
     out_fits = fitspath+'/'+dataset+'_Flux_gaussian_'+line_name+'.fits'
     #if not exists(out_ascii):
     n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS', 'S/N')
     n = tuple([line_name + '_' + val for val in n])
-    tab0 = Table([ flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array], names=n)
+    tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array], names=n)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
         #fits.writeto(out_fits, tab0)
          
     out_ascii_single = fitspath+'/'+dataset+'_Average_R23_O32_Values.tbl'
-    if not exists(out_ascii_single):
-        n2= ('R_23_Average', 'O_32_Average', 'N_Galaxies', 'RMS')
-        tab1 = Table([R_23_array, O_32_array, N_gal_array, RMS_array], names=n2)
-        asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
+    #if not exists(out_ascii_single):
+    n2= ('ID','R_23_Average', 'O_32_Average', 'N_Galaxies', 'RMS')
+    tab1 = Table([ID, R_23_array, O_32_array, N_gal_array, RMS_array], names=n2)
+    asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
 
 
 
        
-        '''
+    '''
         print 'Starting fits'
         #header['Comment'] = 'This fits file contains the calculated and observed fluxs for emission line stated in file name'
         c1 = fits.Column(name='Flux_Gaussian'+line_name, format= 'K', array=flux_g_array)

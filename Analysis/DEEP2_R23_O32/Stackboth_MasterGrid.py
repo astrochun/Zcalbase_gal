@@ -65,7 +65,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     R23_node = np.zeros(len(R23_grid)*len(O32_grid))
     O32_node = np.zeros(len(R23_grid)*len(O32_grid))
     N_gal = np.zeros(len(R23_grid)*len(O32_grid))
-    #color_arr = np.zeros(len(R23_grid)*len(O32_grid))
+    #ID = np.zeros(len(R23_grid)*len(O32_grid))
     count = 0
     for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
@@ -168,9 +168,10 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
 
     #Writing Ascii Tables and Fits Tables
     out_ascii = fitspath+'/'+dataset+'binning_averages.tbl'
-    
-    n=  ('xnode', 'ynode', 'xBar', 'yBar', 'area')
-    tab0 = Table([R23_node, O32_node,avg_R23,avg_O32, N_gal], names=n)
+
+    ID = np.arange(0,len(R23_node), 1, dtype = int)
+    n=  ('ID','xnode', 'ynode', 'xBar', 'yBar', 'area')
+    tab0 = Table([ID, R23_node, O32_node,avg_R23,avg_O32, N_gal], names=n)
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
         #fits.writeto(out_fits, tab0)
 

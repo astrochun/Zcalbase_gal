@@ -89,7 +89,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, xra=[], yra=[], silent=False,
         bin_start[ii] = y_sort0[ii*bin_pts]
         bin_end[ii]   = y_sort0[(ii+1)*bin_pts-1]
 
-    ctype = ['red','magenta','green','cyan','blue']
+    ctype = ['red','magenta','green','cyan','blue','black']
 
     for ii in range(n_bins):
         y_ii_min = bin_start[ii] #bin_y_min + ii * dy

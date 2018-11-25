@@ -164,3 +164,39 @@ def MACT_OIII4363():
     main(lR23, lO32, OH, out_pdf, n_bins=6, xra=[0.3,1.15], yra=[7.25,8.7])
 
 #enddef
+
+def DEEP2_MACT_OIII4363():
+
+    path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    # DEEP2
+
+    infile = path0 + 'DEEP2_R23_O32_derived.tbl'
+    log.info('### Reading : '+infile)
+    deep2_data = asc.read(infile)
+
+    deep2_lR23 = np.log10(deep2_data['R23'])
+    deep2_lO32 = np.log10(deep2_data['O32'])
+    deep2_OH   = deep2_data['OH']
+
+    # MACT
+    
+    infile = path0 + 'MACT_R23_O32_derived.tbl'
+    log.info('### Reading : '+infile)
+    mact_data = asc.read(infile)
+
+    dup = ['Keck10', 'Keck17', 'Keck22', 'Keck25']
+    d_idx1, d_idx2 = match_nosort_str(mact_data['ID'].data, dup)
+    mact_data.remove_rows(d_idx1)
+
+    mact_lR23 = np.log10(mact_data['R23'])
+    mact_lO32 = np.log10(mact_data['O32'])
+    mact_OH   = mact_data['OH']
+
+    lR23 = np.concatenate((deep2_lR23, mact_lR23))
+    lO32 = np.concatenate((deep2_lO32, mact_lO32))
+    OH   = np.concatenate((deep2_OH,   mact_OH))
+    
+    out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.pdf'
+    main(lR23, lO32, OH, out_pdf, n_bins=6, xra=[0.3,1.15], yra=[7.25,8.7])
+

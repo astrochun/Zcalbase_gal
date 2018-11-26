@@ -42,8 +42,8 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, OH_err=[], xra=[], yra=[],
-         silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
+         xra=[], yra=[], silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -105,6 +105,10 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, OH_err=[], xra=[], yra=[],
 
             if len(OH_err) != 0:
                 ax.errorbar(lR23[idx], OH[idx], yerr=OH_err[:,idx], mec=ctype[ii],
+                            ecolor=ctype[ii], capsize=0, alpha=0.5, fmt=None, label=None)
+
+            if len(lR23_err) != 0:
+                ax.errorbar(lR23[idx], OH[idx], xerr=lR23_err[:,idx], mec=ctype[ii],
                             ecolor=ctype[ii], capsize=0, alpha=0.5, fmt=None, label=None)
 
             lO32_avg = np.average(lO32[idx])

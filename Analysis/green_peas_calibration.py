@@ -42,8 +42,8 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, xra=[], yra=[], silent=False,
-         verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, OH_err=[], xra=[], yra=[],
+         silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -53,6 +53,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, xra=[], yra=[], silent=False,
     lR23 : log(R_23)
     lO32 : log([OIII]/[OII])
     OH   : 12+log(O/H)
+
+    out_pdf : full path for output PDF
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -100,6 +102,10 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, xra=[], yra=[], silent=False,
         if len(idx) > 0:
             ax.scatter(lR23[idx], OH[idx], color=ctype[ii], marker='o', alpha=0.5,
                        label=ii_label)
+
+            if len(OH_err) != 0:
+                ax.errorbar(lR23[idx], OH[idx], yerr=OH_err[:,idx], mec=ctype[ii],
+                            ecolor=ctype[ii], capsize=0, marker='o', alpha=0.5, fmt=None)
 
             lO32_avg = np.average(lO32[idx])
             j18_logR23 = jiang18(x_arr, lO32_avg)
@@ -161,8 +167,10 @@ def MACT_OIII4363():
     lO32 = np.log10(data['O32'])
     OH   = data['OH']
 
+    OH_err = np.row_stack((data['OH_lo'].data,data['OH_hi'].data))
+
     out_pdf = path0 + 'MACT_R23_O32_Jiang18.pdf'
-    main(lR23, lO32, OH, out_pdf, n_bins=6, xra=[0.3,1.15], yra=[7.25,8.7])
+    main(lR23, lO32, OH, out_pdf, n_bins=6, OH_err=OH_err, xra=[0.3,1.15], yra=[7.25,8.7])
 
 #enddef
 

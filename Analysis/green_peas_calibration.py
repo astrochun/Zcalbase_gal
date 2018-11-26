@@ -105,7 +105,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, OH_err=[], xra=[], yra=[],
 
             if len(OH_err) != 0:
                 ax.errorbar(lR23[idx], OH[idx], yerr=OH_err[:,idx], mec=ctype[ii],
-                            ecolor=ctype[ii], capsize=0, marker='o', alpha=0.5, fmt=None)
+                            ecolor=ctype[ii], capsize=0, alpha=0.5, fmt=None, label=None)
 
             lO32_avg = np.average(lO32[idx])
             j18_logR23 = jiang18(x_arr, lO32_avg)

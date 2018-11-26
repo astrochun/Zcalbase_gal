@@ -124,6 +124,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, OH_err=[], xra=[], yra=[],
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
+    plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.99)
     fig.savefig(out_pdf)
 
     if silent == False: log.info('### End main : '+systime())

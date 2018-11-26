@@ -224,7 +224,12 @@ def DEEP2_MACT_OIII4363():
     lR23 = np.concatenate((deep2_lR23, mact_lR23))
     lO32 = np.concatenate((deep2_lO32, mact_lO32))
     OH   = np.concatenate((deep2_OH,   mact_OH))
-    
+
+    OH_lo = np.concatenate((deep2_data['OH_lo'].data, mact_data['OH_lo'].data))
+    OH_hi = np.concatenate((deep2_data['OH_hi'].data, mact_data['OH_hi'].data))
+    OH_err = np.row_stack((OH_lo,OH_hi))
+
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.pdf'
-    main(lR23, lO32, OH, out_pdf, n_bins=6, xra=[0.3,1.15], yra=[7.25,8.7])
+    main(lR23, lO32, OH, out_pdf, n_bins=6, OH_err=OH_err,
+         xra=[0.6,1.15], yra=[7.10,8.7])
 

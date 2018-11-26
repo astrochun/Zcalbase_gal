@@ -170,7 +170,7 @@ def MACT_OIII4363():
     OH_err = np.row_stack((data['OH_lo'].data,data['OH_hi'].data))
 
     out_pdf = path0 + 'MACT_R23_O32_Jiang18.pdf'
-    main(lR23, lO32, OH, out_pdf, n_bins=6, OH_err=OH_err, xra=[0.3,1.15], yra=[7.25,8.7])
+    main(lR23, lO32, OH, out_pdf, n_bins=6, OH_err=OH_err, xra=[0.55,1.25], yra=[7.10,8.7])
 
 #enddef
 

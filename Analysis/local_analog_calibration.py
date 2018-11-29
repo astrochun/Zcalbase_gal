@@ -49,3 +49,78 @@ def bian18_O32(O32):
     return OH
 #enddef
 
+def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
+         R23_xra=[], yra=[], silent=False, verbose=True):
+
+    '''
+    Main function to plot dataset against Bian+ (2018) calibration
+
+    Parameters
+    ----------
+    lR23 : log(R_23)
+    lO32 : log([OIII]/[OII])
+    OH   : 12+log(O/H)
+
+    out_pdf : full path for output PDF
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 29 November 2018
+    '''
+
+    if silent == False: log.info('### Begin main : '+systime())
+
+    fig, ax = plt.subplots(n_cols=2)
+
+    O32_min = np.min(lO32)
+    O32_max = np.max(lO32)
+    O32_arr = np.arange(O32_min,O32_max, 0.025)
+
+    bian_OH = bian18_O32(O32_arr)
+
+    # Grid of 12+log(O/H)
+    OH_arr = np.arange(min(OH),max(OH),0.05)
+
+    bian_R23 = bian18_R23(OH_arr)
+    
+    ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5)
+    ax[0].plot(bian_R23, OH_arr)
+
+    if len(OH_err) != 0:
+        ax[0].errorbar(lR23, OH, yerr=OH_err, mec='blue', ecolor='blue',
+                       capsize=0, alpha=0.5, fmt=None, label=None)
+
+    if len(lR23_err) != 0:
+        ax[0].errorbar(lR23, OH, xerr=lR23_err, mec='blue', ecolor='blue',
+                       capsize=0, alpha=0.5, fmt=None, label=None)
+
+    if len(R23_xra) != 0: ax[0].set_xlim(R23_xra)
+    if len(yra) != 0: ax[0].set_ylim(yra)
+
+    ax[0].set_xlabel(r'$\log(R_{23})$')
+    ax[0].set_ylabel(r'$12+\log({\rm O/H})$')
+
+    ax[1].scatter(lO32, OH, color='blue', marker='o', alpha=0.5)
+    if len(OH_err) != 0:
+        ax[0].errorbar(lO32, OH, yerr=OH_err, mec='blue', ecolor='blue',
+                       capsize=0, alpha=0.5, fmt=None, label=None)
+
+    if len(lO32_err) != 0:
+        ax[0].errorbar(lO32, OH, xerr=lR23_err, mec='blue', ecolor='blue',
+                       capsize=0, alpha=0.5, fmt=None, label=None)
+
+
+    plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.99)
+    fig.savefig(out_pdf)
+
+    if silent == False: log.info('### End main : '+systime())
+#enddef

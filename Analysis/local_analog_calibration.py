@@ -49,8 +49,8 @@ def bian18_O32(O32):
     return OH
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
-         R23_xra=[], yra=[], silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
+         OH_err=[], R23_xra=[], yra=[], silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Bian+ (2018) calibration

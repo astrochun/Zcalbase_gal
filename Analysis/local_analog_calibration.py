@@ -35,3 +35,17 @@ def bian18_R23(OH):
     return R23_p(OH)
 #enddef
 
+def bian18_O32(O32):
+    '''
+    Function to return metallicity given log(O32)
+
+    Parameters
+    ----------
+     O32 : log([OIII]/[OII])
+    '''
+
+    OH = 8.54 - 0.59 * O32
+
+    return OH
+#enddef
+

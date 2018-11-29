@@ -29,7 +29,7 @@ def bian18_R23(OH):
      OH : 12+log(O/H)
     '''
 
-    R23_coeff = [138.0430, -54.8284, 7.2954, -0.32293]
+    R23_coeff = [-0.32293, 7.2954, -54.8284, 138.0430]
     R23_p = np.poly1d(R23_coeff)
 
     return R23_p(OH)
@@ -79,7 +79,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
 
     if silent == False: log.info('### Begin main : '+systime())
 
-    fig, ax = plt.subplots(n_cols=2)
+    fig, ax = plt.subplots(ncols=2)
 
     O32_min = np.min(lO32)
     O32_max = np.max(lO32)
@@ -91,7 +91,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
     OH_arr = np.arange(min(OH),max(OH),0.05)
 
     bian_R23 = bian18_R23(OH_arr)
-    
+    print bian_R23
+
     ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5)
     ax[0].plot(bian_R23, OH_arr)
 
@@ -124,3 +125,4 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
+

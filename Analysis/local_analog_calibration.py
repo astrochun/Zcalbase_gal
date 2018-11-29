@@ -126,3 +126,28 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     if silent == False: log.info('### End main : '+systime())
 #enddef
 
+def DEEP2_OIII4363():
+
+    path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    infile = path0 + 'DEEP2_R23_O32_derived.tbl'
+
+    log.info('### Reading : '+infile)
+
+    data = asc.read(infile)
+
+    lR23 = np.log10(data['R23'])
+    lO32 = np.log10(data['O32'])
+    OH   = data['OH']
+
+    OH_err   = np.row_stack((data['OH_lo'].data,data['OH_hi'].data))
+
+    lR23_lo = lR23 - np.log10(data['R23'].data - data['R23_lo'].data)
+    lR23_hi = np.log10(data['R23'].data + data['R23_hi'].data) - lR23
+    lR23_err = np.row_stack((lR23_lo,lR23_hi))
+
+    out_pdf = path0 + 'DEEP2_R23_O32_Bian18.pdf'
+    main(lR23, lO32, OH, out_pdf, lR23_err=lR23_err, OH_err=OH_err,
+         R23_xra=[0.75,1.05], yra=[7.1,8.65])
+
+#enddef

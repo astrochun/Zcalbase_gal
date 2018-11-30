@@ -102,7 +102,7 @@ def main(ID, lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
                   label=label)
     for ii in range(len(lR23)):
         ax[0].annotate(ID[ii], [lR23[ii], OH[ii]], xycoords='data',
-                       size='xx-small', va='bottom', ha='left')
+                       size=4, va='bottom', ha='left')
 
     if len(OH_err) != 0:
         ax[0].errorbar(lR23, OH, yerr=OH_err, mec='blue', ecolor='blue',
@@ -125,7 +125,7 @@ def main(ID, lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     ax[1].scatter(lO32, OH, color='blue', marker='o', alpha=0.5)
     for ii in range(len(lO32)):
         ax[1].annotate(ID[ii], [lO32[ii], OH[ii]], xycoords='data',
-                       size='xx-small', va='bottom', ha='left')
+                       size=4, va='bottom', ha='left')
     if len(OH_err) != 0:
         ax[1].errorbar(lO32, OH, yerr=OH_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)
@@ -205,8 +205,10 @@ def MACT_OIII4363():
     lO32_hi = np.log10(data['O32'].data + data['O32_hi'].data) - lR23
     lO32_err = np.row_stack((lO32_lo,lO32_hi))
 
+    ID = data['ID']
+
     out_pdf = path0 + 'MACT_R23_O32_Bian18.pdf'
-    main(lR23, lO32, OH, out_pdf, lR23_err=lR23_err, lO32_err=lO32_err,
+    main(ID, lR23, lO32, OH, out_pdf, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
          yra=[7.1,8.85], label=r'MACT [OIII]$\lambda$4363-detected')
 

@@ -212,7 +212,7 @@ def MACT_OIII4363():
     ID = data['ID']
 
     out_pdf = path0 + 'MACT_R23_O32_Bian18.pdf'
-    main(ID, lR23, lO32, OH, out_pdf, lR23_err=lR23_err, lO32_err=lO32_err,
+    main(lR23, lO32, OH, out_pdf, ID=ID, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
          yra=[7.1,8.85], label=r'$\mathcal{MACT}$  (Ly+2016)')
 

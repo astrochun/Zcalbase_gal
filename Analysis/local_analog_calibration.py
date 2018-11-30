@@ -120,6 +120,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
         ax[1].errorbar(lO32, OH, xerr=lR23_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)
 
+    ax[1].plot(O32_arr, bian_OH)
+
     if len(O32_xra) != 0: ax[1].set_xlim(O32_xra)
     if len(yra) != 0: ax[1].set_ylim(yra)
 

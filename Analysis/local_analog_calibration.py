@@ -49,7 +49,7 @@ def bian18_O32(O32):
     return OH
 #enddef
 
-def main(ID, lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
+def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
          OH_err=[], R23_xra=[], O32_xra=[], yra=[], label='',
          silent=False, verbose=True):
 
@@ -58,12 +58,14 @@ def main(ID, lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
 
     Parameters
     ----------
-    ID   : ID of source
     lR23 : log(R_23)
     lO32 : log([OIII]/[OII])
     OH   : 12+log(O/H)
 
     out_pdf : full path for output PDF
+
+    ID   : ID of source
+      Provide if plots should be annotated
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -100,9 +102,10 @@ def main(ID, lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
 
     ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5,
                   label=label)
-    for ii in range(len(lR23)):
-        ax[0].annotate(ID[ii], [lR23[ii], OH[ii]], xycoords='data',
-                       size=4, va='bottom', ha='left')
+    if len(ID) != 0:
+        for ii in range(len(lR23)):
+            ax[0].annotate(ID[ii], [lR23[ii], OH[ii]], xycoords='data',
+                           size=4, va='bottom', ha='left')
 
     if len(OH_err) != 0:
         ax[0].errorbar(lR23, OH, yerr=OH_err, mec='blue', ecolor='blue',
@@ -123,8 +126,9 @@ def main(ID, lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
     ax[1].scatter(lO32, OH, color='blue', marker='o', alpha=0.5)
-    for ii in range(len(lO32)):
-        ax[1].annotate(ID[ii], [lO32[ii], OH[ii]], xycoords='data',
+    if len(ID) != 0:
+        for ii in range(len(lO32)):
+            ax[1].annotate(ID[ii], [lO32[ii], OH[ii]], xycoords='data',
                        size=4, va='bottom', ha='left')
     if len(OH_err) != 0:
         ax[1].errorbar(lO32, OH, yerr=OH_err, mec='blue', ecolor='blue',

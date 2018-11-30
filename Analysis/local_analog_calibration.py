@@ -89,7 +89,10 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     bian_OH = bian18_O32(O32_arr)
 
     # Grid of 12+log(O/H)
-    OH_arr = np.arange(min(OH),max(OH),0.05)
+    if len(yra) == 0:
+        OH_arr = np.arange(min(OH),max(OH),0.05)
+    else:
+        OH_arr = np.arange(yra[0],yra[1],0.05)
 
     bian_R23 = bian18_R23(OH_arr)
     print bian_R23

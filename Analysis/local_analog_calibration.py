@@ -50,7 +50,8 @@ def bian18_O32(O32):
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], yra=[], silent=False, verbose=True):
+         OH_err=[], R23_xra=[], O32_xra=[], yra=[], silent=False,
+         verbose=True):
 
     '''
     Main function to plot dataset against Bian+ (2018) calibration
@@ -119,6 +120,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
         ax[1].errorbar(lO32, OH, xerr=lR23_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)
 
+    if len(O32_xra) != 0: ax[1].set_xlim(O32_xra)
     if len(yra) != 0: ax[1].set_ylim(yra)
 
     ax[1].set_yticklabels([])

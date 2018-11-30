@@ -95,7 +95,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     print bian_R23
 
     ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5)
-    ax[0].plot(bian_R23, OH_arr)
+    ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
 
     if len(OH_err) != 0:
         ax[0].errorbar(lR23, OH, yerr=OH_err, mec='blue', ecolor='blue',
@@ -120,7 +120,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
         ax[1].errorbar(lO32, OH, xerr=lR23_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)
 
-    ax[1].plot(O32_arr, bian_OH)
+    ax[1].plot(O32_arr, bian_OH, 'k--', label='Bian+(2018)')
 
     if len(O32_xra) != 0: ax[1].set_xlim(O32_xra)
     if len(yra) != 0: ax[1].set_ylim(yra)

@@ -112,13 +112,17 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
 
     ax[1].scatter(lO32, OH, color='blue', marker='o', alpha=0.5)
     if len(OH_err) != 0:
-        ax[0].errorbar(lO32, OH, yerr=OH_err, mec='blue', ecolor='blue',
+        ax[1].errorbar(lO32, OH, yerr=OH_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)
 
     if len(lO32_err) != 0:
-        ax[0].errorbar(lO32, OH, xerr=lR23_err, mec='blue', ecolor='blue',
+        ax[1].errorbar(lO32, OH, xerr=lR23_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)
 
+    if len(yra) != 0: ax[1].set_ylim(yra)
+
+    ax[1].set_yticklabels([])
+    ax[1].set_xlabel(r'$\log(O_{32})$')
 
     plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.99)
     fig.savefig(out_pdf)

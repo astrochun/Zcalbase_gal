@@ -126,8 +126,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     ax[1].set_yticklabels([])
     ax[1].set_xlabel(r'$\log(O_{32})$')
 
-    plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.99,
-                        wspace=0.05)
+    plt.subplots_adjust(left=0.065, right=0.99, bottom=0.1, top=0.99,
+                        wspace=0.01)
+    fig.set_size_inches(10,5)
     fig.savefig(out_pdf)
 
     if silent == False: log.info('### End main : '+systime())

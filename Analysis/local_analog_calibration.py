@@ -49,7 +49,7 @@ def bian18_O32(O32):
     return OH
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
+def main(ID, lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
          OH_err=[], R23_xra=[], O32_xra=[], yra=[], label='',
          silent=False, verbose=True):
 
@@ -58,6 +58,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
 
     Parameters
     ----------
+    ID   : ID of source
     lR23 : log(R_23)
     lO32 : log([OIII]/[OII])
     OH   : 12+log(O/H)
@@ -99,7 +100,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
 
     ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5,
                   label=label)
-    ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
+    for ii in range(len(lR23)):
+        ax[0].annotate(ID[ii], [lR23[ii], OH[ii]], xycoords='data',
+                       size='xx-small', va='bottom', ha='left')
 
     if len(OH_err) != 0:
         ax[0].errorbar(lR23, OH, yerr=OH_err, mec='blue', ecolor='blue',
@@ -108,6 +111,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     if len(lR23_err) != 0:
         ax[0].errorbar(lR23, OH, xerr=lR23_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)
+
+    ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
 
     if len(R23_xra) != 0: ax[0].set_xlim(R23_xra)
     if len(yra) != 0: ax[0].set_ylim(yra)
@@ -118,6 +123,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
     ax[1].scatter(lO32, OH, color='blue', marker='o', alpha=0.5)
+    for ii in range(len(lO32)):
+        ax[1].annotate(ID[ii], [lO32[ii], OH[ii]], xycoords='data',
+                       size='xx-small', va='bottom', ha='left')
     if len(OH_err) != 0:
         ax[1].errorbar(lO32, OH, yerr=OH_err, mec='blue', ecolor='blue',
                        capsize=0, alpha=0.5, fmt=None, label=None)

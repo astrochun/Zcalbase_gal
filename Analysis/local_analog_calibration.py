@@ -50,8 +50,8 @@ def bian18_O32(O32):
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], O32_xra=[], yra=[], silent=False,
-         verbose=True):
+         OH_err=[], R23_xra=[], O32_xra=[], yra=[], label='',
+         silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Bian+ (2018) calibration
@@ -94,7 +94,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
     bian_R23 = bian18_R23(OH_arr)
     print bian_R23
 
-    ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5)
+    ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5,
+                  label=label)
     ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
 
     if len(OH_err) != 0:
@@ -110,6 +111,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], lO32_err=[],
 
     ax[0].set_xlabel(r'$\log(R_{23})$')
     ax[0].set_ylabel(r'$12+\log({\rm O/H})$')
+
+    ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
     ax[1].scatter(lO32, OH, color='blue', marker='o', alpha=0.5)
     if len(OH_err) != 0:

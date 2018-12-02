@@ -1,5 +1,7 @@
 #This function runs the entire process start to finish
-#Not completed
+#This weekend combine the grid and voronoi if statements, voronoi20, log plots for met
+#EW values:equival width
+### 
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,7 +24,7 @@ import glob
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10_1119/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Gridmethod_1130/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -32,7 +34,7 @@ lambda0 =[3726.16, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07
 
 line_type = ['Oxy2', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single', 'Balmer', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single']
 
-line_name = ['OII_3727','H_10', 'H_9','NeIII','Hzeta','HeI','3967', 'HEPSIL', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']   # 'NII_6548', 'HALPHA', 'NII_6584', 'SII_6717', 'SII_6730'] #'H_10' line not fitted because the 'x0 is infeasible' error occurred. In future go back and change para_bounds so that the line canbe fit  4340.46; this is the reason why we have two lists of xcoor and lambda0
+line_name = ['OII_3727','H_10', 'H_9','NeIII','Hzeta','HeI','3967', 'HEPSIL', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']  
 
 def exclude_outliers(objno):
     flag = np.zeros(len(objno), dtype=int)
@@ -51,10 +53,10 @@ def get_det3():
             data0 = data
         else:
             data0 = vstack([data0, data])
-    #fits.writeto(fitspath_ini+'f3_0716/DEEP2_Fields_combined', data0)
-        #print 'data0 : ', len(data0)
 
     objno = data0['OBJNO']
+
+    #Excluding Outliers 
     exclude_flag = exclude_outliers(objno)
     print "exclude flag: ", np.where(exclude_flag == 1)
     
@@ -88,8 +90,6 @@ def get_det3():
     O2_det3 =O2_ini[det3]
     O3_det3 =O3_ini[det3]
     Hb_det3 =Hb_ini[det3]
-
-    print 'len(R23)', len(R23), 'len(O2_det3)', len(O2_det3)
     
     return R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3
 
@@ -99,20 +99,20 @@ def get_det3():
 
 
 def run_R23_O32_analysis(dataset,mask='None'):
-    #dataset options: Grid, Voronoi10,Voronoi14
+    #dataset options: Grid, Voronoi10,Voronoi14, Voronoi20
     
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
     if dataset == 'Grid':
         #Binning and Graphing MasterGrid
         #Options to Change: Bin Size
-        pdf_pages1 = PdfPages(fitspath+'R23_O32_bin025_scatter_and_hexbin_MasterGrid.pdf')
-        outfile1 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'
+        pdf_pages_hex = PdfPages(fitspath+'R23_O32_bin025_scatter_and_hexbin_MasterGrid.pdf')
+        outfile1_npz = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'
         R23_bin = 0.25
         O32_bin = 0.25
         binstr = 025
         
-        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages1,outfile1,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3, R23_bin, O32_bin)
+        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3, R23_bin, O32_bin)
         print 'made Arrays_R23O32bin025MasterGrid.npz, scatter_and_hexbin, testmastergrid(need to find if this is used anywhere)'
         print 'finished Binning_and_Graphing_MasterGrid'
         
@@ -128,14 +128,14 @@ def run_R23_O32_analysis(dataset,mask='None'):
         R23_grid = grid_data['R23_grid']
         O32_grid = grid_data['O32_grid']
         T_arr = grid_data['T_arr']
-        print 'len(T_arr)', len(T_arr)
+        
         
         #Option to Change: Masking the night sky emission lines 
         if mask == True:
-            Stack_name = 'Stacking_Wave_vs_Spect1D_Masked_MasterGrid_bin'+str(binstr)+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, dataset, Stack_name,grid_data)
+            Stack_name = 'Stacking_Masked_MasterGrid_bin'+str(binstr)+'.pdf'
+            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data)
         else:
-            Stack_name = 'Stacking_Wave_vs_Spect1D_MasterGrid_bin'+str(binstr)+'.pdf'
+            Stack_name = 'Stacking_MasterGrid_bin'+str(binstr)+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data)
 
         #Outfile and pdf both use name
@@ -144,15 +144,14 @@ def run_R23_O32_analysis(dataset,mask='None'):
 
 
         #Zoom_and_gauss_general
-        #outfile_grid = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/' + Stack_name
         Stack_name = Stack_name.replace('.pdf', '.fits')
         outfile_grid = fitspath + Stack_name
         print outfile_grid
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-        Spect_1D = fits.getdata(outfile_grid)
+        #Spect_1D = fits.getdata(outfile_grid)
         dispersion = header['CDELT1']
-        out_ascii = fitspath+'/'+dataset+'binning_averages.tbl'
+        binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
 
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   
@@ -169,7 +168,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         s2 = 1
         a2 = -1.8
 
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, Spect_1D, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,out_ascii)#, N_gal_array=N_arr_grid, R_23_array=R23_grid, O_32_array=O32_grid)
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
 
         print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
 
@@ -184,24 +183,22 @@ def run_R23_O32_analysis(dataset,mask='None'):
         
         print 'Grid_combine_flux_table created'
         
-        #line_ratio_plotting
+        ########FIX THIS CODE##########line_ratio_plotting
         #I need to go back through and figure out what is the average and what is the composite
-        line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, out_ascii)
+        line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
 
-        print "got through"
+       
 
         #R_temp_calcul
         combine_flux_ascii = fitspath + 'Grid_combined_flux_table.tbl'
-        #combine_flux_table = fitspath + 'Grid_combined_flux_table.fits'
-        #combine_fits, header_combine_fits = fits.getdata(combine_flux_table, header = True)
-        #print header_combine_fits
-        out_ascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
-        out_fits = fitspath+ '/Grid_temperatures_metalicity.fits'
-        pdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
+        temp_m_gascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/Grid_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
 
-        R_temp_calcul.run_function(fitspath, out_ascii, out_fits, pdf_name, combine_flux_ascii)  #combine_fits, header_combine_fits,
+        R_temp_calcul.run_function(fitspath, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
 
-        temp_table= asc.read(out_ascii)
+
+        temp_table= asc.read(temp_m_gascii)
         SN_4363 = temp_table['S/N_4363']
         det_4363 = np.where((SN_4363>=3))[0]
         print det_4363
@@ -221,7 +218,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
 
 ###Voronoi###
 
-    if dataset == 'Voronoi10' or 'Voronoi14':
+    if dataset == 'Voronoi10' or 'Voronoi14' or 'Voronoi20':
         #Adaptive Binning 
         #Options to Change: Signal/Noise Size
         if dataset == 'Voronoi10':
@@ -236,23 +233,30 @@ def run_R23_O32_analysis(dataset,mask='None'):
             asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
             asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
 
+        if dataset == 'Voronoi20':
+            sn_size = 20
+            txt_file = fitspath + 'voronoi20_2d_binning_outputs.txt'
+            asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
+            asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
+
         adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
 
         #Stacking_voronoi
         #Option to Change: 
-        if dataset == "Voronoi10": outfile = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
-        if dataset == "Voronoi14": outfile = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
-        print '### outfile for datadet3: '+outfile
-        voronoi_data = outfile #asc.read(outfile)
-        
+        if dataset == "Voronoi10": voronoi_data = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
+        if dataset == "Voronoi14": voronoi_data = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
+        if dataset == "Voronoi20": voronoi_data = fitspath + 'voronoi20_2d_binning_datadet3.tbl'
 
-        #Option to Change: Masking the night sky emission lines 
+        print '### outfile for datadet3: '+voronoi_data
+        
+        #Option to Change: Masking the night sky emission lines
+        ######Check to make sure tables are going into right places#####
         if mask == True:
             Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data,det3, asc_table1, Stack_name)
+            Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data, det3, asc_table1, Stack_name)
         else:
             Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data,det3, Stack_name)
+            Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data, det3, Stack_name)
 
         #Outfile and pdf both use name
         print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
@@ -262,12 +266,10 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #Zoom_and_gauss_general
 
         Stack_name= Stack_name.replace('.pdf', '.fits')
-        #outfile_voronoi = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi14_1011/' + Stack_name
         outfile_voronoi = fitspath+ Stack_name
-        #stack2D, header = fits.open(outfile_voronoi, ignore_missing_end = True)
         stack2D, header = fits.getdata(outfile_voronoi,header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-        Spect_1D = fits.getdata(outfile_voronoi)
+        #Spect_1D = fits.getdata(outfile_voronoi)
         dispersion = header['CDELT1']
 
         lineflag = np.zeros(len(wave))
@@ -276,13 +278,14 @@ def run_R23_O32_analysis(dataset,mask='None'):
             if len(idx) > 0:
                 lineflag[idx] = 1
 
-        #tab = asc_table1
+        ###Delete after you make sure it is not used###
+        '''#tab = asc_table1
         if dataset == 'Voronoi10':
             tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
             #asc_tab = asc.read(tab)
         else: 
             tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_10.tbl'
-            #asc_tab = asc.read(tab)
+            #asc_tab = asc.read(tab)'''
             
         #Option to change: Constants used as initial guesses for gaussian fit
         s=1.0
@@ -293,8 +296,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         a1= 4.7
         s2 = 1
         a2 = -1.8
-        #print 'tab='+ tab
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, Spect_1D, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
         print 'finished gaussian emission fitting pdf and tables created'
 
@@ -302,7 +304,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         #Option to change: name of new fits file created
         intro = fitspath + dataset+'_Average_R23_O32_Values.tbl'
         asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl' )
+        table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl')
         combine_flux_fits = fitspath+dataset+'_combined_flux_table.fits'
         combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
         print combine_flux_ascii
@@ -310,22 +312,22 @@ def run_R23_O32_analysis(dataset,mask='None'):
 
         print dataset+'_combine_flux_table created'
 
-        #line_ratio_plotting
+        ####### FIX THIS PLOTS ######line_ratio_plotting
         #I need to go back through and figure out what is the average and what is the composite
-        line_ratio_plotting.Plotting_Data1(fitspath,dataset, combine_flux_ascii, asc_table1)
+        line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1)
 
 
         
         #R_temp_calcul
         
-        #combine_fits = fits.getdata(combine_flux_ascii, header = True)
-        out_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
-        out_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
-        pdf_name = dataset+'_Temp_Composite_Metallicity.pdf'
+        temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
+        temp_met_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
+        pdf_name_temp_met = dataset+'_Temp_Composite_Metallicity.pdf'
 
-        R_temp_calcul.run_function(fitspath, out_ascii, out_fits, pdf_name, combine_flux_ascii)
+        R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
+  
 
-        temp_table= asc.read(out_ascii)
+        temp_table= asc.read(temp_met_ascii)
         SN_4363 = temp_table['S/N_4363']
         det_4363 = np.where((SN_4363>=3))[0]
         print det_4363

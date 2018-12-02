@@ -52,22 +52,21 @@ xlim = [0.4,50]
 ylim = [0.1,20]
 
 def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3, R23_bin, O32_bin):
-    #print 'Grid setting:' + pdf_pages, outfile
+    fig1, ax1 = plt.subplots() #plt.gcf()
+
+    xlim = [0.4,50]
+    ylim = [0.1,20]
+
+    
     R23_bin  = R23_bin
     O32_bin  = O32_bin
     R23_grid = np.arange(np.log10(xlim[0]), np.log10(xlim[1])+R23_bin, R23_bin)
     O32_grid = np.arange(np.log10(ylim[0]), np.log10(ylim[1])+R23_bin, O32_bin)
-
-    #print len(R23_grid), len(O32_grid)
-    
     N_arr0 = np.zeros( (len(R23_grid),len(O32_grid)), dtype=np.float)
 
     N = len(R23_grid)
     M = len(O32_grid)
-    print N, M
-
     T_arr = np.zeros((N, M), dtype = object)
-    print len(T_arr[:,0])
 
     #Plotting
     label0 = 'Field = data0[det3], N='+str(len(det3))
@@ -77,8 +76,6 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
     x = x[finite0]
     y = y[finite0]
     scatter = ax1.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1, label=label0)
-    
-    
     x0 = x.tolist()
     y0 = y.tolist()
 
@@ -89,19 +86,14 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
             N_arr0[jj,kk]    += len(array)
             T_arr[jj,kk] = array
 
-
-
-    #print np.max(N_arr0), np.min(N_arr0), np.average(N_arr0)
-
     ax1.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for DEEP2')
     ax1.set_xlabel(r'log($R_{23}$)')
     ax1.set_ylabel(r'log($O_{32}$)')
     ax1.set_xlim(np.log10(xlim))
     ax1.set_ylim(np.log10(ylim))
     ax1.minorticks_on()
-    ax1.legend(loc='upper left', numpoints=3) #"Field1", "Field2", "Field3", "Field4")    
+    ax1.legend(loc='upper left', numpoints=3)     
     fig1.set_size_inches(9,9)
-    #fig.savefig(fitspath+'R23_O32.pdf')
 
     pdf_pages.savefig(fig1)
 
@@ -127,10 +119,6 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
     ax2.set_ylim(np.log10(ylim))
     ax2.minorticks_on()
     ax2.legend(loc='upper left', numpoints=3)
-
-
-
-
 
     fig2.set_size_inches(8,8)
     pdf_pages.savefig(fig2)

@@ -182,7 +182,7 @@ def get_DEEP2(path0):
 
     lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
-    return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err, ID
+    return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err
 #enddef
 
 def get_MACT(path0):
@@ -194,13 +194,13 @@ def get_MACT(path0):
 
     lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
-    return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err, ID
+    return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err
 #enddef
 
 def DEEP2_OIII4363():
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err, ID = get_DEEP2(path0)
+    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_DEEP2(path0)
 
     ID = data['ID']
 

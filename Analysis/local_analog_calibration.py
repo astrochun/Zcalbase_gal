@@ -224,3 +224,34 @@ def MACT_OIII4363():
          OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
          yra=[7.1,8.85], label=r'$\mathcal{MACT}$  (Ly+2016)')
 
+
+#enddef
+
+def DEEP2_MACT_OIII4363():
+
+    path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    # DEEP2
+    DEEP2_data, DEEP2_lR23, DEEP2_lO32, DEEP2_OH, DEEP2_OH_err, \
+        DEEP2_lR23_err, DEEP2_lO32_err = get_DEEP2(path0)
+
+    # MACT
+    MACT_data, MACT_lR23, MACT_lO32, MACT_OH, MACT_OH_err, \
+        MACT_lR23_err, MACT_lO32_err = get_MACT(path0)
+
+    # Combine together
+    lR23 = np.concatenate((DEEP2_lR23, MACT_lR23))
+    lO32 = np.concatenate((DEEP2_lO32, MACT_lO32))
+    OH   = np.concatenate((DEEP2_OH,   MACT_OH))
+
+    OH_err = np.concatenate((DEEP2_OH_err, MACT_OH_err), axis=1)
+
+    lR23_err = np.concatenate((DEEP2_lR23_err, MACT_lR23_err), axis=1)
+    lO32_err = np.concatenate((DEEP2_lO32_err, MACT_lO32_err), axis=1)
+
+    ID = np.concatenate((DEEP2_data['ID'].data, MACT_data['ID'].data))
+
+    out_pdf = path0 + 'DEEP2_MACT_R23_O32_Bian18.pdf'
+    main(lR23, lO32, OH, out_pdf, ID=ID, lR23_err=lR23_err, lO32_err=lO32_err,
+         OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
+         yra=[7.1,8.85], label='')

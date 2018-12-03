@@ -156,9 +156,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
 
 def get_measurements(data):
 
-    lR23 = np.log10(data['R23'])
-    lO32 = np.log10(data['O32'])
-    OH   = data['OH']
+    lR23 = np.log10(data['R23'].data)
+    lO32 = np.log10(data['O32'].data)
+    OH   = data['OH'].data
 
     OH_err   = np.row_stack((data['OH_lo'].data,data['OH_hi'].data))
 

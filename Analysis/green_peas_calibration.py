@@ -74,11 +74,22 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
 
     fig, ax = plt.subplots()
 
-    # Grid of 12+log(O/H)
-    x_arr = np.arange(min(OH),max(OH),0.05)
+    n_sample = len(lR23)
 
-    y_min = np.min(lO32)
-    y_max = np.max(lO32)
+    min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
+    OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
+    for nn in range(n_sample):
+        min1[nn] = np.min(lO32[nn])
+        max1[nn] = np.max(lO32[nn])
+
+        OH_min1[nn] = np.min(OH[nn])
+        OH_max1[nn] = np.max(OH[nn])
+
+    # Grid of 12+log(O/H)
+    x_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
+
+    y_min = np.min(min1)
+    y_max = np.max(max1)
 
     sort0   = np.argsort(lO32)
     y_sort0 = lO32[sort0]
@@ -93,31 +104,36 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
 
     ctype = ['red','magenta','green','cyan','blue','black']
 
-    for ii in range(n_bins):
-        y_ii_min = bin_start[ii] #bin_y_min + ii * dy
-        y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy
-        idx = np.where((lO32 >= y_ii_min) & (lO32 <= y_ii_max))[0]
-        ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
-                                                               len(idx))
-        if len(idx) > 0:
-            ax.scatter(lR23[idx], OH[idx], color=ctype[ii], marker='o', alpha=0.5,
-                       label=ii_label)
+    for nn in range(n_sample):
+        for ii in range(n_bins):
+            y_ii_min = bin_start[ii] #bin_y_min + ii * dy
+            y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy
+            idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
+            ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
+                                                                   len(idx))
+            if len(idx) > 0:
+                ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker='o',
+                           alpha=0.5, label=ii_label)
 
-            if len(OH_err) != 0:
-                ax.errorbar(lR23[idx], OH[idx], yerr=OH_err[:,idx], mec=ctype[ii],
-                            ecolor=ctype[ii], capsize=0, alpha=0.5, fmt=None, label=None)
+            if len(OH_err[nn]) != 0:
+                ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=OH_err[nn][:,idx],
+                            mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
+                            fmt=None, label=None)
 
-            if len(lR23_err) != 0:
-                ax.errorbar(lR23[idx], OH[idx], xerr=lR23_err[:,idx], mec=ctype[ii],
-                            ecolor=ctype[ii], capsize=0, alpha=0.5, fmt=None, label=None)
+            if len(lR23_err[nn]) != 0:
+                ax.errorbar(lR23[nn][idx], OH[nn][idx], xerr=lR23_err[nn][:,idx],
+                            mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
+                            fmt=None, label=None)
 
-            lO32_avg = np.average(lO32[idx])
+            lO32_avg = np.average(lO32[nn][idx])
             j18_logR23 = jiang18(x_arr, lO32_avg)
             ax.annotate('%.2f' % lO32_avg, [j18_logR23[-1], x_arr[-1]],
                         color=ctype[ii], xycoords='data', ha='center',
                         va='bottom', fontsize=8)
 
             ax.plot(j18_logR23, x_arr, color=ctype[ii], linestyle='dashed')
+        #endfor
+    #endfor
 
     if len(xra) != 0: ax.set_xlim(xra)
     if len(yra) != 0: ax.set_ylim(yra)

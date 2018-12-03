@@ -183,6 +183,19 @@ def get_DEEP2(path0):
     lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
     return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err, ID
+#enddef
+
+def get_MACT(path0):
+    infile = path0 + 'MACT_R23_O32_derived.tbl'
+
+    log.info('### Reading : '+infile)
+
+    data = asc.read(infile)
+
+    lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
+
+    return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err, ID
+#enddef
 
 def DEEP2_OIII4363():
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'

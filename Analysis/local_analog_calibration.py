@@ -50,7 +50,7 @@ def bian18_O32(O32):
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], O32_xra=[], yra=[], label='',
+         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label='',
          silent=False, verbose=True):
 
     '''
@@ -110,8 +110,11 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
 
     bian_R23 = bian18_R23(OH_arr)
 
+    if len(ctype) == 0:
+        ctype = ['blue'] * n_sample
+
     for nn in range(n_sample):
-        ax[0].scatter(lR23[nn], OH[nn], color='blue', marker='o',
+        ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], marker='o',
                       alpha=0.5, label=label)
         if len(ID) != 0:
             for ii in range(len(lR23[nn])):
@@ -120,13 +123,13 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
                                ha='left')
 
         if len(OH_err) != 0:
-            ax[0].errorbar(lR23[nn], OH[nn], yerr=OH_err[nn], mec='blue',
-                           ecolor='blue', capsize=0, alpha=0.5,
+            ax[0].errorbar(lR23[nn], OH[nn], yerr=OH_err[nn], mec=ctype[nn],
+                           ecolor=ctype[nn], capsize=0, alpha=0.5,
                            fmt=None, label=None)
 
         if len(lR23_err) != 0:
-            ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec='blue',
-                           ecolor='blue', capsize=0, alpha=0.5,
+            ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec=ctype[nn],
+                           ecolor=ctype[nn], capsize=0, alpha=0.5,
                            fmt=None, label=None)
 
     ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
@@ -140,7 +143,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
     ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
     for nn in range(n_sample):
-        ax[1].scatter(lO32[nn], OH[nn], color='blue', marker='o', alpha=0.5)
+        ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], marker='o',
+                      alpha=0.5)
         if len(ID) != 0:
             for ii in range(len(lO32[nn])):
                 ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],
@@ -148,13 +152,13 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
                                ha='left')
 
         if len(OH_err) != 0:
-            ax[1].errorbar(lO32[nn], OH[nn], yerr=OH_err[nn], mec='blue',
-                           ecolor='blue', capsize=0, alpha=0.5,
+            ax[1].errorbar(lO32[nn], OH[nn], yerr=OH_err[nn], mec=ctype[nn],
+                           ecolor=ctype[nn], capsize=0, alpha=0.5,
                            fmt=None, label=None)
 
         if len(lO32_err) != 0:
-            ax[1].errorbar(lO32[nn], OH[nn], xerr=lR23_err[nn], mec='blue',
-                           ecolor='blue', capsize=0, alpha=0.5,
+            ax[1].errorbar(lO32[nn], OH[nn], xerr=lO32_err[nn], mec=ctype[nn],
+                           ecolor=ctype[nn], capsize=0, alpha=0.5,
                            fmt=None, label=None)
 
     ax[1].plot(O32_arr, bian_OH, 'k--', label='Bian+(2018)')

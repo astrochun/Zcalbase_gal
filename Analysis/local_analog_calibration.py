@@ -279,4 +279,4 @@ def DEEP2_MACT_OIII4363():
     out_pdf = path0 + 'DEEP2_MACT_R23_O32_Bian18.pdf'
     main(lR23, lO32, OH, out_pdf, ID=ID, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
-         yra=[7.1,8.85], label='')
+         yra=[7.1,8.85], ctype=['blue','green'], label='')

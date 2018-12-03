@@ -114,8 +114,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
         ctype = ['blue'] * n_sample
 
     for nn in range(n_sample):
-        ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], marker='o',
-                      alpha=0.5, label=label)
+        ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], edgecolor='none',
+                      marker='o', alpha=0.5, label=label)
         if len(ID) != 0:
             for ii in range(len(lR23[nn])):
                 ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],
@@ -143,8 +143,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
     ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
     for nn in range(n_sample):
-        ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], marker='o',
-                      alpha=0.5)
+        ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], edgecolor='none',
+                      marker='o', alpha=0.5)
         if len(ID) != 0:
             for ii in range(len(lO32[nn])):
                 ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],

@@ -150,6 +150,21 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
     if silent == False: log.info('### End main : '+systime())
 #enddef
 
+def get_measurements(data):
+
+    lR23 = np.log10(data['R23'].data)
+    lO32 = np.log10(data['O32'].data)
+    OH   = data['OH'].data
+
+    OH_err   = np.row_stack((data['OH_lo'].data,data['OH_hi'].data))
+
+    lR23_lo = lR23 - np.log10(data['R23'].data - data['R23_lo'].data)
+    lR23_hi = np.log10(data['R23'].data + data['R23_hi'].data) - lR23
+    lR23_err = np.row_stack((lR23_lo,lR23_hi))
+
+    return lR23, lO32, OH, OH_err, lR23_err
+#enddef
+
 def DEEP2_OIII4363():
 
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'

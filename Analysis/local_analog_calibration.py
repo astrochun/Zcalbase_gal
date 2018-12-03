@@ -190,7 +190,7 @@ def get_measurements(data):
     lR23_err = np.row_stack((lR23_lo,lR23_hi))
 
     lO32_lo = lO32 - np.log10(data['O32'].data - data['O32_lo'].data)
-    lO32_hi = np.log10(data['O32'].data + data['O32_hi'].data) - lR23
+    lO32_hi = np.log10(data['O32'].data + data['O32_hi'].data) - lO32
     lO32_err = np.row_stack((lO32_lo,lO32_hi))
 
     return lR23, lO32, OH, OH_err, lR23_err, lO32_err
@@ -277,6 +277,7 @@ def DEEP2_MACT_OIII4363():
     ID = [DEEP2_data['ID'].data, MACT_data['ID'].data]
 
     out_pdf = path0 + 'DEEP2_MACT_R23_O32_Bian18.pdf'
+
     main(lR23, lO32, OH, out_pdf, ID=ID, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
          yra=[7.1,8.85], ctype=['blue','green'], label='')

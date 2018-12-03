@@ -85,35 +85,49 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
 
     fig, ax = plt.subplots(ncols=2)
 
-    O32_min = np.min(lO32)
-    O32_max = np.max(lO32)
+    n_sample = len(lR23)
+
+    min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
+    OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
+    for nn in range(n_sample):
+        min1[nn] = np.min(lO32[nn])
+        max1[nn] = np.max(lO32[nn])
+
+        OH_min1[nn] = np.min(OH[nn])
+        OH_max1[nn] = np.max(OH[nn])
+
+    O32_min = np.min(min1)
+    O32_max = np.max(max1)
     O32_arr = np.arange(O32_min,O32_max, 0.025)
 
     bian_OH = bian18_O32(O32_arr)
 
     # Grid of 12+log(O/H)
     if len(yra) == 0:
-        OH_arr = np.arange(min(OH),max(OH),0.05)
+        OH_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
     else:
         OH_arr = np.arange(yra[0],yra[1],0.05)
 
     bian_R23 = bian18_R23(OH_arr)
-    print bian_R23
 
-    ax[0].scatter(lR23, OH, color='blue', marker='o', alpha=0.5,
-                  label=label)
-    if len(ID) != 0:
-        for ii in range(len(lR23)):
-            ax[0].annotate(ID[ii], [lR23[ii], OH[ii]], xycoords='data',
-                           size=4, va='bottom', ha='left')
+    for nn in range(n_sample):
+        ax[0].scatter(lR23[nn], OH[nn], color='blue', marker='o',
+                      alpha=0.5, label=label)
+        if len(ID) != 0:
+            for ii in range(len(lR23[nn])):
+                ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],
+                               xycoords='data', size=4, va='bottom',
+                               ha='left')
 
-    if len(OH_err) != 0:
-        ax[0].errorbar(lR23, OH, yerr=OH_err, mec='blue', ecolor='blue',
-                       capsize=0, alpha=0.5, fmt=None, label=None)
+        if len(OH_err) != 0:
+            ax[0].errorbar(lR23[nn], OH[nn], yerr=OH_err[nn], mec='blue',
+                           ecolor='blue', capsize=0, alpha=0.5,
+                           fmt=None, label=None)
 
-    if len(lR23_err) != 0:
-        ax[0].errorbar(lR23, OH, xerr=lR23_err, mec='blue', ecolor='blue',
-                       capsize=0, alpha=0.5, fmt=None, label=None)
+        if len(lR23_err) != 0:
+            ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec='blue',
+                           ecolor='blue', capsize=0, alpha=0.5,
+                           fmt=None, label=None)
 
     ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
 
@@ -125,18 +139,23 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
 
     ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
-    ax[1].scatter(lO32, OH, color='blue', marker='o', alpha=0.5)
-    if len(ID) != 0:
-        for ii in range(len(lO32)):
-            ax[1].annotate(ID[ii], [lO32[ii], OH[ii]], xycoords='data',
-                       size=4, va='bottom', ha='left')
-    if len(OH_err) != 0:
-        ax[1].errorbar(lO32, OH, yerr=OH_err, mec='blue', ecolor='blue',
-                       capsize=0, alpha=0.5, fmt=None, label=None)
+    for nn in range(n_sample):
+        ax[1].scatter(lO32[nn], OH[nn], color='blue', marker='o', alpha=0.5)
+        if len(ID) != 0:
+            for ii in range(len(lO32[nn])):
+                ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],
+                               xycoords='data', size=4, va='bottom',
+                               ha='left')
 
-    if len(lO32_err) != 0:
-        ax[1].errorbar(lO32, OH, xerr=lR23_err, mec='blue', ecolor='blue',
-                       capsize=0, alpha=0.5, fmt=None, label=None)
+        if len(OH_err) != 0:
+            ax[1].errorbar(lO32[nn], OH[nn], yerr=OH_err[nn], mec='blue',
+                           ecolor='blue', capsize=0, alpha=0.5,
+                           fmt=None, label=None)
+
+        if len(lO32_err) != 0:
+            ax[1].errorbar(lO32[nn], OH[nn], xerr=lR23_err[nn], mec='blue',
+                           ecolor='blue', capsize=0, alpha=0.5,
+                           fmt=None, label=None)
 
     ax[1].plot(O32_arr, bian_OH, 'k--', label='Bian+(2018)')
 

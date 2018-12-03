@@ -224,9 +224,10 @@ def DEEP2_OIII4363():
     ID = data['ID']
 
     out_pdf = path0 + 'DEEP2_R23_O32_Bian18.pdf'
-    main(lR23, lO32, OH, out_pdf, ID=ID, lR23_err=lR23_err, lO32_err=lO32_err,
-         OH_err=OH_err, R23_xra=[0.75,1.05], O32_xra=[0.05,0.95],
-         yra=[7.1,8.65], label=r'DEEP2 [OIII]$\lambda$4363-detected')
+    main([lR23], [lO32], [OH], out_pdf, ID=[ID], lR23_err=[lR23_err],
+         lO32_err=[lO32_err], OH_err=[OH_err], R23_xra=[0.75,1.05],
+         O32_xra=[0.05,0.95], yra=[7.1,8.65],
+         label=r'DEEP2 [OIII]$\lambda$4363-detected')
 
 #enddef
 

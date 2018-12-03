@@ -286,3 +286,10 @@ def DEEP2_MACT_OIII4363():
          OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
          yra=[7.1,8.85], ctype=['blue','green'],
          label=labels)
+
+    out_pdf = path0 + 'DEEP2_MACT_R23_O32_Bian18.nolabel.pdf'
+
+    main(lR23, lO32, OH, out_pdf, lR23_err=lR23_err, lO32_err=lO32_err,
+         OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
+         yra=[7.1,8.85], ctype=['blue','green'],
+         label=labels)

@@ -232,8 +232,7 @@ def DEEP2_OIII4363():
     out_pdf = path0 + 'DEEP2_R23_O32_Bian18.pdf'
     main([lR23], [lO32], [OH], out_pdf, ID=[ID], lR23_err=[lR23_err],
          lO32_err=[lO32_err], OH_err=[OH_err], R23_xra=[0.75,1.05],
-         O32_xra=[0.05,0.95], yra=[7.1,8.65],
-         label=r'DEEP2 [OIII]$\lambda$4363-detected')
+         O32_xra=[0.05,0.95], yra=[7.1,8.65], label=[r'DEEP2 (Ly+2015)'])
 
 #enddef
 
@@ -249,7 +248,7 @@ def MACT_OIII4363():
     main([lR23], [lO32], [OH], out_pdf, ID=[ID], lR23_err=[lR23_err],
          lO32_err=[lO32_err], OH_err=[OH_err], R23_xra=[0.6,1.15],
          O32_xra=[-0.55,2.1], yra=[7.1,8.85],
-         label=r'$\mathcal{MACT}$  (Ly+2016)')
+         label=[r'$\mathcal{MACT}$  (Ly+2016)'])
 
 
 #enddef

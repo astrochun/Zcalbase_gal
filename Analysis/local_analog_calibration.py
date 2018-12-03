@@ -50,7 +50,7 @@ def bian18_O32(O32):
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label='',
+         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''],
          silent=False, verbose=True):
 
     '''
@@ -112,10 +112,12 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
 
     if len(ctype) == 0:
         ctype = ['blue'] * n_sample
+    if len(ctype) == 0:
+        label = [''] * n_sample
 
     for nn in range(n_sample):
         ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], edgecolor='none',
-                      marker='o', alpha=0.5, label=label)
+                      marker='o', alpha=0.5, label=label[nn])
         if len(ID) != 0:
             for ii in range(len(lR23[nn])):
                 ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],

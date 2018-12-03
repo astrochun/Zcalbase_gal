@@ -91,10 +91,14 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
     y_min = np.min(min1)
     y_max = np.max(max1)
 
-    sort0   = np.argsort(lO32)
-    y_sort0 = lO32[sort0]
+    lO32_all = np.array([])
+    for nn in range(n_sample):
+        lO32_all = np.append(lO32_all, lO32[nn])
 
-    bin_pts = np.int(len(lO32)/n_bins)
+    sort0   = np.argsort(lO32_all)
+    y_sort0 = lO32_all[sort0]
+
+    bin_pts = np.int(len(lO32_all)/n_bins)
 
     bin_start = np.zeros(n_bins)
     bin_end   = np.zeros(n_bins)

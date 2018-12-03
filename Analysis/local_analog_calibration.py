@@ -180,21 +180,7 @@ def get_DEEP2(path0):
 
     data = asc.read(infile)
 
-    lR23 = np.log10(data['R23'])
-    lO32 = np.log10(data['O32'])
-    OH   = data['OH']
-
-    OH_err   = np.row_stack((data['OH_lo'].data,data['OH_hi'].data))
-
-    lR23_lo = lR23 - np.log10(data['R23'].data - data['R23_lo'].data)
-    lR23_hi = np.log10(data['R23'].data + data['R23_hi'].data) - lR23
-    lR23_err = np.row_stack((lR23_lo,lR23_hi))
-
-    lO32_lo = lO32 - np.log10(data['O32'].data - data['O32_lo'].data)
-    lO32_hi = np.log10(data['O32'].data + data['O32_hi'].data) - lR23
-    lO32_err = np.row_stack((lO32_lo,lO32_hi))
-
-    ID = data['ID']
+    lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
     return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err, ID
 

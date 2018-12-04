@@ -113,8 +113,12 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
             y_ii_min = bin_start[ii] #bin_y_min + ii * dy
             y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
-            ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
-                                                                   len(idx))
+
+            ii_label = ''
+            if nn == n_sample-1:
+                idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
+                ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
+                                                                       len(idx_all))
             if len(idx) > 0:
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker='o',
                            alpha=0.5, label=ii_label)
@@ -129,13 +133,14 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
                             mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
                             fmt=None, label=None)
 
-            lO32_avg = np.average(lO32[nn][idx])
-            j18_logR23 = jiang18(x_arr, lO32_avg)
-            ax.annotate('%.2f' % lO32_avg, [j18_logR23[-1], x_arr[-1]],
-                        color=ctype[ii], xycoords='data', ha='center',
-                        va='bottom', fontsize=8)
+            if nn == n_sample-1:
+                lO32_avg = np.average(lO32_all[idx_all])
+                j18_logR23 = jiang18(x_arr, lO32_avg)
+                ax.annotate('%.2f' % lO32_avg, [j18_logR23[-1], x_arr[-1]],
+                            color=ctype[ii], xycoords='data', ha='center',
+                            va='bottom', fontsize=8)
 
-            ax.plot(j18_logR23, x_arr, color=ctype[ii], linestyle='dashed')
+                ax.plot(j18_logR23, x_arr, color=ctype[ii], linestyle='dashed')
         #endfor
     #endfor
 

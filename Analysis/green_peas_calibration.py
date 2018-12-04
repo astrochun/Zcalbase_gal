@@ -21,6 +21,17 @@ import glob
 from astropy.table import Table
 from astropy import log
 
+def O32_OH_fit(x, y, a, b, c, d, e):
+    '''
+    Parameters
+    ----------
+     x : 12+log(O/H)
+     y : log([OIII]/[OII])
+    '''
+    logR23 = a + b*x + c * x**2 - d * (e + x) * y
+
+    return logR23
+
 def jiang18(x, y):
     '''
     Function to return log(R23) based on metallicity and [OIII]/[OII] flux ratio

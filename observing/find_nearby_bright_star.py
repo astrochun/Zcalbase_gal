@@ -1675,13 +1675,17 @@ def zcalbase_gal_mmt_2018b():
     Created by Chun Ly, 7 October 2018
     Modified by Chun Ly, 16 October 2018
      - Use GAIA DR2 instead of UCAC5
+    Modified by Chun Ly,  4 December 2018
+     - Change for Dec 2018 run
     '''
 
     import pdfmerge
 
     path0                   = '/Users/cly/Dropbox/Observing/2018B/MMIRS/'
-    out_path                = path0 + 'Alignment_Stars/'
-    finding_chart_path      = path0 + 'Finding_Charts/'
+    out_path                = path0 + 'Alignment_Stars2/'
+    finding_chart_path      = path0 + 'Finding_Charts2/'
+
+    epoch = 2018.96
 
     finding_chart_fits_path = '/Users/cly/data/Observing/MMIRS/Finding_Charts/'
 
@@ -1734,7 +1738,7 @@ def zcalbase_gal_mmt_2018b():
              max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
              image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
-             epoch=2018.87, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
+             epoch=epoch, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
              GAIA=True)
 
         # Merge PDF finding chart files for 2018B targets
@@ -1753,7 +1757,7 @@ def zcalbase_gal_mmt_2018b():
              max_radius=max_radius, mag_limit=19.0, mag_filt='j_m',
              catalog='2MASS', image='SDSS', slitlength=slitlength, runall=False,
              alignment_file=out_mag_table, pmfix=False, sig_min=2.5,
-             epoch=2018.87, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
+             epoch=epoch, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
              GAIA=True)
 
         # Merge PDF finding chart files for 2018B targets

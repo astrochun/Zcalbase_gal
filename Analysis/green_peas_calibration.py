@@ -43,7 +43,7 @@ def jiang18(x, y):
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
-         xra=[], yra=[], marker=[], silent=False, verbose=True):
+         xra=[], yra=[], marker=[], label=[], silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -112,6 +112,14 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
         marker = ['o'] * n_sample
 
     for nn in range(n_sample):
+        if len(label) != 0:
+            x1 = xra[0] + 0.025*(xra[1]-xra[0])
+            y1 = yra[1] - (nn*0.035 + 0.05)*(yra[1]-yra[0])
+            x2 = xra[0] + 0.035*(xra[1]-xra[0])
+            y2 = yra[1] - (nn*0.035 + 0.0525)*(yra[1]-yra[0])
+            ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
+            ax.plot([x1],[y1], marker=marker[nn], color='black')
+
         for ii in range(n_bins):
             y_ii_min = bin_start[ii] #bin_y_min + ii * dy
             y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy

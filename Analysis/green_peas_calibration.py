@@ -214,26 +214,7 @@ def MACT_OIII4363():
 
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    infile = path0 + 'MACT_R23_O32_derived.tbl'
-
-    log.info('### Reading : '+infile)
-
-    data = asc.read(infile)
-
-    dup = ['Keck10', 'Keck17', 'Keck22', 'Keck25']
-    d_idx1, d_idx2 = match_nosort_str(data['ID'].data, dup)
-
-    data.remove_rows(d_idx1)
-
-    lR23 = np.log10(data['R23'])
-    lO32 = np.log10(data['O32'])
-    OH   = data['OH']
-
-    OH_err = np.row_stack((data['OH_lo'].data,data['OH_hi'].data))
-
-    lR23_lo = lR23 - np.log10(data['R23'].data - data['R23_lo'].data)
-    lR23_hi = np.log10(data['R23'].data + data['R23_hi'].data) - lR23
-    lR23_err = np.row_stack((lR23_lo,lR23_hi))
+    data, lR23, lO32, OH, OH_err, lR23_err = get_MACT(path0)
 
     out_pdf = path0 + 'MACT_R23_O32_Jiang18.pdf'
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,

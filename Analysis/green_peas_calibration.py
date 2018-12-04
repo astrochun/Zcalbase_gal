@@ -43,7 +43,7 @@ def jiang18(x, y):
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
-         xra=[], yra=[], silent=False, verbose=True):
+         xra=[], yra=[], marker=[], silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -108,6 +108,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
 
     ctype = ['red','magenta','green','cyan','blue','black']
 
+    if len(marker) == 0:
+        marker = ['o'] * n_sample
+
     for nn in range(n_sample):
         for ii in range(n_bins):
             y_ii_min = bin_start[ii] #bin_y_min + ii * dy
@@ -120,7 +123,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
                 ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
                                                                        len(idx_all))
             if len(idx) > 0:
-                ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker='o',
+                ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=0.5, label=ii_label)
 
             if len(OH_err[nn]) != 0:
@@ -250,5 +253,5 @@ def DEEP2_MACT_OIII4363():
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.pdf'
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=[7.10,8.7])
+         xra=[0.6,1.15], yra=[7.10,8.7], marker=['*','o'])
 

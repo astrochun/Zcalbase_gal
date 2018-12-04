@@ -188,6 +188,11 @@ def get_MACT(path0):
 
     data = asc.read(infile)
 
+    dup = ['Keck10', 'Keck17', 'Keck22', 'Keck25']
+    d_idx1, d_idx2 = match_nosort_str(data['ID'].data, dup)
+
+    data.remove_rows(d_idx1)
+
     lR23, lO32, OH, OH_err, lR23_err = get_measurements(data)
 
     return data, lR23, lO32, OH, OH_err, lR23_err

@@ -694,8 +694,8 @@ def sdss_mag_str(table, TWOMASS=True, runall=True):
 #enddef
 
 def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
-         max_radius=60*u.arcsec, mag_limit=20.0, mag_filt='modelMag_i',
-         catalog='SDSS', image=None, format0='commented_header',
+         max_radius=60*u.arcsec, mag_uplimit_2MASS=11.0, mag_limit=20.0,
+         mag_filt='modelMag_i', catalog='SDSS', image=None, format0='commented_header',
          slitlength=99*u.arcsec, runall=True, alignment_file='', pmfix=False,
          epoch=2000.0, pm_out_pdf=None, sig_min=3.0, MMT=False, UCAC5=False,
          GAIA=False, outfile1='', outfile2='', silent=False, verbose=True):
@@ -722,6 +722,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
     max_radius : float
       Maximum radius. Provide with astropy.units for arcsec,
       arcmin, or degrees. Default: 60 * u.arcsec
+
+    mag_uplimit_2MASS : float
+      Bright source limit to consider in filtering based on 2MASS Vega magnitudes
 
     mag_limit : float
       Faintest source to consider in AB mag. Default: 20.0 mag
@@ -832,6 +835,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
        first entry)
     Modified by Chun Ly, 15 October 2018
      - Add GAIA keyword
+    Modified by Chun Ly, 4 December 2018
+     - Add mag_uplimit_2MASS to avoid very bright stars for alignment
     '''
 
     if silent == False:
@@ -922,6 +927,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
         print '## Search criteria : '
         print '## max_radius(arcsec) : ', max_radius.to(u.arcsec).value
         print '## mag_limit : ', mag_limit
+        print '## mag_uplimit_2MASS : ', mag_uplimit_2MASS
         print '## filter selection : ', mag_filt
 
     # Mod on 10/10/2017
@@ -945,7 +951,8 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # + on 24/12/2016 | Moved up on 09/01/2017
             if catalog == '2MASS':
                 xid = IRSA.query_region(c0, catalog='fp_psc', radius=max_radius)
-                good = np.where(xid[mag_filt] <= mag_limit)[0]
+                good = np.where((xid[mag_filt] <= mag_limit) &
+                                (xid[mag_filt] >= mag_uplimit_2MASS))[0]
 
             # Get distance from target
             if len(xid) > 0:

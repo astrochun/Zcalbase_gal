@@ -217,8 +217,8 @@ def MACT_OIII4363():
     data, lR23, lO32, OH, OH_err, lR23_err = get_MACT(path0)
 
     out_pdf = path0 + 'MACT_R23_O32_Jiang18.pdf'
-    main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.60,1.15], yra=[7.10,8.7])
+    main([lR23], [lO32], [OH], out_pdf, n_bins=6, lR23_err=[lR23_err],
+         OH_err=[OH_err], xra=[0.60,1.15], yra=[7.10,8.7])
 
 #enddef
 

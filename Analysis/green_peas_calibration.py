@@ -18,6 +18,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
+from scipy.optimize import curve_fit
+
 from astropy.table import Table
 from astropy import log
 
@@ -53,8 +55,8 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
-         xra=[], yra=[], marker=[], label=[], silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
+         yra=[], marker=[], label=[], fit=False, silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -66,6 +68,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
     OH   : 12+log(O/H)
 
     out_pdf : full path for output PDF
+
+    fit : boolean
+      Turn on fitting. Default: False -> Uses Jiang+2018 relation
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -121,6 +126,10 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[],
 
     if len(marker) == 0:
         marker = ['o'] * n_sample
+
+    if fit == True:
+        p0 = jiang18_coeffs
+        opt, cov = curve_fit(O32_OH_fit, OH, lO32, lR23, p0=p0)
 
     for nn in range(n_sample):
         if len(label) != 0:

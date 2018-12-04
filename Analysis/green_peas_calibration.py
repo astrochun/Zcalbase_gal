@@ -23,6 +23,8 @@ from scipy.optimize import curve_fit
 from astropy.table import Table
 from astropy import log
 
+jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
+
 def O32_OH_fit(x, y, a, b, c, d, e):
     '''
     Parameters
@@ -44,13 +46,7 @@ def jiang18(x, y):
      y : log([OIII]/[OII])
     '''
 
-    a = -24.135
-    b =   6.1523
-    c =  -0.37866
-    d =  -0.147
-    e =  -7.071
-
-    logR23 = a + b*x + c * x**2 - d * (e + x) * y
+    logR23 = O32_OH_fit(x, y, *jiang18_coeffs)
 
     return logR23
 #enddef

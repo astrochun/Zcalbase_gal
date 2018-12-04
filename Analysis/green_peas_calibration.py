@@ -260,6 +260,8 @@ def DEEP2_MACT_OIII4363():
     lR23_err = [DEEP2_lR23_err, MACT_lR23_err]
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.pdf'
+    label = [r'DEEP2 [OIII]$\lambda$4363-detected',
+             r'$\mathcal{MACT}$  (Ly+2016)']
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=[7.10,8.7], marker=['*','o'])
+         xra=[0.6,1.15], yra=[7.10,8.7], marker=['*','o'], label=label)
 

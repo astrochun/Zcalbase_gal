@@ -25,7 +25,7 @@ from astropy import log
 
 jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 
-def O32_OH_fit(x, y, a, b, c, d, e):
+def O32_OH_fit((x, y), a, b, c, d, e):
     '''
     Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
 
@@ -48,7 +48,7 @@ def jiang18(x, y):
      y : log([OIII]/[OII])
     '''
 
-    logR23 = O32_OH_fit(x, y, *jiang18_coeffs)
+    logR23 = O32_OH_fit((x, y), *jiang18_coeffs)
 
     return logR23
 #enddef
@@ -127,7 +127,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
 
     if fit == True:
         p0 = jiang18_coeffs
-        opt, cov = curve_fit(O32_OH_fit, OH, lO32, lR23, p0=p0)
+        opt, cov = curve_fit(O32_OH_fit, (OH, lO32), lR23, p0=p0)
 
     for nn in range(n_sample):
         if len(label) != 0:

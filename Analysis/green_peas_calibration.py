@@ -164,8 +164,11 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
 
             if nn == n_sample-1:
                 lO32_avg = np.average(lO32_all[idx_all])
-                j18_logR23 = jiang18(x_arr, lO32_avg)
-                ax.annotate('%.2f' % lO32_avg, [j18_logR23[-1], x_arr[-1]],
+                if fit == False:
+                    opt = jiang18_coeffs
+
+                mod_logR23 = O32_OH_fit(x_arr, lO32_avg, *opt)
+                ax.annotate('%.2f' % lO32_avg, [mod_logR23[-1], x_arr[-1]],
                             color=ctype[ii], xycoords='data', ha='center',
                             va='bottom', fontsize=8)
 

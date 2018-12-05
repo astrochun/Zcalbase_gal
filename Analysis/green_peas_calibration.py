@@ -27,6 +27,8 @@ jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 
 def O32_OH_fit(x, y, a, b, c, d, e):
     '''
+    Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
+
     Parameters
     ----------
      x : 12+log(O/H)

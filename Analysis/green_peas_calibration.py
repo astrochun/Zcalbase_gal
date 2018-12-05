@@ -172,7 +172,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
                             color=ctype[ii], xycoords='data', ha='center',
                             va='bottom', fontsize=8)
 
-                ax.plot(j18_logR23, x_arr, color=ctype[ii], linestyle='dashed')
+                ax.plot(mod_logR23, x_arr, color=ctype[ii], linestyle='dashed')
         #endfor
     #endfor
 

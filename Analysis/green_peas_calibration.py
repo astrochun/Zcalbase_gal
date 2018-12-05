@@ -127,7 +127,15 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
 
     if fit == True:
         p0 = jiang18_coeffs
-        opt, cov = curve_fit(O32_OH_fit, (OH, lO32), lR23, p0=p0)
+
+        OH_all = np.array([])
+        lR23_all = np.array([])
+        for nn in range(n_sample):
+            OH_all   = np.append(OH_all, OH[nn])
+            lR23_all = np.append(lR23_all, lR23[nn])
+
+        opt, cov = curve_fit(O32_OH_fit, (OH_all, lO32_all), lR23_all, p0=p0)
+        print opt
 
     for nn in range(n_sample):
         if len(label) != 0:
@@ -167,7 +175,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
                 if fit == False:
                     opt = jiang18_coeffs
 
-                mod_logR23 = O32_OH_fit(x_arr, lO32_avg, *opt)
+                mod_logR23 = O32_OH_fit((x_arr, lO32_avg), *opt)
                 ax.annotate('%.2f' % lO32_avg, [mod_logR23[-1], x_arr[-1]],
                             color=ctype[ii], xycoords='data', ha='center',
                             va='bottom', fontsize=8)

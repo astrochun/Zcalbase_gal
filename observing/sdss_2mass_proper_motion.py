@@ -101,8 +101,12 @@ def pm_position(tab0, epoch, silent=False, verbose=True):
     if silent == False:
         print '### Begin sdss_2mass_proper_motion.pm_position() | '+systime()
 
-    c0 = coords.SkyCoord(tab0['RA_ICRS'], tab0['DE_ICRS'], 'icrs',
-                         unit=(u.deg))
+    if 'RA_ICRS' in tab0.colnames:
+        c0 = coords.SkyCoord(tab0['RA_ICRS'], tab0['DE_ICRS'], 'icrs',
+                             unit=(u.deg))
+    else:
+        c0 = coords.SkyCoord(tab0['_RAJ2000'], tab0['_DEJ2000'], 'icrs',
+                             unit=(u.deg))
 
     dtime = epoch - 2000.0 # in years
 
@@ -110,9 +114,9 @@ def pm_position(tab0, epoch, silent=False, verbose=True):
     # http://iopscience.iop.org/article/10.1088/0004-6256/145/2/44/
     # Vizier notes say it is RA*cos(Dec) for both MoVeRS and UCAC4
     # UCAC later released results with the cos(Dec) factor
-    pmRA = tab0['pmRA'] * dtime/np.cos(np.radians(c0.dec.value))
+    pmRA = tab0['pmRA'].data * dtime/np.cos(np.radians(c0.dec.value))
     ra_off  = coords.Angle(pmRA, unit=u.marcsec)
-    dec_off = coords.Angle(tab0['pmDE'] * dtime, unit=u.marcsec)
+    dec_off = coords.Angle(tab0['pmDE'].data * dtime, unit=u.marcsec)
 
     new_c0 = coords.SkyCoord(c0.ra + ra_off, c0.dec + dec_off, 'icrs')
 

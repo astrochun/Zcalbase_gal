@@ -599,15 +599,15 @@ def main(tab0, out_pdf=None, outfile1='', outfile2='', UCAC5=False, GAIA=False,
 
             # Draw UCAC4 proper motion (red dashed) | + on 25/01/2017
             t_ucac = ucac_tab[ii]
-            if t_ucac['RA_ICRS'] != 0.0:
+            if t_ucac['_RAJ2000'] != 0.0:
                 # Mod on 26/01/2017 to remove the cos(Dec) factor
                 # Mod on 26/01/2017 to put the cos(Dec) factor back in
                 #cosd = np.cos(np.radians(t_ucac['_DEJ2000']))
                 u_pRA,  u_e_pRA  = t_ucac['pmRA'], t_ucac['e_pmRA']
                 u_pDec, u_e_pDec = t_ucac['pmDE'], t_ucac['e_pmDE']
 
-                ra_diff  = t_ucac['RA_ICRS'] - ra_fit.intercept
-                dec_diff = t_ucac['DE_ICRS'] - dec_fit.intercept
+                ra_diff  = t_ucac['_RAJ2000'] - ra_fit.intercept
+                dec_diff = t_ucac['_DEJ2000'] - dec_fit.intercept
                 ucac_y1 = ra_diff  + u_pRA  * t_x
                 ucac_y2 = dec_diff + u_pDec * t_x
 

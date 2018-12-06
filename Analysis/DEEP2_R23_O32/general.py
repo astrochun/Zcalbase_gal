@@ -24,7 +24,7 @@ import glob
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Gridmethod_1130/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -103,6 +103,14 @@ def run_R23_O32_analysis(dataset,mask='None'):
     
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
+    if dataset == 'R23_Grid' or 'O32_Grid':
+
+        pdf_pages = fitspath +'single_grid_O32.pdf'
+        outfile = fitspath +'single_grid_O32.npz'
+        galinbin = 200
+        Binning_and_Graphing_MasterGrid.single_grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
+
+
     if dataset == 'Grid':
         #Binning and Graphing MasterGrid
         #Options to Change: Bin Size

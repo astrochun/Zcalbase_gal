@@ -101,12 +101,8 @@ def pm_position(tab0, epoch, silent=False, verbose=True):
     if silent == False:
         print '### Begin sdss_2mass_proper_motion.pm_position() | '+systime()
 
-    if 'RA_ICRS' in tab0.colnames:
-        c0 = coords.SkyCoord(tab0['RA_ICRS'], tab0['DE_ICRS'], 'icrs',
-                             unit=(u.deg))
-    else:
-        c0 = coords.SkyCoord(tab0['_RAJ2000'], tab0['_DEJ2000'], 'icrs',
-                             unit=(u.deg))
+    c0 = coords.SkyCoord(tab0['_RAJ2000'], tab0['_DEJ2000'], 'icrs',
+                         unit=(u.deg))
 
     dtime = epoch - 2000.0 # in years
 

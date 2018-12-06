@@ -725,6 +725,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
 
     mag_uplimit_2MASS : float
       Bright source limit to consider in filtering based on 2MASS Vega magnitudes
+      in J band
 
     mag_limit : float
       Faintest source to consider in AB mag. Default: 20.0 mag
@@ -837,6 +838,9 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
      - Add GAIA keyword
     Modified by Chun Ly, 4 December 2018
      - Add mag_uplimit_2MASS to avoid very bright stars for alignment
+    Modified by Chun Ly, 5 December 2018
+     - Query 2MASS to get J-band photometry for SDSS sources to filter out very
+       bright stars using mag_uplimit_2MASS keyword
     '''
 
     if silent == False:
@@ -972,6 +976,17 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
                                 (xid[mag_filt] != -9999.0) & # Mod on 24/12/2016
                                 (xid['type'] == 6) & (xid['mode'] == 1) &
                                 (xid['Dist(arcsec)'] <= max_radius.to(u.arcsec).value))[0]
+
+                xid = xid[good]
+
+                if len(xid) > 0:
+                    J_mag = np.repeat(99.99, len(xid))
+                    t_c = coords.SkyCoord(xid['ra'], xid['dec'], 'icrs', unit=u.deg)
+                    for xx in range(len(xid)):
+                        t_tab = IRSA.query_region(t_c[xx], catalog='fp_psc', radius=1*u.arcsec)
+                        if len(t_tab) > 0: J_mag[xx] = t_tab['j_m']
+
+                    good = np.where(J_mag >= mag_uplimit_2MASS)[0]
 
             if silent == False:
                 print '## Finding nearby stars for '+ID[ii]+'. '+\

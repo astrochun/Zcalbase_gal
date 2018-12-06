@@ -337,6 +337,8 @@ def query_gaia(c_arr, col_ID, silent=False, verbose=True):
      - Started as copy of query_ucac5()
     Modified by Chun Ly, 1 October 2018
      - Fix typo in catalog ID name
+    Modified by Chun Ly, 6 December 2018
+     - Handle including J2000 coordinates for GAIA query
     '''
 
     if silent == False:
@@ -348,12 +350,14 @@ def query_gaia(c_arr, col_ID, silent=False, verbose=True):
 
     # + on 23/10/2017
     c_test = coords.SkyCoord(ra=0.0, dec=0.0, unit=u.deg) # This get '_r' column
-    temp   = Vizier.query_region(c_test, radius=10*u.arcmin, catalog='I/345/gaia2')
+
+    gaia = Vizier(catalog='I/345/gaia2', columns=['*', '_RAJ2000', '_DEJ2000'])
+    temp = gaia.query_region(c_test, radius=10*u.arcmin, catalog='I/345/gaia2')
     gaia_tab = Table(dtype=temp[0].dtype)
 
     for ii in range(n_sources):
-        tab0 = Vizier.query_region(c_arr[ii], radius=5*u.arcsec,
-                                   catalog='I/345/gaia2')
+        tab0 = gaia.query_region(c_arr[ii], radius=5*u.arcsec,
+                                 catalog='I/345/gaia2')
 
         if len(tab0) != 0:
             gaia_tab = vstack([gaia_tab, tab0[0]])

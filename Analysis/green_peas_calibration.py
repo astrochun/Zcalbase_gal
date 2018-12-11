@@ -214,6 +214,22 @@ def get_measurements(data):
     return lR23, lO32, OH, OH_err, lR23_err
 #enddef
 
+def get_zcalbase_sample(prefix):
+    dir0 = '/Users/cly/data/Metallicity/Others/Te_Repository/'
+    flux_file = '%s%s/%s_sample.det4363.int.fits', % (dir0, prefix, prefix)
+    data0 = fits.getdata(flux_file)
+
+    lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)
+    lO32 = np.log10(data0.OIII_5007_FLUX / data0.OII_3727_FLUX)
+
+    Te_file = '%s%s/%s_Te_table.fits' % (dir0, prefix, prefix)
+    data1 = fits.getdata(Te_file)
+
+    OH = data1.OH_gas
+    OH_err = np.row_stack((data1.OH_gas_lo,data1.OH_gas_hi))
+
+    return lR23, lO32, OH
+
 def get_DEEP2(path0):
     infile = path0 + 'DEEP2_R23_O32_derived.tbl'
 

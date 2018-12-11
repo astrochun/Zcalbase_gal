@@ -23,6 +23,8 @@ from scipy.optimize import curve_fit
 from astropy.table import Table
 from astropy import log
 
+from astropy.io import fits
+
 jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 
 def O32_OH_fit((x, y), a, b, c, d, e):
@@ -216,7 +218,7 @@ def get_measurements(data):
 
 def get_zcalbase_sample(prefix):
     dir0 = '/Users/cly/data/Metallicity/Others/Te_Repository/'
-    flux_file = '%s%s/%s_sample.det4363.int.fits', % (dir0, prefix, prefix)
+    flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, prefix, prefix)
     data0 = fits.getdata(flux_file)
 
     lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)

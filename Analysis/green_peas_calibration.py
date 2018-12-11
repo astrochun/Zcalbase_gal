@@ -162,12 +162,12 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=0.5, label=ii_label)
 
-            if len(OH_err[nn]) != 0:
+            if len(OH_err) != 0:
                 ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=OH_err[nn][:,idx],
                             mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
                             fmt=None, label=None)
 
-            if len(lR23_err[nn]) != 0:
+            if len(lR23_err) != 0:
                 ax.errorbar(lR23[nn][idx], OH[nn][idx], xerr=lR23_err[nn][:,idx],
                             mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
                             fmt=None, label=None)

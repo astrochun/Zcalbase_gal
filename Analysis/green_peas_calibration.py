@@ -330,9 +330,21 @@ def Zcalbase():
 
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    lR23, lO32, OH = get_zcalbase_sample('Kennicutt2003')
+    ref_name0 = ['Berg2012','Kennicutt2003','Izotov1994','Thuan1995',
+                 'Izotov1997','Guseva2009', 'Izotov2012', 'SDSS']
+
+    lR23_all = []
+    lO32_all = []
+    OH_all   = []
+
+    for name in ref_name0:
+        lR23, lO32, OH = get_zcalbase_sample(name)
+
+        lR23_all.append(lR23)
+        lO32_all.append(lO32)
+        OH_all.append(OH)
 
     out_pdf = path0 + 'Zcalbase_Jiang18.pdf'
-    label = ['Kennicutt+2003']
-    main([lR23], [lO32], [OH], out_pdf, n_bins=3, xra=[0.6,1.15],
-         yra=[7.10,8.7], marker=['o'], label=label)
+    label = ref_name0 #['Kennicutt+2003']
+    main(lR23_all, lO32_all, OH_all, out_pdf, n_bins=3, xra=[0.2,1.15],
+         yra=[7.0,8.7], marker=['s','x','s','s','D','D','s','*'], label=label)

@@ -323,3 +323,14 @@ def DEEP2_MACT_OIII4363():
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
          xra=[0.6,1.15], yra=[7.10,8.7], marker=['*','o'], label=label, fit=True)
 
+
+def Zcalbase():
+
+    path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    lR23, lO32, OH = get_zcalbase_sample('Kennicutt2003')
+
+    out_pdf = path0 + 'Zcalbase_Jiang18.pdf'
+    label = ['Kennicutt+2003']
+    main([lR23], [lO32], [OH], out_pdf, n_bins=3, xra=[0.6,1.15],
+         yra=[7.10,8.7], marker=['o'], label=label)

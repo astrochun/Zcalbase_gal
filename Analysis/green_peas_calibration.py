@@ -123,8 +123,10 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     bin_start[0] = y_sort0[0]
     bin_end[0]   = y_sort0[r_bin_pts-1]
     for ii in range(1,n_bins):
-        bin_start[ii] = bin_end[ii-1]
-        bin_end[ii]   = y_sort0[np.min([len(lO32_all)-1,np.int(round((ii+1)*r_bin_pts))-1])]
+        bin_start[ii] = bin_end[ii-1]+0.0001
+        bin_end[ii]   = y_sort0[np.min([len(lO32_all)-1,(ii+1)*r_bin_pts-1])]
+        print bin_start[ii], bin_end[ii]
+        print np.where((lO32_all >= bin_start[ii]) & (lO32_all <= bin_end[ii]))[0]
 
     ctype = ['red','magenta','green','cyan','blue','black']
 
@@ -155,11 +157,11 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
         for ii in range(n_bins):
             y_ii_min = bin_start[ii] #bin_y_min + ii * dy
             y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy
-            idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] < y_ii_max))[0]
+            idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
 
             ii_label = ''
             if nn == n_sample-1:
-                idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all < y_ii_max))[0]
+                idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
                 ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
                                                                        len(idx_all))
             if len(idx) > 0:

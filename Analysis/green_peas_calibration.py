@@ -228,7 +228,11 @@ def get_zcalbase_sample(prefix, dir=''):
     lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)
     lO32 = np.log10(data0.OIII_5007_FLUX / data0.OII_3727_FLUX)
 
-    Te_file = '%s%s/%s_Te_table.fits' % (dir0, prefix, prefix)
+    if dir == '':
+        Te_file = '%s%s/%s_Te_table.fits' % (dir0, prefix, prefix)
+    else:
+        Te_file = '%s%s/%s_Te_table.fits' % (dir0, dir, prefix)
+
     data1 = fits.getdata(Te_file)
 
     OH = data1.OH_gas

@@ -223,6 +223,9 @@ def get_zcalbase_sample(prefix, dir=''):
     else:
         flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, dir, prefix)
 
+    if 'SDSS' in prefix:
+        flux_file = '/Users/cly/data/Metallicity/Others/SDSS/SDSS_DR7_det4363.OIIfix.int.fits'
+
     data0 = fits.getdata(flux_file)
 
     lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)
@@ -232,6 +235,9 @@ def get_zcalbase_sample(prefix, dir=''):
         Te_file = '%s%s/%s_Te_table.fits' % (dir0, prefix, prefix)
     else:
         Te_file = '%s%s/%s_Te_table.fits' % (dir0, dir, prefix)
+
+    if 'SDSS' in prefix:
+        Te_file = '/Users/cly/data/Metallicity/Others/SDSS/SDSS_DR7_det4363_Te_table.dered.fits'
 
     data1 = fits.getdata(Te_file)
 

@@ -220,31 +220,27 @@ def get_zcalbase_sample(prefix, dir=''):
     dir0 = '/Users/cly/data/Metallicity/Others/Te_Repository/'
     if dir == '':
         flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, prefix, prefix)
-    else:
-        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, dir, prefix)
-
-    if 'SDSS' in prefix:
-        flux_file = '/Users/cly/data/Metallicity/Others/SDSS/SDSS_DR7_det4363.OIIfix.int.fits'
-
-    data0 = fits.getdata(flux_file)
-
-    lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)
-    lO32 = np.log10(data0.OIII_5007_FLUX / data0.OII_3727_FLUX)
-
-    if dir == '':
         Te_file = '%s%s/%s_Te_table.fits' % (dir0, prefix, prefix)
     else:
+        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, dir, prefix)
         Te_file = '%s%s/%s_Te_table.fits' % (dir0, dir, prefix)
 
     if 'SDSS' in prefix:
-        Te_file = '/Users/cly/data/Metallicity/Others/SDSS/SDSS_DR7_det4363_Te_table.dered.fits'
+        path_SDSS = '/Users/cly/data/Metallicity/Others/SDSS/'
+        flux_file = path_SDSS + 'SDSS_DR7_det4363.OIIfix.int.fits'
+        Te_file   = path_SDSS + 'SDSS_DR7_det4363_Te_table.dered.fits'
 
+    data0 = fits.getdata(flux_file)
     data1 = fits.getdata(Te_file)
+
+    lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)
+    lO32 = np.log10(data0.OIII_5007_FLUX / data0.OII_3727_FLUX)
 
     OH = data1.OH_gas
     OH_err = np.row_stack((data1.OH_gas_lo,data1.OH_gas_hi))
 
     return lR23, lO32, OH
+#enddef
 
 def get_DEEP2(path0):
     infile = path0 + 'DEEP2_R23_O32_derived.tbl'

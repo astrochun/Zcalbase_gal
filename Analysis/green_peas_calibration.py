@@ -336,13 +336,15 @@ def Zcalbase():
 
     ref_name0 = ['Berg2012','Kennicutt2003','Izotov1994','Thuan1995',
                  'Izotov1997','Guseva2009', 'Izotov2012', 'SDSS']
+    dir0      = ['','','BCGs','BCGs','Pilyugin2012/Izotov1997',
+                 'Pilyugin2012/Guseva2009', 'Pilyugin2012/Izotov2012','']
 
     lR23_all = []
     lO32_all = []
     OH_all   = []
 
-    for name in ref_name0:
-        lR23, lO32, OH = get_zcalbase_sample(name)
+    for name,dir in zip(ref_name0,dir0):
+        lR23, lO32, OH = get_zcalbase_sample(name, dir=dir)
 
         lR23_all.append(lR23)
         lO32_all.append(lO32)

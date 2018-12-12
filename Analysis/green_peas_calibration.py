@@ -114,6 +114,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     sort0   = np.argsort(lO32_all)
     y_sort0 = lO32_all[sort0]
 
+    print y_sort0
+
     bin_pts   = np.int(len(lO32_all)/n_bins)
     r_bin_pts = np.int(np.round(len(lO32_all)/float(n_bins)))
 
@@ -123,7 +125,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     bin_start[0] = y_sort0[0]
     bin_end[0]   = y_sort0[r_bin_pts-1]
     for ii in range(1,n_bins):
-        bin_start[ii] = bin_end[ii-1]+0.0001
+        bin_start[ii] = bin_end[ii-1]+0.000001
         bin_end[ii]   = y_sort0[np.min([len(lO32_all)-1,(ii+1)*r_bin_pts-1])]
         print bin_start[ii], bin_end[ii]
         print np.where((lO32_all >= bin_start[ii]) & (lO32_all <= bin_end[ii]))[0]

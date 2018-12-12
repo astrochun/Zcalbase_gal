@@ -216,9 +216,13 @@ def get_measurements(data):
     return lR23, lO32, OH, OH_err, lR23_err
 #enddef
 
-def get_zcalbase_sample(prefix):
+def get_zcalbase_sample(prefix, dir=''):
     dir0 = '/Users/cly/data/Metallicity/Others/Te_Repository/'
-    flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, prefix, prefix)
+    if dir == '':
+        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, prefix, prefix)
+    else:
+        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, dir, prefix)
+
     data0 = fits.getdata(flux_file)
 
     lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)

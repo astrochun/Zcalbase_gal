@@ -362,5 +362,5 @@ def Zcalbase():
 
     out_pdf = path0 + 'Zcalbase_Jiang18.pdf'
     label = ref_name0 #['Kennicutt+2003']
-    main(lR23_all, lO32_all, OH_all, out_pdf, n_bins=3, xra=[0.2,1.15],
-         yra=[7.0,8.7], marker=['s','x','s','s','D','D','s','*'], label=label)
+    main(lR23_all, lO32_all, OH_all, out_pdf, n_bins=6, xra=[0.1,1.05],
+         yra=[7.0,9.0], marker=['s','x','s','s','D','D','s','*'], label=label)

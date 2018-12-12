@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 from astropy.table import Table
 from astropy import log
 
+from green_peas_calibration import get_zcalbase_sample
+
 def bian18_R23(OH):
     '''
     Function to return log(R23) given metallicity
@@ -292,3 +294,30 @@ def DEEP2_MACT_OIII4363():
          OH_err=OH_err, R23_xra=[0.6,1.15], O32_xra=[-0.55,2.1],
          yra=[7.1,8.85], ctype=['blue','green'],
          label=labels)
+#enddef
+
+def Zcalbase():
+
+    path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    ref_name0 = ['Berg2012','Kennicutt2003','Izotov1994','Thuan1995',
+                 'Izotov1997','Guseva2009', 'Izotov2012', 'SDSS']
+    dir0      = ['','','BCGs','BCGs','Pilyugin2012/Izotov1997',
+                 'Pilyugin2012/Guseva2009', 'Pilyugin2012/Izotov2012','']
+
+    lR23_all = []
+    lO32_all = []
+    OH_all   = []
+
+    for name,dir in zip(ref_name0,dir0):
+        lR23, lO32, OH = get_zcalbase_sample(name, dir=dir)
+
+        lR23_all.append(lR23)
+        lO32_all.append(lO32)
+        OH_all.append(OH)
+
+    out_pdf = path0 + 'Zcalbase_Bian18.pdf'
+    label = ref_name0 #['Kennicutt+2003']
+    main(lR23_all, lO32_all, OH_all, out_pdf, R23_xra=[0.1,1.05],
+         O32_xra=[-0.5,1.5], yra=[7.0,9.0], label=label,
+         ctype=['blue','cyan','green','yellow','red','magenta','gray','black'])

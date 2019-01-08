@@ -51,7 +51,7 @@ def bian18_O32(O32):
     return OH
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, ID=[], lR23_err=[], lO32_err=[],
+def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
          OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''],
          silent=False, verbose=True):
 

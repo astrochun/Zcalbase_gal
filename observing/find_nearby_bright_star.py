@@ -1783,3 +1783,111 @@ def zcalbase_gal_mmt_2018b():
         pdfmerge.merge(files, out_pdf_2018b)
 
 #enddef
+
+def zcalbase_gal_mmt_2019a():
+    '''
+    Function to run find_nearby_bright_star.main() but for 2019A MMT/MMIRS
+    targets
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 10 January 2019
+    '''
+
+    import pdfmerge
+
+    # Still putting it in 2018B folder
+    path0              = '/Users/cly/Dropbox/Observing/2018B/MMIRS/'
+    out_path           = path0 + 'Alignment_Stars3/'
+    finding_chart_path = path0 + 'Finding_Charts3/'
+
+    epoch = 2019.0466 # Jan 18, 2019
+
+    finding_chart_fits_path = '/Users/cly/data/Observing/MMIRS/Finding_Charts/'
+
+    max_radius = 120. * u.arcsec
+    slitlength = 2048 * 0.201 * u.arcsec
+
+    infile2 = path0 + 'targets.2019a.txt'
+    print '### Reading : ', infile2
+    data2   = asc.read(infile2, format='commented_header')
+
+    do_step1 = 1
+    if do_step1:
+        # Select alignment stars based on SDSS
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             slitlength=slitlength, runall=True, MMT=True) #runall=False)
+
+        # Merge PDF finding chart files for 2019A targets
+        files = [finding_chart_path+a.replace('*','')+'.SDSS.pdf' for
+                 a in data2['ID']]
+
+        out_pdf_2019a = finding_chart_path+\
+                        'MMIRS_2019A_Targets_SDSS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2019a)
+
+    do_step2 = 1
+    if do_step2:
+        # Generate 2MASS finding chart with SDSS catalog
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='2MASS-H', slitlength=slitlength, runall=False, MMT=True)
+
+        # Merge PDF finding chart files for 2019A targets
+        files = [finding_chart_path+a.replace('*','')+'_SDSS_2MASS-H.pdf' for
+                 a in data2['ID']]
+        out_pdf_2019a = finding_chart_path+\
+                        'MMIRS_2019A_Targets_2MASS_FindingCharts.bright.pdf'
+        pdfmerge.merge(files, out_pdf_2019a)
+
+    out_mag_table = out_path + 'Alignment_Stars.txt'
+    print '### Reading : ', out_mag_table
+    mag_table0 = asc.read(out_mag_table)
+
+    # Run through but use proper motion from GAIA2 or MoVeRS
+    do_step3 = 1
+    if do_step3:
+        # Generate SDSS finding chart with SDSS catalog
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion.GAIA2.pdf'
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, catalog='SDSS',
+             image='SDSS', slitlength=slitlength, runall=False,
+             alignment_file=out_mag_table, pmfix=True, sig_min=2.5,
+             epoch=epoch, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
+             GAIA=True)
+
+        # Merge PDF finding chart files for 2019A targets
+        files = [finding_chart_path+a.replace('*','')+'.SDSS.PMfix.pdf' for
+                 a in data2['ID']]
+        out_pdf_2019a = finding_chart_path+\
+                        'MMIRS_2019A_Targets_SDSS_FindingCharts.PMfix.pdf'
+        pdfmerge.merge(files, out_pdf_2019a)
+
+    do_step4 = 1
+    if do_step4:
+        # Generate SDSS finding chart with 2MASS catalog with PM
+        pm_out_pdf = path0 + 'sdss_2mass_proper_motion_2MASS.GAIA2.pdf'
+        out_mag_table = out_path + 'Alignment_Stars_2MASS.txt'
+        main(infile2, out_path, finding_chart_path, finding_chart_fits_path,
+             max_radius=max_radius, mag_limit=19.0, mag_filt='j_m',
+             catalog='2MASS', image='SDSS', slitlength=slitlength, runall=False,
+             alignment_file=out_mag_table, pmfix=False, sig_min=2.5,
+             epoch=epoch, pm_out_pdf=pm_out_pdf, MMT=True, UCAC5=False,
+             GAIA=True)
+
+        # Merge PDF finding chart files for 2019A targets
+        files = [finding_chart_path+a.replace('*','')+'_2MASS_SDSS.pdf' for
+                 a in data2['ID']]
+        out_pdf_2019a = finding_chart_path+\
+                        'MMIRS_2019A_Targets_2MASS-SDSS_FindingCharts.pdf'
+        pdfmerge.merge(files, out_pdf_2019a)
+
+#enddef

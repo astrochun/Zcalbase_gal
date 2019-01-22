@@ -105,9 +105,6 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     # Grid of 12+log(O/H)
     x_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
 
-    y_min = np.min(min1)
-    y_max = np.max(max1)
-
     lO32_all = np.array([])
     for nn in range(n_sample):
         lO32_all = np.append(lO32_all, lO32[nn])

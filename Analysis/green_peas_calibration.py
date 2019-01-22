@@ -98,7 +98,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
         min1[nn] = np.min(lO32[nn])
         max1[nn] = np.max(lO32[nn])
 
-        good = np.where(np.isfinite(OH[nn])[0]
+        good = np.where(np.isfinite(OH[nn]) == True)[0]
         OH_min1[nn] = np.min(OH[nn][good])
         OH_max1[nn] = np.max(OH[nn][good])
 

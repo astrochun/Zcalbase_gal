@@ -57,8 +57,9 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     count = 0
     for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
+            #print 'T_arr:', grid_data['T_arr'] 
             index= grid_data['T_arr'][rr,oo]
-            
+            #print 'index:', index
             if len(index) >10:
                 R23_node[count] = R23_grid[rr]
                 O32_node[count] = O32_grid[oo]
@@ -152,7 +153,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     tab0 = Table([ID, R23_node, O32_node,avg_R23,avg_O32, N_gal], names=n)
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
 
-        
+    fig.clear()    
 def run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, name,grid_data):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])

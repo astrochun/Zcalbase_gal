@@ -106,10 +106,14 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
 
     # Grid of 12+log(O/H)
     if len(yra) == 0:
-        OH_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
+        print len(yra)
+        print min(OH_min1)
+        OH_max = np.nanmax(OH_max1)
+        print OH_max
+        OH_arr = np.arange(min(OH_min1),OH_max,0.25)
     else:
         OH_arr = np.arange(yra[0],yra[1],0.05)
-
+    print 'OH_arr:', OH_arr
     bian_R23 = bian18_R23(OH_arr)
 
     if len(ctype) == 0:
@@ -176,7 +180,7 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     plt.subplots_adjust(left=0.065, right=0.99, bottom=0.1, top=0.99,
                         wspace=0.01)
     fig.set_size_inches(10,5)
-    fig.savefig(out_pdf)
+    fig.savefig(out_pdf,format='pdf')
 
     if silent == False: log.info('### End main : '+systime())
 #enddef

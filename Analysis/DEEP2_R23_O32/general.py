@@ -22,9 +22,11 @@ from scipy.optimize import curve_fit
 import scipy.integrate as integ
 import glob
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting,calibration_plots
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
+
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi20_0108/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -98,22 +100,33 @@ def get_det3():
 #redue calling for look at hb
 
 
-def run_R23_O32_analysis(dataset,mask='None'):
-    #dataset options: Grid, Voronoi10,Voronoi14, Voronoi20
+def run_grid_R23_O32_analysis(dataset,mask='None'):
+    #dataset options: Grid, O32_Grid, R23_Grid
     
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
-    if dataset == 'R23_Grid' or 'O32_Grid':
+    
+    #Grid Methods of Organizing Data
+    #Both One and Two Dimensional Analyzes 
+    #Stackboth_MasterGrid
+    #Option to Change: Bin size 
 
+    
+    #Binning and Graphing MasterGrid
+    #Options to Change: Bin Size
+    galinbin = 400
+    print galinbin
+    if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
         outfile = fitspath +'single_grid_O32.npz'
-        galinbin = 200
-        Binning_and_Graphing_MasterGrid.single_grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
+        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
 
+    if dataset =='R23_Grid':
+        pdf_pages = fitspath +'single_grid_R23.pdf'
+        outfile = fitspath +'single_grid_R23.npz'
+        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
 
-    if dataset == 'Grid':
-        #Binning and Graphing MasterGrid
-        #Options to Change: Bin Size
+    if dataset =='Grid': 
         pdf_pages_hex = PdfPages(fitspath+'R23_O32_bin025_scatter_and_hexbin_MasterGrid.pdf')
         outfile1_npz = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'
         R23_bin = 0.25
@@ -121,31 +134,619 @@ def run_R23_O32_analysis(dataset,mask='None'):
         binstr = 025
         
         Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3, R23_bin, O32_bin)
-        print 'made Arrays_R23O32bin025MasterGrid.npz, scatter_and_hexbin, testmastergrid(need to find if this is used anywhere)'
-        print 'finished Binning_and_Graphing_MasterGrid'
+
+    print 'made npz, pdf files , testmastergrid(need to find if this is used anywhere)'
+    print 'finished Binning_and_Graphing_MasterGrid'
         
 
         #Stackboth_MasterGrid
-        #Option to Change: Bin size 
-        outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
-        outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
-        if R23_bin == 0.25:
-            grid_data = np.load(outfile025)
-        else: grid_data = np.load(outfile01)
-        N_arr_grid = grid_data['N_arr0']
-        R23_grid = grid_data['R23_grid']
-        O32_grid = grid_data['O32_grid']
-        T_arr = grid_data['T_arr']
+        #Option to Change: Bin size  
+    outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
+    outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
+    outsingle_O32 = fitspath +'single_grid_O32.npz'
+    outsingle_R23 = fitspath +'single_grid_R23.npz'
+    if dataset =='Grid' : grid_data = np.load(outfile025)   ###This will have to be changed if we start doing the 01 analysis again (but we haven't worked on that analysis in a year) 
+    if dataset == 'O32_Grid': grid_data = np.load(outsingle_O32)
+    if dataset == 'R23_Grid': grid_data = np.load(outsingle_R23)
+    #else: grid_data = np.load(outfile01)
+
+    N_arr_grid = grid_data['N_arr0']
+    R23_grid = grid_data['R23_grid']
+    O32_grid = grid_data['O32_grid']
+    T_arr = grid_data['T_arr']
         
         
-        #Option to Change: Masking the night sky emission lines 
+    #Option to Change: Masking the night sky emission lines 
+    if dataset == 'Grid': 
         if mask == True:
             Stack_name = 'Stacking_Masked_MasterGrid_bin'+str(binstr)+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data)
         else:
             Stack_name = 'Stacking_MasterGrid_bin'+str(binstr)+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data)
+    else:
+        if mask == True:
+            Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf'
+            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data)
+        else:
+            Stack_name = 'Stacking_MasterGrid__single'+dataset+'.pdf'
+            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data)
 
+    #Outfile and pdf both use name
+    print 'finished with stacking,' + Stack_name + 'pdf and fits files created'
+
+
+
+    #Zoom_and_gauss_general
+    Stack_name = Stack_name.replace('.pdf', '.fits')
+    outfile_grid = fitspath + Stack_name
+    print outfile_grid
+    stack2D, header = fits.getdata(outfile_grid, header=True)
+    wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+    #Spect_1D = fits.getdata(outfile_grid)
+    dispersion = header['CDELT1']
+    binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
+
+    lineflag = np.zeros(len(wave))
+    for ii in lambda0:   
+        idx = np.where(np.absolute(wave - ii)<=5)[0]
+        if len(idx) > 0:
+            lineflag[idx] = 1
+    #Option to change: Constants used as initial guesses for gaussian fit
+    
+    s= 1.0
+    a= 1.0
+    c= 2.0
+    s1= 1.3
+    a1= 1.5
+    s2= 5.0
+    a2= 1.8
+    
+
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
+
+    print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
+
+    #hstack_table
+    #Option to change: name of new fits file created
+
+    if dataset == 'Grid':
+        intro = fitspath + 'Grid_Average_R23_O32_Values.tbl' 
+        asc_intro = asc.read(intro)
+        table_files = glob.glob(fitspath +'/Grid_flux_gaussian_*.tbl') 
+        combine_flux_table = fitspath + 'Grid_combined_flux_table.fits'
+        combine_flux_ascii = fitspath + 'Grid_combined_flux_table.tbl'
+
+    if dataset == 'O32_Grid':
+        intro = fitspath + 'O32_Grid_Average_R23_O32_Values.tbl' 
+        asc_intro = asc.read(intro)
+        table_files = glob.glob(fitspath +'/O32_Grid_flux_gaussian_*.tbl') 
+        combine_flux_table = fitspath + 'O32_Grid_combined_flux_table.fits'
+        combine_flux_ascii = fitspath + 'O32_Grid_combined_flux_table.tbl'
+
+    if dataset == 'R23_Grid':
+        intro = fitspath + 'R23_Grid_Average_R23_O32_Values.tbl' 
+        asc_intro = asc.read(intro)
+        table_files = glob.glob(fitspath +'/R23_Grid_flux_gaussian_*.tbl') 
+        combine_flux_table = fitspath + 'R23_Grid_combined_flux_table.fits'
+        combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
+
+    hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
+        
+    print 'combine_flux_table created'
+
+        
+            
+    ########FIX THIS CODE##########line_ratio_plotting
+    #I need to go back through and figure out what is the average and what is the composite
+    line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
+
+       
+
+    #R_temp_calcul
+    if dataset == 'Grid':
+        combine_flux_ascii = fitspath + 'Grid_combined_flux_table.tbl'
+        temp_m_gascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/Grid_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
+    if dataset == 'O32_Grid':
+        combine_flux_ascii = fitspath + 'O32_Grid_combined_flux_table.tbl'
+        temp_m_gascii = fitspath+ '/O32_Grid_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/O32_Grid_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'O32_Grid_Temp_Composite_Metallicity.pdf'
+
+    if dataset == 'R23_Grid':
+        combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
+        temp_m_gascii = fitspath+ '/R23_Grid_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/R23_Grid_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'R23_Grid_Temp_Composite_Metallicity.pdf'
+
+    R_temp_calcul.run_function(fitspath, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
+
+    calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
+    '''
+    #dataset = 'O32_Grid'
+    #temp_m_gascii = fitspath+ 'O32_Grid_temperatures_metalicity.tbl'
+    temp_table= asc.read(temp_m_gascii)
+    SN_4363 = temp_table['S/N_4363']
+    det_4363 = np.where((SN_4363>=3))[0]
+    nan_det_4363 = np.where((SN_4363<3))[0]
+    print 'Begin Local analog Calibration'
+    
+    ###Implimenting Local analog calibration###
+    
+    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
+    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
+    
+    #DEEP2 Derived 
+    er_R23 = derived['R23'].data
+    er_O32 = derived['O32'].data
+    der_R23 = [np.log10(er_R23)]
+    der_O32 = [np.log10(er_O32)]
+    der_OH = [derived['OH'].data]
+    
+    #MACT Derived
+    er_R23_MACT = derived_MACT['R23'].data
+    er_O32_MACT = derived_MACT['O32'].data
+    der_R23_MACT = [np.log10(er_R23_MACT)]
+    der_O32_MACT = [np.log10(er_O32_MACT)]
+    der_OH_MACT = [derived_MACT['OH'].data]
+    
+    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+    O32_all = temp_table['O32_Composite']
+    R23_all = temp_table['R23_Composite']
+    com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
+    ID = temp_table['ID']
+    #print O32_all
+    
+    det_O32 = [O32_all[det_4363]]
+    det_R23 = [R23_all[det_4363]]
+    det_OH  = [com_O_log[det_4363]]
+    det_ID  = [ID[det_4363]]
+    
+    nandet_O32 = [O32_all[nan_det_4363]]
+    nandet_R23 = [R23_all[nan_det_4363]]
+    print len(nandet_O32), len(nandet_R23)
+    nandet_OH  = [com_O_log[nan_det_4363]]
+    nandet_ID  = [ID[nan_det_4363]]
+    ###Ask if there is a better way to do this because R23_Grid will not always have no nan###
+    if dataset == 'R23_Grid':
+        lR23 = [det_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH, der_OH, der_OH_MACT]
+        local_analog_calibration.main(lR23, lO32, OH, out_pdf, ctype=['b','r','m'], label=['Detection','DEEP2', 'MACT'], silent=False, verbose=True)
+        
+    else:    
+        lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+        local_analog_calibration.main(lR23, lO32, OH, out_pdf, ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], silent=False, verbose=True)
+    # ID=[det_ID,nandet_ID]
+
+
+###Green Pea Calibration###
+pea_out_pdf = fitspath+ '/'+dataset+'_GPC.pdf'
+green_peas_calibration.main(lR23,lO32,OH,  pea_out_pdf,n_bins=4, xra=[5.0,8.5], yra=[6.0,8.5], marker=['.','*','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], fit=False, silent=False, verbose=True)'''
+
+
+
+
+
+
+
+
+def run_voronoi_R23_O32_analysis(dataset,mask='None'):
+    #dataset options: Voronoi10,Voronoi14, Voronoi20
+    
+    
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
+    
+    #Grid Methods of Organizing Data
+    #Both One and Two Dimensional Analyzes 
+    #Stackboth_MasterGrid
+    #Option to Change: Bin size 
+
+
+    ###Voronoi###
+
+
+    #Adaptive Binning 
+    #Options to Change: Signal/Noise Size
+    if dataset == 'Voronoi10':
+        sn_size = 10
+        txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
+        asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
+        asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
+            
+    if dataset == 'Voronoi14':
+        sn_size = 14
+        txt_file = fitspath + 'voronoi14_2d_binning_outputs.txt'
+        asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
+        asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
+
+    if dataset == 'Voronoi20':
+        sn_size = 20
+        txt_file = fitspath + 'voronoi20_2d_binning_outputs.txt'
+        asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
+        asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
+
+    adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+
+    #Stacking_voronoi
+    #Option to Change: 
+    if dataset == "Voronoi10": voronoi_data = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
+    if dataset == "Voronoi14": voronoi_data = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
+    if dataset == "Voronoi20": voronoi_data = fitspath + 'voronoi20_2d_binning_datadet3.tbl'
+
+    print '### outfile for datadet3: '+voronoi_data
+        
+    #Option to Change: Masking the night sky emission lines
+    ######Check to make sure tables are going into right places#####
+    if mask == True:
+        Stack_name = 'Stacking'+dataset+'_output.pdf'
+        Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data, det3, asc_table1, Stack_name)
+    else:
+        Stack_name = 'Stacking'+dataset+'_output.pdf'
+        Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data, det3, Stack_name)
+
+    #Outfile and pdf both use name
+    print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
+
+
+
+    #Zoom_and_gauss_general
+
+    Stack_name= Stack_name.replace('.pdf', '.fits')
+    outfile_voronoi = fitspath+ Stack_name
+    stack2D, header = fits.getdata(outfile_voronoi,header=True)
+    wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+    #Spect_1D = fits.getdata(outfile_voronoi)
+    dispersion = header['CDELT1']
+
+    lineflag = np.zeros(len(wave))
+    for ii in lambda0:   
+        idx = np.where(np.absolute(wave - ii)<=5)[0]
+        if len(idx) > 0:
+            lineflag[idx] = 1
+
+    ###Delete after you make sure it is not used###
+    '''#tab = asc_table1
+    if dataset == 'Voronoi10':
+        tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
+       #asc_tab = asc.read(tab)
+    else: 
+        tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_10.tbl'
+        #asc_tab = asc.read(tab)'''
+            
+    #Option to change: Constants used as initial guesses for gaussian fit
+    s= 1.0
+    a= 1.0
+    c= 2.0
+    s1= 1.3
+    a1= 4.7
+    s2= 10.0
+    a2= -2.0
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
+
+    print 'finished gaussian emission fitting pdf and tables created'
+
+    #hstack_table
+    #Option to change: name of new fits file created
+    intro = fitspath + dataset+'_Average_R23_O32_Values.tbl'
+    asc_intro = asc.read(intro)
+    table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl')
+    combine_flux_fits = fitspath+dataset+'_combined_flux_table.fits'
+    combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
+    print combine_flux_ascii
+    hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
+
+    print dataset+'_combine_flux_table created'
+
+    ####### FIX THIS PLOTS ######line_ratio_plotting
+    #I need to go back through and figure out what is the average and what is the composite
+    line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1)
+
+
+        
+    #R_temp_calcul
+        
+    temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
+    temp_met_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
+    pdf_name_temp_met = dataset+'_Temp_Composite_Metallicity.pdf'
+
+    R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
+  
+    calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)
+
+    '''#dataset = 'Voronoi14'
+    #temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
+    temp_table= asc.read(temp_met_ascii)
+    SN_4363 = temp_table['S/N_4363']
+    det_4363 = np.where((SN_4363>=3))[0]
+    nan_det_4363 = np.where((SN_4363<3))[0]
+    
+    print 'Begin Local analog Calibration'
+    
+    ###Implimenting Local analog calibration###
+    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
+    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
+    
+    #DEEP2 Derived 
+    er_R23 = derived['R23'].data
+    er_O32 = derived['O32'].data
+    der_R23 = [np.log10(er_R23)]
+    der_O32 = [np.log10(er_O32)]
+    der_OH = [derived['OH'].data]
+    
+    #MACT Derived
+    er_R23_MACT = derived_MACT['R23'].data
+    er_O32_MACT = derived_MACT['O32'].data
+    der_R23_MACT = [np.log10(er_R23_MACT)]
+    der_O32_MACT = [np.log10(er_O32_MACT)]
+    der_OH_MACT = [derived_MACT['OH'].data]
+    
+    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+    O32_all = temp_table['O32_Composite']
+    R23_all = temp_table['R23_Composite']
+    com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
+    ID = temp_table['ID']
+    #print O32_all
+    
+    det_O32 = [O32_all[det_4363]]
+    det_R23 = [R23_all[det_4363]]
+    det_OH  = [com_O_log[det_4363]]
+    det_ID  = [ID[det_4363]]
+    
+    nandet_O32 = [O32_all[nan_det_4363]]
+    nandet_R23 = [R23_all[nan_det_4363]]
+    nandet_OH  = [com_O_log[nan_det_4363]]
+    nandet_ID  = [ID[nan_det_4363]]
+    
+    lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
+    lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
+    OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+    
+    local_analog_calibration.main(lR23, lO32, OH, out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
+###7.0 to 8.8
+
+
+# ID=[det_ID,nandet_ID]
+#temp_m_gascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/single_grid_O32_0108/O32_Grid_temperatures_metalicity.tbl'
+#dataset = 'O32_Grid'
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###NOT IN USE###
+'''
+
+def run_voronoi_R23_O32_analysis(dataset,mask='None'):
+    #dataset options: Voronoi10,Voronoi14, Voronoi20
+    
+    
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
+    
+    #Grid Methods of Organizing Data
+    #Both One and Two Dimensional Analyzes 
+    #Stackboth_MasterGrid
+    #Option to Change: Bin size 
+
+
+    ###Voronoi###
+
+
+    #Adaptive Binning 
+    #Options to Change: Signal/Noise Size
+    if dataset == 'Voronoi10':
+        sn_size = 10
+        txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
+        asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
+        asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
+            
+    if dataset == 'Voronoi14':
+        sn_size = 14
+        txt_file = fitspath + 'voronoi14_2d_binning_outputs.txt'
+        asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
+        asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
+
+    if dataset == 'Voronoi20':
+        sn_size = 20
+        txt_file = fitspath + 'voronoi20_2d_binning_outputs.txt'
+        asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
+        asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
+
+    adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+
+    #Stacking_voronoi
+    #Option to Change: 
+    if dataset == "Voronoi10": voronoi_data = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
+    if dataset == "Voronoi14": voronoi_data = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
+    if dataset == "Voronoi20": voronoi_data = fitspath + 'voronoi20_2d_binning_datadet3.tbl'
+
+    print '### outfile for datadet3: '+voronoi_data
+        
+    #Option to Change: Masking the night sky emission lines
+    ######Check to make sure tables are going into right places#####
+    if mask == True:
+        Stack_name = 'Stacking'+dataset+'_output.pdf'
+        Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data, det3, asc_table1, Stack_name)
+    else:
+        Stack_name = 'Stacking'+dataset+'_output.pdf'
+        Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data, det3, Stack_name)
+
+    #Outfile and pdf both use name
+    print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
+
+
+
+    #Zoom_and_gauss_general
+
+    Stack_name= Stack_name.replace('.pdf', '.fits')
+    outfile_voronoi = fitspath+ Stack_name
+    stack2D, header = fits.getdata(outfile_voronoi,header=True)
+    wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+    #Spect_1D = fits.getdata(outfile_voronoi)
+    dispersion = header['CDELT1']
+
+    lineflag = np.zeros(len(wave))
+    for ii in lambda0:   
+        idx = np.where(np.absolute(wave - ii)<=5)[0]
+        if len(idx) > 0:
+            lineflag[idx] = 1
+
+    ###Delete after you make sure it is not used###
+    #tab = asc_table1
+    if dataset == 'Voronoi10':
+        tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
+       #asc_tab = asc.read(tab)
+    else: 
+        tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_10.tbl'
+        #asc_tab = asc.read(tab)
+            
+    #Option to change: Constants used as initial guesses for gaussian fit
+    s=1.0
+    a= 1.0
+    c = 1
+        
+    s1=-0.3
+    a1= 4.7
+    s2 = 1
+    a2 = -1.8
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
+
+    print 'finished gaussian emission fitting pdf and tables created'
+
+    #hstack_table
+    #Option to change: name of new fits file created
+    intro = fitspath + dataset+'_Average_R23_O32_Values.tbl'
+    asc_intro = asc.read(intro)
+    table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl')
+    combine_flux_fits = fitspath+dataset+'_combined_flux_table.fits'
+    combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
+    print combine_flux_ascii
+    hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
+
+    print dataset+'_combine_flux_table created'
+
+    ####### FIX THIS PLOTS ######line_ratio_plotting
+    #I need to go back through and figure out what is the average and what is the composite
+    line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1)
+
+
+        
+    #R_temp_calcul
+        
+    temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
+    temp_met_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
+    pdf_name_temp_met = dataset+'_Temp_Composite_Metallicity.pdf'
+
+    R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
+  
+
+    temp_table= asc.read(temp_met_ascii)
+    SN_4363 = temp_table['S/N_4363']
+    det_4363 = np.where((SN_4363>=3))[0]
+    nan_det_4363 = np.where((SN_4363<3))[0]
+    
+    print 'Begin Local analog Calibration'
+
+    ###Implimenting Local analog calibration###
+    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
+    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
+
+    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+    O32_all = temp_table['O32_Composite']
+    R23_all = temp_table['R23_Composite']
+    com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
+    ID = temp_table['ID']
+    print O32_all
+
+    det_O32 = [O32_all[det_4363]]
+    det_R23 = [R23_all[det_4363]]
+    det_OH  = [com_O_log[det_4363]]
+    det_ID  = [ID[det_4363]]
+
+    nandet_O32 = [O32_all[nan_det_4363]]
+    nandet_R23 = [R23_all[nan_det_4363]]
+    nandet_OH  = [com_O_log[nan_det_4363]]
+    nandet_ID  = [ID[nan_det_4363]]
+    
+    lR23 = [det_R23,nandet_R23]
+    lO32 = [det_O32,nandet_O32]
+    OH   = [det_OH,nandet_OH]
+
+    local_analog_calibration.main(lR23, lO23, OH, out_pdf,ctype=['b','g'],label=['Detection','Non-Detection'], silent=False, verbose=True)
+    #ID=[det_ID,nandet_ID]
+
+###Implimenting Local analog calibration###
+#dataset = 'O32_Grid'
+out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
+temp_table= asc.read(temp_met_ascii)
+SN_4363 = temp_table['S/N_4363']
+det_4363 = np.where((SN_4363>=3))[0]
+nan_det_4363 = np.where((SN_4363<3))[0]
+print det_4363
+O32_all = temp_table['O32_Composite']
+R23_all = temp_table['R23_Composite']
+com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
+ID = temp_table['ID']
+print O32_all
+
+det_O32 = O32_all[det_4363]
+det_R23 = R23_all[det_4363]
+det_OH = com_O_log[det_4363]
+
+
+
+#OH= local_analog_calibration.bian18_O32(det_O32)
+#print OH
+#R23_func = local_analog_calibration.bian18_R23(OH)
+#xsprint R23_func
+
+lR23 = [det_R23]
+lO32 = [det_O32]
+OH = [det_OH]
+
+local_analog_calibration.main(lR23, lO32, OH, out_pdf, ID=[ID], silent=False, verbose=True)'''
+
+
+    
+
+
+
+
+###NOT IN USE###
+'''
+if dataset == 'O32_Grid': outfile_single = fitspath +'single_grid_O32.npz'
+    if dataset == 'R23_Grid': outfile_single = fitspath+'single_grid_R23.npz'
+    
+    grid_data = np.load(outfile_single)
+        
+    N_arr_grid = grid_data['N_arr0']
+    R23_grid = grid_data['R23_grid']
+    O32_grid = grid_data['O32_grid']
+    T_arr = grid_data['T_arr']
+        
+        
+    #Option to Change: Masking the night sky emission lines 
+        if mask == True:
+            Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf'
+            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data)
+        else:
+            Stack_name = 'Stacking_MasterGrid__single'+dataset+'.pdf'
+            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data)
         #Outfile and pdf both use name
         print 'finished with stacking,' + Stack_name + 'pdf and fits files created'
 
@@ -176,7 +777,7 @@ def run_R23_O32_analysis(dataset,mask='None'):
         s2 = 1
         a2 = -1.8
 
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2, binning_avg_asc)
 
         print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
 
@@ -209,134 +810,4 @@ def run_R23_O32_analysis(dataset,mask='None'):
         temp_table= asc.read(temp_m_gascii)
         SN_4363 = temp_table['S/N_4363']
         det_4363 = np.where((SN_4363>=3))[0]
-        print det_4363
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###Voronoi###
-
-    if dataset == 'Voronoi10' or 'Voronoi14' or 'Voronoi20':
-        #Adaptive Binning 
-        #Options to Change: Signal/Noise Size
-        if dataset == 'Voronoi10':
-            sn_size = 10
-            txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
-            asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
-            asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
-            
-        if dataset == 'Voronoi14':
-            sn_size = 14
-            txt_file = fitspath + 'voronoi14_2d_binning_outputs.txt'
-            asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
-            asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
-
-        if dataset == 'Voronoi20':
-            sn_size = 20
-            txt_file = fitspath + 'voronoi20_2d_binning_outputs.txt'
-            asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
-            asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
-
-        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
-
-        #Stacking_voronoi
-        #Option to Change: 
-        if dataset == "Voronoi10": voronoi_data = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
-        if dataset == "Voronoi14": voronoi_data = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
-        if dataset == "Voronoi20": voronoi_data = fitspath + 'voronoi20_2d_binning_datadet3.tbl'
-
-        print '### outfile for datadet3: '+voronoi_data
-        
-        #Option to Change: Masking the night sky emission lines
-        ######Check to make sure tables are going into right places#####
-        if mask == True:
-            Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data, det3, asc_table1, Stack_name)
-        else:
-            Stack_name = 'Stacking'+dataset+'_output.pdf'
-            Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data, det3, Stack_name)
-
-        #Outfile and pdf both use name
-        print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
-
-
-
-        #Zoom_and_gauss_general
-
-        Stack_name= Stack_name.replace('.pdf', '.fits')
-        outfile_voronoi = fitspath+ Stack_name
-        stack2D, header = fits.getdata(outfile_voronoi,header=True)
-        wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-        #Spect_1D = fits.getdata(outfile_voronoi)
-        dispersion = header['CDELT1']
-
-        lineflag = np.zeros(len(wave))
-        for ii in lambda0:   
-            idx = np.where(np.absolute(wave - ii)<=5)[0]
-            if len(idx) > 0:
-                lineflag[idx] = 1
-
-        ###Delete after you make sure it is not used###
-        '''#tab = asc_table1
-        if dataset == 'Voronoi10':
-            tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_14.tbl'
-            #asc_tab = asc.read(tab)
-        else: 
-            tab= '/Users/reagenleimbach/Desktop/Zcalbase_gal/asc_table_voronoi_10.tbl'
-            #asc_tab = asc.read(tab)'''
-            
-        #Option to change: Constants used as initial guesses for gaussian fit
-        s=1.0
-        a= 1.0
-        c = 1
-        
-        s1=-0.3
-        a1= 4.7
-        s2 = 1
-        a2 = -1.8
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
-
-        print 'finished gaussian emission fitting pdf and tables created'
-
-        #hstack_table
-        #Option to change: name of new fits file created
-        intro = fitspath + dataset+'_Average_R23_O32_Values.tbl'
-        asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl')
-        combine_flux_fits = fitspath+dataset+'_combined_flux_table.fits'
-        combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
-        print combine_flux_ascii
-        hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
-
-        print dataset+'_combine_flux_table created'
-
-        ####### FIX THIS PLOTS ######line_ratio_plotting
-        #I need to go back through and figure out what is the average and what is the composite
-        line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1)
-
-
-        
-        #R_temp_calcul
-        
-        temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
-        temp_met_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
-        pdf_name_temp_met = dataset+'_Temp_Composite_Metallicity.pdf'
-
-        R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
-  
-
-        temp_table= asc.read(temp_met_ascii)
-        SN_4363 = temp_table['S/N_4363']
-        det_4363 = np.where((SN_4363>=3))[0]
-        print det_4363
-
+        print det_4363'''

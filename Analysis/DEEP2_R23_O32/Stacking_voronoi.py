@@ -117,7 +117,7 @@ def Master_Stacking(fitspath, voronoi_data, asc_table1, wave, image2D, name, hea
     fits.writeto(T_fits_name, stack_2d, header, overwrite= True)
 
    
-    
+    fig.clear()
 #Function that runs Master_Stacking and calls necessary inputs (including mask)
 def run_Stacking_Master_mask(fitspath_ini, fitspath,voronoi_data, det3,asc_table1, Stack_name):
     

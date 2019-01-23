@@ -88,3 +88,4 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
 
     pdf_pages.close()
 
+    fig.clear()

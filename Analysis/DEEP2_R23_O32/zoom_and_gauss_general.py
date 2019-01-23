@@ -22,18 +22,24 @@ RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
 #If 'x0' is infeasible error occurs, check the para_bound values to make sure the expected values are within the range set up upper and lower limits. 
 
-
-#eventually I need to incoorparate these values into the correct function but right now they are global variables 
+###NOT IN USE###
+'''#eventually I need to incoorparate these values into the correct function but right now they are global variables 
 s=1.0
 a= 1.0
 c = 2.0
 s1= 1.3
+a1= 2.1
+s2 = 1.5   ###Changed this value in order to better fit the balmer curves### used to be s2 =1
+a2 = -1.0
+
+Works for Single Grids: s=1.0
+a= 1.0
+c = 2.0
+s1= 1.3
 a1= 1.5
-s2 = 1
-a2 = 1.8
-
-
-    
+s2 = 1.5   ###Changed this value in order to better fit the balmer curves### used to be s2 =1
+a2 = 1.8'''
+###   
 
 def line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr):
     #print 'Under Construction '
@@ -60,20 +66,23 @@ def gauss(x,xbar,s,a,c):
    
     return  a*np.exp(-(x-xbar)**2/(2*s**2)) + c 
 
-def double_gauss(x, xbar, s1, a1, c, s2, a2): 
-
+def double_gauss(x, xbar, s1, a1, c, s2, a2):
+    
     return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-xbar)**2/(2*s2**2))
 
 def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
     con1 = 3728.91/3726.16
     return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-(xbar*con1))**2/(2*s2**2)) 
 
-def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,line_type):
+def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx,line_type):
 
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
 
     fail = 0
+
+
+    ###Single Emission Line###
     if line_type == 'Single': 
         p0 = [working_wave, 1.0, max0, med0] #must have some reasonable values
        
@@ -84,18 +93,37 @@ def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,line_type):
         except ValueError:
             print 'fail'
             fail = 1
-            
+
+    
+    ###Double Balmer Emission Line###
+    ###initial para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)###
     if line_type == 'Balmer': 
-        p0 = [working_wave, 1.0, max0, med0, s2, -0.5*max0] #must have some reasonable values
-        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)
+        '''p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
+        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),25.0,0.0)'''
 
+        if dataset == 'R23_Grid' or dataset =='O32_Grid':    
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0.0)
 
+        if dataset == 'Grid':
+            print 'med0:', med0, 'max0:',max0
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0] #must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0.0)
+
+        if dataset == 'Voronoi10' or dataset =='Voronoi14' or dataset== 'Voronoi20':
+            print 'med0:', med0, 'max0:', max0
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.50*max0] #must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0) 
+
+        #print para_bound
         try:
             o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound)
         except ValueError:
             print 'fail'
             fail = 1
 
+
+    ###OxygenII Emission Line###
     if line_type == 'Oxy2':
         p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0] #must have some reasonable values
         para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0, 100.0)
@@ -107,11 +135,11 @@ def get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx,line_type):
             fail = 1
    
     if not fail:
+        print 'o1:', o1
         return o1, med0, max0
     else:
         return None, med0, max0
 
-#calculating rms
 
 def rms_func(wave,dispersion,lineflag, lambda_in, y0, sigma_array, scalefact):
     x_idx = np.where((np.abs(wave-lambda_in)<=100) & (lineflag==0))[0]
@@ -174,7 +202,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
         y_smooth = movingaverage_box1D(y_norm, 2, boundary='extend')
       
 
-        o1, med0, max0  = get_gaussian_fit(working_wave,x0, y0, y_norm, x_idx, line_type)
+        o1, med0, max0  = get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, line_type)
      
         #Calculating Flux: Signal Line Fit
 
@@ -243,21 +271,42 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             #t_ax.legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
             t_ax.set_xlim(x1,x2)
  
-            #ADD ID TO THE GRID METHOD
-            if dataset == 'Grid':
-                txt0  = 'R_23: %.3f O_32: %.3f\n' % (R_23_array[rr],O_32_array[rr])
-                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
-                txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
-                txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
-                txt0 += 'S/N: %.3f' %(SN_array[rr])
+            
+            
+            
+            if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid':
+                if line_type == 'Balmer': 
+                    txt0  = 'ID: %i, R_23: %.3f O_32: %.3f\n' % (asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
+                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f'% (o1[2], o1[4], o1[5]) + '\n'
+                    txt0 += 'F_G: %.3f F_S: %.3f' %(flux_g, flux_s) + '\n'
+                    txt0 += 'S/N: %.3f' %(SN_array[rr])
+
+                if line_type == 'Single' or line_type =='Oxy2': 
+                    txt0  = 'ID: %i, R_23: %.3f O_32: %.3f\n' % (asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0, o1[2]) + '\n'
+                    txt0 += 'F_G: %.3f F_S: %.3f' %(flux_g, flux_s) + '\n'
+                    txt0 += 'S/N: %.3f' %(SN_array[rr])
 
             else:
-                txt0 = r'ID: %.3f  xnode=%.3f  ynode=%.3f' % (asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
-                txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
-                txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], asc_tab['area'][rr]) 
-                txt0 += 'Median: %.3f Sigma: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
-                txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
-                txt0 += 'S/N: %.3f' %(SN_array[rr])
+                if line_type =='Balmer':
+                    txt0 = r'ID: %i  xnode=%.3f  ynode=%.3f' % (asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
+                    txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], N_gal_array[rr]) 
+                    txt0 += 'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
+                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f'% (o1[2], o1[4], o1[5]) + '\n'
+                    txt0 += 'F_G: %.3f F_S: %.3f' %(flux_g, flux_s) + '\n'
+                    txt0 += 'S/N: %.3f' %(SN_array[rr])
+
+                if line_type =='Single' or line_type=='Oxy2':
+                    txt0 = r'ID: %i  xnode=%.3f  ynode=%.3f' % (asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
+                    txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %i \n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], N_gal_array[rr]) 
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0,o1[2]) + '\n'
+                    txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
+                    txt0 += 'S/N: %.3f' %(SN_array[rr])
         
        
             t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
@@ -315,7 +364,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     
     print 'Done!'
 
-
+    fig.clear()
 
 def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab):
     

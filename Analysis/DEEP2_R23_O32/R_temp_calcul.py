@@ -165,14 +165,14 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727)
 
 
-    if not exists(out_ascii):
-        n=  ('ID','R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363','Detection', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+    #if not exists(out_ascii):
+    n=  ('ID','R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363','Detection', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
         
-        tab0 = Table([ID ,R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, indicate, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
-        asc.write(tab0, out_ascii, format='fixed_width_two_line')
+    tab0 = Table([ID ,R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, indicate, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
+    asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
  
-        tab0.write(out_fits,format = 'fits')
+    tab0.write(out_fits,format = 'fits')
 
 
 
@@ -329,6 +329,18 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     ax_3d.set_zlabel('Temperature')
     ax_3d.set_zlim(4000,26000)
     ax_3d.scatter(R23_composite, O32_composite, T_e, marker='.', linewidths = None)
-    plt.show()
-    
+    #plt.show()
+
+
+
+
+
+    fig1.clear()
+    fig2.clear()
+    fig3.clear()
+    fig4.clear()
+    fig5.clear()
+    fig6.clear()
+    fig7.clear()
+    fig_3d.clear()
    

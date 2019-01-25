@@ -702,7 +702,7 @@ def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
         plt.legend()
         plt.pause(1)  # allow plot to appear in certain cases
 
-    print('classe : ',classe)
+    '''print('classe : ',classe)
     print('xnode: ',xnode)
     print('xBar : ',xBar)
     print('sn : ',sn)
@@ -710,7 +710,7 @@ def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
     print('scale : ',scale)
 
     print(type(classe), type(xnode), type(ynode), type(xBar), type(yBar))
-    print(type(sn), type(area), type(scale))
+    print(type(sn), type(area), type(scale))'''
     return classe, xnode, ynode, xBar, yBar, sn, area, scale
 
 #----------------------------------------------------------------------------

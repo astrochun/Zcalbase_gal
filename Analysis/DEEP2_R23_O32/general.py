@@ -26,7 +26,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid,
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi20_0108/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10_0125/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -100,7 +100,7 @@ def get_det3():
 #redue calling for look at hb
 
 
-def run_grid_R23_O32_analysis(dataset,mask='None'):
+def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
     #dataset options: Grid, O32_Grid, R23_Grid
     
     
@@ -186,7 +186,8 @@ def run_grid_R23_O32_analysis(dataset,mask='None'):
     #Spect_1D = fits.getdata(outfile_grid)
     dispersion = header['CDELT1']
     binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
-
+    
+    
     lineflag = np.zeros(len(wave))
     for ii in lambda0:   
         idx = np.where(np.absolute(wave - ii)<=5)[0]
@@ -203,7 +204,7 @@ def run_grid_R23_O32_analysis(dataset,mask='None'):
     a2= 1.8
     
 
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
 
     print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
 
@@ -263,70 +264,10 @@ def run_grid_R23_O32_analysis(dataset,mask='None'):
 
     R_temp_calcul.run_function(fitspath, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
 
+    ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
-    '''
-    #dataset = 'O32_Grid'
-    #temp_m_gascii = fitspath+ 'O32_Grid_temperatures_metalicity.tbl'
-    temp_table= asc.read(temp_m_gascii)
-    SN_4363 = temp_table['S/N_4363']
-    det_4363 = np.where((SN_4363>=3))[0]
-    nan_det_4363 = np.where((SN_4363<3))[0]
-    print 'Begin Local analog Calibration'
     
-    ###Implimenting Local analog calibration###
     
-    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
-    
-    #DEEP2 Derived 
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
-    der_R23 = [np.log10(er_R23)]
-    der_O32 = [np.log10(er_O32)]
-    der_OH = [derived['OH'].data]
-    
-    #MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
-    der_R23_MACT = [np.log10(er_R23_MACT)]
-    der_O32_MACT = [np.log10(er_O32_MACT)]
-    der_OH_MACT = [derived_MACT['OH'].data]
-    
-    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
-    O32_all = temp_table['O32_Composite']
-    R23_all = temp_table['R23_Composite']
-    com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
-    ID = temp_table['ID']
-    #print O32_all
-    
-    det_O32 = [O32_all[det_4363]]
-    det_R23 = [R23_all[det_4363]]
-    det_OH  = [com_O_log[det_4363]]
-    det_ID  = [ID[det_4363]]
-    
-    nandet_O32 = [O32_all[nan_det_4363]]
-    nandet_R23 = [R23_all[nan_det_4363]]
-    print len(nandet_O32), len(nandet_R23)
-    nandet_OH  = [com_O_log[nan_det_4363]]
-    nandet_ID  = [ID[nan_det_4363]]
-    ###Ask if there is a better way to do this because R23_Grid will not always have no nan###
-    if dataset == 'R23_Grid':
-        lR23 = [det_R23,der_R23,der_R23_MACT]
-        lO32 = [det_O32,der_O32,der_O32_MACT]
-        OH   = [det_OH, der_OH, der_OH_MACT]
-        local_analog_calibration.main(lR23, lO32, OH, out_pdf, ctype=['b','r','m'], label=['Detection','DEEP2', 'MACT'], silent=False, verbose=True)
-        
-    else:    
-        lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
-        lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
-        OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
-        local_analog_calibration.main(lR23, lO32, OH, out_pdf, ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], silent=False, verbose=True)
-    # ID=[det_ID,nandet_ID]
-
-
-###Green Pea Calibration###
-pea_out_pdf = fitspath+ '/'+dataset+'_GPC.pdf'
-green_peas_calibration.main(lR23,lO32,OH,  pea_out_pdf,n_bins=4, xra=[5.0,8.5], yra=[6.0,8.5], marker=['.','*','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], fit=False, silent=False, verbose=True)'''
 
 
 
@@ -335,7 +276,10 @@ green_peas_calibration.main(lR23,lO32,OH,  pea_out_pdf,n_bins=4, xra=[5.0,8.5], 
 
 
 
-def run_voronoi_R23_O32_analysis(dataset,mask='None'):
+
+
+
+def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     #dataset options: Voronoi10,Voronoi14, Voronoi20
     
     
@@ -426,7 +370,7 @@ def run_voronoi_R23_O32_analysis(dataset,mask='None'):
     a1= 4.7
     s2= 10.0
     a2= -2.0
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
     print 'finished gaussian emission fitting pdf and tables created'
 
@@ -456,64 +400,10 @@ def run_voronoi_R23_O32_analysis(dataset,mask='None'):
 
     R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
   
+    ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)
 
-    '''#dataset = 'Voronoi14'
-    #temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
-    temp_table= asc.read(temp_met_ascii)
-    SN_4363 = temp_table['S/N_4363']
-    det_4363 = np.where((SN_4363>=3))[0]
-    nan_det_4363 = np.where((SN_4363<3))[0]
-    
-    print 'Begin Local analog Calibration'
-    
-    ###Implimenting Local analog calibration###
-    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
-    
-    #DEEP2 Derived 
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
-    der_R23 = [np.log10(er_R23)]
-    der_O32 = [np.log10(er_O32)]
-    der_OH = [derived['OH'].data]
-    
-    #MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
-    der_R23_MACT = [np.log10(er_R23_MACT)]
-    der_O32_MACT = [np.log10(er_O32_MACT)]
-    der_OH_MACT = [derived_MACT['OH'].data]
-    
-    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
-    O32_all = temp_table['O32_Composite']
-    R23_all = temp_table['R23_Composite']
-    com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
-    ID = temp_table['ID']
-    #print O32_all
-    
-    det_O32 = [O32_all[det_4363]]
-    det_R23 = [R23_all[det_4363]]
-    det_OH  = [com_O_log[det_4363]]
-    det_ID  = [ID[det_4363]]
-    
-    nandet_O32 = [O32_all[nan_det_4363]]
-    nandet_R23 = [R23_all[nan_det_4363]]
-    nandet_OH  = [com_O_log[nan_det_4363]]
-    nandet_ID  = [ID[nan_det_4363]]
-    
-    lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
-    lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
-    OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
-    
-    local_analog_calibration.main(lR23, lO32, OH, out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
-###7.0 to 8.8
-
-
-# ID=[det_ID,nandet_ID]
-#temp_m_gascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/single_grid_O32_0108/O32_Grid_temperatures_metalicity.tbl'
-#dataset = 'O32_Grid'
-'''
+   
 
 
 

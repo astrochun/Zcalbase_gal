@@ -74,11 +74,13 @@ def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
     con1 = 3728.91/3726.16
     return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-(xbar*con1))**2/(2*s2**2)) 
 
-def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx,line_type):
+def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_type):
 
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
-
+    sigma = np.repeat(RMS,len(x0))
+    #print sigma
+    
     fail = 0
 
 
@@ -89,7 +91,7 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx,line_type):
         para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
 
         try:
-            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound)
+            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma= sigma[x_idx], bounds = para_bound)
         except ValueError:
             print 'fail'
             fail = 1
@@ -103,21 +105,21 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx,line_type):
 
         if dataset == 'R23_Grid' or dataset =='O32_Grid':    
             p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0.0)
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
 
         if dataset == 'Grid':
-            print 'med0:', med0, 'max0:',max0
+            #print 'med0:', med0, 'max0:',max0
             p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0.0)
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
 
         if dataset == 'Voronoi10' or dataset =='Voronoi14' or dataset== 'Voronoi20':
-            print 'med0:', med0, 'max0:', max0
+            #print 'med0:', med0, 'max0:', max0
             p0 = [working_wave, 1.0, max0, med0, s2, -0.50*max0] #must have some reasonable values
             para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0) 
 
         #print para_bound
         try:
-            o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound)
+            o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
         except ValueError:
             print 'fail'
             fail = 1
@@ -129,27 +131,31 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx,line_type):
         para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0, 100.0)
 
         try:
-            o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0,sigma=None, bounds = para_bound)
+            o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
         except ValueError:
             print 'fail'
             fail = 1
    
     if not fail:
-        print 'o1:', o1
+        #print 'o1:', o1
         return o1, med0, max0
     else:
         return None, med0, max0
 
 
-def rms_func(wave,dispersion,lineflag, lambda_in, y0, sigma_array, scalefact):
+def rms_func(wave,dispersion,lineflag, lambda_in, y0, scalefact, sigma_array):
     x_idx = np.where((np.abs(wave-lambda_in)<=100) & (lineflag==0))[0]
     sigma = np.std(y0[x_idx])
-    pix =  5* sigma_array / dispersion 
-    s_pix = np.sqrt(pix)
-    ini_sig= s_pix * sigma * dispersion
     RMS_pix = sigma*dispersion/scalefact
-   
-    return ini_sig/scalefact, RMS_pix
+    if sigma_array == 0:
+        RMS = sigma/scalefact
+        return RMS
+    else: 
+        pix =  5* sigma_array / dispersion 
+        s_pix = np.sqrt(pix)
+        ini_sig= s_pix * sigma * dispersion
+        return ini_sig/scalefact, RMS_pix
+
 
 def error_prop_chuncodes(x_arr, dx):
     #x_arr = np.random.random_integers(10,10)
@@ -159,7 +165,7 @@ def error_prop_chuncodes(x_arr, dx):
 #for each individual stack
 #electron temperature and the R23 and O32 values 
 #Plotting Zoomed 
-def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lambda0, lineflag,  line_type = '',outpdf='', line_name=''):
+def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lambda0, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
     
     asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
@@ -199,11 +205,14 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
         x1 = working_wave-100
         x2  = working_wave+100
 
-        y_smooth = movingaverage_box1D(y_norm, 2, boundary='extend')
+        y_smooth = movingaverage_box1D(y_norm, 4, boundary='extend')
       
+        RMS= rms_func(wave,dispersion,lineflag,working_wave, y0, scalefact, 0)
+        
+        if y_correction == '': o1, med0, max0  = get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_type)
 
-        o1, med0, max0  = get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, line_type)
-     
+        if y_correction == 'y_smooth': o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_smooth, x_idx, RMS, line_type)
+        
         #Calculating Flux: Signal Line Fit
 
         if type(o1) != type(None):
@@ -235,7 +244,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
 
             #Calculating RMS
-            ini_sig1, RMS_pix= rms_func(wave,dispersion,lineflag,working_wave, y0, o1[1], scalefact)
+            ini_sig1, RMS_pix= rms_func(wave,dispersion,lineflag,working_wave, y0, scalefact, o1[1])
 
             #Line Flag Checking Plots
             #line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2D, line_name,row,col,fig,ax_arr)
@@ -264,8 +273,9 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
         #Plotting
        
-            emis= t_ax.plot(wave, y_norm,'k', linewidth=0.4, label= 'Emission')
-            t_ax.plot(x0,gauss0, 'b--', linewidth= 0.5, label= 'Gauss Fit')
+            emis= t_ax.plot(wave, y_smooth,'k', linewidth=0.4, label= 'Emission')
+            if y_correction =='y_smooth': t_ax.plot(x0,gauss0, 'm--', linewidth= 0.5, label= 'Gauss Fit')
+            else: t_ax.plot(x0,gauss0, 'b--', linewidth= 0.5, label= 'Gauss Fit')
             t_ax.plot(x0[x_sigsnip],resid, 'r', linestyle= 'dashed', linewidth = 0.2, label= 'Residuals')
             t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth = 0.1, label = 'Lineflag')
             #t_ax.legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
@@ -366,7 +376,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
     fig.clear()
 
-def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab):
+def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction,s,a,c,s1,a1,s2,a2,tab):
     
 
     for ii in range(len(lambda0)):
@@ -374,20 +384,20 @@ def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, l
         if line_type[ii] == 'Single':
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave,lambda0[ii], lambda0, lineflag, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave,lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
         #Balmer Line Fit  
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction=y_correction, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
          
         #Oxy2 Line Fit     
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print outpdf
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
             
 

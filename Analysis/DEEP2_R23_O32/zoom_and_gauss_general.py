@@ -273,20 +273,20 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
         #Plotting
        
-            emis= t_ax.plot(wave, y_smooth,'k', linewidth=0.4, label= 'Emission')
-            if y_correction =='y_smooth': t_ax.plot(x0,gauss0, 'm--', linewidth= 0.5, label= 'Gauss Fit')
-            else: t_ax.plot(x0,gauss0, 'b--', linewidth= 0.5, label= 'Gauss Fit')
+            emis= t_ax.plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
+            if y_correction =='y_smooth': t_ax.plot(x0,gauss0, 'm', linewidth= 0.25, label= 'Gauss Fit')
+            if y_correction =='':  t_ax.plot(x0,gauss0, 'b', linewidth= 0.25, label= 'Gauss Fit')
             t_ax.plot(x0[x_sigsnip],resid, 'r', linestyle= 'dashed', linewidth = 0.2, label= 'Residuals')
             t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth = 0.1, label = 'Lineflag')
             #t_ax.legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
-            t_ax.set_xlim(x1,x2)
+            t_ax.set_xlim(x1+50,x2-50)
  
             
             
             
             if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid':
                 if line_type == 'Balmer': 
-                    txt0  = 'ID: %i, R_23: %.3f O_32: %.3f\n' % (asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f'% (o1[2], o1[4], o1[5]) + '\n'
@@ -294,7 +294,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
                 if line_type == 'Single' or line_type =='Oxy2': 
-                    txt0  = 'ID: %i, R_23: %.3f O_32: %.3f\n' % (asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0, o1[2]) + '\n'
                     txt0 += 'F_G: %.3f F_S: %.3f' %(flux_g, flux_s) + '\n'
@@ -302,7 +302,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
             else:
                 if line_type =='Balmer':
-                    txt0 = r'ID: %i  xnode=%.3f  ynode=%.3f' % (asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
                     txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], N_gal_array[rr]) 
                     txt0 += 'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
@@ -311,7 +311,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
                 if line_type =='Single' or line_type=='Oxy2':
-                    txt0 = r'ID: %i  xnode=%.3f  ynode=%.3f' % (asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
                     txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %i \n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0,o1[2]) + '\n'
@@ -320,7 +320,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
         
        
             t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
-            for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.3, color= 'k')
+            for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.1, color= 'k', linestyle = '--')
 
             if col == 0:
                 t_ax.set_ylabel('Spect_1D')
@@ -374,7 +374,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     
     print 'Done!'
 
-    fig.clear()
+    #fig.clear()
 
 def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction,s,a,c,s1,a1,s2,a2,tab):
     
@@ -401,7 +401,7 @@ def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, l
 
             
 
-    
+
 
 
 

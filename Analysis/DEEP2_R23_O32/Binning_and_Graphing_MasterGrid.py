@@ -72,12 +72,13 @@ def single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     for ii in range(n_bins):
         bin_start[ii] = y_sort0[ii*galinbin]
         bin_end[ii]   = y_sort0[(ii+1)*galinbin-1]
+        if ii == max(n_bins):  bin_end[ii] = max(y_sort0)
         print bin_start[ii] , bin_end[ii]
 
     #Organizes data into bins
     for oo in range(n_bins):
         idx_arr = np.where((O32>= bin_start[oo]) & (O32<= bin_end[oo]))[0]
-        N_arr0[0,oo] += len(idx_arr)
+        N_arr0[0,oo] += len(idx_arr) 
         T_arr[0,oo]   = idx_arr
     #print'N_arr0:', N_arr0
     #print 'T_arr:', T_arr
@@ -135,6 +136,7 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     for ii in range(n_bins):
         bin_start[ii] = y_sort0[ii*galinbin]
         bin_end[ii]   = y_sort0[(ii+1)*galinbin-1]
+        if ii == max(n_bins):  bin_end[ii] = max(y_sort0)
         print bin_start[ii] , bin_end[ii]
 
     #Organizes data into bins
@@ -250,3 +252,80 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
     np.savez(outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=O32_grid, N_arr0=N_arr0)
 
 
+def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin):
+
+    #One_dimensional binning for R23 followed by each bin being split in half one with high O32 and one with low O32
+
+    pdf_pages = PdfPages(pdf_pages)
+
+    #One_dimensional binning for R23 
+
+    sort0 = np.argsort(R23)
+    y_sort0 = R23[sort0]
+
+    
+    #200 galaxies per bin
+    n_bins = np.int(len(R23)/galinbin)
+    print n_bins
+
+    #Initializing Arrays for outfile later
+    N_arr0 = np.zeros((n_bins,1))
+    T_arr  = np.zeros((n_bins,1), dtype = object)
+    
+
+    #Bin starts and stops initializing
+    bin_start_1 = np.zeros(n_bins)
+    bin_end_1   = np.zeros(n_bins)
+    bin_start_2 = np.zeros(n_bins)
+    bin_end_2   = np.zeros(n_bins)
+
+    #Sets the bins 
+    for ii in range(n_bins):
+        bin_start_1[ii] = y_sort0[ii*galinbin]
+        bin_end_1[ii]   = y_sort0[(ii+1)*galinbin-1]
+        print bin_start_1[ii] , bin_end_1[ii]
+
+
+    #Splitting bins in half by O32 value
+    sort_O32 = np.argsort(O32)
+    x_sort = O32[sort_O32]
+    for aa in range(n_bins):
+        bin_start_2[ii] = x_sort[ii*galinbin]
+        bin_end_2[ii]   = x_sort[(ii+1)*galinbin-1]
+        print bin_start_2[ii] , bin_end_2[ii]
+        
+    #Organizes data into bins
+    for oo in range(n_bins):
+        for kk in range(n_bins):
+            idx_arr = np.where((R23>= bin_start_1[oo]) & (R23<= bin_end_1[oo])
+                           & (O32>= bin_start_2[kk]) & (O32<= bin_end_2[kk]))[0]
+            print idx_arr
+            N_arr0[oo,kk] += len(idx_arr)
+            T_arr[oo,kk]   = idx_arr
+            print 'N_arr0:', N_arr0
+            print 'T_arr:', T_arr
+
+    #Plotting
+    fig, ax = plt.subplots()
+    x = R23
+    y = O32
+    finite0 = np.where((np.isfinite(x)) & (np.isfinite(y)))[0]
+    x1 = x[finite0]
+    y1 = y[finite0]
+    x = np.log10(x1)
+    y = np.log10(y1)
+    hlines = np.log10(bin_start_1)
+    hlines_end = np.log10(bin_end_1)
+    vlines = np.log10(bin_start_2)
+    ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
+    for pp in range(len(bin_start_1)): plt.axvline(x = hlines[pp], linewidth= 0.3, color= 'k')
+    for ll in range(len(bin_end)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
+    for jj in range(len(bin_start_2)): plt.axhline(y =vlines[jj], linewidth= 0.3, color= 'b')
+    fig.savefig(pdf_pages, format ='pdf')
+    pdf_pages.close()
+
+    
+
+    np.savez(outfile, T_arr=T_arr, R23_grid=bin_start_1, O32_grid=bin_start_2, N_arr0=N_arr0)
+
+    fig.clear()

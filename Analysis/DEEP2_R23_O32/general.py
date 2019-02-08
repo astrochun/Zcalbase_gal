@@ -26,7 +26,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid,
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10_0125/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -101,7 +101,7 @@ def get_det3():
 
 
 def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
-    #dataset options: Grid, O32_Grid, R23_Grid
+    #dataset options: Grid, O32_Grid, R23_Grid, Double_Bin
     
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
@@ -115,7 +115,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
     #Binning and Graphing MasterGrid
     #Options to Change: Bin Size
     galinbin = 400
-    print galinbin
+    print '# of Gal in Bin:', galinbin
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
         outfile = fitspath +'single_grid_O32.npz'
@@ -125,6 +125,11 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
         pdf_pages = fitspath +'single_grid_R23.pdf'
         outfile = fitspath +'single_grid_R23.npz'
         Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
+
+    if dataset == 'Double_Bin':
+        pdf_pages = fitspath +'double_grid.pdf'
+        outfile = fitspath +'double_grid.npz'
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
 
     if dataset =='Grid': 
         pdf_pages_hex = PdfPages(fitspath+'R23_O32_bin025_scatter_and_hexbin_MasterGrid.pdf')
@@ -139,8 +144,8 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
     print 'finished Binning_and_Graphing_MasterGrid'
         
 
-        #Stackboth_MasterGrid
-        #Option to Change: Bin size  
+    #Stackboth_MasterGrid
+    #Option to Change: Bin size  
     outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
     outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
     outsingle_O32 = fitspath +'single_grid_O32.npz'
@@ -267,8 +272,9 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
     
-    
-
+    ###Verification Tables###
+    ver_tab = fitspath+'/'+dataset+'_verification.tbl'
+    verification_tables.verification(fitspath, dataset, temp_m_gascii, combine_flux_ascii, ver_tab)
 
 
 
@@ -403,8 +409,10 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)
 
-   
-
+    ###Verification Tables###
+    ###Verification Tables###
+    ver_tab = fitspath+'/'+dataset+'_verification.tbl'
+    verification_tables.verification(fitspath, dataset, temp_met_ascii, combine_flux_ascii, ver_tab)
 
 
 

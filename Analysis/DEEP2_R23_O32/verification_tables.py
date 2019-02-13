@@ -20,6 +20,18 @@ import scipy.integrate as integ
 import glob
 
 
+###Verified Sources###
+ver_20 = np.array([])
+ver_14 = np.array([0,7,10,11,12])
+ver_10 = np.array([1,9,18,21])
+ver_Grid = np.array([11,13,19,20,21])
+ver_sR23 = np.array([0,4,5,6])
+ver_sO32 = np.array([6])
+
+
+
+
+
 '''fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi20_0127/'
 dataset = 'Voronoi20'
 temp_table = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
@@ -43,13 +55,14 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     temp_all = temp_tab['Temperature'].data
 
     #Detection Where Statements
-    if dataset== 'Voronoi20': det_4363 = np.where((SN_4363>=3))[0]
-    if dataset== 'Voronoi14': det_4363 = np.where((ID==0) & (ID==7) & (ID==10) & (ID==11) & (ID==12))[0]
-    if dataset== 'Voronoi10': det_4363 = np.where((ID==1) & (ID==9) & (ID==18) & (ID==21))[0]
-    if dataset== 'Grid': det_4363 = np.where((ID==11) & (ID==13) & (ID==19) & (ID==20) & (ID==21))[0]
-    if dataset== 'R23_Grid': det_4363 = np.where((ID==0) & (ID==4) & (ID==5) & (ID==6))[0]
-    if dataset== 'O32_Grid': det_4363 = np.where((ID==6))[0]
+    if dataset== 'Voronoi20': det_4363 = np.where((SN_4363>=3) & (ID))[0]
+    if dataset== 'Voronoi14': det_4363 = np.where((SN_4363>=3))[0]
+    if dataset== 'Voronoi10': det_4363 = np.where((SN_4363>=3))[0]
+    if dataset== 'Grid': det_4363 = np.where((SN_4363>=3))[0]
+    if dataset== 'R23_Grid': det_4363 = np.where((SN_4363>=3))[0]
+    if dataset== 'O32_Grid': det_4363 = np.where((SN_4363>=3))[0]
     #if dataset== 'Double_Bin': det_4363 = np.where((SN_4363>=3))[0]
+    print 'det_4363:', det_4363
     
    
 
@@ -66,3 +79,15 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     n =('ID', '4363', 'S/N','R23', 'O32', 'N_Galaxies','Temperature','Com_O_log')
     tab1 = Table([det_ID, det_obs4363,det_SN_4363,det_R23, det_O32,det_N_Gal,det_temp,det_OH], names=n)
     asc.write(tab1, ver_tab, format='fixed_width_two_line')
+
+
+
+###Equivalent Width correction
+'''bottom side of the iceburg / continum 
+take negative component of gauss and subtract off the postive component 
+
+total gauss - the positve component? 
+x = double gaussian of o1[0,1,2] = 0 
+x-o1[3] from [-2.5sigma to 2.5 sigma]
+equivalent width in terms of angstrumns 
+update plots '''

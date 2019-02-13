@@ -28,11 +28,14 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     return smooth
 
 
-def Master_Stacking(fitspath, voronoi_data, asc_table1, wave, image2D, name, header, mask= None):
+def Master_Stacking(fitspath, dataset, voronoi_data, asc_table1, wave, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
     
     voronoi_data = asc.read(voronoi_data)
     asc_tab = asc.read(asc_table1)
+    print 'vornoni_data_file:', voronoi_data
+    print 'asc_tab:,', asc_tab
+    
     image2DM = np.nan_to_num(image2D) 
     
     if mask !=None:
@@ -89,9 +92,13 @@ def Master_Stacking(fitspath, voronoi_data, asc_table1, wave, image2D, name, hea
         
         for x in xcoor: ax2.axvline(x=x, linewidth= 0.3, color= 'k')
 
-        txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
-        txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
-        txt0 += 'Scale: %.3f N: %.3f\n' % (asc_tab['scale'][rr], asc_tab['area'][rr]) 
+        if dataset == 'Double_Bin':
+            txt0 = r'R23_start= %.3f  O32_median= %.3f  ' % (asc_tab['R23_value'][rr], asc_tab['O32_value'][rr]) + '\n'
+            txt0 += 'ID: %.3f  N: %.3f\n' % (asc_tab['ID'][rr], asc_tab['area'][rr]) 
+        else: 
+            txt0 = r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+            txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
+            txt0 += 'Scale: %.3f N: %.3f\n' % (asc_tab['scale'][rr], asc_tab['area'][rr]) 
         
        
         ax2.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '12')
@@ -119,7 +126,7 @@ def Master_Stacking(fitspath, voronoi_data, asc_table1, wave, image2D, name, hea
    
     fig.clear()
 #Function that runs Master_Stacking and calls necessary inputs (including mask)
-def run_Stacking_Master_mask(fitspath_ini, fitspath,voronoi_data, det3,asc_table1, Stack_name):
+def run_Stacking_Master_mask(fitspath_ini, dataset, fitspath,voronoi_data, det3,asc_table1, Stack_name):
     
    
     image2DM, header = fits.getdata(RestframeMaster, header=True)
@@ -128,15 +135,15 @@ def run_Stacking_Master_mask(fitspath_ini, fitspath,voronoi_data, det3,asc_table
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     maskM = fits.getdata(fitspath_ini+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits')
     mask= maskM[det3]
-    MasterStack0 = Master_Stacking(fitspath, voronoi_data, asc_table1, wavemaster, image2D, Stack_name, header, mask=mask)
+    MasterStack0 = Master_Stacking(fitspath, dataset, voronoi_data, asc_table1, wavemaster, image2D, Stack_name, header, mask=mask)
 
 
 
 #Function that runs Master_Stacking and calls necessary inputs (without mask)    
-def run_Stacking_Master(fitspath,voronoi_data, Stack_name):
+def run_Stacking_Master(fitspath,dataset, voronoi_data, Stack_name):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    MasterStack0 = Master_Stacking(fitspath, voronoi_data, asc_table1, wavemaster, image2DM, Stack_name, header, mask=None)
+    MasterStack0 = Master_Stacking(fitspath, dataset, voronoi_data, asc_table1, wavemaster, image2DM, Stack_name, header, mask=None)
     
 
 

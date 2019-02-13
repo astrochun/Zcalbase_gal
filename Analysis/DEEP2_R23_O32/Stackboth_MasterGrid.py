@@ -58,6 +58,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
             #print 'T_arr:', grid_data['T_arr'] 
+            #if dataset == 'Double_Bin': index = grid_data['T_arr'][rr,1]
             index= grid_data['T_arr'][rr,oo]
             #print 'index:', index
             if len(index) >10:

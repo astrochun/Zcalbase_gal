@@ -103,7 +103,7 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
         '''p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
         para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),25.0,0.0)'''
 
-        if dataset == 'R23_Grid' or dataset =='O32_Grid':    
+        if dataset == 'R23_Grid' or dataset =='O32_Grid' or dataset =='Double_Bin':    
             p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
             para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
 
@@ -157,10 +157,25 @@ def rms_func(wave,dispersion,lineflag, lambda_in, y0, scalefact, sigma_array):
         return ini_sig/scalefact, RMS_pix
 
 
-def error_prop_chuncodes(x_arr, dx):
+def error_prop_chuncodes(fitspath, dataset, working_wave, values,RMS):
     #x_arr = np.random.random_integers(10,10)
-    x_pdf = random_pdf(x_arr,0.5)
-    return x_pdf
+    #all emission lines
+    #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
+    #print p_page
+    #pdf_pages_err = PdfPages(p_page)
+    print 'values:', values
+    print 'RMS:', RMS
+    fluxg_pdf = random_pdf(values,RMS, seed_i =1, n_iter=1000, silent = False)
+    print 'err_function:', fluxg_pdf
+    print 'ran errors'
+    #fig_err, ax = plt.subplots()
+    #plt.hist(fluxg_pdf, 50)
+
+    #fig_err.set_size_inches(8,8)
+    #fig_err.savefig(pdf_pages_err, format='pdf')
+    #pdf_pages_err.close()
+    
+    return fluxg_pdf
     
 #for each individual stack
 #electron temperature and the R23 and O32 values 
@@ -271,7 +286,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
             
 
-        #Plotting
+            #Plotting
        
             emis= t_ax.plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
             if y_correction =='y_smooth': t_ax.plot(x0,gauss0, 'm', linewidth= 0.25, label= 'Gauss Fit')
@@ -284,7 +299,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             
             
             
-            if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid':
+            if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid' or dataset =='Double_Bin':
                 if line_type == 'Balmer': 
                     txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
@@ -349,7 +364,10 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
         #plt.draw()
         #fig.savefig(pdfpages2, format='pdf')
     #endfor
+
     
+    #Calling Error Propogation
+    error_prop_chuncodes(fitspath, dataset, working_wave, flux_g_array, RMS_array)
      
     #Writing Ascii Tables and Fits Tables
     ID = asc_tab['ID'].data
@@ -372,9 +390,10 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     pdf_pages.close()
 
     
+    
     print 'Done!'
 
-    #fig.clear()
+    fig.clear()
 
 def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction,s,a,c,s1,a1,s2,a2,tab):
     

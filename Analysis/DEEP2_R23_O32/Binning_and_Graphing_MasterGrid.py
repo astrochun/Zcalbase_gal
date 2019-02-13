@@ -267,43 +267,62 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     #200 galaxies per bin
     n_bins = np.int(len(R23)/galinbin)
     print n_bins
+    n_bins_range = np.arange(0,2*n_bins,1)
 
     #Initializing Arrays for outfile later
-    N_arr0 = np.zeros((n_bins,1))
-    T_arr  = np.zeros((n_bins,1), dtype = object)
-    
+    N_arr0 = np.zeros(2*n_bins)
+    T_arr  = np.zeros((n_bins*2), dtype = object)
+    O32_grid    = np.zeros(2*n_bins)
+    R23_values  = np.zeros(2*n_bins)
+    xBar  = np.zeros(2*n_bins)
+    area  = np.zeros(2*n_bins)
+    N_bin = np.zeros(len(data3), dtype = int)
 
     #Bin starts and stops initializing
     bin_start_1 = np.zeros(n_bins)
     bin_end_1   = np.zeros(n_bins)
     bin_start_2 = np.zeros(n_bins)
     bin_end_2   = np.zeros(n_bins)
+    
 
     #Sets the bins 
     for ii in range(n_bins):
         bin_start_1[ii] = y_sort0[ii*galinbin]
         bin_end_1[ii]   = y_sort0[(ii+1)*galinbin-1]
+        if ii == np.max(n_bins):  bin_end[ii] = np.max(y_sort0)
         print bin_start_1[ii] , bin_end_1[ii]
+        idx1 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]))[0]
+        med_val = np.median(O32[idx1])
 
+        print med_val
 
-    #Splitting bins in half by O32 value
-    sort_O32 = np.argsort(O32)
-    x_sort = O32[sort_O32]
-    for aa in range(n_bins):
-        bin_start_2[ii] = x_sort[ii*galinbin]
-        bin_end_2[ii]   = x_sort[(ii+1)*galinbin-1]
-        print bin_start_2[ii] , bin_end_2[ii]
+        idx2 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 <= med_val))[0]
+        idx3 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 > med_val))[0]
+
+        O32_grid[ii*2]   = np.median(O32[idx2])
+        O32_grid[ii*2+1] = np.median(O32[idx3])
         
-    #Organizes data into bins
-    for oo in range(n_bins):
-        for kk in range(n_bins):
-            idx_arr = np.where((R23>= bin_start_1[oo]) & (R23<= bin_end_1[oo])
-                           & (O32>= bin_start_2[kk]) & (O32<= bin_end_2[kk]))[0]
-            print idx_arr
-            N_arr0[oo,kk] += len(idx_arr)
-            T_arr[oo,kk]   = idx_arr
-            print 'N_arr0:', N_arr0
-            print 'T_arr:', T_arr
+        N_arr0[ii*2]  += len(idx2)
+        N_arr0[ii*2+1]+= len(idx3)
+        
+        T_arr[ii*2]   = idx2
+        T_arr[ii*2+1] = idx3
+
+        N_bin[idx2]= ii*2
+        N_bin[idx3]= ii*2+1
+
+        R23_values[ii*2] = bin_start_1[ii]
+        R23_values[ii*2+1] = bin_start_1[ii]
+
+        xBar[ii*2]= np.median(R23[idx2])
+        xBar[ii*2+1]= np.median(R23[idx3])
+
+        area[ii*2]= galinbin
+        area[ii*2+1]= galinbin
+
+        
+        
+
 
     #Plotting
     fig, ax = plt.subplots()
@@ -319,13 +338,27 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     vlines = np.log10(bin_start_2)
     ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
     for pp in range(len(bin_start_1)): plt.axvline(x = hlines[pp], linewidth= 0.3, color= 'k')
-    for ll in range(len(bin_end)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
+    for ll in range(len(bin_end_1)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
     for jj in range(len(bin_start_2)): plt.axhline(y =vlines[jj], linewidth= 0.3, color= 'b')
     fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()
 
     
+    print 'bin:', len(n_bins_range)
+    print 'R23:', len(R23_values), R23_values
+    print 'O32:', len(O32_grid)
 
-    np.savez(outfile, T_arr=T_arr, R23_grid=bin_start_1, O32_grid=bin_start_2, N_arr0=N_arr0)
+    np.savez(outfile, T_arr=T_arr, R23_grid=bin_start_1, O32_grid=O32_grid, N_arr0=N_arr0)
 
+    #### Wednesday: I need to ask Dr. Ly to check if the R23 and O32 values are lined up with each other correctly
+    n1 = ('ID' , 'R23_value', 'O32_value', 'xBar','yBar', 'area')
+    tab1 = Table([n_bins_range, R23_values, O32_grid,xBar, O32_grid,area], names = n1)
+    asc.write(tab1, fitspath+'/Double_Bin_binning_averages.tbl', format='fixed_width_two_line')
+    
     fig.clear()
+
+    n2=('R23', 'O32', 'N_bin')
+    tab2= Table([ R23, O32, N_bin], names=n2)
+    asc.write(tab2, fitspath+'/Double_Bin_2d_binning_datadet3.tbl', format='fixed_width_two_line')
+
+###Create another ascii table with the R23_grid and O32_grid values for plots 

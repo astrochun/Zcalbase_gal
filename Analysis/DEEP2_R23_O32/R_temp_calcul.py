@@ -171,8 +171,8 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     tab0 = Table([ID ,R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, indicate, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
- 
-    tab0.write(out_fits,format = 'fits')
+    
+    tab0.write(out_fits,format = 'fits', overwrite = True)
 
 
 

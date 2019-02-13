@@ -22,9 +22,12 @@ from scipy.optimize import curve_fit
 import scipy.integrate as integ
 import glob
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting,calibration_plots
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting,calibration_plots, verification_tables
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
+
+#Imports Error propagation codes from chun_codes
+from chun_codes import random_pdf, compute_onesig_pdf
 
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
@@ -126,10 +129,6 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
         outfile = fitspath +'single_grid_R23.npz'
         Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
 
-    if dataset == 'Double_Bin':
-        pdf_pages = fitspath +'double_grid.pdf'
-        outfile = fitspath +'double_grid.npz'
-        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
 
     if dataset =='Grid': 
         pdf_pages_hex = PdfPages(fitspath+'R23_O32_bin025_scatter_and_hexbin_MasterGrid.pdf')
@@ -150,6 +149,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
     outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
     outsingle_O32 = fitspath +'single_grid_O32.npz'
     outsingle_R23 = fitspath +'single_grid_R23.npz'
+    outdouble_bin = fitspath +'double_grid.npz'
     if dataset =='Grid' : grid_data = np.load(outfile025)   ###This will have to be changed if we start doing the 01 analysis again (but we haven't worked on that analysis in a year) 
     if dataset == 'O32_Grid': grid_data = np.load(outsingle_O32)
     if dataset == 'R23_Grid': grid_data = np.load(outsingle_R23)
@@ -237,6 +237,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
         combine_flux_table = fitspath + 'R23_Grid_combined_flux_table.fits'
         combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
 
+    if dataset == 'Double_Bin':
+        intro = fitspath + 'Double_Bin_Average_R23_O32_Values.tbl' 
+        asc_intro = asc.read(intro)
+        table_files = glob.glob(fitspath +'/Double_Bin_flux_gaussian_*.tbl') 
+        combine_flux_table = fitspath + 'Double_Bin_combined_flux_table.fits'
+        combine_flux_ascii = fitspath + 'Double_Bin_combined_flux_table.tbl'
+
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
         
     print 'combine_flux_table created'
@@ -266,6 +273,12 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
         temp_m_gascii = fitspath+ '/R23_Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/R23_Grid_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'R23_Grid_Temp_Composite_Metallicity.pdf'
+
+    if dataset == 'Double_Bin':
+        combine_flux_ascii = fitspath + 'Double_Bin_combined_flux_table.tbl'
+        temp_m_gascii = fitspath+ '/Double_Bin_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/Double_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'Double_BinTemp_Composite_Metallicity.pdf'
 
     R_temp_calcul.run_function(fitspath, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
 
@@ -307,26 +320,40 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
         txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
         asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
         asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
-            
+        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+        
     if dataset == 'Voronoi14':
         sn_size = 14
         txt_file = fitspath + 'voronoi14_2d_binning_outputs.txt'
         asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
         asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
-
+        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+        
     if dataset == 'Voronoi20':
         sn_size = 20
         txt_file = fitspath + 'voronoi20_2d_binning_outputs.txt'
         asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
         asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
 
-    adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
 
+    if dataset == 'Double_Bin':
+        galinbin = 400
+        pdf_pages = fitspath +'double_grid.pdf'
+        outfile = fitspath +'double_grid.npz'
+        asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
+        asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
+
+    
     #Stacking_voronoi
     #Option to Change: 
     if dataset == "Voronoi10": voronoi_data = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
     if dataset == "Voronoi14": voronoi_data = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
     if dataset == "Voronoi20": voronoi_data = fitspath + 'voronoi20_2d_binning_datadet3.tbl'
+
+    if dataset == 'Double_Bin': grid_data = np.load(outfile)
+    if dataset == 'Double_Bin': voronoi_data = asc_table2
 
     print '### outfile for datadet3: '+voronoi_data
         
@@ -334,10 +361,10 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     ######Check to make sure tables are going into right places#####
     if mask == True:
         Stack_name = 'Stacking'+dataset+'_output.pdf'
-        Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data, det3, asc_table1, Stack_name)
+        Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, dataset, fitspath, voronoi_data, det3, asc_table1, Stack_name)
     else:
         Stack_name = 'Stacking'+dataset+'_output.pdf'
-        Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data, det3, Stack_name)
+        Stacking_voronoi.run_Stacking_Master(fitspath_ini, dataset, fitspath, voronoi_data, det3, Stack_name)
 
     #Outfile and pdf both use name
     print 'finished with stacking,' + Stack_name + ' pdf and fits files created'

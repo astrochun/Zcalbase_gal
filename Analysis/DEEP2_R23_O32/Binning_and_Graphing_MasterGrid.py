@@ -136,7 +136,7 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     for ii in range(n_bins):
         bin_start[ii] = y_sort0[ii*galinbin]
         bin_end[ii]   = y_sort0[(ii+1)*galinbin-1]
-        if ii == max(n_bins):  bin_end[ii] = max(y_sort0)
+        if ii == (n_bins-1):  bin_end[ii] = np.max(y_sort0)-1
         print bin_start[ii] , bin_end[ii]
 
     #Organizes data into bins
@@ -265,6 +265,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
     
     #200 galaxies per bin
+    #galinbin = []
     n_bins = np.int(len(R23)/galinbin)
     print n_bins
     n_bins_range = np.arange(0,2*n_bins,1)
@@ -275,6 +276,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     O32_grid    = np.zeros(2*n_bins)
     R23_values  = np.zeros(2*n_bins)
     xBar  = np.zeros(2*n_bins)
+    yBar  = np.zeros(2*n_bins)
     area  = np.zeros(2*n_bins)
     N_bin = np.zeros(len(data3), dtype = int)
 
@@ -289,7 +291,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     for ii in range(n_bins):
         bin_start_1[ii] = y_sort0[ii*galinbin]
         bin_end_1[ii]   = y_sort0[(ii+1)*galinbin-1]
-        if ii == np.max(n_bins):  bin_end[ii] = np.max(y_sort0)
+        if ii == n_bins-1:  bin_end_1[ii] = np.max(y_sort0)-1
         print bin_start_1[ii] , bin_end_1[ii]
         idx1 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]))[0]
         med_val = np.median(O32[idx1])
@@ -314,11 +316,14 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         R23_values[ii*2] = bin_start_1[ii]
         R23_values[ii*2+1] = bin_start_1[ii]
 
-        xBar[ii*2]= np.median(R23[idx2])
-        xBar[ii*2+1]= np.median(R23[idx3])
+        xBar[ii*2]= np.log10(np.average(R23[idx2]))
+        xBar[ii*2+1]= np.log10(np.average(R23[idx3]))
 
-        area[ii*2]= galinbin
-        area[ii*2+1]= galinbin
+        yBar[ii*2]= np.log10(np.average(O32[idx2]))
+        yBar[ii*2+1]= np.log10(np.average(O32[idx3]))
+        
+        area[ii*2]= len(idx2)
+        area[ii*2+1]= len(idx3)
 
         
         
@@ -352,7 +357,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
     #### Wednesday: I need to ask Dr. Ly to check if the R23 and O32 values are lined up with each other correctly
     n1 = ('ID' , 'R23_value', 'O32_value', 'xBar','yBar', 'area')
-    tab1 = Table([n_bins_range, R23_values, O32_grid,xBar, O32_grid,area], names = n1)
+    tab1 = Table([n_bins_range, R23_values, O32_grid,xBar, yBar,area], names = n1)
     asc.write(tab1, fitspath+'/Double_Bin_binning_averages.tbl', format='fixed_width_two_line')
     
     fig.clear()

@@ -55,13 +55,14 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     temp_all = temp_tab['Temperature'].data
 
     #Detection Where Statements
-    if dataset== 'Voronoi20': det_4363 = np.where((SN_4363>=3) & (ID))[0]
+    if dataset== 'Voronoi20': det_4363 = np.where((SN_4363>=3))[0]
     if dataset== 'Voronoi14': det_4363 = np.where((SN_4363>=3))[0]
     if dataset== 'Voronoi10': det_4363 = np.where((SN_4363>=3))[0]
     if dataset== 'Grid': det_4363 = np.where((SN_4363>=3))[0]
     if dataset== 'R23_Grid': det_4363 = np.where((SN_4363>=3))[0]
     if dataset== 'O32_Grid': det_4363 = np.where((SN_4363>=3))[0]
-    #if dataset== 'Double_Bin': det_4363 = np.where((SN_4363>=3))[0]
+    if dataset== 'Double_Bin': det_4363 = np.where((ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
+    #if dataset== 'Double_Bin': det_4363 = np.where((SN_4363>=3) | (ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
     print 'det_4363:', det_4363
     
    

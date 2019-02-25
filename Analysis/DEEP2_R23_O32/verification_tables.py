@@ -54,6 +54,10 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     N_Gal_all = temp_tab['N_Galaxies'].data
     temp_all = temp_tab['Temperature'].data
 
+    indicate = np.zeros(len(O32_all))
+    OIII_4363 = np.zeros(len(O32_all))
+    up_limit = (Hgamma/SN_Hgamma) *3
+    
     #Detection Where Statements
     if dataset== 'Voronoi20': det_4363 = np.where((SN_4363>=3))[0]
     if dataset== 'Voronoi14': det_4363 = np.where((SN_4363>=3))[0]
@@ -64,10 +68,18 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     if dataset== 'Double_Bin': det_4363 = np.where((ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
     #if dataset== 'Double_Bin': det_4363 = np.where((SN_4363>=3) | (ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
     print 'det_4363:', det_4363
-    
+
+    for ii in range(len(O32_all)):
+        if ID[ii] = ID[det_4363]:
+            indicate[ii] = 1
+            OIII_4363[ii] = all_4363[ii]
+        else:
+            indicate[ii] = 0
+            OIII_4363[ii] = up_limit[ii]
+            
    
 
-    det_O32 = O32_all[det_4363]
+    '''det_O32 = O32_all[det_4363]
     det_R23 = R23_all[det_4363]
     det_OH  = com_O_log[det_4363]
     det_ID  = ID[det_4363]
@@ -75,7 +87,7 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     det_obs4363 = all_4363[det_4363]
     det_N_Gal = N_Gal_all[det_4363]
     det_temp = temp_all[det_4363]
-    
+    '''
     
     n =('ID', '4363', 'S/N','R23', 'O32', 'N_Galaxies','Temperature','Com_O_log')
     tab1 = Table([det_ID, det_obs4363,det_SN_4363,det_R23, det_O32,det_N_Gal,det_temp,det_OH], names=n)

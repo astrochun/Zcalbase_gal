@@ -55,21 +55,33 @@ def main(silent=False, verbose=True):
         else:
             data0 = vstack([data0, Table(data)])
 
+    OIII_5007 = data0['OIIIR_FLUX_MOD'].data
+    OIII_4959 = data0['OIIIB_FLUX_MOD'].data
+    OII       = data0['OII_FLUX_MOD'].data
+    HB        = data0['HB_FLUX_MOD'].data
+
+    lR23 = np.log10((OII + OIII_5007+OIII_4959)/HB)
+    lO32 = np.log10((OIII_5007+OIII_4959)/OII)
+
     out_pdf = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'+\
               'line_width.pdf'
     pp = PdfPages(out_pdf)
 
     str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
     for line in str_lines:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(nrows=2)
 
         x_temp = data0[line+'_SIGMA'].data
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
-        ax.hist(x_temp[good], bins=30, alpha=0.5)
+        ax[0].hist(x_temp[good], bins=30, alpha=0.5)
 
-        ax.set_xlabel(r'$\sigma$ [$\AA$]')
-        ax.annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
-                    va='top')
+        ax[0].annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
+                       va='top')
+
+        ax[1].scatter(x_temp[good], lR23[good], alpha=0.5, edgecolor='none')
+        ax[1].set_ylim(0.0,2.0)
+        ax[1].set_xlabel(r'$\sigma$ [$\AA$]')
+        ax[1].set_ylabel(r'$\log(R_{23})$')
         fig.savefig(pp, format='pdf')
     #endfor
 

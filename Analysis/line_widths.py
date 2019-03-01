@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 from glob import glob
 
-from astropy.table import Table, hstack
+from astropy.table import Table, vstack
 from astropy import log
 
 def main(silent=False, verbose=True):
@@ -55,9 +55,12 @@ def main(silent=False, verbose=True):
             data0 = vstack([data0, Table(data)])
 
 
-    good = np.where(data0['OIIIR_SIGMA'] < 90)[0]
-    plt.hist(data0['OIIIR_SIGMA'][good], bins=30)
-    
+    str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
+    for line in str_lines:
+        x_temp = data0[line+'_SIGMA'].data
+        good = np.where((x_temp < 90) & (x_temp > -90))[0]
+        plt.hist(x_temp[good], bins=30, alpha=0.5)
+
     if silent == False: log.info('### End main : '+systime())
 #enddef
 

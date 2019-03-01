@@ -67,21 +67,39 @@ def main(silent=False, verbose=True):
               'line_width.pdf'
     pp = PdfPages(out_pdf)
 
+    xlim = [0.0,10.5]
+
     str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
     for line in str_lines:
-        fig, ax = plt.subplots(nrows=2)
+        fig, ax = plt.subplots(nrows=2, ncols=2)
 
         x_temp = data0[line+'_SIGMA'].data
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
-        ax[0].hist(x_temp[good], bins=30, alpha=0.5)
+        ax[0,0].hist(x_temp[good], bins=30, alpha=0.5)
 
-        ax[0].annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
+        ax[0,0].annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
                        va='top')
+        ax[0,0].set_ylabel('N', fontsize=16)
+        ax[0,0].set_xticklabels([])
 
-        ax[1].scatter(x_temp[good], lR23[good], alpha=0.5, edgecolor='none')
-        ax[1].set_ylim(0.0,2.0)
-        ax[1].set_xlabel(r'$\sigma$ [$\AA$]')
-        ax[1].set_ylabel(r'$\log(R_{23})$')
+        ax[0,1].set_xticklabels([])
+
+        ax[1,0].scatter(x_temp[good], lR23[good], alpha=0.5, edgecolor='none')
+        ax[1,0].set_ylim(0.0,2.25)
+        ax[1,0].set_xlabel(r'$\sigma$ [$\AA$]', fontsize=16)
+        ax[1,0].set_ylabel(r'$\log(R_{23})$', fontsize=16)
+
+        ax[1,1].scatter(x_temp[good], lO32[good], alpha=0.5, edgecolor='none')
+        ax[1,1].set_ylim(-1,2.25)
+        ax[1,1].set_xlabel(r'$\sigma$ [$\AA$]', fontsize=16)
+        ax[1,1].set_ylabel(r'$\log(O_{32})$', fontsize=16)
+
+        for t_ax in ax.flatten():
+            t_ax.set_xlim(xlim)
+
+        fig.set_size_inches(11,8.5)
+        plt.subplots_adjust(left=0.06, right=0.99, top=0.97, bottom=0.065,
+                            wspace=0.17, hspace=0.01)
         fig.savefig(pp, format='pdf')
     #endfor
 

@@ -13,6 +13,7 @@ from astropy.io import fits
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 from glob import glob
 
@@ -54,12 +55,26 @@ def main(silent=False, verbose=True):
         else:
             data0 = vstack([data0, Table(data)])
 
+    out_pdf = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'+\
+              'line_width.pdf'
+    pp = PdfPages(out_pdf)
 
     str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
     for line in str_lines:
+        fig, ax = plt.subplots()
+
         x_temp = data0[line+'_SIGMA'].data
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
-        plt.hist(x_temp[good], bins=30, alpha=0.5)
+        ax.hist(x_temp[good], bins=30, alpha=0.5)
+
+        ax.set_xlabel(r'$\sigma$ [$\AA$]')
+        ax.annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
+                    va='top')
+        fig.savefig(pp, format='pdf')
+    #endfor
+
+    log.info('Writing : '+out_pdf)
+    pp.close()
 
     if silent == False: log.info('### End main : '+systime())
 #enddef

@@ -10,6 +10,8 @@ from chun_codes import systime
 from astropy.io import ascii as asc
 from astropy.io import fits
 
+from os.path import exists
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -47,13 +49,24 @@ def main(silent=False, verbose=True):
     path0 = '/Users/cly/data/DEEP2/DR4/f_current/'
     files = glob(path0+'*all_line_fit.fits')
 
-    for ii in range(len(files)):
-        data, hdr = fits.getdata(files[ii], header=True)
-        if ii == 0:
-            data0 = Table(data)
-            hdr0 = hdr
-        else:
-            data0 = vstack([data0, Table(data)])
+    out_path = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+    combine_stack_file = out_path + 'DEEP2_all_line_fit.fits'
+
+    if not exists(combine_stack_file):
+        for ii in range(len(files)):
+            data, hdr = fits.getdata(files[ii], header=True)
+            if ii == 0:
+                data0 = Table(data)
+                hdr0 = hdr
+            else:
+                data0 = vstack([data0, Table(data)])
+
+        log.info("Writing : "+combine_stack_file)
+        data0.write(combine_stack_file, format='fits')
+    else:
+        log.info("Reading : "+combine_stack_file)
+        tab0, hdr0 = fits.getdata(combine_stack_file, header=True)
+        data0 = Table(tab0)
 
     OIII_5007 = data0['OIIIR_FLUX_MOD'].data
     OIII_4959 = data0['OIIIB_FLUX_MOD'].data
@@ -63,8 +76,7 @@ def main(silent=False, verbose=True):
     lR23 = np.log10((OII + OIII_5007+OIII_4959)/HB)
     lO32 = np.log10((OIII_5007+OIII_4959)/OII)
 
-    out_pdf = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'+\
-              'line_width.pdf'
+    out_pdf = out_path + 'line_width.pdf'
     pp = PdfPages(out_pdf)
 
     xlim = [0.0,10.5]

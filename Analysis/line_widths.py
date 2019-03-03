@@ -49,6 +49,10 @@ def main(silent=False, verbose=True):
     path0 = '/Users/cly/data/DEEP2/DR4/f_current/'
     files = glob(path0+'*all_line_fit.fits')
 
+    mass_file = '/Users/cly/Google Drive/MZEvolve/results_deeps.txt'
+    mass_data = asc.read(mass_file)
+    logM      = np.log10(mass_data['best.stellar.m_star'].data)
+
     out_path = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
     combine_stack_file = out_path + 'DEEP2_all_line_fit.fits'
 
@@ -97,6 +101,7 @@ def main(silent=False, verbose=True):
 
         x_temp = data0[line+'_SIGMA'].data
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
+
         ax[0,0].hist(x_temp[good], bins=30, alpha=0.5)
 
         ax[0,0].hist(x_temp[det3], bins=30, alpha=0.25, color='red')
@@ -106,7 +111,13 @@ def main(silent=False, verbose=True):
         ax[0,0].set_ylabel('N', fontsize=16)
         ax[0,0].set_xticklabels([])
 
+        ax[0,1].scatter(x_temp[good], logM[good], alpha=0.5, edgecolor='none')
+        ax[0,1].scatter(x_temp[det3], logM[det3], facecolor='none', edgecolor='red',
+                        linewidth=0.5)
+
+        ax[0,1].set_ylim([7.5,12.0])
         ax[0,1].set_xticklabels([])
+        ax[0,1].set_ylabel(r'$\log(M_{\star}/M_{\odot})$', fontsize=16)
 
         ax[1,0].scatter(x_temp[good], lR23[good], alpha=0.5, edgecolor='none')
         ax[1,0].scatter(x_temp[det3], lR23[det3], facecolor='none', edgecolor='red',

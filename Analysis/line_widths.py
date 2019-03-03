@@ -5,7 +5,7 @@ line_widths
 Plot line widths from emission-line fits for DEEP2 sample
 """
 
-from chun_codes import systime
+from chun_codes import systime, intersect
 
 from astropy.io import ascii as asc
 from astropy.io import fits
@@ -95,6 +95,8 @@ def main(silent=False, verbose=True):
 
     xlim = [0.0,10.5]
 
+    hist_bins = np.arange(0.1,xlim[1],0.1)
+
     str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
     for line in str_lines:
         fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -102,9 +104,10 @@ def main(silent=False, verbose=True):
         x_temp = data0[line+'_SIGMA'].data
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
 
-        ax[0,0].hist(x_temp[good], bins=30, alpha=0.5)
+        det3_good = intersect(det3, good)
+        ax[0,0].hist(x_temp[good], bins=hist_bins, alpha=0.5)
 
-        ax[0,0].hist(x_temp[det3], bins=30, alpha=0.25, color='red')
+        ax[0,0].hist(x_temp[det3_good], bins=hist_bins, color='red')
 
         ax[0,0].annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
                        va='top')

@@ -22,30 +22,7 @@ from glob import glob
 from astropy.table import Table, vstack
 from astropy import log
 
-def main(silent=False, verbose=True):
-
-    '''
-    Main function to plot line widths of emission-line fits
-
-    Parameters
-    ----------
-
-    silent : boolean
-      Turns off stdout messages. Default: False
-
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
-
-    Returns
-    -------
-
-    Notes
-    -----
-    Created by Chun Ly, 25 February 2019
-    '''
-    
-    if silent == False: log.info('### Begin main : '+systime())
-
+def get_data():
     path0 = '/Users/cly/data/DEEP2/DR4/f_current/'
     files = glob(path0+'*all_line_fit.fits')
 
@@ -71,6 +48,35 @@ def main(silent=False, verbose=True):
         log.info("Reading : "+combine_stack_file)
         tab0, hdr0 = fits.getdata(combine_stack_file, header=True)
         data0 = Table(tab0)
+
+    return data0, mass_data, logM
+#enddef
+
+def main(silent=False, verbose=True):
+
+    '''
+    Main function to plot line widths of emission-line fits
+
+    Parameters
+    ----------
+
+    silent : boolean
+      Turns off stdout messages. Default: False
+
+    verbose : boolean
+      Turns on additional stdout messages. Default: True
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 25 February 2019
+    '''
+
+    if silent == False: log.info('### Begin main : '+systime())
+
+    data0, mass_data, logM = get_data()
 
     OIII = 1.33*data0['OIIIR_FLUX_MOD'].data
     OII  = data0['OII_FLUX_MOD'].data

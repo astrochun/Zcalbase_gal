@@ -68,13 +68,23 @@ def main(silent=False, verbose=True):
         tab0, hdr0 = fits.getdata(combine_stack_file, header=True)
         data0 = Table(tab0)
 
-    OIII_5007 = data0['OIIIR_FLUX_MOD'].data
-    OIII_4959 = data0['OIIIB_FLUX_MOD'].data
-    OII       = data0['OII_FLUX_MOD'].data
-    HB        = data0['HB_FLUX_MOD'].data
+    OIII = 1.33*data0['OIIIR_FLUX_MOD'].data
+    OII  = data0['OII_FLUX_MOD'].data
+    HB   = data0['HB_FLUX_MOD'].data
 
-    lR23 = np.log10((OII + OIII_5007+OIII_4959)/HB)
-    lO32 = np.log10((OIII_5007+OIII_4959)/OII)
+    SNR2_ini = data0['OII_SNR'].data
+    SNR3_ini = data0['OIIIR_SNR'].data
+    SNRH_ini = data0['HB_SNR'].data
+
+    det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
+                    (OII > 0) & (OIII > 0) & (HB > 0))[0]
+    print('# size det3 : ', len(det3))
+
+    lR23 = np.log10((OII + OIII)/HB)
+    lO32 = np.log10(OIII/OII)
+
+    print('lR23 minmax : ', np.min(lR23[det3]), np.max(lR23[det3]))
+    print('lO32 minmax : ', np.min(lO32[det3]), np.max(lO32[det3]))
 
     out_pdf = out_path + 'line_width.pdf'
     pp = PdfPages(out_pdf)
@@ -89,6 +99,8 @@ def main(silent=False, verbose=True):
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
         ax[0,0].hist(x_temp[good], bins=30, alpha=0.5)
 
+        ax[0,0].hist(x_temp[det3], bins=30, alpha=0.25, color='red')
+
         ax[0,0].annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
                        va='top')
         ax[0,0].set_ylabel('N', fontsize=16)
@@ -97,11 +109,18 @@ def main(silent=False, verbose=True):
         ax[0,1].set_xticklabels([])
 
         ax[1,0].scatter(x_temp[good], lR23[good], alpha=0.5, edgecolor='none')
+        ax[1,0].scatter(x_temp[det3], lR23[det3], facecolor='none', edgecolor='red',
+                        linewidth=0.5)
+
         ax[1,0].set_ylim(0.0,2.25)
         ax[1,0].set_xlabel(r'$\sigma$ [$\AA$]', fontsize=16)
         ax[1,0].set_ylabel(r'$\log(R_{23})$', fontsize=16)
 
+
         ax[1,1].scatter(x_temp[good], lO32[good], alpha=0.5, edgecolor='none')
+        ax[1,1].scatter(x_temp[det3], lO32[det3], facecolor='none', edgecolor='red',
+                        linewidth=0.5)
+
         ax[1,1].set_ylim(-1,2.25)
         ax[1,1].set_xlabel(r'$\sigma$ [$\AA$]', fontsize=16)
         ax[1,1].set_ylabel(r'$\log(O_{32})$', fontsize=16)

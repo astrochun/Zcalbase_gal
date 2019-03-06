@@ -265,7 +265,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
     
     #200 galaxies per bin
-    #galinbin = []
+    #galinbin = [200,400,800]
+    #for oo in range(len(galinbin)):
     n_bins = np.int(len(R23)/galinbin)
     print n_bins
     n_bins_range = np.arange(0,2*n_bins,1)

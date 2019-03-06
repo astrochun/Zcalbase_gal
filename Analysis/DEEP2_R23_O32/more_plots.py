@@ -24,7 +24,7 @@ import sys
 
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/'
-dataset = 'Double Bin'
+#dataset = 'Double Bin'
 
 lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  
 
@@ -39,11 +39,16 @@ asc_tab = asc.read(asc_table)
 
 temp_table = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/Double_Bin_temperatures_metalicity.tbl'
 temp_tab = asc.read(temp_table)
+
+verif_table = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/Double_Bin_verification_master.tbl'
+ver_tab = asc.read(verif_table)
+
 R23 = asc_tab['R_23_Average'].data
 O32 = asc_tab['O_32_Average'].data
-T_e = temp_tab['Temperature'].data
-com_O = temp_tab['com_O_log'].data
-ID = temp_tab['ID'].data
+T_e = ver_tab['Temperature'].data
+com_O = ver_tab['com_O_log'].data
+ID = ver_tab['ID'].data
+detect = ver_tab['Detection'].data
 
 def ew_plot_R23():
     name = fitspath +'equivalent_vs_R23_plots.pdf'
@@ -95,9 +100,12 @@ def R23_vs_O32_color():
     pdf_pages = PdfPages(name)
 
     cm= plt.cm.get_cmap('Blues')
-    
+    edge_det = np.where((detect ==1))[0]
+    edge_nan = np.where((detect ==0))[0]
+
     fig1,ax1 = plt.subplots()
-    p1= ax1.scatter(R23, O32, marker= 'o', c=T_e, cmap=cm)
+    p1= ax1.scatter(R23[edge_det], O32[edge_det], marker= 'o', c=T_e[edge_det], cmap=cm)    #edgecolors = edgecolor
+    ax1.scatter(R23[edge_nan], O32[edge_nan], marker= '^')   #, c=T_e, cmap=cm)
     cb = fig1.colorbar(p1)
     cb.set_label('Temperature')
     for aa in range(len(ID)):
@@ -110,7 +118,8 @@ def R23_vs_O32_color():
 
     
     fig2,ax2 = plt.subplots()
-    p2 = ax2.scatter(R23, O32, marker= 'o', c=com_O, cmap =cm)
+    p2 = ax2.scatter(R23[edge_det], O32[edge_det], marker= 'o', c=com_O[edge_det])  #, cmap =cm)#edgecolors = edgecolor
+    ax2.scatter(R23[edge_nan], O32[edge_nan], marker= '^')   #, c=com_O, cmap =cm) 
     cb= fig2.colorbar(p2)
     cb.set_label('Metallicity')
     for bb in range(len(ID)):
@@ -128,3 +137,39 @@ def R23_vs_O32_color():
     pdf_pages.close()
     
 
+
+def hist_for_bin(dataset):
+    asc_table = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+    asc_tab = asc.read(asc_table)
+    name = dataset +'_histograms.pdf'
+
+    pdf_pages = PdfPages(fitspath+name)
+
+    R23 = asc_tab['R23']
+    O32 = asc_tab['O32']
+    N_bin = asc_tab['N_bin']
+    
+
+    for ii in range(np.max(N_bin)+1):
+        bin_idx = np.where((N_bin == ii))[0]
+        fig, ax = plt.subplots()
+        ax.hist(R23[bin_idx])
+        ax.set_title('R23 Histogram for Each Bin: Bin'+str(ii))
+        pdf_pages.savefig()
+
+        fig.clear()
+
+    pdf_pages.close()
+        
+
+    pdf_pages2 = PdfPages(fitspath+'O32'+name)
+    for ii in range(np.max(N_bin)+1):
+        bin_idx = np.where((N_bin == ii))[0]
+        fig, ax = plt.subplots()
+        ax.hist(O32[bin_idx])
+        ax.set_title('O32 Histogram for Each Bin: Bin'+str(ii))
+        pdf_pages2.savefig()
+
+        fig.clear()
+
+    pdf_pages2.close()

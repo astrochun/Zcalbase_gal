@@ -65,6 +65,9 @@ def get_func(y0):
     #print 'med0:', med0
     #print 'max0:', max0
     p0 = [5006.8, 1.0, max0, med0] #must have some reasonable values
+    #param_bounds = ((0, xval[np.argmax(yval)]-3, 0, -0.1*np.max(yval), xval[np.argmax(yval)]-3, 0, med0-0.05*np.abs(med0)),
+        #(1e-15/1e-17, xval[np.argmax(yval)]+3, 10, 0, xval[np.argmax(yval)]+3, 10, med0+0.05*np.abs(med0)))
+    #(x_min, )(x_max, )
     o1, o2 = curve_fit(gauss, x0, y0[x_idx2], p0=p0,sigma=None) #verbose= True)
     #plt.plot(x,f)
     #print o1
@@ -103,6 +106,7 @@ def zoom_gauss_plot_5007():
         x1, x2  = 4950, 5050
 
         y_smooth = movingaverage_box1D(Spect_1D[rr], 5, boundary='extend')
+        
         o1, med0, max0  = get_func(y0)
 
         #Calculating Flux
@@ -178,7 +182,7 @@ def calcul_flux():
         print flux_g, flux_s
 
 
-##****Check to see if I calculated the flux_s correctly 
+
 
 
 

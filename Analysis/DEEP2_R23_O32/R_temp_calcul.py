@@ -79,6 +79,10 @@ def limit_function(combine_flux_ascii):
     return up_temp
     
 def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii):  #combine_fits, header
+    #verification_table = fitspath+'/'+dataset+'_verification.tbl'
+    #ver_tab = asc.read(verificaton_table)
+
+
     #Fits Table Calls
     #combine_fits, header = fits.getdata(combine_flux_table, header = True)
     combine_fits= asc.read(combine_flux_ascii)

@@ -32,8 +32,8 @@ ver_sO32 = np.array([6])
 
 
 
-'''fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi20_0127/'
-dataset = 'Voronoi20'
+'''fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/'
+dataset = 'Double Bin'
 temp_table = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
 combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
 temp_tab = asc.read(temp_table)
@@ -41,7 +41,7 @@ com_flux = asc.read(combine_flux_ascii)
 ver_tab = fitspath+'/'+dataset+'_verification.tbl'''
 
 
-def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab): 
+def verification_master(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab): 
     temp_tab = asc.read(temp_table)
     com_flux = asc.read(combine_flux_ascii)
 
@@ -53,20 +53,55 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     all_4363 =temp_tab['Observed_Flux_4363'].data
     N_Gal_all = temp_tab['N_Galaxies'].data
     temp_all = temp_tab['Temperature'].data
+    Hgamma = com_flux['Hgamma_Flux_Observed'].data
+    Hgamma_SN    = com_flux['Hgamma_S/N'].data
 
-    #Detection Where Statements
-    if dataset== 'Voronoi20': det_4363 = np.where((SN_4363>=3) & (ID))[0]
-    if dataset== 'Voronoi14': det_4363 = np.where((SN_4363>=3))[0]
-    if dataset== 'Voronoi10': det_4363 = np.where((SN_4363>=3))[0]
-    if dataset== 'Grid': det_4363 = np.where((SN_4363>=3))[0]
-    if dataset== 'R23_Grid': det_4363 = np.where((SN_4363>=3))[0]
-    if dataset== 'O32_Grid': det_4363 = np.where((SN_4363>=3))[0]
-    #if dataset== 'Double_Bin': det_4363 = np.where((SN_4363>=3))[0]
-    print 'det_4363:', det_4363
-    
+
+    OIII5007 = com_flux['OIII_5007_Flux_Observed'].data
+    OIII4959 = com_flux['OIII_4958_Flux_Observed'].data
+    raw_OIII4363 = com_flux['OIII_4363_Flux_Observed'].data
+    Hgamma = com_flux['Hgamma_Flux_Observed'].data
+    HBETA    = com_flux['HBETA_Flux_Observed'].data
+    OII3727  = com_flux['OII_3727_Flux_Observed'].data
+    R23_avg      = com_flux['R_23_Average'].data
+    O32_avg      = com_flux['O_32_Average'].data
+    N_Galaxy = com_flux['N_Galaxies'].data
    
 
-    det_O32 = O32_all[det_4363]
+    SN_Hgamma    = com_flux['Hgamma_S/N'].data
+    SN_5007       = com_flux['OIII_5007_S/N'].data
+    SN_4959       = com_flux['OIII_4958_S/N'].data
+    SN_4363       = com_flux['OIII_4363_S/N'].data
+    SN_HBETA      = com_flux['HBETA_S/N'].data
+    SN_3727       = com_flux['OII_3727_S/N'].data
+
+
+
+    indicate = np.zeros(len(O32_all))
+    OIII_4363 = np.zeros(len(O32_all))
+    up_limit = (Hgamma/Hgamma_SN) *3
+    
+    #Detection Where Statements
+    if dataset== 'Voronoi20': det_4363 = np.where((ID ==0)| (ID ==2)| (ID ==3) | (ID ==5) | (ID==6))[0]
+    if dataset== 'Voronoi14': det_4363 = np.where((ID ==0)| (ID ==7)| (ID ==10) | (ID ==11) | (ID==12))[0]
+    if dataset== 'Voronoi10': det_4363 = np.where((ID ==1)| (ID ==9)| (ID ==18) | (ID ==21))[0]
+    if dataset== 'Grid': det_4363 = np.where((ID ==11)| (ID ==13)| (ID ==19) | (ID ==20) | (ID == 21))[0]
+    if dataset== 'R23_Grid': det_4363 = np.where((ID ==0)| (ID ==4)| (ID ==5) | (ID ==6))[0]
+    if dataset== 'O32_Grid': det_4363 = np.where((ID ==6))[0]
+    if dataset== 'Double_Bin': det_4363 = np.where((ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
+    #if dataset== 'Double_Bin': det_4363 = np.where((SN_4363>=3) | (ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
+    print 'det_4363:', det_4363
+
+    
+    indicate[det_4363] = 1
+
+    OIII_4363[det_4363] = all_4363[det_4363]
+    nan_det = np.where((indicate ==0))[0]
+    OIII_4363[nan_det] = up_limit[nan_det]
+    print 'indicate', indicate
+   
+
+    '''det_O32 = O32_all[det_4363]
     det_R23 = R23_all[det_4363]
     det_OH  = com_O_log[det_4363]
     det_ID  = ID[det_4363]
@@ -74,10 +109,10 @@ def verification(fitspath, dataset,temp_table, combine_flux_ascii, ver_tab):
     det_obs4363 = all_4363[det_4363]
     det_N_Gal = N_Gal_all[det_4363]
     det_temp = temp_all[det_4363]
+    '''
     
-    
-    n =('ID', '4363', 'S/N','R23', 'O32', 'N_Galaxies','Temperature','Com_O_log')
-    tab1 = Table([det_ID, det_obs4363,det_SN_4363,det_R23, det_O32,det_N_Gal,det_temp,det_OH], names=n)
+    n =('ID','Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'com_O_log')
+    tab1 = Table([ID, indicate, R23_all, O32_all, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII_4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, temp_all, com_O_log], names=n)
     asc.write(tab1, ver_tab, format='fixed_width_two_line')
 
 
@@ -90,4 +125,4 @@ total gauss - the positve component?
 x = double gaussian of o1[0,1,2] = 0 
 x-o1[3] from [-2.5sigma to 2.5 sigma]
 equivalent width in terms of angstrumns 
-update plots '''
+update plots    O_s_ion, O_d_ion,  O_s_ion', 'O_d_ion' '''

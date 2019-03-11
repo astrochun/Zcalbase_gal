@@ -124,15 +124,28 @@ def main(silent=False, verbose=True):
 
     c_value = const.c.to(u.km/u.s).value
 
+    sig_limit = 250 # Dispersion limit in km/s
+    sig_arr   = np.zeros( (len(str_lines), len(data0)), dtype=np.int)
+    sig_flag  = np.zeros( (len(str_lines), len(data0)), dtype=np.int)
+    # sig_arr: contains flag for line detection
+    # sig_flag: flags those with high EW
+
     for ii in range(len(str_lines)):
         line = str_lines[ii]
         fig, ax = plt.subplots(nrows=2, ncols=2)
 
         x_temp = data0[line+'_SIGMA'].data
 
+        SN_cut = np.where(data0[line+'_SNR'].data > 3.0)[0]
+        if len(SN_cut) > 0:
+            sig_arr[ii,SN_cut] = 1
+
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
 
         x_temp = x_temp/lambda0[ii] * c_value
+
+        sig_idx = np.where(x_temp >= sig_limit)[0]
+        sig_flag[ii,sig_idx] = 1
 
         det3_good = intersect(det3, good)
         ax[0,0].hist(x_temp[good], bins=hist_bins, alpha=0.5)

@@ -35,7 +35,7 @@ def exclude_outliers(objno):
     return flag
 
 
-def get_data():
+def get_data(out_path):
     path0 = '/Users/cly/data/DEEP2/DR4/f_current/'
     files = glob(path0+'*all_line_fit.fits')
 
@@ -43,7 +43,6 @@ def get_data():
     mass_data = asc.read(mass_file)
     logM      = np.log10(mass_data['best.stellar.m_star'].data)
 
-    out_path = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
     combine_stack_file = out_path + 'DEEP2_all_line_fit.fits'
 
     if not exists(combine_stack_file):
@@ -89,7 +88,9 @@ def main(silent=False, verbose=True):
 
     if silent == False: log.info('### Begin main : '+systime())
 
-    data0, mass_data, logM = get_data()
+    out_path = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    data0, mass_data, logM = get_data(out_path)
 
     OIII = 1.33*data0['OIIIR_FLUX_MOD'].data
     OII  = data0['OII_FLUX_MOD'].data

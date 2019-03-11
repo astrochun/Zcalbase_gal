@@ -115,9 +115,9 @@ def main(silent=False, verbose=True):
     out_pdf = out_path + 'line_width.pdf'
     pp = PdfPages(out_pdf)
 
-    xlim = [0.0,10.5]
+    xlim = [0,750.0]
 
-    hist_bins = np.arange(0.1,xlim[1],0.1)
+    hist_bins = np.arange(xlim[0],xlim[1],10)
 
     str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
     lambda0   = [3726.16, 3728.91, 4861.32, 4958.91, 5006.84]

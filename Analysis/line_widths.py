@@ -22,6 +22,17 @@ from glob import glob
 from astropy.table import Table, vstack
 from astropy import log
 
+def exclude_outliers(objno):
+    flag = np.zeros(len(objno), dtype=int)
+    bad_data = np.array(['32007727', '32101412', '42006031', '32035286',
+                         '14023705'])
+    for ii in range(len(bad_data)):
+        idx = [xx for xx in range(len(objno)) if bad_data[ii] == str(objno[xx])][0]
+        print(ii, idx)
+        flag[idx] = 1
+    return flag
+
+
 def get_data():
     path0 = '/Users/cly/data/DEEP2/DR4/f_current/'
     files = glob(path0+'*all_line_fit.fits')
@@ -85,6 +96,8 @@ def main(silent=False, verbose=True):
     SNR2_ini = data0['OII_SNR'].data
     SNR3_ini = data0['OIIIR_SNR'].data
     SNRH_ini = data0['HB_SNR'].data
+
+    exclude_flag = exclude_outliers(data0['OBJNO'])
 
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
                     (OII > 0) & (OIII > 0) & (HB > 0))[0]

@@ -9,6 +9,8 @@ from chun_codes import systime, intersect
 
 from astropy.io import ascii as asc
 from astropy.io import fits
+import astropy.units as u
+import astropy.constants as const
 
 from os.path import exists
 
@@ -117,11 +119,19 @@ def main(silent=False, verbose=True):
     hist_bins = np.arange(0.1,xlim[1],0.1)
 
     str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
-    for line in str_lines:
+    lambda0   = [3726.16, 3728.91, 4861.32, 4958.91, 5006.84]
+
+    c_value = const.c.to(u.km/u.s).value
+
+    for ii in range(len(str_lines)):
+        line = str_lines[ii]
         fig, ax = plt.subplots(nrows=2, ncols=2)
 
         x_temp = data0[line+'_SIGMA'].data
+
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
+
+        x_temp = x_temp/lambda0[ii] * c_value
 
         det3_good = intersect(det3, good)
         ax[0,0].hist(x_temp[good], bins=hist_bins, alpha=0.5)
@@ -146,7 +156,7 @@ def main(silent=False, verbose=True):
                         linewidth=0.5)
 
         ax[1,0].set_ylim(0.0,2.25)
-        ax[1,0].set_xlabel(r'$\sigma$ [$\AA$]', fontsize=16)
+        ax[1,0].set_xlabel(r'$\sigma$ [km s$^{-1}$]', fontsize=16)
         ax[1,0].set_ylabel(r'$\log(R_{23})$', fontsize=16)
 
 
@@ -155,7 +165,7 @@ def main(silent=False, verbose=True):
                         linewidth=0.5)
 
         ax[1,1].set_ylim(-1,2.25)
-        ax[1,1].set_xlabel(r'$\sigma$ [$\AA$]', fontsize=16)
+        ax[1,1].set_xlabel(r'$\sigma$ [km s$^{-1}$]', fontsize=16)
         ax[1,1].set_ylabel(r'$\log(O_{32})$', fontsize=16)
 
         for t_ax in ax.flatten():

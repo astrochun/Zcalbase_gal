@@ -136,13 +136,14 @@ def main(silent=False, verbose=True):
         x_temp = data0[line+'_SIGMA'].data
 
         # Require S/N >= 3.0
-        SN_cut = np.where(data0[line+'_SNR'].data > 3.0)[0]
+        SN_cut = np.where(data0[line+'_SNR'].data >= 3.0)[0]
 
         x_temp = x_temp/lambda0[ii] * c_value
 
         sig_idx    = np.where(x_temp >= sig_limit)[0]
         sig_idx_SN = intersect(SN_cut, sig_idx)
         sig_flag[ii,sig_idx_SN] = 1
+
 
     sig_flag_total = np.sum(sig_flag, axis=0)
 

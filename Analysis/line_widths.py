@@ -125,10 +125,29 @@ def main(silent=False, verbose=True):
     c_value = const.c.to(u.km/u.s).value
 
     sig_limit = 250 # Dispersion limit in km/s
-    sig_arr   = np.zeros( (len(str_lines), len(data0)), dtype=np.int)
+    #sig_arr   = np.zeros( (len(str_lines), len(data0)), dtype=np.int)
     sig_flag  = np.zeros( (len(str_lines), len(data0)), dtype=np.int)
     # sig_arr: contains flag for line detection
-    # sig_flag: flags those with high EW
+    # sig_flag: flags those with high dispersion
+
+    # First loop to get those with high dispersion
+    for ii in range(len(str_lines)):
+        line = str_lines[ii]
+        x_temp = data0[line+'_SIGMA'].data
+
+        # Require S/N >= 3.0
+        SN_cut = np.where(data0[line+'_SNR'].data > 3.0)[0]
+
+        x_temp = x_temp/lambda0[ii] * c_value
+
+        sig_idx    = np.where(x_temp >= sig_limit)[0]
+        sig_idx_SN = intersect(SN_cut, sig_idx)
+        sig_flag[ii,sig_idx_SN] = 1
+
+    sig_flag_total = np.sum(sig_flag, axis=0)
+
+    high_disp = np.where(sig_flag_total >= 2)[0]
+    print("high_disp : ", len(high_disp))
 
     for ii in range(len(str_lines)):
         line = str_lines[ii]
@@ -136,16 +155,9 @@ def main(silent=False, verbose=True):
 
         x_temp = data0[line+'_SIGMA'].data
 
-        SN_cut = np.where(data0[line+'_SNR'].data > 3.0)[0]
-        if len(SN_cut) > 0:
-            sig_arr[ii,SN_cut] = 1
-
         good = np.where((x_temp < 90) & (x_temp > -90))[0]
 
         x_temp = x_temp/lambda0[ii] * c_value
-
-        sig_idx = np.where(x_temp >= sig_limit)[0]
-        sig_flag[ii,sig_idx] = 1
 
         det3_good = intersect(det3, good)
         ax[0,0].hist(x_temp[good], bins=hist_bins, alpha=0.5)
@@ -158,16 +170,21 @@ def main(silent=False, verbose=True):
         ax[0,0].set_xticklabels([])
 
         ax[0,1].scatter(x_temp[good], logM[good], alpha=0.5, edgecolor='none')
-        ax[0,1].scatter(x_temp[det3], logM[det3], facecolor='none', edgecolor='red',
+        ax[0,1].scatter(x_temp[det3], logM[det3], facecolor='none', edgecolor='green',
                         linewidth=0.5)
+
+        ax[0,1].scatter(x_temp[high_disp], logM[high_disp], marker='x', color='red')
+
 
         ax[0,1].set_ylim([7.5,12.0])
         ax[0,1].set_xticklabels([])
         ax[0,1].set_ylabel(r'$\log(M_{\star}/M_{\odot})$', fontsize=16)
 
         ax[1,0].scatter(x_temp[good], lR23[good], alpha=0.5, edgecolor='none')
-        ax[1,0].scatter(x_temp[det3], lR23[det3], facecolor='none', edgecolor='red',
+        ax[1,0].scatter(x_temp[det3], lR23[det3], facecolor='none', edgecolor='green',
                         linewidth=0.5)
+        ax[1,0].scatter(x_temp[high_disp], lR23[high_disp], marker='x', color='red')
+
 
         ax[1,0].set_ylim(0.0,2.25)
         ax[1,0].set_xlabel(r'$\sigma$ [km s$^{-1}$]', fontsize=16)
@@ -175,8 +192,9 @@ def main(silent=False, verbose=True):
 
 
         ax[1,1].scatter(x_temp[good], lO32[good], alpha=0.5, edgecolor='none')
-        ax[1,1].scatter(x_temp[det3], lO32[det3], facecolor='none', edgecolor='red',
+        ax[1,1].scatter(x_temp[det3], lO32[det3], facecolor='none', edgecolor='green',
                         linewidth=0.5)
+        ax[1,1].scatter(x_temp[high_disp], lO32[high_disp], marker='x', color='red')
 
         ax[1,1].set_ylim(-1,2.25)
         ax[1,1].set_xlabel(r'$\sigma$ [km s$^{-1}$]', fontsize=16)

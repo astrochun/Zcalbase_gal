@@ -123,7 +123,9 @@ def main(silent=False, verbose=True):
 
     hist_bins = np.arange(xlim[0],xlim[1],10)
 
-    str_lines = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
+    str_lines  = ['OIIB','OIIR', 'HB', 'OIIIB', 'OIIIR']
+    line_names = [r'[OII]$\lambda$3726', r'[OII]$\lambda$3728', r'H$\beta$',
+                  r'[OIII]$\lambda$4959', r'[OIII]$\lambda$5007']
     lambda0   = [3726.16, 3728.91, 4861.32, 4958.91, 5006.84]
 
     c_value = const.c.to(u.km/u.s).value
@@ -175,7 +177,7 @@ def main(silent=False, verbose=True):
 
         ax[0,0].hist(x_temp[det3_good], bins=hist_bins, color='red')
 
-        ax[0,0].annotate(line, [0.95,0.95], xycoords='axes fraction', ha='right',
+        ax[0,0].annotate(line_names[ii], [0.95,0.95], xycoords='axes fraction', ha='right',
                        va='top')
         ax[0,0].set_ylabel('N', fontsize=16)
         ax[0,0].set_xticklabels([])

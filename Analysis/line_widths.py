@@ -115,6 +115,10 @@ def main(silent=False, verbose=True):
     out_pdf = out_path + 'line_width.pdf'
     pp = PdfPages(out_pdf)
 
+    # Velocity dispersion plot
+    out_pdf1 = out_path + 'line_width_comparison.pdf'
+    pp1 = PdfPages(out_pdf1)
+
     xlim = [0,750.0]
 
     hist_bins = np.arange(xlim[0],xlim[1],10)
@@ -140,6 +144,9 @@ def main(silent=False, verbose=True):
 
         x_temp = x_temp/lambda0[ii] * c_value
 
+        t_cmd = line+'_vdisp = x_temp'
+        exec(t_cmd)
+
         sig_idx    = np.where(x_temp >= sig_limit)[0]
         sig_idx_SN = intersect(SN_cut, sig_idx)
         sig_flag[ii,sig_idx_SN] = 1
@@ -149,6 +156,9 @@ def main(silent=False, verbose=True):
 
     high_disp = np.where(sig_flag_total >= 2)[0]
     print("high_disp : ", len(high_disp))
+
+    # Plot velocity dispersion against each line
+    fig_disp, ax_disp = plt.subplots(nrows=5, ncols=5)
 
     for ii in range(len(str_lines)):
         line = str_lines[ii]
@@ -208,6 +218,7 @@ def main(silent=False, verbose=True):
         plt.subplots_adjust(left=0.06, right=0.99, top=0.97, bottom=0.065,
                             wspace=0.17, hspace=0.01)
         fig.savefig(pp, format='pdf')
+
     #endfor
 
     log.info('Writing : '+out_pdf)

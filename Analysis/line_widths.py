@@ -219,10 +219,23 @@ def main(silent=False, verbose=True):
                             wspace=0.17, hspace=0.01)
         fig.savefig(pp, format='pdf')
 
+        exec('vdisp_ii = '+line+'_vdisp')
+        for jj in range(len(str_lines)):
+            line_jj = str_lines[jj]
+            if ii != jj:
+                exec('vdisp_jj = '+line_jj+'_vdisp')
+                ax_disp[ii][jj].scatter(vdisp_jj, vdisp_ii, s=5)
+            else:
+                ax_disp[ii][jj].axis('off')
     #endfor
 
     log.info('Writing : '+out_pdf)
     pp.close()
+
+    log.info('Writing : '+out_pdf1)
+    fig_disp.set_size_inches(8.5,8.5)
+    fig_disp.savefig(pp1, format='pdf')
+    pp1.close()
 
     if silent == False: log.info('### End main : '+systime())
 #enddef

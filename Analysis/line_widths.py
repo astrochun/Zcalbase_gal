@@ -233,9 +233,16 @@ def main(silent=False, verbose=True):
                 ax_disp[ii][jj].plot([0,900],[0,900], 'k--')
                 ax_disp[ii][jj].set_xlim([0,900])
                 ax_disp[ii][jj].set_ylim([0,900])
+
+                if ii != len(str_lines)-1:
+                    ax_disp[ii][jj].set_xticklabels([])
+                if jj != 0:
+                    ax_disp[ii][jj].set_yticklabels([])
             else:
                 ax_disp[ii][jj].axis('off')
-
+                ax_disp[0][jj].set_title(line_names[jj])
+                ax_disp[-1][jj].set_xlabel(r'$\sigma$ [km s$^{-1}$]')
+                ax_disp[jj][0].set_ylabel(r'$\sigma$ [km s$^{-1}$]')
 
     #endfor
 
@@ -244,6 +251,7 @@ def main(silent=False, verbose=True):
 
     log.info('Writing : '+out_pdf1)
     fig_disp.set_size_inches(8.5,8.5)
+
     fig_disp.savefig(pp1, format='pdf')
     pp1.close()
 

@@ -226,9 +226,13 @@ def main(silent=False, verbose=True):
             line_jj = str_lines[jj]
             if ii != jj:
                 exec('vdisp_jj = '+line_jj+'_vdisp')
-                ax_disp[ii][jj].scatter(vdisp_jj, vdisp_ii, s=5)
+                in_range = np.where((vdisp_jj >= 0) & (vdisp_jj <= 2000) &
+                                    (vdisp_ii >= 0) & (vdisp_ii <= 2000))[0]
+                ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], s=5)
             else:
                 ax_disp[ii][jj].axis('off')
+
+
     #endfor
 
     log.info('Writing : '+out_pdf)

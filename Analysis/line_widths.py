@@ -230,9 +230,12 @@ def main(silent=False, verbose=True):
                                     (vdisp_ii >= 0) & (vdisp_ii <= 2000))[0]
                 ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], marker='.')
 
-                ax_disp[ii][jj].plot([0,900],[0,900], 'k--')
-                ax_disp[ii][jj].set_xlim([0,900])
-                ax_disp[ii][jj].set_ylim([0,900])
+                ax_disp[ii][jj].plot([1,1e3],[1,1e3], 'k--')
+                ax_disp[ii][jj].set_xlim([25,900])
+                ax_disp[ii][jj].set_ylim([25,900])
+
+                ax_disp[ii][jj].set_yscale('log')
+                ax_disp[ii][jj].set_xscale('log')
 
                 if ii != len(str_lines)-1:
                     ax_disp[ii][jj].set_xticklabels([])

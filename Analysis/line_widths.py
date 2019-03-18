@@ -244,10 +244,11 @@ def main(silent=False, verbose=True):
                     ax_disp[ii][jj].set_yticklabels([])
             else:
                 ax_disp[ii][jj].axis('off')
-                ax_disp[0][jj].set_title(line_names[jj])
+                ax_disp[0][jj].set_title(line_names[jj], fontsize=14)
                 ax_disp[-1][jj].set_xlabel(r'$\sigma$ [km s$^{-1}$]')
                 ax_disp[jj][0].set_ylabel(r'$\sigma$ [km s$^{-1}$]')
-
+                ax_disp[jj][0].annotate(line_names[jj], [-0.5,0.5], xycoords='axes fraction',
+                                        ha='right', va='center', rotation=90, fontsize=14)
     #endfor
 
     log.info('Writing : '+out_pdf)
@@ -255,7 +256,8 @@ def main(silent=False, verbose=True):
 
     log.info('Writing : '+out_pdf1)
     fig_disp.set_size_inches(8.5,8.5)
-    fig_disp.subplots_adjust(left=0.1, right=0.99, top=0.99, bottom=0.1, wspace=0.01, hspace=0.01)
+    fig_disp.subplots_adjust(left=0.12, right=0.995, top=0.96, bottom=0.065, wspace=0.01,
+                             hspace=0.01)
     fig_disp.savefig(pp1, format='pdf')
     pp1.close()
 

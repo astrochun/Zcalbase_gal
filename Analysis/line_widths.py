@@ -228,7 +228,11 @@ def main(silent=False, verbose=True):
                 exec('vdisp_jj = '+line_jj+'_vdisp')
                 in_range = np.where((vdisp_jj >= 0) & (vdisp_jj <= 2000) &
                                     (vdisp_ii >= 0) & (vdisp_ii <= 2000))[0]
-                ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], s=5)
+                ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], marker='.')
+
+                ax_disp[ii][jj].plot([0,900],[0,900], 'k--')
+                ax_disp[ii][jj].set_xlim([0,900])
+                ax_disp[ii][jj].set_ylim([0,900])
             else:
                 ax_disp[ii][jj].axis('off')
 

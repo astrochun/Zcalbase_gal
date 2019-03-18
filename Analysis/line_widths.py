@@ -228,7 +228,8 @@ def main(silent=False, verbose=True):
                 exec('vdisp_jj = '+line_jj+'_vdisp')
                 in_range = np.where((vdisp_jj >= 0) & (vdisp_jj <= 2000) &
                                     (vdisp_ii >= 0) & (vdisp_ii <= 2000))[0]
-                ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], marker='.')
+                ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], marker=',', s=1,
+                                        color='k', edgecolor='none')
 
                 ax_disp[ii][jj].plot([1,1e3],[1,1e3], 'k--')
                 ax_disp[ii][jj].set_xlim([25,900])
@@ -254,7 +255,7 @@ def main(silent=False, verbose=True):
 
     log.info('Writing : '+out_pdf1)
     fig_disp.set_size_inches(8.5,8.5)
-
+    fig_disp.subplots_adjust(left=0.1, right=0.99, top=0.99, bottom=0.1, wspace=0.01, hspace=0.01)
     fig_disp.savefig(pp1, format='pdf')
     pp1.close()
 

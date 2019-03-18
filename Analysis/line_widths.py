@@ -228,10 +228,18 @@ def main(silent=False, verbose=True):
                 exec('vdisp_jj = '+line_jj+'_vdisp')
                 in_range = np.where((vdisp_jj >= 0) & (vdisp_jj <= 2000) &
                                     (vdisp_ii >= 0) & (vdisp_ii <= 2000))[0]
-                ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], marker=',', s=1,
-                                        color='k', edgecolor='none')
+                ax_disp[ii][jj].scatter(vdisp_jj[in_range], vdisp_ii[in_range], marker=',',
+                                        s=1, color='k', edgecolor='none', alpha=0.5)
 
-                ax_disp[ii][jj].plot([1,1e3],[1,1e3], 'k--')
+                pt2 = np.array([1,1e3])
+                ax_disp[ii][jj].plot(pt2, pt2, 'k--')
+
+                t_diff = np.log10(vdisp_jj[in_range]/vdisp_ii[in_range])
+                med0   = np.median(t_diff)
+                avg0   = np.mean(t_diff)
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-med0), 'b-') #, alpha=0.5)
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0), 'r-') #, alpha=0.5)
+
                 ax_disp[ii][jj].set_xlim([25,900])
                 ax_disp[ii][jj].set_ylim([25,900])
 

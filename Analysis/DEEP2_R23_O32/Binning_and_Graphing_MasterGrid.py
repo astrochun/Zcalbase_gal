@@ -1,6 +1,19 @@
+
+###THIS BINS DATA FOR ALL BINNING METHODS AND IS USED IN GENERAL FUNCTION###
+
+
 #Currently binning with bin=0.25
 #Numpy binary file or FITS binary table: read up on both and attempt both
 #Change name of pdf, name of output file, bin size
+
+###Create r 23 grid to have nxm dimensions and update each of the corresponding values, like a table
+### m will be 2 and
+'''R23 grid np.zeros ((5,2)) for rr in range(R23_grid.shape[0])) print rr
+for oo in range ((R23_grid.shape[1])) print oo
+define n_N = R23_grid.shape[0] or [1]
+
+R23_grid[0][:] = 3.0'''
+
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -269,14 +282,14 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     #galinbin = [200,400,800]
     #for oo in range(len(galinbin)):
     n_bins = np.int(len(R23)/galinbin)
-    print n_bins
+    print n_bins, n_bins/2
     n_bins_range = np.arange(0,2*n_bins,1)
 
     #Initializing Arrays for outfile later if using Voronoi Stacking
     '''N_arr0 = np.zeros(2*n_bins)
     T_arr  = np.zeros((n_bins*2), dtype = object)
     O32_grid    = np.zeros(2*n_bins)
-    R23_values  = np.zeros(2*n_bins)
+    R23_grid  = np.zeros(2*n_bins)
     xBar  = np.zeros(2*n_bins)
     yBar  = np.zeros(2*n_bins)
     area  = np.zeros(2*n_bins)
@@ -285,12 +298,17 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     #Initializing Arrays for Grid stacking  
     N_arr0 = np.zeros((n_bins,2))
     T_arr  = np.zeros((n_bins,2), dtype = object)
-    O32_grid    = np.zeros(2*n_bins)
-    R23_values  = np.zeros(2*n_bins)
+    O32_grid    = np.zeros((n_bins,2))
+    R23_grid  = np.zeros((n_bins,2))
     xBar  = np.zeros(2*n_bins)
     yBar  = np.zeros(2*n_bins)
     area  = np.zeros(2*n_bins)
     N_bin = np.zeros(len(data3), dtype = int)
+
+    O32_values    = np.zeros(2*n_bins)
+    R23_values  = np.zeros(2*n_bins)
+    
+    print O32_grid
 
     #Bin starts and stops initializing
     bin_start_1 = np.zeros(n_bins)
@@ -300,7 +318,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     
 
     #Sets the bins 
-    for ii in range(n_bins):
+    for ii in range(n_bins/2):
+        print ii
         bin_start_1[ii] = y_sort0[ii*galinbin]
         bin_end_1[ii]   = y_sort0[(ii+1)*galinbin-1]
         if ii == n_bins-1:  bin_end_1[ii] = np.max(y_sort0)
@@ -313,8 +332,16 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         idx2 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 <= med_val))[0]
         idx3 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 > med_val))[0]
 
-        O32_grid[ii*2]   = np.median(O32[idx2])    ###possibly (2,n_bins)??
+        '''O32_grid[ii*2]   = np.median(O32[idx2])    ###possibly (2,n_bins)??
         O32_grid[ii*2+1] = np.median(O32[idx3])
+        R23_grid[ii*2] = bin_start_1[ii]
+        R23_grid[ii*2+1] = bin_start_1[ii]'''
+        
+        O32_grid[ii*2,0]   = np.median(O32[idx2])    
+        O32_grid[ii*2+1,1] = np.median(O32[idx3])
+
+        R23_grid[ii*2,0] = bin_start_1[ii]
+        R23_grid[ii*2+1] = bin_start_1[ii]
         
         '''N_arr0[ii*2]  += len(idx2)
         N_arr0[ii*2+1]+= len(idx3)
@@ -331,8 +358,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         N_bin[idx2]= ii*2
         N_bin[idx3]= ii*2+1
 
-        R23_values[ii*2] = bin_start_1[ii]
-        R23_values[ii*2+1] = bin_start_1[ii]
+        
 
         xBar[ii*2]= np.log10(np.average(R23[idx2]))
         xBar[ii*2+1]= np.log10(np.average(R23[idx3]))
@@ -343,16 +369,13 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         area[ii*2]= len(idx2)
         area[ii*2+1]= len(idx3)
 
-        
-        
-###Create r 23 grid to have nxm dimensions and update each of the corresponding values, like a table
-### m will be 2 and
-'''R23 grid np.zeros ((5,2)) for rr in range(R23_grid.shape[0])) print rr
-for oo in range ((R23_grid.shape[1])) print oo
-define n_N = R23_grid.shape[0] or [1]
+        O32_values[ii*2]   = np.median(O32[idx2])    ###possibly (2,n_bins)??
+        O32_values[ii*2+1] = np.median(O32[idx3])
+        R23_values[ii*2] = bin_start_1[ii]
+        R23_values[ii*2+1] = bin_start_1[ii]
 
-R23_grid[0][:] = 3.0'''
 
+        ######ASK IF ALL OF THIS IS FILLED IN CORRECTLY BECAUSE I DON'T THINK SO###
     #Plotting
     fig, ax = plt.subplots()
     x = R23
@@ -374,19 +397,20 @@ R23_grid[0][:] = 3.0'''
 
     
     print 'bin:', len(n_bins_range)
-    print 'R23:', len(R23_values), R23_values
+    print 'R23:', len(R23_grid), R23_grid
+    print 'bin_start_1', len(bin_start_1), bin_start_1
     print 'O32:', len(O32_grid)
 
-    np.savez(outfile, T_arr=T_arr, R23_grid=bin_start_1, O32_grid=O32_grid, N_arr0=N_arr0)
+    np.savez(outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=O32_grid, N_arr0=N_arr0)
 
     n1 = ('ID' , 'R23_value', 'O32_value', 'xBar','yBar', 'area')
-    tab1 = Table([n_bins_range, R23_values, O32_grid,xBar, yBar,area], names = n1)
+    tab1 = Table([n_bins_range, R23_values, O32_values,xBar, yBar,area], names = n1)
     asc.write(tab1, fitspath+'/Double_Bin_binning_averages.tbl', format='fixed_width_two_line')
     
     fig.clear()
 
     n2=('R23', 'O32', 'N_bin')
-    tab2= Table([ R23, O32, N_bin], names=n2)
+    tab2= Table([R23, O32, N_bin], names=n2)
     asc.write(tab2, fitspath+'/Double_Bin_2d_binning_datadet3.tbl', format='fixed_width_two_line')
 
 ###Create another ascii table with the R23_grid and O32_grid values for plots 

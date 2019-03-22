@@ -1,6 +1,9 @@
+
+###THIS CODE IS RUN IN THE GENERAL FUNCTION###
+
 #Calculates the R value, electron temperature, and metallicity from the flux table
 #produced by the zoom_and_gauss_general functions
-#
+
 #Currently running: Grid
 import numpy as np
 import matplotlib.pyplot as plt

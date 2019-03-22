@@ -1,3 +1,8 @@
+
+###THIS CODE DOES THE STACKING FOR ALL VORONOI AND (CURRENTLY) THE DOUBLE BINNING METHOD
+###CURRENTLY RE-WRITING TO TEST THAT VORONOI AND GRID STACKING ARE THE SAME
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 #import pylab as pl
@@ -45,8 +50,10 @@ def Master_Stacking(fitspath, dataset, voronoi_data, asc_table1, wave, image2D, 
     n_bins = np.max(last_column)    
     outfile = name.replace('.pdf', '.fits')  #fits file name and initialization 
     if not exists(outfile):
+        print("File not found : "+outfile+".  Initiating!!!")
         stack_2d = np.zeros((n_bins+1, len(wave)), dtype = np.float64) 
     else:
+        print("File found : "+outfile+".  Reading in!!!")
         stack_2d = fits.getdata(outfile)
         
     for rr in xrange(n_bins+1):  

@@ -1,3 +1,10 @@
+
+###ORIGINAL FILE THAT RMS FUNCTION WAS WRITTEN IN
+###NOW THE RMS FUNCTION IS IN THE ZOOM_AND_GAUSS_GENERAL CODE
+###THIS FUNCTION IS NOT RUN
+
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab as pl

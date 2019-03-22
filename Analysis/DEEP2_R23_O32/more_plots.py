@@ -1,3 +1,8 @@
+
+###PLOTTING RESULTS FROM ANALYSIS
+###CALLED EVERYTIME GENERAL FUNCTIONS ARE RUN
+
+
 ###Plotting functions for Zcalbase_gal###
 
 
@@ -23,7 +28,7 @@ import sys
 
 
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0313/'
 #dataset = 'Double Bin'
 
 lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  
@@ -33,7 +38,7 @@ line_type = ['Oxy2', 'Single','Single', 'Single', 'Balmer', 'Balmer', 'Single', 
 line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']  
 
 
-
+'''
 asc_table = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/Double_Bin_combined_flux_table.tbl'
 asc_tab = asc.read(asc_table)
 
@@ -48,12 +53,22 @@ O32 = asc_tab['O_32_Average'].data
 T_e = ver_tab['Temperature'].data
 com_O = ver_tab['com_O_log'].data
 ID = ver_tab['ID'].data
-detect = ver_tab['Detection'].data
+detect = ver_tab['Detection'].data'''
 
-def ew_plot_R23():
+def ew_plot_R23(fitspath, asc_table, temp_table, verif_table):
     name = fitspath +'equivalent_vs_R23_plots.pdf'
     pdf_pages = PdfPages(name)
-    
+
+    asc_tab = asc.read(asc_table)
+    temp_tab = asc.read(temp_table)
+    ver_tab = asc.read(verif_table)
+
+    R23 = asc_tab['R_23_Average'].data
+    O32 = asc_tab['O_32_Average'].data
+    T_e = ver_tab['Temperature'].data
+    com_O = ver_tab['com_O_log'].data
+    ID = ver_tab['ID'].data
+    detect = ver_tab['Detection'].data
 
 
 
@@ -75,9 +90,21 @@ def ew_plot_R23():
 
 
 
-def ew_plot_O32():
+def ew_plot_O32(fitspath, asc_table, temp_table, verif_table):
     name = fitspath +'equivalent_vs_O32_plots.pdf'
     pdf_pages = PdfPages(name)
+
+    
+    asc_tab = asc.read(asc_table)
+    temp_tab = asc.read(temp_table)
+    ver_tab = asc.read(verif_table)
+
+    R23 = asc_tab['R_23_Average'].data
+    O32 = asc_tab['O_32_Average'].data
+    T_e = ver_tab['Temperature'].data
+    com_O = ver_tab['com_O_log'].data
+    ID = ver_tab['ID'].data
+    detect = ver_tab['Detection'].data
 
     for oo in range(len(lambda0)):
         if line_type[oo] == 'Balmer':
@@ -95,9 +122,21 @@ def ew_plot_O32():
             fig.savefig(pdf_pages, format='pdf')
     pdf_pages.close()
 
-def R23_vs_O32_color():
+def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     name = fitspath +'R23_vs_O32_colormapping.pdf'
     pdf_pages = PdfPages(name)
+
+    
+    asc_tab = asc.read(asc_table)
+    temp_tab = asc.read(temp_table)
+    ver_tab = asc.read(verif_table)
+
+    R23 = asc_tab['R_23_Average'].data
+    O32 = asc_tab['O_32_Average'].data
+    T_e = ver_tab['Temperature'].data
+    com_O = ver_tab['com_O_log'].data
+    ID = ver_tab['ID'].data
+    detect = ver_tab['Detection'].data
 
     cm= plt.cm.get_cmap('Blues')
     edge_det = np.where((detect ==1))[0]
@@ -138,9 +177,9 @@ def R23_vs_O32_color():
     
 
 
-def hist_for_bin(dataset):
-    asc_table = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-    asc_tab = asc.read(asc_table)
+def hist_for_bin(dataset,asc_table_det3):
+    #asc_table = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+    asc_tab = asc.read(asc_table_det3)
     name = dataset +'_histograms.pdf'
 
     pdf_pages = PdfPages(fitspath+name)

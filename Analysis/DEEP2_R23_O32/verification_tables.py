@@ -1,3 +1,7 @@
+
+###TWO FUNCTIONS THAT CREATE THE ACTIVE AND MASTER VERIFICATION TABLES
+###RUN EVERYTIME THE GENERAL FUNCTIONS ARE CALLED
+
 #Writes Ascii Files with all the Correct data in them
 
 import numpy as np
@@ -19,14 +23,14 @@ from scipy.optimize import curve_fit
 import scipy.integrate as integ
 import glob
 
-
+'''
 ###Verified Sources###
 ver_20 = np.array([])
 ver_14 = np.array([0,7,10,11,12])
 ver_10 = np.array([1,9,18,21])
 ver_Grid = np.array([11,13,19,20,21])
 ver_sR23 = np.array([0,4,5,6])
-ver_sO32 = np.array([6])
+ver_sO32 = np.array([6])'''
 
 
 

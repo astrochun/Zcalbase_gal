@@ -32,7 +32,9 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
 def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
 
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3= general.get_det3()
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3()
+
+    grid_data = np.load(grid_data)
     R23_grid = grid_data['R23_grid']
     O32_grid = grid_data['O32_grid']
     

@@ -1,3 +1,8 @@
+
+###PERFORMS THE GAUSSIAN FITTING ON ALL EMISSIONS LINES
+###CALLED EVERYTIME THE GENERAL FUNCTIONS ARE RUN
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 #import pylab as pl
@@ -21,25 +26,7 @@ from chun_codes import random_pdf, compute_onesig_pdf
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
 #If 'x0' is infeasible error occurs, check the para_bound values to make sure the expected values are within the range set up upper and lower limits. 
-
-###NOT IN USE###
-'''#eventually I need to incoorparate these values into the correct function but right now they are global variables 
-s=1.0
-a= 1.0
-c = 2.0
-s1= 1.3
-a1= 2.1
-s2 = 1.5   ###Changed this value in order to better fit the balmer curves### used to be s2 =1
-a2 = -1.0
-
-Works for Single Grids: s=1.0
-a= 1.0
-c = 2.0
-s1= 1.3
-a1= 1.5
-s2 = 1.5   ###Changed this value in order to better fit the balmer curves### used to be s2 =1
-a2 = 1.8'''
-###   
+ 
 
 def line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr):
     #print 'Under Construction '

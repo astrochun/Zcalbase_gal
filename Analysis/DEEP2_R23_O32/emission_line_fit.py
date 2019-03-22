@@ -1,3 +1,8 @@
+
+###THIS CODE IS THE FIRST ITERATION OF THE ZOOM_AND_GAUSS_GENERAL CODE
+###NOT CALLED IN GENERAL FUNCTION
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab as pl

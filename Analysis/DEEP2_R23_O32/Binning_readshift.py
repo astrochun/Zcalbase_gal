@@ -1,3 +1,6 @@
+
+###THIS CODE IS NOT USED IN THE GENERAL FUNCTION AND IS NOT CURRENTLY BEING RUN###
+
 ##This code makes the multi graph and then graphs the redshifts in each bin
 ##Used as an error checker to make sure results were reasonable 
 

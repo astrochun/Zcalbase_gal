@@ -1,3 +1,8 @@
+
+###COMBINES INDIVIDUAL TABLES INTO A LARGE TABLE
+###USED EVERYTIME GENERAL FUNCTIONS ARE CALLED
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 #import pylab as pl

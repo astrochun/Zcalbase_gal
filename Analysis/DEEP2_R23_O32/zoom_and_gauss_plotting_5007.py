@@ -1,3 +1,8 @@
+
+###OLD VERSION OF THE ZOOM_AND_GAUSS_GENERAL FUNCTION THAT FITS ONLY THE 5007 LINE
+###NOT CALLED IN THE GENERAL FUNCTIONS
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab as pl

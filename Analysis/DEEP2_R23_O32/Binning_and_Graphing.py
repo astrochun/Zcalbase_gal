@@ -1,3 +1,7 @@
+
+###THIS CODE IS NO LONGER INCLUDED IN THE GENERAL FUNCTION###
+###First interaction of binning from start of project two years ago
+
 #Currently binning with bin=0.25
 #Numpy binary file or FITS binary table: read up on both and attempt both
 #Set: Name of pdf file, name of output file, size of binning

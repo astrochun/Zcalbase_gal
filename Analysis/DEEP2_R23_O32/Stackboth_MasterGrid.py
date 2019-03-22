@@ -1,3 +1,7 @@
+
+###THIS FUNCTION DOES THE STACKING FOR THE ORIGINAL AND SIGNAL BINNING METHODS
+###CURRENTLY RE-WRITING TO TEST THAT VORONOI AND GRID STACKING ARE THE SAME
+
 ##In this file, I define the stacking code in a function that runs over the master grid
 ##Creates a pdf and a fits file
 ##fits file for this code is given the name of the PDF file 
@@ -57,10 +61,13 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     N_gal = np.zeros(len(R23_grid)*len(O32_grid))
    
     count = 0
-    for rr in range(len(R23_grid)):
+    '''for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
             #print 'T_arr:', grid_data['T_arr'] 
-            #if dataset == 'Double_Bin': index = grid_data['T_arr'][rr,1]
+            #if dataset == 'Double_Bin': index = grid_data['T_arr'][rr,1]'''
+    for rr in range(R23_grid.shape[0]):
+        for oo in range(R23_grid.shape[1]):
+            print rr,oo
             index= grid_data['T_arr'][rr,oo]
             #print 'index:', index
             if len(index) >10:

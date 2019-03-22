@@ -22,19 +22,20 @@ from scipy.optimize import curve_fit
 import scipy.integrate as integ
 import glob
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting,calibration_plots, verification_tables
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting,calibration_plots, verification_tables, more_plots
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Voronoi10_0227/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_Grid_Stacking/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 
-'''lambda0 =[3726.16, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  #, '4101.73, 4363.21, 4861.32']
+'''Complete List
+lambda0 =[3726.16, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  #, '4101.73, 4363.21, 4861.32']
         #[3726.16, 3835.38, 3868.74, 3888.65, 3970.07, 4101.73, 4363.21, 4861.32, 4958.91, 5006.84]
 
 line_type = ['Oxy2', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single', 'Balmer', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single']
@@ -82,11 +83,11 @@ def get_det3():
     SNR3_ini = data0['OIIIR_SNR']
     SNRH_ini = data0['HB_SNR']
 
+    print 'O2 len:', len(O2_ini)
     
     #SNR code: This rules out major outliers by only using specified data
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
                     (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0))[0]
-
 
     data3 = data0[det3]
 
@@ -102,8 +103,13 @@ def get_det3():
     O2_det3 =O2_ini[det3]
     O3_det3 =O3_ini[det3]
     Hb_det3 =Hb_ini[det3]
+
+    n2= ('R23','O32', 'O2', 'O3', 'Hb', 'SNR2', 'SNR3', 'SNRH', 'det3', 'O2_det3', 'O3_det3', 'Hb_det3')  #'data3',
+    tab1 = Table([R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, O2_det3, O3_det3, Hb_det3], names=n2)  #data3
+    asc.write(tab1, fitspath+'get_det3_table2.tbl', format='fixed_width_two_line')
+    #tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
     
-    return R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3
+    return R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3    #, O2_det3, O3_det3, Hb_det3
 
 
 
@@ -114,7 +120,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
     #dataset options: Grid, O32_Grid, R23_Grid, Double_Bin
     
     
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()     #, O2_det3, O3_det3, Hb_det3
     
     #Grid Methods of Organizing Data
     #Both One and Two Dimensional Analyzes 
@@ -124,17 +130,18 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
     
     #Binning and Graphing MasterGrid
     #Options to Change: Bin Size
-    galinbin = 400
+    #galinbin = 400
+    galinbin = 200
     print '# of Gal in Bin:', galinbin
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
         outfile = fitspath +'single_grid_O32.npz'
-        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
+        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin)    #, O2_det3, O3_det3, Hb_det3,
 
     if dataset =='R23_Grid':
         pdf_pages = fitspath +'single_grid_R23.pdf'
         outfile = fitspath +'single_grid_R23.npz'
-        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
+        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)     #O2_det3, O3_det3, Hb_det3,
 
 
     if dataset =='Grid': 
@@ -144,7 +151,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
         O32_bin = 0.25
         binstr = 025
         
-        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3, R23_bin, O32_bin)
+        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, R23_bin, O32_bin)   #O2_det3, O3_det3, Hb_det3,
 
     print 'made npz, pdf files , testmastergrid(need to find if this is used anywhere)'
     print 'finished Binning_and_Graphing_MasterGrid'
@@ -309,7 +316,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     #dataset options: Voronoi10,Voronoi14, Voronoi20
     
     
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3() # , O2_det3, O3_det3, Hb_det3
     
     #Grid Methods of Organizing Data
     #Both One and Two Dimensional Analyzes 
@@ -334,7 +341,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
         txt_file = fitspath + 'voronoi14_2d_binning_outputs.txt'
         asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
         asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
-        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3)    #, O2_det3, O3_det3, Hb_det3
         
     if dataset == 'Voronoi20':
         sn_size = 20
@@ -342,7 +349,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
         asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
         asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
 
-        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3)   #, O2_det3, O3_det3, Hb_det3
 
     if dataset == 'Double_Bin':
         galinbin = 400
@@ -350,7 +357,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
         outfile = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3,galinbin)
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)   #, O2_det3, O3_det3, Hb_det3
 
     
     #Stacking_voronoi
@@ -443,10 +450,24 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)
 
-    ###Verification Tables###
+    '''
     ###Verification Tables###
     ver_tab = fitspath+'/'+dataset+'_verification.tbl'
-    verification_tables.verification(fitspath, dataset, temp_met_ascii, combine_flux_ascii, ver_tab)
+    verification_tables.verification(fitspath, dataset, temp_met_ascii, combine_flux_ascii, ver_tab)'''
+
+    ###Making More Plots###
+    #asc_table = combine_flux_ascii
+    #temp_table = temp_met_ascii
+    #asc_table_det3 = asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+    m_ver_table = fitspath_ini+'Master_Verification_Tables/'+dataset+'_table.tbl'
+    #ver_tab = fitspath+'/'+dataset+'_verification.tbl'
+    
+    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
+    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
+    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
+    more_plots.hist_for_bin(dataset, asc_table2)
+    
+    
 
 
 
@@ -457,65 +478,28 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
 
 
 
+###USING TO TEST IF I AM WRITING THE DOUBLE BIN METHOD CORRECTLY###
 
 
-
-###NOT IN USE###
-'''
-
-def run_voronoi_R23_O32_analysis(dataset,mask='None'):
+def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, mask='None'):
     #dataset options: Voronoi10,Voronoi14, Voronoi20
     
     
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()
+
+
+    if dataset == 'Double_Bin':
+        galinbin = 400
+        pdf_pages = fitspath +'double_grid.pdf'
+        outfile = fitspath +'double_grid.npz'
+        asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
+        asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin) 
     
-    #Grid Methods of Organizing Data
-    #Both One and Two Dimensional Analyzes 
-    #Stackboth_MasterGrid
-    #Option to Change: Bin size 
 
-
-    ###Voronoi###
-
-
-    #Adaptive Binning 
-    #Options to Change: Signal/Noise Size
-    if dataset == 'Voronoi10':
-        sn_size = 10
-        txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
-        asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
-        asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
-            
-    if dataset == 'Voronoi14':
-        sn_size = 14
-        txt_file = fitspath + 'voronoi14_2d_binning_outputs.txt'
-        asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
-        asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
-
-    if dataset == 'Voronoi20':
-        sn_size = 20
-        txt_file = fitspath + 'voronoi20_2d_binning_outputs.txt'
-        asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
-        asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
-
-    adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
-
-    #Stacking_voronoi
-    #Option to Change: 
-    if dataset == "Voronoi10": voronoi_data = fitspath+ 'voronoi10_2d_binning_datadet3.tbl'
-    if dataset == "Voronoi14": voronoi_data = fitspath + 'voronoi14_2d_binning_datadet3.tbl'
-    if dataset == "Voronoi20": voronoi_data = fitspath + 'voronoi20_2d_binning_datadet3.tbl'
-
-    print '### outfile for datadet3: '+voronoi_data
-        
-    #Option to Change: Masking the night sky emission lines
-    ######Check to make sure tables are going into right places#####
-    if mask == True:
-        Stack_name = 'Stacking'+dataset+'_output.pdf'
-        Stacking_voronoi.run_Stacking_Master_mask(fitspath_ini, fitspath, voronoi_data, det3, asc_table1, Stack_name)
-    else:
-        Stack_name = 'Stacking'+dataset+'_output.pdf'
-        Stacking_voronoi.run_Stacking_Master(fitspath_ini, fitspath, voronoi_data, det3, Stack_name)
+    #Stacking_MASKED_MASTERGRID
+    Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf' 
+    Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,outfile)
 
     #Outfile and pdf both use name
     print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
@@ -549,12 +533,12 @@ def run_voronoi_R23_O32_analysis(dataset,mask='None'):
     #Option to change: Constants used as initial guesses for gaussian fit
     s=1.0
     a= 1.0
-    c = 1
+    c = 2.0
         
-    s1=-0.3
+    s1=1.3
     a1= 4.7
-    s2 = 1
-    a2 = -1.8
+    s2 = 10.0
+    a2 = -2.0
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
     print 'finished gaussian emission fitting pdf and tables created'
@@ -585,7 +569,52 @@ def run_voronoi_R23_O32_analysis(dataset,mask='None'):
 
     R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
   
+    ###Calibration Plots###
+    calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)
 
+    '''
+    ###Verification Tables###
+    ver_tab = fitspath+'/'+dataset+'_verification.tbl'
+    verification_tables.verification(fitspath, dataset, temp_met_ascii, combine_flux_ascii, ver_tab)'''
+
+    ###Making More Plots###
+    #asc_table = combine_flux_ascii
+    #temp_table = temp_met_ascii
+    #asc_table_det3 = asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+    m_ver_table = fitspath_ini+'Master_Verification_Tables/'+dataset+'_table.tbl'
+    #ver_tab = fitspath+'/'+dataset+'_verification.tbl'
+    
+    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
+    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
+    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
+    more_plots.hist_for_bin(dataset, asc_table2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###NOT IN USE###
+'''
     temp_table= asc.read(temp_met_ascii)
     SN_4363 = temp_table['S/N_4363']
     det_4363 = np.where((SN_4363>=3))[0]
@@ -651,7 +680,7 @@ lR23 = [det_R23]
 lO32 = [det_O32]
 OH = [det_OH]
 
-local_analog_calibration.main(lR23, lO32, OH, out_pdf, ID=[ID], silent=False, verbose=True)'''
+local_analog_calibration.main(lR23, lO32, OH, out_pdf, ID=[ID], silent=False, verbose=True)
 
 
     
@@ -660,7 +689,7 @@ local_analog_calibration.main(lR23, lO32, OH, out_pdf, ID=[ID], silent=False, ve
 
 
 ###NOT IN USE###
-'''
+
 if dataset == 'O32_Grid': outfile_single = fitspath +'single_grid_O32.npz'
     if dataset == 'R23_Grid': outfile_single = fitspath+'single_grid_R23.npz'
     

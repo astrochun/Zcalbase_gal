@@ -1,4 +1,7 @@
 
+###CREATES LINE PLOTS FOR CHECKING RESULTS
+###CALLED EVERYTIME GENERAL FUNCTIONS ARE CALLED
+
 import numpy as np
 import matplotlib.pyplot as plt
 #import pylab as pl

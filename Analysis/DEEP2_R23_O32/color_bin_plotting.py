@@ -1,4 +1,9 @@
-#Creating a color bar for teh R23 and O32 values 
+
+###NOT CALLED IN GENERAL FUNCTIONS
+###MAKES PLOTS 
+
+
+#Creating a color bar for the R23 and O32 values 
 
 import numpy as np
 import matplotlib.pyplot as plt

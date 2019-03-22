@@ -1,3 +1,7 @@
+
+###CALLING FUNCTION FOR THE VORONOI FILES
+###USED EVERY TIME VORONOI ANALYSIS IS RUN
+
 ##Adaptive binning for DEEP2 data
 ##Running Voronoi code 
 
@@ -60,7 +64,8 @@ det3 = np.where((SNR2 >= 3) & (SNR3 >= 3) & (SNRH >= 3) &
 
 
 
-def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3):
+def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3):
+    # O2_det3, O3_det3, Hb_det3
     #file_dir = path.dirname(path.realpath(__file__))  # path of this procedure, edit this to correct path
 
     #x, y, signal, noise = (fitspath+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits', upack=1, skiprows=3)
@@ -100,7 +105,7 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
 
     #sn_size is what you can change to change the singal/noise target hence the 14 and 10 labels
     #binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale
-    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, targetSN=sn_size, plot=True, pixelsize=0.1,quiet=False, currentBin=currentBin)
+    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, targetSN=sn_size, plot=True, pixelsize=0.1,quiet=False, currentBin=currentBin, PLOT = 0)
     #print(test.shape)
     
     ID = np.arange(0,len(test[1]), 1, dtype = int)

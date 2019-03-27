@@ -96,17 +96,17 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
 
         if dataset == 'R23_Grid' or dataset =='O32_Grid':    
             p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
 
         if dataset == 'Grid':
             #print 'med0:', med0, 'max0:',max0
             p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
 
         if dataset == 'Voronoi10' or dataset =='Voronoi14' or dataset== 'Voronoi20'  or dataset =='Double_Bin':
             #print 'med0:', med0, 'max0:', max0
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.50*max0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0) 
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0] #must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0) 
 
         #print para_bound
         try:
@@ -181,7 +181,7 @@ def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0,
     plt.plot(x0,neg0, 'b', linewidth= 0.25, label= 'Negative Component')
     plt.plot(x0,pos_comp, 'r', linewidth= 0.25, label= 'Positive Component')
     plt.plot(x0,gauss0, 'g', linewidth= 0.25, label= 'Gauss Fit')
-    plt.show()
+    #plt.show()
     #fig3.set_size_inches(8,8)
     #fig3.savefig(pdfpages3, format='pdf')
     
@@ -276,8 +276,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
                 neg_comp = neg0[x_sigsnip]
                 flux_neg = np.sum(neg_comp*dx)
                 equiv_wid = flux_neg/o1[3]
-                print 'flux_neg_component:', flux_neg
-                print 'equiv_wid:', equiv_wid
+                #print 'flux_neg_component:', flux_neg
+                #print 'equiv_wid:', equiv_wid
 
                 #equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0, wave, y_norm, line_type,pdfpages3)
 

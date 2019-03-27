@@ -59,7 +59,9 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     R23_node = np.zeros(len(R23_grid)*len(O32_grid))
     O32_node = np.zeros(len(R23_grid)*len(O32_grid))
     N_gal = np.zeros(len(R23_grid)*len(O32_grid))
-   
+
+    n_N = R23_grid.shape[0]
+    n_M = R23_grid.shape[1]
     count = 0
     '''for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
@@ -67,12 +69,12 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
             #if dataset == 'Double_Bin': index = grid_data['T_arr'][rr,1]'''
     for rr in range(R23_grid.shape[0]):
         for oo in range(R23_grid.shape[1]):
-            print rr,oo
+            #print rr,oo
             index= grid_data['T_arr'][rr,oo]
             #print 'index:', index
             if len(index) >10:
-                R23_node[count] = R23_grid[rr]
-                O32_node[count] = O32_grid[oo]
+                R23_node[count] = R23_grid[rr,oo] ###It's dying here because R23_grid[rr] is two separate numbers, it no longer describes one bin like it originally did 
+                O32_node[count] = O32_grid[rr,oo]
                 avg_R23[count]  = np.average(np.log10(R23)[index])
                 avg_O32[count]  = np.average(np.log10(O32)[index])
                 N_gal[count] = len(index)
@@ -112,7 +114,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
 
                 ax2.legend(loc='upper left', numpoints=3)    
 
-                str0 = 'R23=%.1f O32=%.1f N=%i' % (R23_grid[rr], O32_grid[oo], len(index))
+                str0 = 'R23=%.1f O32=%.1f N=%i' % (R23_grid[rr,oo], O32_grid[rr,oo], len(index))
                 ax2.annotate(str0, (0.05,0.95), xycoords='axes fraction', ha='left', va='top', weight='bold')
                
                 for x in xcoor: ax2.axvline(x=x, linewidth= 0.3, color= 'k')

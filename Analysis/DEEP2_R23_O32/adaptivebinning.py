@@ -105,7 +105,7 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
 
     #sn_size is what you can change to change the singal/noise target hence the 14 and 10 labels
     #binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale
-    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, targetSN=sn_size, plot=True, pixelsize=0.1,quiet=False, currentBin=currentBin, PLOT = 0)
+    test = voronoi_2d_binning.voronoi_2d_binning(lR23, lO32, signal, noise, targetSN=sn_size, plot=False, pixelsize=0.1,quiet=False, currentBin=currentBin)
     #print(test.shape)
     
     ID = np.arange(0,len(test[1]), 1, dtype = int)

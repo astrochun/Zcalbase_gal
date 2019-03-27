@@ -29,7 +29,7 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_Grid_Stacking/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_Various_NGal/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -294,7 +294,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, mask='None'):
         temp_m_gfits = fitspath+ '/Double_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'Double_BinTemp_Composite_Metallicity.pdf'
 
-    R_temp_calcul.run_function(fitspath, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
+    R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
 
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
@@ -334,7 +334,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
         txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
         asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
         asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
-        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3)
+        adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3)   #, O2_det3, O3_det3, Hb_det3)
         
     if dataset == 'Voronoi14':
         sn_size = 14
@@ -445,7 +445,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     temp_met_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
     pdf_name_temp_met = dataset+'_Temp_Composite_Metallicity.pdf'
 
-    R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
+    R_temp_calcul.run_function(fitspath,dataset, temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
   
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)
@@ -539,7 +539,7 @@ def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, mask='None'):
     a1= 4.7
     s2 = 10.0
     a2 = -2.0
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2,tab=asc_table1)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
     print 'finished gaussian emission fitting pdf and tables created'
 
@@ -567,7 +567,7 @@ def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, mask='None'):
     temp_met_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
     pdf_name_temp_met = dataset+'_Temp_Composite_Metallicity.pdf'
 
-    R_temp_calcul.run_function(fitspath,temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
+    R_temp_calcul.run_function(fitspath,dataset, temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
   
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)

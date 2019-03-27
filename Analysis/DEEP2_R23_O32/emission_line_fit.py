@@ -70,7 +70,7 @@ def get_func():
     plt.axhline(y=med0, linewidth= 0.5, color= 'k')
     plt.plot(x0,gauss(x0,*o1),'b--')
     plt.xlim(4800,5100)
-    plt.show()
+    #plt.show()
 
 
 

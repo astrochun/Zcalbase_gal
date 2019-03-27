@@ -81,9 +81,9 @@ def limit_function(combine_flux_ascii):
     print 'up_temp', up_temp
     return up_temp
     
-def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii):  #combine_fits, header
-    #verification_table = fitspath+'/'+dataset+'_verification.tbl'
-    #ver_tab = asc.read(verificaton_table)
+def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux_ascii):  #combine_fits, header
+    verification_table = fitspath_ini+'/Master_Verification_Tables/'+dataset+'_table.tbl'
+    mver_tab = asc.read(verification_table)
 
 
     #Fits Table Calls
@@ -173,15 +173,13 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
 
 
     #if not exists(out_ascii):
-    n=  ('ID','R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363','Detection', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+    n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
         
-    tab0 = Table([ID ,R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, indicate, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
+    tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     
     tab0.write(out_fits,format = 'fits', overwrite = True)
-
-
 
     #Plots
     #name = 'Grid_temperature_vs_R23.pdf'
@@ -197,15 +195,30 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     lTe = np.log10(T_e)
     lder_Te = np.log10(der_Te)
     lMACT_Te = np.log10(der_Te_MACT)
+
+    mDect = mver_tab['Detection'].data
+    marker = []
+    print marker
+    for oo in range(len(OIII4363)):
+        print indicate[oo]
+        print mDect[oo]
+        if indicate[oo]== 0 and mDect[oo]== 0: Marker= '^'
+        if indicate[oo]== 1 and mDect[oo]== 0: Marker= '^'
+        if indicate[oo]== 0 and mDect[oo]== 1:  Marker = '.'
+        if indicate[oo]== 1 and mDect[oo]== 1:  Marker = '.'
+        marker.append( Marker)
+    print marker
+        
     
     fig1, ax1 = plt.subplots()
-    ax1.scatter(lTe, R23_composite, marker = '.')
+    
     for aa in range(len(ID)):
+        ax1.scatter(lTe[aa], R23_composite[aa], marker = marker[aa], color = 'b')
         ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
     ax1.scatter(lder_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for bb in range(len(ID_der)):
         ax1.annotate(ID_der[bb], (lder_Te[bb], der_R23[bb]), fontsize ='2')
-    ax1.scatter(lMACT_Te, der_R23_MACT, s = 20, marker = '^', color = 'r', edgecolors = 'None', alpha = 0.5)
+    ax1.scatter(lMACT_Te, der_R23_MACT, s = 20, marker = 'P', color = 'r', edgecolors = 'None', alpha = 0.5)
     for qq in range(len(ID_der_MACT)):
         ax1.annotate(ID_der_MACT[qq], (lMACT_Te[qq], der_R23_MACT[qq]), fontsize= '2')
     ax1.set_xlabel('Log Temperature (K)')
@@ -215,13 +228,14 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
 
     #With Limits
     fig5, ax5 = plt.subplots()
-    ax5.scatter(T_e, R23_composite, marker = '.')
+    
     for a in range(len(ID)):
+        ax5.scatter(T_e[a], R23_composite[a], marker = marker[a], color = 'b')
         ax5.annotate(ID[a], (T_e[a], R23_composite[a]), fontsize = '6')
     ax5.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for b in range(len(ID_der)):
         ax5.annotate(ID_der[b], (der_Te[b], der_R23[b]), fontsize = '2')
-    ax5.scatter(der_Te_MACT, der_R23_MACT, s =20, marker = '^', color = 'r', alpha = 0.5, edgecolors = 'None')
+    ax5.scatter(der_Te_MACT, der_R23_MACT, s =20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
     for q in range(len(ID_der_MACT)):
         ax5.annotate(ID_der_MACT[q], (der_Te_MACT[q], der_R23_MACT[q]), fontsize= '2')
     ax5.set_xlabel('Temperature (K)')
@@ -231,14 +245,15 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     pdf_pages.savefig()
      
     fig2, ax2 = plt.subplots()
-    ax2.scatter(lTe, O32_composite, marker = '.')
+    
     for cc in range(len(ID)):
+        ax2.scatter(lTe[cc], O32_composite[cc], marker = marker[cc], color = 'b')
         ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
     ax2.scatter(lder_Te, der_O32, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for ff in range(len(ID_der)):
         ax2.annotate(ID_der[ff], (lder_Te[ff], der_O32[ff]), fontsize = '2')
 
-    ax2.scatter(lMACT_Te, der_O32_MACT, s=20, marker = '^', color = 'r', alpha = 0.5,edgecolors = 'None')
+    ax2.scatter(lMACT_Te, der_O32_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5,edgecolors = 'None')
     for ss in range(len(ID_der_MACT)):
         ax2.annotate(ID_der_MACT[ss], (lMACT_Te[ss], der_O32_MACT[ss]), fontsize= '2')
     ax2.set_xlabel('Log Temperature (K)')
@@ -249,14 +264,15 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
 
     #With Limits
     fig6, ax6 = plt.subplots()
-    ax6.scatter(T_e, O32_composite, marker = '.')
+    
     for c in range(len(ID)):
+        ax6.scatter(T_e[c], O32_composite[c], marker = marker[c], color = 'b')
         ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
     ax6.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
     for f in range(len(ID_der)):
         ax6.annotate(ID_der[f], (der_Te[f], der_O32[f]), fontsize = '2')
 
-    ax6.scatter(der_Te_MACT, der_O32_MACT, s=20, marker = '^', color = 'r', alpha = 0.5, edgecolors ='None')
+    ax6.scatter(der_Te_MACT, der_O32_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors ='None')
     for s in range(len(ID_der_MACT)):
         ax6.annotate(ID_der_MACT[s], (der_Te_MACT[s], der_O32_MACT[s]), fontsize= '2')
     ax6.set_xlabel('Temperature (K)')
@@ -266,13 +282,14 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     pdf_pages.savefig()
 
     fig3, ax3 = plt.subplots()
-    ax3.scatter(R23_composite, com_O_log, marker = '.')
+    
     for zz in range(len(ID)):
+        ax3.scatter(R23_composite[zz], com_O_log[zz], marker = marker[zz], color = 'b')
         ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
     ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
     for gg in range(len(ID_der)):
         ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize = '2')
-    ax3.scatter(der_R23_MACT, der_OH_MACT, s=20, marker = '^', color = 'r', alpha = 0.5, edgecolors='None')
+    ax3.scatter(der_R23_MACT, der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors='None')
     for g in range(len(ID_der_MACT)):
         ax3.annotate(ID_der_MACT[g], (der_R23_MACT[g], der_OH_MACT[g]), fontsize= '2')
     ax3.set_xlabel('R23')
@@ -283,13 +300,14 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     pdf_pages.savefig()
 
     fig4, ax4 = plt.subplots()
-    ax4.scatter(O32_composite, com_O_log, marker = '.')
+    
     for ww in range(len(ID)):
+        ax4.scatter(O32_composite[ww], com_O_log[ww], marker = marker[ww], color = 'b')
         ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
     ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for hh in range(len(ID_der)):
         ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize = '2')
-    ax4.scatter(der_O32_MACT,der_OH_MACT, s=20, marker = '^', color = 'r', alpha = 0.5, edgecolors = 'None')
+    ax4.scatter(der_O32_MACT,der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
     for h in range(len(ID_der_MACT)):
         ax4.annotate(ID_der_MACT[h], (der_O32_MACT[h], der_OH_MACT[h]), fontsize= '2')
     ax4.set_xlabel('O32')
@@ -306,8 +324,9 @@ def run_function(fitspath, out_ascii, out_fits, pdf_name,  combine_flux_ascii): 
     x_value = np.log10(OIII4363/OIII5007)
     y_value = np.log10(T_e)
     z_value = np.log10(der_Te)
-    ax7.scatter(x_value, y_value, marker = '.')
+    
     for r in range(len(ID)):
+        ax7.scatter(x_value[r], y_value[r], marker = marker[r], color = 'b')
         ax7.annotate(ID[r], (x_value[r], y_value[r]))
     xxx = np.arange(min(x_value),max(x_value), 1)
     xx_value = np.zeros(len(xxx))

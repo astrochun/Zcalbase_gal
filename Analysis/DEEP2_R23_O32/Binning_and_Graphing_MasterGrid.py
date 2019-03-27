@@ -279,10 +279,10 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
     
     #200 galaxies per bin
-    #galinbin = [200,400,800]
+    #
     #for oo in range(len(galinbin)):
     n_bins = np.int(len(R23)/galinbin)
-    print n_bins, n_bins/2
+    print n_bins
     n_bins_range = np.arange(0,2*n_bins,1)
 
     #Initializing Arrays for outfile later if using Voronoi Stacking
@@ -308,40 +308,40 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     O32_values    = np.zeros(2*n_bins)
     R23_values  = np.zeros(2*n_bins)
     
-    print O32_grid
 
     #Bin starts and stops initializing
     bin_start_1 = np.zeros(n_bins)
     bin_end_1   = np.zeros(n_bins)
-    #bin_start_2 = np.zeros(n_bins)
-    #bin_end_2   = np.zeros(n_bins)
     
 
-    #Sets the bins 
-    for ii in range(n_bins/2):
-        print ii
-        bin_start_1[ii] = y_sort0[ii*galinbin]
-        bin_end_1[ii]   = y_sort0[(ii+1)*galinbin-1]
+    #Sets the bins
+    galinbin = [100,150, 250, 300, 300, 200, 205, 102, 102]
+    #if len(galinbin) == n_bins:
+        #print 'Length of galinbin list equal to number of calculated bins'
+
+    for ii in range(n_bins):
+        print galinbin
+        bin_start_1[ii] = y_sort0[ii*galinbin[ii]]  #[ii]
+        bin_end_1[ii]   = y_sort0[(ii+1)*galinbin[ii]-1]  #[ii]
         if ii == n_bins-1:  bin_end_1[ii] = np.max(y_sort0)
         print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
         idx1 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]))[0]
         med_val = np.median(O32[idx1])
 
-        print med_val
-
         idx2 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 <= med_val))[0]
         idx3 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 > med_val))[0]
 
-        '''O32_grid[ii*2]   = np.median(O32[idx2])    ###possibly (2,n_bins)??
+            
+        '''O32_grid[ii*2]   = np.median(O32[idx2])    
         O32_grid[ii*2+1] = np.median(O32[idx3])
         R23_grid[ii*2] = bin_start_1[ii]
         R23_grid[ii*2+1] = bin_start_1[ii]'''
         
-        O32_grid[ii*2,0]   = np.median(O32[idx2])    
-        O32_grid[ii*2+1,1] = np.median(O32[idx3])
+        O32_grid[ii,0]   = np.median(O32[idx2])    
+        O32_grid[ii,1] = np.median(O32[idx3])
 
-        R23_grid[ii*2,0] = bin_start_1[ii]
-        R23_grid[ii*2+1] = bin_start_1[ii]
+        R23_grid[ii,0] = bin_start_1[ii]
+        R23_grid[ii,1] = bin_start_1[ii]
         
         '''N_arr0[ii*2]  += len(idx2)
         N_arr0[ii*2+1]+= len(idx3)
@@ -369,13 +369,18 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         area[ii*2]= len(idx2)
         area[ii*2+1]= len(idx3)
 
-        O32_values[ii*2]   = np.median(O32[idx2])    ###possibly (2,n_bins)??
+        O32_values[ii*2]   = np.median(O32[idx2])    
         O32_values[ii*2+1] = np.median(O32[idx3])
         R23_values[ii*2] = bin_start_1[ii]
         R23_values[ii*2+1] = bin_start_1[ii]
+                
+        '''if ii== n_bins-2 or ii ==n_bins-1: 
+            O32_grid[ii,0]=(np.median(O32[idx2]))/2
+        O32_grid[ii,1]=(np.median(O32[idx2]))/2
+        O32_grid[ii,2]=(np.median(O32[idx2]))/2      but obviously this we would need to redefine our initialization of areas'''
+                
 
-
-        ######ASK IF ALL OF THIS IS FILLED IN CORRECTLY BECAUSE I DON'T THINK SO###
+        
     #Plotting
     fig, ax = plt.subplots()
     x = R23
@@ -396,10 +401,10 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     pdf_pages.close()
 
     
-    print 'bin:', len(n_bins_range)
+    '''print 'bin:', len(n_bins_range)
     print 'R23:', len(R23_grid), R23_grid
     print 'bin_start_1', len(bin_start_1), bin_start_1
-    print 'O32:', len(O32_grid)
+    print 'O32:', len(O32_grid)'''
 
     np.savez(outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=O32_grid, N_arr0=N_arr0)
 

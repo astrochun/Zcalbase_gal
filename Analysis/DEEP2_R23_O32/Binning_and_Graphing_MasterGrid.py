@@ -315,21 +315,32 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     
 
     #Sets the bins
-    galinbin = [100,150, 250, 300, 300, 200, 205, 102, 102]
+    #galinbin = [100,150, 250, 300, 300, 200, 205, 102, 102]
+    '''increase the number of galaxies as R23 increases'''
     #if len(galinbin) == n_bins:
         #print 'Length of galinbin list equal to number of calculated bins'
 
     for ii in range(n_bins):
         print galinbin
-        bin_start_1[ii] = y_sort0[ii*galinbin[ii]]  #[ii]
-        bin_end_1[ii]   = y_sort0[(ii+1)*galinbin[ii]-1]  #[ii]
+
+        '''if ii == 0: bin_start_1 = 0
+        else: bin_start_1[ii]= y_sort0[ii*galinbin[ii-1]]
+        bin_end_1[ii]= y_sort0[galinbin[ii]+bin_start_1]'''
+
+        '''bin_start_1[ii] = y_sort0[ii*galinbin]  #[ii]
+        bin_end_1[ii]   = y_sort0[(ii+1)*galinbin-1]  #[ii]'''
         if ii == n_bins-1:  bin_end_1[ii] = np.max(y_sort0)
-        print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
+        #print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
+        #print 'Bin Start:', bin_start_1 , 'Bin end:', bin_end_1
         idx1 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]))[0]
+        #idx1 = np.where((R23>= bin_start_1) & (R23<= bin_end_1))[0]
         med_val = np.median(O32[idx1])
 
         idx2 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 <= med_val))[0]
         idx3 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 > med_val))[0]
+
+        '''idx2 = np.where((R23>= bin_start_1) & (R23<= bin_end_1) & (O32 <= med_val))[0]
+        idx3 = np.where((R23>= bin_start_1) & (R23<= bin_end_1) & (O32 > med_val))[0]'''
 
             
         '''O32_grid[ii*2]   = np.median(O32[idx2])    

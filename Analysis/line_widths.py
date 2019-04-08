@@ -24,6 +24,9 @@ from glob import glob
 from astropy.table import Table, vstack
 from astropy import log
 
+bbox_props = dict(boxstyle="square,pad=0.15", fc="white",
+                  alpha=0.5, ec="none")
+
 def exclude_outliers(objno):
     flag = np.zeros(len(objno), dtype=int)
     bad_data = np.array(['32007727', '32101412', '42006031', '32035286',
@@ -237,8 +240,18 @@ def main(silent=False, verbose=True):
                 t_diff = np.log10(vdisp_jj[in_range]/vdisp_ii[in_range])
                 med0   = np.median(t_diff)
                 avg0   = np.mean(t_diff)
+                sig0   = np.std(t_diff)
                 ax_disp[ii][jj].plot(pt2, pt2*10**(-med0), 'b-') #, alpha=0.5)
                 ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0), 'r-') #, alpha=0.5)
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0-sig0), 'r--') #, alpha=0.5)
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0+sig0), 'r--') #, alpha=0.5)
+
+                a_txt  = r'$\mu$'+' : %0.3f\n ' % avg0
+                a_txt += r'$\tilde{\Delta}$'+' : %0.3f\n' % med0
+                a_txt += r'$\sigma$ : %0.3f' % sig0
+                ax_disp[ii][jj].annotate(a_txt, [0.975,0.025], xycoords='axes fraction',
+                                         ha='right', va='bottom', fontsize=6,
+                                         bbox=bbox_props)
 
                 ax_disp[ii][jj].set_xlim([25,900])
                 ax_disp[ii][jj].set_ylim([25,900])

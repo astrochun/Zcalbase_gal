@@ -197,23 +197,38 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     lMACT_Te = np.log10(der_Te_MACT)
 
     mDect = mver_tab['Detection'].data
-    marker = []
-    print marker
+    Te_marker = []
+    print Te_marker
     for oo in range(len(OIII4363)):
         print indicate[oo]
         print mDect[oo]
-        if indicate[oo]== 0 and mDect[oo]== 0: Marker= '^'
-        if indicate[oo]== 1 and mDect[oo]== 0: Marker= '^'
+        if indicate[oo]== 0 and mDect[oo]== 0: Marker= '<'
+        if indicate[oo]== 1 and mDect[oo]== 0: Marker= '<'
         if indicate[oo]== 0 and mDect[oo]== 1:  Marker = '.'
         if indicate[oo]== 1 and mDect[oo]== 1:  Marker = '.'
-        marker.append( Marker)
-    print marker
+        Te_marker.append(Marker)
+    print Te_marker
+
+    M_marker = []
+    print M_marker
+    for ww in range(len(OIII4363)):
+        print indicate[ww]
+        print mDect[ww]
+        if indicate[ww]== 0 and mDect[ww]== 0: Marker= '^'
+        if indicate[ww]== 1 and mDect[ww]== 0: Marker= '^'
+        if indicate[ww]== 0 and mDect[ww]== 1:  Marker = '.'
+        if indicate[ww]== 1 and mDect[ww]== 1:  Marker = '.'
+        M_marker.append(Marker)
+    print M_marker
+
+
+    
         
     
     fig1, ax1 = plt.subplots()
     
     for aa in range(len(ID)):
-        ax1.scatter(lTe[aa], R23_composite[aa], marker = marker[aa], color = 'b')
+        ax1.scatter(lTe[aa], R23_composite[aa], marker = Te_marker[aa], color = 'b')
         ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
     ax1.scatter(lder_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for bb in range(len(ID_der)):
@@ -230,7 +245,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     fig5, ax5 = plt.subplots()
     
     for a in range(len(ID)):
-        ax5.scatter(T_e[a], R23_composite[a], marker = marker[a], color = 'b')
+        ax5.scatter(T_e[a], R23_composite[a], marker = Te_marker[a], color = 'b')
         ax5.annotate(ID[a], (T_e[a], R23_composite[a]), fontsize = '6')
     ax5.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for b in range(len(ID_der)):
@@ -247,7 +262,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     fig2, ax2 = plt.subplots()
     
     for cc in range(len(ID)):
-        ax2.scatter(lTe[cc], O32_composite[cc], marker = marker[cc], color = 'b')
+        ax2.scatter(lTe[cc], O32_composite[cc], marker = Te_marker[cc], color = 'b')
         ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
     ax2.scatter(lder_Te, der_O32, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for ff in range(len(ID_der)):
@@ -266,7 +281,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     fig6, ax6 = plt.subplots()
     
     for c in range(len(ID)):
-        ax6.scatter(T_e[c], O32_composite[c], marker = marker[c], color = 'b')
+        ax6.scatter(T_e[c], O32_composite[c], marker = Te_marker[c], color = 'b')
         ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
     ax6.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
     for f in range(len(ID_der)):
@@ -284,7 +299,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     fig3, ax3 = plt.subplots()
     
     for zz in range(len(ID)):
-        ax3.scatter(R23_composite[zz], com_O_log[zz], marker = marker[zz], color = 'b')
+        ax3.scatter(R23_composite[zz], com_O_log[zz], marker = M_marker[zz], color = 'b')
         ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
     ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
     for gg in range(len(ID_der)):
@@ -302,7 +317,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     fig4, ax4 = plt.subplots()
     
     for ww in range(len(ID)):
-        ax4.scatter(O32_composite[ww], com_O_log[ww], marker = marker[ww], color = 'b')
+        ax4.scatter(O32_composite[ww], com_O_log[ww], marker = M_marker[ww], color = 'b')
         ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
     ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for hh in range(len(ID_der)):
@@ -326,7 +341,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     z_value = np.log10(der_Te)
     
     for r in range(len(ID)):
-        ax7.scatter(x_value[r], y_value[r], marker = marker[r], color = 'b')
+        ax7.scatter(x_value[r], y_value[r], marker = Te_marker[r], color = 'b')
         ax7.annotate(ID[r], (x_value[r], y_value[r]))
     xxx = np.arange(min(x_value),max(x_value), 1)
     xx_value = np.zeros(len(xxx))

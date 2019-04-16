@@ -275,14 +275,14 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     #One_dimensional binning for R23 
 
     sort0 = np.argsort(R23)
-    y_sort0 = R23[sort0]
+    R23_sort0 = R23[sort0]
 
     
     #200 galaxies per bin
     #
     #for oo in range(len(galinbin)):
-    n_bins = np.int(len(R23)/galinbin)
-    print n_bins
+    n_bins = len(galinbin)
+    print n_bins   
     n_bins_range = np.arange(0,2*n_bins,1)
 
     #Initializing Arrays for outfile later if using Voronoi Stacking
@@ -295,7 +295,10 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     area  = np.zeros(2*n_bins)
     N_bin = np.zeros(len(data3), dtype = int)'''
 
-    #Initializing Arrays for Grid stacking  
+    #Initializing Arrays for Grid stacking
+
+    ###My current problem is that for some reason the R23 and O32 values will not propagate beyond the 14th bin. I think it has something to do with the way we are initilizing the arrays
+    
     N_arr0 = np.zeros((n_bins,2))
     T_arr  = np.zeros((n_bins,2), dtype = object)
     O32_grid    = np.zeros((n_bins,2))
@@ -310,9 +313,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     
 
     #Bin starts and stops initializing
-    bin_start_1 = np.zeros(n_bins)
-    bin_end_1   = np.zeros(n_bins)
-    
+    bin_start_1 = np.zeros(n_bins, dtype=np.int)
+    bin_end_1   = np.zeros(n_bins, dtype=np.int)
 
     #Sets the bins
     #galinbin = [100,150, 250, 300, 300, 200, 205, 102, 102]
@@ -320,39 +322,49 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     #if len(galinbin) == n_bins:
         #print 'Length of galinbin list equal to number of calculated bins'
 
+    print(galinbin)
     for ii in range(n_bins):
-        print galinbin
+        print(2*n_bins)
+        if ii == 0:
+            bin_start_1[ii] = 0
+        else:
+            bin_start_1[ii]= bin_end_1[ii-1]+1
+        if ii == n_bins-1:
+            bin_end_1[ii] = len(R23_sort0)-1
+        else:
+            print galinbin[ii]+bin_start_1[ii]
+            bin_end_1[ii] = galinbin[ii]+bin_start_1[ii]-1   ###Still getting an error out of range on this; maybe changing the order of this.... make the else statement the if statement? 
+        print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
 
-        '''if ii == 0: bin_start_1 = 0
-        else: bin_start_1[ii]= y_sort0[ii*galinbin[ii-1]]
-        bin_end_1[ii]= y_sort0[galinbin[ii]+bin_start_1]'''
 
         '''bin_start_1[ii] = y_sort0[ii*galinbin]  #[ii]
         bin_end_1[ii]   = y_sort0[(ii+1)*galinbin-1]  #[ii]'''
-        if ii == n_bins-1:  bin_end_1[ii] = np.max(y_sort0)
+
+
+        #if ii == n_bins-1:  bin_end_1[ii] = np.max(R23_sort0)
         #print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
-        #print 'Bin Start:', bin_start_1 , 'Bin end:', bin_end_1
-        idx1 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]))[0]
+
+        idx1 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
         #idx1 = np.where((R23>= bin_start_1) & (R23<= bin_end_1))[0]
         med_val = np.median(O32[idx1])
 
-        idx2 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 <= med_val))[0]
-        idx3 = np.where((R23>= bin_start_1[ii]) & (R23<= bin_end_1[ii]) & (O32 > med_val))[0]
+        idx2 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]) & (O32 <= med_val))[0]
+        idx3 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]) & (O32 > med_val))[0]
 
         '''idx2 = np.where((R23>= bin_start_1) & (R23<= bin_end_1) & (O32 <= med_val))[0]
         idx3 = np.where((R23>= bin_start_1) & (R23<= bin_end_1) & (O32 > med_val))[0]'''
 
             
-        '''O32_grid[ii*2]   = np.median(O32[idx2])    
-        O32_grid[ii*2+1] = np.median(O32[idx3])
-        R23_grid[ii*2] = bin_start_1[ii]
-        R23_grid[ii*2+1] = bin_start_1[ii]'''
+        O32_grid[ii / 2,0]   = np.median(O32[idx2])    
+        O32_grid[ii / 2,1] = np.median(O32[idx3])
+        R23_grid[ii / 2,0] = R23_sort0[bin_start_1[ii]]
+        R23_grid[ii / 2,1] = R23_sort0[bin_start_1[ii]]
         
-        O32_grid[ii,0]   = np.median(O32[idx2])    
+        '''O32_grid[ii,0]   = np.median(O32[idx2])    
         O32_grid[ii,1] = np.median(O32[idx3])
 
         R23_grid[ii,0] = bin_start_1[ii]
-        R23_grid[ii,1] = bin_start_1[ii]
+        R23_grid[ii,1] = bin_start_1[ii]'''
         
         '''N_arr0[ii*2]  += len(idx2)
         N_arr0[ii*2+1]+= len(idx3)
@@ -360,11 +372,11 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         T_arr[ii*2]   = idx2
         T_arr[ii*2+1] = idx3'''
 
-        N_arr0[ii,0]  += len(idx2)
-        N_arr0[ii,1]+= len(idx3)
+        N_arr0[ii / 2,0]  += len(idx2)
+        N_arr0[ii / 2,1]+= len(idx3)
         
-        T_arr[ii,0]   = idx2
-        T_arr[ii,1] = idx3
+        T_arr[ii / 2,0]   = idx2
+        T_arr[ii / 2,1] = idx3
         
         N_bin[idx2]= ii*2
         N_bin[idx3]= ii*2+1
@@ -380,10 +392,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         area[ii*2]= len(idx2)
         area[ii*2+1]= len(idx3)
 
-        O32_values[ii*2]   = np.median(O32[idx2])    
-        O32_values[ii*2+1] = np.median(O32[idx3])
-        R23_values[ii*2] = bin_start_1[ii]
-        R23_values[ii*2+1] = bin_start_1[ii]
+        
                 
         '''if ii== n_bins-2 or ii ==n_bins-1: 
             O32_grid[ii,0]=(np.median(O32[idx2]))/2
@@ -391,6 +400,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         O32_grid[ii,2]=(np.median(O32[idx2]))/2      but obviously this we would need to redefine our initialization of areas'''
                 
 
+    O32_values   = O32_grid.reshape(2*n_bins) 
+    R23_values = R23_grid.reshape(2*n_bins)
         
     #Plotting
     fig, ax = plt.subplots()
@@ -401,15 +412,17 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     y1 = y[finite0]
     x = np.log10(x1)
     y = np.log10(y1)
-    hlines = np.log10(bin_start_1)
-    hlines_end = np.log10(bin_end_1)
+    hlines = np.log10(R23_values)
+    #hlines_end = np.log10()
     #vlines = np.log10(bin_start_2)
     ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
     for pp in range(len(bin_start_1)): plt.axvline(x = hlines[pp], linewidth= 0.3, color= 'k')
-    for ll in range(len(bin_end_1)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
+    #for ll in range(len(bin_end_1)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
     #for jj in range(len(bin_start_2)): plt.axhline(y =vlines[jj], linewidth= 0.3, color= 'b')
     fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()
+
+   
 
     
     '''print 'bin:', len(n_bins_range)
@@ -429,4 +442,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     tab2= Table([R23, O32, N_bin], names=n2)
     asc.write(tab2, fitspath+'/Double_Bin_2d_binning_datadet3.tbl', format='fixed_width_two_line')
 
+    '''n3 = ('ID' , 'R23_grid', 'O32_grid')
+    tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)
+    asc.write(tab1, fitspath+'/Double_Bin_grid_values.tbl', format='fixed_width_two_line')'''
 ###Create another ascii table with the R23_grid and O32_grid values for plots 
+

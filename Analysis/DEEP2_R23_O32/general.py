@@ -29,7 +29,7 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_Grid_Stacking/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_Various_NGal/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -89,6 +89,7 @@ def get_det3():
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
                     (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0))[0]
 
+    
     data3 = data0[det3]
 
     R23 = R23_ini[det3]
@@ -99,7 +100,8 @@ def get_det3():
     SNR2 =SNR2_ini[det3]
     SNR3 =SNR3_ini[det3]
     SNRH =SNRH_ini[det3]
-    
+
+    print 'R23:',len(R23)
     O2_det3 =O2_ini[det3]
     O3_det3 =O3_ini[det3]
     Hb_det3 =Hb_ini[det3]
@@ -481,7 +483,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
 ###USING TO TEST IF I AM WRITING THE DOUBLE BIN METHOD CORRECTLY###
 
 
-def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, mask='None'):
+def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, adaptive = False, mask='None'):
     #dataset options: Voronoi10,Voronoi14, Voronoi20
     
     
@@ -489,7 +491,8 @@ def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, mask='None'):
 
 
     if dataset == 'Double_Bin':
-        galinbin = 400
+        if adaptive == False: galinbin = 400
+        if adaptive == True: galinbin = [100,150, 250, 300, 300, 200, 205, 102, 102,220,220,220,220,219]
         pdf_pages = fitspath +'double_grid.pdf'
         outfile = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'

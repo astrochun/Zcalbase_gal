@@ -323,7 +323,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         #print 'Length of galinbin list equal to number of calculated bins'
 
     print(galinbin)
-    for ii in range(n_bins):
+    for ii in range(len(galinbin)):
         print(2*n_bins)
         if ii == 0:
             bin_start_1[ii] = 0
@@ -355,10 +355,10 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         idx3 = np.where((R23>= bin_start_1) & (R23<= bin_end_1) & (O32 > med_val))[0]'''
 
             
-        O32_grid[ii / 2,0]   = np.median(O32[idx2])    
-        O32_grid[ii / 2,1] = np.median(O32[idx3])
-        R23_grid[ii / 2,0] = R23_sort0[bin_start_1[ii]]
-        R23_grid[ii / 2,1] = R23_sort0[bin_start_1[ii]]
+        O32_grid[ii,0]   = np.median(O32[idx2])    
+        O32_grid[ii,1] = np.median(O32[idx3])
+        R23_grid[ii,0] = R23_sort0[bin_start_1[ii]]
+        R23_grid[ii,1] = R23_sort0[bin_start_1[ii]]
         
         '''O32_grid[ii,0]   = np.median(O32[idx2])    
         O32_grid[ii,1] = np.median(O32[idx3])
@@ -372,11 +372,11 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         T_arr[ii*2]   = idx2
         T_arr[ii*2+1] = idx3'''
 
-        N_arr0[ii / 2,0]  += len(idx2)
-        N_arr0[ii / 2,1]+= len(idx3)
+        N_arr0[ii,0]  += len(idx2)
+        N_arr0[ii,1]+= len(idx3)
         
-        T_arr[ii / 2,0]   = idx2
-        T_arr[ii / 2,1] = idx3
+        T_arr[ii,0]   = idx2
+        T_arr[ii,1] = idx3
         
         N_bin[idx2]= ii*2
         N_bin[idx3]= ii*2+1
@@ -402,6 +402,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
     O32_values   = O32_grid.reshape(2*n_bins) 
     R23_values = R23_grid.reshape(2*n_bins)
+    print 'O32_values', O32_values
+    print 'R23_values', R23_values 
         
     #Plotting
     fig, ax = plt.subplots()

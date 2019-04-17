@@ -71,7 +71,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
         for oo in range(R23_grid.shape[1]):
             #print rr,oo
             index= grid_data['T_arr'][rr,oo]
-            #print 'index:', index
+            #print rr, oo, 'index:', index, index.dtype
             if len(index) >10:
                 R23_node[count] = R23_grid[rr,oo] ###It's dying here because R23_grid[rr] is two separate numbers, it no longer describes one bin like it originally did 
                 O32_node[count] = O32_grid[rr,oo]

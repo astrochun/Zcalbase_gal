@@ -492,7 +492,7 @@ def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, adaptive = False, mask='
 
     if dataset == 'Double_Bin':
         if adaptive == False: galinbin = 400
-        if adaptive == True: galinbin = [100,150, 250, 300, 300, 200, 205, 102, 102,220,220,220,220,219]
+        if adaptive == True: galinbin = [609, 400, 400, 250, 250, 200, 200, 150, 150, 100, 100] #Must sum to 2809 
         pdf_pages = fitspath +'double_grid.pdf'
         outfile = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'

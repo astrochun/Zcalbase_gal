@@ -111,6 +111,21 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
                 ax.scatter(OH[nn][idx], lR23[nn][idx] - jiang_R23[idx], color=ctype[ii],
                            marker=marker[nn], alpha=0.5) #, label=ii_label)
 
+    # Draw horizontal line at zero:
+    ax.axhline(y=0, c='k', linestyle='dashed')
+
+    #if len(xra) != 0: ax.set_xlim(xra)
+    #if len(yra) != 0: ax.set_ylim(yra)
+
+    ax.set_xlabel(r'$12+\log({\rm O/H})$ [T$_e$]')
+    ax.set_ylabel(r'$\log(R_{23}) - \log(R_{23})_{\rm J18}$')
+    ax.minorticks_on()
+    #leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)
+    #for lh in leg.legendHandles:
+    #    lh.set_alpha(0.5)
+
+    plt.subplots_adjust(left=0.1, right=0.99, bottom=0.08, top=0.97)
+
     fig.savefig(out_diff_pdf)
 #enddef
 

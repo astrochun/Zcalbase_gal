@@ -199,6 +199,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     mDect = mver_tab['Detection'].data
     Te_marker = []
     print Te_marker
+    print('!!!!!', len(OIII4363))
     for oo in range(len(OIII4363)):
         print indicate[oo]
         print mDect[oo]

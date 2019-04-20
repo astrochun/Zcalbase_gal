@@ -99,6 +99,7 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     if len(marker) == 0:
         marker = ['o'] * n_sample
 
+    diff0 = []
     for nn in range(n_sample):
         jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
 
@@ -110,15 +111,25 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
             if len(idx) > 0:
                 ax.scatter(OH[nn][idx], lR23[nn][idx] - jiang_R23[idx], color=ctype[ii],
                            marker=marker[nn], alpha=0.5) #, label=ii_label)
-
+                diff0 += list(lR23[nn][idx] - jiang_R23[idx])
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
+
+    # Compute statistics
+    med0 = np.median(diff0)
+    avg0 = np.average(diff0)
+    sig0 = np.std(diff0)
+    an_txt  = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
+    an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
+    an_txt += r'$\sigma$ : %0.2f' % sig0
+    ax.annotate(an_txt, [0.155,0.015], xycoords='axes fraction', va='bottom', ha='right',
+                fontsize=10)
 
     #if len(xra) != 0: ax.set_xlim(xra)
     #if len(yra) != 0: ax.set_ylim(yra)
 
     ax.set_xlabel(r'$12+\log({\rm O/H})$ [T$_e$]')
-    ax.set_ylabel(r'$\log(R_{23}) - \log(R_{23})_{\rm J18}$')
+    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm J18}$')
     ax.minorticks_on()
     #leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)
     #for lh in leg.legendHandles:

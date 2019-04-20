@@ -33,12 +33,12 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
     return smooth
 
-def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, mask= None):
+def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
 
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3()
 
-    grid_data = np.load(grid_data)
+    grid_data = np.load(grid_data_file)
     R23_grid = grid_data['R23_grid']
     O32_grid = grid_data['O32_grid']
     
@@ -166,14 +166,14 @@ def Master_Stacking(fitspath,dataset, wave, grid_data, image2D, name, header, ma
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
 
     fig.clear()    
-def run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, name,grid_data):
+def run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, name,grid_data_file):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     maskM = fits.getdata(fitspath_ini+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits') 
-    MasterStack0 = Master_Stacking(fitspath,dataset, wavemaster, grid_data,image2DM, name, header, mask=maskM)
+    MasterStack0 = Master_Stacking(fitspath,dataset, wavemaster, grid_data_file,image2DM, name, header, mask=maskM)
     
-def run_Stacking_Master(fitspath, name,grid_data):
+def run_Stacking_Master(fitspath, name,grid_data_file):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    MasterStack0 = Master_Stacking(fitspath, wavemaster,grid_data, image2DM, name, header)
+    MasterStack0 = Master_Stacking(fitspath, wavemaster,grid_data_file, image2DM, name, header)
     

@@ -58,7 +58,7 @@ def jiang18(x, y):
 #enddef
 
 def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4, lR23_err=[],
-                     OH_err=[], OH_range=[], dR23_range= [], marker=[], label=[]):
+                     OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[]):
     '''
     Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
     '''
@@ -76,6 +76,14 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     diff0 = []
     for nn in range(n_sample):
         jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
+
+        x1 = OH_range[0] - 0.025*(OH_range[1]-OH_range[0])
+        y1 = dR23_range[1] - (nn*0.035 + 0.05)*(dR23_range[1]-dR23_range[0])
+        x2 = OH_range[0] - 0.035*(OH_range[1]-OH_range[0])
+        y2 = dR23_range[1] - (nn*0.035 + 0.0525)*(dR23_range[1]-dR23_range[0])
+        ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
+        #transform=ax.transAxes)
+        ax.plot([x1],[y1], marker=marker[nn], color='black')
 
         for ii in range(n_bins):
             y_ii_min = bin_start[ii]
@@ -124,13 +132,13 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     #for lh in leg.legendHandles:
     #    lh.set_alpha(0.5)
 
-    plt.subplots_adjust(left=0.1, right=0.99, bottom=0.08, top=0.97)
+    plt.subplots_adjust(left=0.1, right=0.97, bottom=0.08, top=0.97)
 
     fig.savefig(out_diff_pdf)
 #enddef
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
-         yra=[], marker=[], label=[], fit=False, silent=False, verbose=True):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
+         marker=[], label=[], dR23_range=[-0.3,0.3], fit=False, silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -287,8 +295,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     if fit == False:
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
         plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
-                         lR23_err=lR23_err, OH_err=OH_err, OH_range=yra, marker=marker,
-                         label=label)
+                         lR23_err=lR23_err, OH_err=OH_err, OH_range=yra,
+                         dR23_range=dR23_range, marker=marker, label=label)
         if silent == False: log.info('### End main : '+systime())
 #enddef
 
@@ -447,7 +455,7 @@ def DEEP2_MACT_OIII4363(include_stack=False):
         marker += ['s']
 
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=[7.10,8.8], marker=marker, label=label)
+         xra=[0.6,1.15], yra=[7.10,8.8], dR23_range=[-0.2,0.3], marker=marker, label=label)
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,

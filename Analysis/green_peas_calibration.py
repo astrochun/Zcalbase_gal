@@ -104,7 +104,10 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
 
     #print 'min1:', min1,   'max1:', max1
     # Grid of 12+log(O/H)
-    x_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
+    if len(yra) == 0:
+        x_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
+    else:
+        x_arr = np.arange(yra[0], yra[1], 0.05)
     #print 'x_arr:', x_arr
 
     lO32_all = np.array([])
@@ -203,7 +206,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
-    plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.99)
+    plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.97)
     fig.savefig(out_pdf)
 
     if silent == False: log.info('### End main : '+systime())

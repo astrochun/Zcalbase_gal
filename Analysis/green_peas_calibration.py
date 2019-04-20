@@ -77,9 +77,9 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     for nn in range(n_sample):
         jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
 
-        x1 = OH_range[0] - 0.025*(OH_range[1]-OH_range[0])
+        x1 = OH_range[0] + 0.025*(OH_range[1]-OH_range[0])
         y1 = dR23_range[1] - (nn*0.035 + 0.05)*(dR23_range[1]-dR23_range[0])
-        x2 = OH_range[0] - 0.035*(OH_range[1]-OH_range[0])
+        x2 = OH_range[0] + 0.035*(OH_range[1]-OH_range[0])
         y2 = dR23_range[1] - (nn*0.035 + 0.0525)*(dR23_range[1]-dR23_range[0])
         ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
         #transform=ax.transAxes)
@@ -132,7 +132,7 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     #for lh in leg.legendHandles:
     #    lh.set_alpha(0.5)
 
-    plt.subplots_adjust(left=0.1, right=0.97, bottom=0.08, top=0.97)
+    plt.subplots_adjust(left=0.12, right=0.97, bottom=0.08, top=0.97)
 
     fig.savefig(out_diff_pdf)
 #enddef
@@ -455,7 +455,7 @@ def DEEP2_MACT_OIII4363(include_stack=False):
         marker += ['s']
 
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=[7.10,8.8], dR23_range=[-0.2,0.3], marker=marker, label=label)
+         xra=[0.6,1.15], yra=[7.10,8.8], dR23_range=[-0.15,0.3], marker=marker, label=label)
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,

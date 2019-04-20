@@ -20,6 +20,8 @@ import glob
 
 from scipy.optimize import curve_fit
 
+from scipy.interpolate import interp1d
+
 from astropy.table import Table
 from astropy import log
 
@@ -53,6 +55,45 @@ def jiang18(x, y):
     logR23 = O32_OH_fit((x, y), *jiang18_coeffs)
 
     return logR23
+#enddef
+
+def plot_differences(lR23, lO32, OH, lR23_err=[], OH_err=[], yra=[],
+                     marker=[], label=[]):
+    '''
+    Plot compute metallicity and plot difference against true measurement
+    '''
+
+    n_sample = len(lR23)
+
+    min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
+    OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
+    for nn in range(n_sample):
+        min1[nn] = np.min(lO32[nn])
+        max1[nn] = np.max(lO32[nn])
+
+        good = np.where(np.isfinite(OH[nn]) == True)[0]
+        OH_min1[nn] = np.min(OH[nn][good])
+        OH_max1[nn] = np.max(OH[nn][good])
+
+    if len(yra) == 0:
+        x_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
+    else:
+        x_arr = np.arange(yra[0], yra[1], 0.05)
+
+    lO32_all = np.array([])
+    lR23_all = np.array([])
+    for nn in range(n_sample):
+        lO32_all = np.append(lO32_all, lO32[nn])
+        lR23_all = np.append(lR23_all, lR23[nn])
+
+    n_total = len(lO32_all)
+    jiang_OH = np.zeros(n_total)
+
+    for ii in range(n_total):
+        mod_logR23 = O32_OH_fit((x_arr, lO32_all[ii]), *jiang18_coeffs)
+        t_I = interp1d(mod_logR23, x_arr)
+        jiang_OH[ii] = t_I(lR23_all)
+
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],

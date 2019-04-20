@@ -271,8 +271,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     # Plot differences between model and data
     if fit == False:
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
-        plot_differences(lR23, lO32, OH, out_diff_pdf, lR23_err=lR23_err, OH_err=OH_err,
-                         yra=yra, marker=marker, label=label)
+        plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
+                         lR23_err=lR23_err, OH_err=OH_err, yra=yra, marker=marker, label=label)
         if silent == False: log.info('### End main : '+systime())
 #enddef
 

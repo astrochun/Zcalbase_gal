@@ -102,13 +102,17 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
         OH_min1[nn] = np.min(OH[nn][good])
         OH_max1[nn] = np.max(OH[nn][good])
 
+    #print 'min1:', min1,   'max1:', max1
     # Grid of 12+log(O/H)
     x_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
+    #print 'x_arr:', x_arr
 
     lO32_all = np.array([])
     for nn in range(n_sample):
         lO32_all = np.append(lO32_all, lO32[nn])
 
+
+    ###Binning based on O32 data because of the way the Jiang calibration works 
     sort0   = np.argsort(lO32_all)
     y_sort0 = lO32_all[sort0]
 
@@ -117,13 +121,15 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
 
     bin_start = np.zeros(n_bins)
     bin_end   = np.zeros(n_bins)
-
+    
     bin_start[0] = y_sort0[0]
     bin_end[0]   = y_sort0[r_bin_pts-1]
     for ii in range(1,n_bins):
         bin_start[ii] = bin_end[ii-1]+0.000001
         bin_end[ii]   = y_sort0[np.min([len(lO32_all)-1,(ii+1)*r_bin_pts-1])]
 
+
+    #Plotting
     ctype = ['red','magenta','green','cyan','blue','black']
 
     if len(marker) == 0:

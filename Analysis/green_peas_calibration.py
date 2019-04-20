@@ -67,32 +67,6 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
 
     n_sample = len(lR23)
 
-    min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
-    OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
-    for nn in range(n_sample):
-        min1[nn] = np.min(lO32[nn])
-        max1[nn] = np.max(lO32[nn])
-
-        good = np.where(np.isfinite(OH[nn]) == True)[0]
-        OH_min1[nn] = np.min(OH[nn][good])
-        OH_max1[nn] = np.max(OH[nn][good])
-
-    if len(yra) == 0:
-        x_arr = np.arange(min(OH_min1),max(OH_max1),0.05)
-    else:
-        x_arr = np.arange(yra[0], yra[1], 0.05)
-
-    lO32_all = np.array([])
-    lR23_all = np.array([])
-    OH_all   = np.array([])
-    for nn in range(n_sample):
-        lO32_all = np.append(lO32_all, lO32[nn])
-        lR23_all = np.append(lR23_all, lR23[nn])
-        OH_all   = np.append(OH_all, OH[nn])
-    n_total = len(lO32_all)
-
-    #jiang_OH = np.zeros(n_total)
-
     #Plotting
     ctype = ['red','magenta','green','cyan','blue','black']
 

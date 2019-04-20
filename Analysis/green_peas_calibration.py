@@ -100,18 +100,17 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - jiang_R23[idx]
                 ax.scatter(OH[nn][idx], i_diff, color=ctype[ii], marker=marker[nn],
-                           alpha=0.5, label=ii_label)
+                           edgecolor='none', alpha=0.5, label=ii_label)
+
                 diff0 += list(lR23[nn][idx] - jiang_R23[idx])
 
                 if len(OH_err) != 0:
-                    ax.errorbar(OH[nn][idx], i_diff, xerr=OH_err[nn][:,idx],
-                                mec=ctype[ii], ecolor=ctype[ii], capsize=0,
-                                alpha=0.5, fmt=None, label=None)
+                    ax.errorbar(OH[nn][idx], i_diff, xerr=OH_err[nn][:,idx], mfc='none',
+                                ecolor=ctype[ii], capsize=0, alpha=0.25, fmt=None, label=None)
 
                 if len(lR23_err) != 0:
-                    ax.errorbar(OH[nn][idx], i_diff, yerr=lR23_err[nn][:,idx],
-                                mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
-                                fmt=None, label=None)
+                    ax.errorbar(OH[nn][idx], i_diff, yerr=lR23_err[nn][:,idx], mfc='none',
+                                ecolor=ctype[ii], capsize=0, alpha=0.25, fmt=None, label=None)
 
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')

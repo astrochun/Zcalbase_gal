@@ -57,7 +57,7 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def plot_differences(lR23, lO32, OH, lR23_err=[], OH_err=[], yra=[],
+def plot_differences(lR23, lO32, OH, out_diff_pdf, lR23_err=[], OH_err=[], yra=[],
                      marker=[], label=[]):
     '''
     Plot compute metallicity and plot difference against true measurement
@@ -82,18 +82,27 @@ def plot_differences(lR23, lO32, OH, lR23_err=[], OH_err=[], yra=[],
 
     lO32_all = np.array([])
     lR23_all = np.array([])
+    OH_all   = np.array([])
     for nn in range(n_sample):
         lO32_all = np.append(lO32_all, lO32[nn])
         lR23_all = np.append(lR23_all, lR23[nn])
-
+        OH_all   = np.append(OH_all, OH[nn])
     n_total = len(lO32_all)
     jiang_OH = np.zeros(n_total)
 
     for ii in range(n_total):
         mod_logR23 = O32_OH_fit((x_arr, lO32_all[ii]), *jiang18_coeffs)
-        t_I = interp1d(mod_logR23, x_arr)
-        jiang_OH[ii] = t_I(lR23_all)
+        try:
+            t_I = interp1d(mod_logR23, x_arr)
+            jiang_OH[ii] = t_I(lR23_all[ii])
+        except ValueError:
+            print('unable to interpolate: ', lR23_all[ii])
 
+    fig, ax = plt.subplots()
+
+    ax.scatter(OH_all, jiang_OH-OH_all)
+    ax.set_ylim([-1.5,1.5])
+    fig.savefig(out_diff_pdf)
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],

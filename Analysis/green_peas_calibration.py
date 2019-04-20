@@ -57,8 +57,8 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4, lR23_err=[],
-                     OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[]):
+def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=4,
+                     lR23_err=[], OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[]):
     '''
     Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
     '''
@@ -91,10 +91,16 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
             y_ii_max = bin_end[ii]
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
 
+            ii_label = ''
+            if nn == n_sample-1:
+                idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
+                ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
+                                                                       len(idx_all))
+
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - jiang_R23[idx]
                 ax.scatter(OH[nn][idx], i_diff, color=ctype[ii], marker=marker[nn],
-                           alpha=0.5) #, label=ii_label)
+                           alpha=0.5, label=ii_label)
                 diff0 += list(lR23[nn][idx] - jiang_R23[idx])
 
                 if len(OH_err) != 0:
@@ -129,9 +135,9 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm J18}$')
     ax.minorticks_on()
-    #leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)
-    #for lh in leg.legendHandles:
-    #    lh.set_alpha(0.5)
+    leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
+    for lh in leg.legendHandles:
+        lh.set_alpha(0.5)
 
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.08, top=0.97)
 
@@ -295,7 +301,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     # Plot differences between model and data
     if fit == False:
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
-        plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
+        plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
                          lR23_err=lR23_err, OH_err=OH_err, OH_range=yra,
                          dR23_range=dR23_range, marker=marker, label=label)
         if silent == False: log.info('### End main : '+systime())

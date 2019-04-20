@@ -315,7 +315,7 @@ def MACT_OIII4363():
 
 #enddef
 
-def DEEP2_MACT_OIII4363():
+def DEEP2_MACT_OIII4363(include_stack=False):
 
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
@@ -332,20 +332,46 @@ def DEEP2_MACT_OIII4363():
     lO32 = [DEEP2_lO32, MACT_lO32]
     OH   = [DEEP2_OH,   MACT_OH]
 
-    OH_err = [DEEP2_OH_err, MACT_OH_err]
-
+    OH_err   = [DEEP2_OH_err,   MACT_OH_err]
     lR23_err = [DEEP2_lR23_err, MACT_lR23_err]
+
+    # Include RLeimbach stacked results
+    if include_stack:
+        stack_infile  = '/Users/cly/Google Drive/Zcalbase_gal/' + \
+                        'Double_Bin_temperatures_metalicity.tbl'
+        log.info('### Reading : '+stack_infile)
+        stack_tbl = asc.read(stack_infile)
+
+        stack_det = np.where(stack_tbl['S/N_4363'] >= 4.0)[0]
+        R23_stack = stack_tbl['R23_Composite'].data[stack_det]
+        O32_stack = stack_tbl['O32_Composite'].data[stack_det]
+        OH_stack  = stack_tbl['com_O_log'].data[stack_det]
+
+        lR23 += [R23_stack]
+        lO32 += [O32_stack]
+        OH   += [OH_stack]
+
+        OH_err   += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
+        lR23_err += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
+        print OH_err
+    #endif
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.pdf'
     label = [r'DEEP2 [OIII]$\lambda$4363-detected',
              r'$\mathcal{MACT}$  (Ly+2016)']
+    marker = ['*', 'o']
+
+    if include_stack:
+        out_pdf = out_pdf.replace('.pdf', '.stack.pdf')
+        label += ['DEEP2 stacked detections']
+        marker += ['s']
+
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=[7.10,8.8], marker=['*','o'], label=label)
+         xra=[0.6,1.15], yra=[7.10,8.8], marker=marker, label=label)
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
          xra=[0.6,1.15], yra=[7.10,8.8], marker=['*','o'], label=label, fit=True)
-
 
 def Zcalbase():
 

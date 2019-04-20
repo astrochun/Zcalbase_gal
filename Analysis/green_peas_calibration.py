@@ -58,9 +58,9 @@ def jiang18(x, y):
 #enddef
 
 def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4, lR23_err=[],
-                     OH_err=[], yra=[], marker=[], label=[]):
+                     OH_err=[], OH_range=[], dR23_range= [], marker=[], label=[]):
     '''
-    Plot diffrences between Jiang18 R23 vs observed R23 as a function of metallicity
+    Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
     '''
 
     fig, ax = plt.subplots()
@@ -140,8 +140,8 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     ax.annotate(an_txt, [0.155,0.015], xycoords='axes fraction', va='bottom', ha='right',
                 fontsize=10)
 
-    #if len(xra) != 0: ax.set_xlim(xra)
-    #if len(yra) != 0: ax.set_ylim(yra)
+    if len(OH_range)   != 0: ax.set_xlim(OH_range)
+    if len(dR23_range) != 0: ax.set_ylim(dR23_range)
 
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm J18}$')

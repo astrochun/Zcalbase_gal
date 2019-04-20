@@ -109,9 +109,21 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
 
             if len(idx) > 0:
-                ax.scatter(OH[nn][idx], lR23[nn][idx] - jiang_R23[idx], color=ctype[ii],
-                           marker=marker[nn], alpha=0.5) #, label=ii_label)
+                i_diff = lR23[nn][idx] - jiang_R23[idx]
+                ax.scatter(OH[nn][idx], i_diff, color=ctype[ii], marker=marker[nn],
+                           alpha=0.5) #, label=ii_label)
                 diff0 += list(lR23[nn][idx] - jiang_R23[idx])
+
+                if len(OH_err) != 0:
+                    ax.errorbar(OH[nn][idx], i_diff, xerr=OH_err[nn][:,idx],
+                                mec=ctype[ii], ecolor=ctype[ii], capsize=0,
+                                alpha=0.5, fmt=None, label=None)
+
+                if len(lR23_err) != 0:
+                    ax.errorbar(OH[nn][idx], i_diff, yerr=lR23_err[nn][:,idx],
+                                mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
+                                fmt=None, label=None)
+
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
 
@@ -119,6 +131,9 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     med0 = np.median(diff0)
     avg0 = np.average(diff0)
     sig0 = np.std(diff0)
+    ax.axhline(y=avg0, c='r', linestyle='dotted')
+    ax.axhline(y=med0, c='b', linestyle='dotted')
+
     an_txt  = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
@@ -128,7 +143,7 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4,
     #if len(xra) != 0: ax.set_xlim(xra)
     #if len(yra) != 0: ax.set_ylim(yra)
 
-    ax.set_xlabel(r'$12+\log({\rm O/H})$ [T$_e$]')
+    ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm J18}$')
     ax.minorticks_on()
     #leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)

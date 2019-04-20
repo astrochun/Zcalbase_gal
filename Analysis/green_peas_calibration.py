@@ -57,11 +57,13 @@ def jiang18(x, y):
     return logR23
 #enddef
 
-def plot_differences(lR23, lO32, OH, out_diff_pdf, lR23_err=[], OH_err=[], yra=[],
-                     marker=[], label=[]):
+def plot_differences(lR23, lO32, OH, out_diff_pdf, bin_start, bin_end, n_bins=4, lR23_err=[],
+                     OH_err=[], yra=[], marker=[], label=[]):
     '''
     Plot diffrences between Jiang18 R23 vs observed R23 as a function of metallicity
     '''
+
+    fig, ax = plt.subplots()
 
     n_sample = len(lR23)
 
@@ -91,19 +93,24 @@ def plot_differences(lR23, lO32, OH, out_diff_pdf, lR23_err=[], OH_err=[], yra=[
 
     #jiang_OH = np.zeros(n_total)
 
-    for ii in range(n_total):
-        #mod_logR23 = O32_OH_fit((x_arr, lO32_all[ii]), *jiang18_coeffs)
-        #try:
-        #    t_I = interp1d(mod_logR23, x_arr)
-        #    jiang_OH[ii] = t_I(lR23_all[ii])
-        #except ValueError:
-        #    print('unable to interpolate: ', lR23_all[ii])
-        jiang_R23 = O32_OH_fit((OH_all, lO32_all), *jiang18_coeffs)
+    #Plotting
+    ctype = ['red','magenta','green','cyan','blue','black']
 
-    fig, ax = plt.subplots()
+    if len(marker) == 0:
+        marker = ['o'] * n_sample
 
-    ax.scatter(OH_all, jiang_R23-lR23_all)
-    #ax.set_ylim([-1.5,1.5])
+    for nn in range(n_sample):
+        jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
+
+        for ii in range(n_bins):
+            y_ii_min = bin_start[ii]
+            y_ii_max = bin_end[ii]
+            idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
+
+            if len(idx) > 0:
+                ax.scatter(OH[nn][idx], lR23[nn][idx] - jiang_R23[idx], color=ctype[ii],
+                           marker=marker[nn], alpha=0.5) #, label=ii_label)
+
     fig.savefig(out_diff_pdf)
 #enddef
 

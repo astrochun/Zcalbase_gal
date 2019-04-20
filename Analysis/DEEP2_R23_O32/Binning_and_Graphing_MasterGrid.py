@@ -122,7 +122,7 @@ def single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
 
     fig.clear()
 
-def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin):   
+def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive='False'):   
     #O2_det3, O3_det3, Hb_det3,
 
     pdf_pages = PdfPages(pdf_pages)
@@ -130,11 +130,12 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     #One_dimensional binning for R23 
 
     sort0 = np.argsort(R23)
-    y_sort0 = R23[sort0]
+    R23_sort0 = R23[sort0]
 
     
     #200 galaxies per bin
-    n_bins = np.int(len(R23)/galinbin)
+    #n_bins_old = np.int(len(R23)/galinbin)
+    n_bins = len(galinbin)
     print n_bins
 
     #Initializing Arrays for outfile later
@@ -143,19 +144,35 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     
 
     #Bin starts and stops initializing
-    bin_start = np.zeros(n_bins)
-    bin_end   = np.zeros(n_bins)
+    bin_start = np.zeros(n_bins, dtype =np.int)
+    bin_end   = np.zeros(n_bins, dtype =np.int)
 
-    #Sets the bins 
+    for ii in range(n_bins):
+        print(2*n_bins)
+        if ii == 0:
+            bin_start[ii] = 0
+        else:
+            bin_start[ii]= bin_end[ii-1]+1
+        if ii == n_bins-1:
+            bin_end[ii] = len(R23_sort0)-1
+        else:
+            print galinbin[ii]+bin_start[ii]
+            bin_end[ii] = galinbin[ii]+bin_start[ii]-1   
+        print 'Bin Start:', bin_start[ii] , 'Bin end:', bin_end[ii]
+    '''
+    #Sets the bins with R23_sorting
     for ii in range(n_bins):
         bin_start[ii] = y_sort0[ii*galinbin]
         bin_end[ii]   = y_sort0[(ii+1)*galinbin-1]
         if ii == (n_bins-1):  bin_end[ii] = np.max(y_sort0)-1
-        print bin_start[ii] , bin_end[ii]
+        print bin_start[ii] , bin_end[ii]'''
+
+    #Set bins with indexing
+    
 
     #Organizes data into bins
     for oo in range(n_bins):
-        idx_arr = np.where((R23>= bin_start[oo]) & (R23<= bin_end[oo]))[0]
+        idx_arr = np.where((R23>= R23_sort0[bin_start[oo]]) & (R23<= R23_sort0[bin_end[oo]]))[0]
         N_arr0[oo,0] += len(idx_arr)
         T_arr[oo,0]   = idx_arr
     #print N_arr0
@@ -178,6 +195,10 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     pdf_pages.close()
 
     O32_grid = [np.min(O32)]
+    print('R23_grid:', bin_start)
+    print('O32_grid:', O32_grid)
+    print('T_arr:', T_arr)
+    print('N_arr0:', N_arr0)
 
     np.savez(outfile, T_arr=T_arr, R23_grid=bin_start, O32_grid=O32_grid, N_arr0=N_arr0)
 
@@ -266,7 +287,8 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
     np.savez(outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=O32_grid, N_arr0=N_arr0)
 
 
-def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin):
+def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
+    print galinbin
     #O2_det3, O3_det3, Hb_det3
     #One_dimensional binning for R23 followed by each bin being split in half one with high O32 and one with low O32
 
@@ -282,6 +304,9 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     #
     #for oo in range(len(galinbin)):
     n_bins = len(galinbin)
+    '''if adaptive == True: n_bins = len(galinbin)
+    if adaptive == False: n_bins = np.int(len(R23)/galinbin)'''
+    
     print n_bins   
     n_bins_range = np.arange(0,2*n_bins,1)
 
@@ -296,9 +321,6 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     N_bin = np.zeros(len(data3), dtype = int)'''
 
     #Initializing Arrays for Grid stacking
-
-    ###My current problem is that for some reason the R23 and O32 values will not propagate beyond the 14th bin. I think it has something to do with the way we are initilizing the arrays
-    
     N_arr0 = np.zeros((n_bins,2))
     T_arr  = np.zeros((n_bins,2), dtype = object)
     O32_grid    = np.zeros((n_bins,2))
@@ -323,8 +345,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         #print 'Length of galinbin list equal to number of calculated bins'
 
     print(galinbin)
-    for ii in range(len(galinbin)):
-        print(2*n_bins)
+    for ii in range(n_bins):
+        #print(2*n_bins)
         if ii == 0:
             bin_start_1[ii] = 0
         else:
@@ -333,7 +355,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
             bin_end_1[ii] = len(R23_sort0)-1
         else:
             print galinbin[ii]+bin_start_1[ii]
-            bin_end_1[ii] = galinbin[ii]+bin_start_1[ii]-1   ###Still getting an error out of range on this; maybe changing the order of this.... make the else statement the if statement? 
+            bin_end_1[ii] = galinbin[ii]+bin_start_1[ii]-1   
         print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
 
 

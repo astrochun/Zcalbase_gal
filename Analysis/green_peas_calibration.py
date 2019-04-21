@@ -92,7 +92,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
 
             ii_label = ''
-            if nn == n_sample-1:
+            if nn == 0: #n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
                 ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
                                                                        len(idx_all))

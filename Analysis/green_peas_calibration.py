@@ -409,7 +409,7 @@ def MACT_OIII4363():
 
 #enddef
 
-def DEEP2_MACT_OIII4363(include_stack=False):
+def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
 
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
@@ -463,9 +463,10 @@ def DEEP2_MACT_OIII4363(include_stack=False):
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
          xra=[0.6,1.15], yra=[7.10,8.8], dR23_range=[-0.15,0.3], marker=marker, label=label)
 
-    out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
-    main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=[7.10,8.8], marker=['*','o'], label=label, fit=True)
+    if fit:
+        out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
+        main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
+             xra=[0.6,1.15], yra=[7.10,8.8], marker=['*','o'], label=label, fit=True)
 
 def Zcalbase():
 

@@ -271,7 +271,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                             mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
                             fmt=None, label=None)
 
-            if nn == n_sample-1:
+            if nn == 0: #n_sample-1:
                 lO32_avg = np.average(lO32_all[idx_all])
                 if fit == False:
                     opt = jiang18_coeffs
@@ -466,12 +466,12 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
         yra = [7.10,8.8]
 
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=yra, dR23_range=[-0.15,0.3], marker=marker, label=label)
+         xra=[0.45,1.15], yra=yra, dR23_range=[-0.15,0.3], marker=marker, label=label)
 
     if fit:
         out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
         main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-             xra=[0.6,1.15], yra=yra, marker=['*','o'], label=label, fit=True)
+             xra=[0.45,1.15], yra=yra, marker=['*','o'], label=label, fit=True)
 
 def Zcalbase():
 

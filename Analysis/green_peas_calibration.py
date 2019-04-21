@@ -422,12 +422,12 @@ def DEEP2_MACT_OIII4363(include_stack=False):
         MACT_lR23_err = get_MACT(path0)
 
     # Combine together
-    lR23 = [DEEP2_lR23, MACT_lR23]
-    lO32 = [DEEP2_lO32, MACT_lO32]
-    OH   = [DEEP2_OH,   MACT_OH]
+    lR23 = [MACT_lR23, DEEP2_lR23]
+    lO32 = [MACT_lO32, DEEP2_lO32]
+    OH   = [MACT_OH,   DEEP2_OH]
 
-    OH_err   = [DEEP2_OH_err,   MACT_OH_err]
-    lR23_err = [DEEP2_lR23_err, MACT_lR23_err]
+    OH_err   = [MACT_OH_err, DEEP2_OH_err]
+    lR23_err = [MACT_lR23_err, DEEP2_lR23_err]
 
     # Include RLeimbach stacked results
     if include_stack:
@@ -451,9 +451,9 @@ def DEEP2_MACT_OIII4363(include_stack=False):
     #endif
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.pdf'
-    label = [r'DEEP2 [OIII]$\lambda$4363-detected',
-             r'$\mathcal{MACT}$  (Ly+2016)']
-    marker = ['*', 'o']
+    label = [r'$\mathcal{MACT}$  (Ly+2016)',
+             r'DEEP2 [OIII]$\lambda$4363-detected']
+    marker = ['o', '*']
 
     if include_stack:
         out_pdf = out_pdf.replace('.pdf', '.stack.pdf')

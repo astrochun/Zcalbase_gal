@@ -436,7 +436,9 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
         log.info('### Reading : '+stack_infile)
         stack_tbl = asc.read(stack_infile)
 
-        stack_det = np.where(stack_tbl['S/N_4363'] >= 4.0)[0]
+        stack_det = np.where((stack_tbl['S/N_4363'] >= 3.0) &
+                             (stack_tbl['com_O_log'] >= 8.1))[0]
+        print('stack_det : ', len(stack_det))
         R23_stack = stack_tbl['R23_Composite'].data[stack_det]
         O32_stack = stack_tbl['O32_Composite'].data[stack_det]
         OH_stack  = stack_tbl['com_O_log'].data[stack_det]
@@ -459,14 +461,17 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
         out_pdf = out_pdf.replace('.pdf', '.stack.pdf')
         label += ['DEEP2 stacked detections']
         marker += ['s']
+        yra = [7.10,9.0]
+    else:
+        yra = [7.10,8.8]
 
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.6,1.15], yra=[7.10,8.8], dR23_range=[-0.15,0.3], marker=marker, label=label)
+         xra=[0.6,1.15], yra=yra, dR23_range=[-0.15,0.3], marker=marker, label=label)
 
     if fit:
         out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
         main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-             xra=[0.6,1.15], yra=[7.10,8.8], marker=['*','o'], label=label, fit=True)
+             xra=[0.6,1.15], yra=yra, marker=['*','o'], label=label, fit=True)
 
 def Zcalbase():
 

@@ -28,7 +28,7 @@ import sys
 
 
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0313/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0502/'
 #dataset = 'Double Bin'
 
 lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  
@@ -212,3 +212,40 @@ def hist_for_bin(dataset,asc_table_det3):
         fig.clear()
 
     pdf_pages2.close()
+
+
+
+def dust_att_plot(combine_flux):
+    #name = fitspath+'dust_att_plots.pdf'
+    #pdf_pages = PdfPages(name)
+    com_asc = asc.read(combine_flux)
+    H_gamma_obs = com_asc['Hgamma_Flux_Observed']
+    H_beta_obs = com_asc['OIII_4958_Flux_Observed']
+    R23 = com_asc['R_23_Average']
+    O32 = com_asc['O_32_Average']
+
+    Gambet = H_gamma_obs/H_beta_obs
+
+    fig,ax = plt.subplots()
+    ax.scatter(Gambet, O32, marker= '.')
+    ax.set_xlabel('H_gamma/H_beta')
+    ax.set_ylabel('O32')
+    ax.set_title('H_gamma/H_beta vs. O32')
+    plt.show()
+    #fig.set_size_inches(8,8)
+    #fig.savefig(pdf_pages, format='pdf')
+
+    fig,ax = plt.subplots()
+    ax.scatter(Gambet, R23, marker= '.')
+    ax.set_xlabel('H_gamma/H_beta')
+    ax.set_ylabel('R23')
+    ax.set_title('H_gamma/H_beta vs. R23')
+    plt.show()
+    #fig.set_size_inches(8,8)
+    #fig.savefig(pdf_pages, format='pdf')
+
+
+
+    #pdf_pages.close()
+
+    

@@ -213,6 +213,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     x0 = wave#[x_idx]
     scalefact = 1e-17
 
+    ID = asc_tab['ID'].data
+
     #Initializing Arrays
 
     flux_g_array = np.zeros(stack2D.shape[0])
@@ -227,6 +229,16 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     R_23_array = np.zeros(stack2D.shape[0])
     O_32_array = np.zeros(stack2D.shape[0])
 
+
+    #Initializing Arrays for Balmer Graphing
+    xbar_array = np.zeros(stack2D.shape[0])
+    sig1_array = np.zeros(stack2D.shape[0])
+    pos_amp_array= np.zeros(stack2D.shape[0])
+    const_array = np.zeros(stack2D.shape[0])
+    sig2_array = np.zeros(stack2D.shape[0])
+    neg_amp_array = np.zeros(stack2D.shape[0])
+    
+    
     for rr in range(stack2D.shape[0]):
         #print range(Spect_1D.shape[0])
         y0 = stack2D[rr]
@@ -265,6 +277,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             if line_type == 'Balmer':
                 x_sigsnip = np.where(np.abs((x0-working_wave))/o1[1]<=2.5 )[0]
                 gauss0 = double_gauss(x0, *o1)
+                print 'o1:', o1
                 o1_neg = [o1[0], o1[4], o1[5], o1[3]]
                 neg0   = gauss(x0, *o1_neg)
                 gauss0_diff = gauss0 - neg0
@@ -293,7 +306,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
                 flux_g = np.sum(gauss0_diff*dx)
                 flux_s = np.sum(y_norm_diff*dx)
                 #print 'flux_g:', flux_g, 'flux_s:', flux_s
-
+            
 
             #Calculating RMS
             ini_sig1, RMS_pix= rms_func(wave,dispersion,lineflag,working_wave, y0, scalefact, o1[1])
@@ -323,8 +336,21 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             x_sigsnip_2 = np.where(np.abs((x0-working_wave))/o1[1]<=3.0 )[0]
             resid = y_norm[x_sigsnip_2]-gauss0[x_sigsnip_2] + o1[3]  
 
-            
 
+            #Filling in Balmer Arrays
+            if line_type == 'Balmer':
+                 xbar_array[rr] = o1[0]
+                 sig1_array[rr] = o1[1]
+                 pos_amp_array[rr]= o1[2]
+                 const_array[rr] = o1[3]
+                 sig2_array[rr] = o1[4]
+                 neg_amp_array[rr] = o1[5]
+            
+                
+                 out_ascii_balmer = fitspath+'/'+line_name+'_Balmer_fitting_values.tbl'
+                 n_balmer = ('ID', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
+                 tab_balmer = Table([ID, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names = n_balmer)
+                 asc.write(tab_balmer, out_ascii_balmer, format= 'fixed_width_two_line')
             #Plotting
 
             if y_correction == 'y_smooth': emis= t_ax.plot(wave, y_smooth,'k', linewidth=0.3, label= 'Emission')
@@ -416,7 +442,6 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     #error_prop_chuncodes(fitspath, dataset, working_wave, flux_g_array, RMS_array)
      
     #Writing Ascii Tables and Fits Tables
-    ID = asc_tab['ID'].data
     out_ascii = fitspath+'/'+dataset+'_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
     out_fits = fitspath+'/'+dataset+'_Flux_gaussian_'+line_name+'.fits'
     #if not exists(out_ascii):
@@ -438,7 +463,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     tab1 = Table([ID, R_23_array, O_32_array, N_gal_array, RMS_array], names=n2)
     asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
 
-        
+
+                           
     pdf_pages.close()
     #pdfpages3.close()
     

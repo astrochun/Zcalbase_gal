@@ -29,7 +29,7 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Single_R23_Various_NGal_0419/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -171,7 +171,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, adaptive = False, mask='None
     if dataset == 'O32_Grid': grid_data_file = fitspath +'single_grid_O32.npz'      # = np.load(outsingle_O32)
     if dataset == 'R23_Grid': grid_data_file = fitspath +'single_grid_R23.npz'      # = np.load(outsingle_R23)
     #else: grid_data = np.load(outfile01)
-
+    if dataset == 'Double_Bin': grid_data_file = fitspath +'double_grid.npz'
     '''N_arr_grid = grid_data['N_arr0']
     R23_grid = grid_data['R23_grid']
     O32_grid = grid_data['O32_grid']
@@ -776,3 +776,9 @@ if dataset == 'O32_Grid': outfile_single = fitspath +'single_grid_O32.npz'
         SN_4363 = temp_table['S/N_4363']
         det_4363 = np.where((SN_4363>=3))[0]
         print det_4363'''
+
+
+###This weekend###
+'''Redo R23_single grid so that you can get the bins for each grid
+then make the R23 verse SN5007 and O32 verse SN5007
+then write paper due on monday maybe in latex if time'''

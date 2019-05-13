@@ -36,12 +36,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general as zm
 #scalefact= zm.zoom_gauss_plot.scalefact
 scalefact = 1e-17
 
-'''Need for plots:
-wave, y_norm, x0, gauss0 for data 
 
-
-
-'''
 Stack_name= '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Stacking_Masked_MasterGrid_singleDouble_Bin.fits'
  
 stack2D, header = fits.getdata(Stack_name,header=True)
@@ -126,12 +121,27 @@ for ii in range(len(ID)):
 
     row = ii % nrows
 
+    
     ax_arr[row][0].plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
-    ax_arr[row][1].plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
-    ax_arr[row][2].plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
     ax_arr[row][0].plot(wave,Bgauss0, 'm', linewidth= 0.25, label= 'Beta Fit')
+    ax_arr[row][0].set_xlim(working_wave_beta-50, working_wave_beta+50)
+    #ax_arr[row][0].legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
+    txt0 = r'ID: %i, Beta Emission' % (ID[ii])
+    ax_arr[row][0].annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
+    
+    ax_arr[row][1].plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
     ax_arr[row][1].plot(wave,Ggauss0, 'm', linewidth= 0.25, label= 'Gamma Fit')
+    ax_arr[row][1].set_xlim(working_wave_gamma-50, working_wave_gamma+50)
+    #ax_arr[row][1].legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
+    txt0 = r'ID: %i, Gamma Emission' % (ID[ii])
+    ax_arr[row][1].annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
+
+    ax_arr[row][2].plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
     ax_arr[row][2].plot(wave,Dgauss0, 'm', linewidth= 0.25, label= 'Detla Fit')
+    ax_arr[row][2].set_xlim(working_wave_delta-50, working_wave_delta+50)
+    #ax_arr[row][2].legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
+    txt0 = r'ID: %i, Delta Emission' % (ID[ii])
+    ax_arr[row][2].annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
 
     if ii% nrows == nrows-1: fig.savefig(pdfpages, format='pdf')
 

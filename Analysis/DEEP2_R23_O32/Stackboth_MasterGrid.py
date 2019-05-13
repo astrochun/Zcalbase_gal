@@ -61,24 +61,28 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     N_gal = np.zeros(len(R23_grid)*len(O32_grid))
 
     n_N = R23_grid.shape[0]
-    n_M = R23_grid.shape[1]
+    if dataset == 'Double_Bin': n_M = R23_grid.shape[1]
+    else: n_M = O32_grid.shape[0]
     count = 0
     '''for rr in range(len(R23_grid)):
         for oo in range(len(O32_grid)):
             #print 'T_arr:', grid_data['T_arr'] 
             #if dataset == 'Double_Bin': index = grid_data['T_arr'][rr,1]'''
-    for rr in range(R23_grid.shape[0]):
-        for oo in range(R23_grid.shape[1]):
-            #print rr,oo
+    for rr in range(n_N):
+        for oo in range(n_M):
+            print rr,oo
             index= grid_data['T_arr'][rr,oo]
             #print rr, oo, 'index:', index, index.dtype
             if len(index) >10:
-                R23_node[count] = R23_grid[rr,oo] ###It's dying here because R23_grid[rr] is two separate numbers, it no longer describes one bin like it originally did 
+                R23_node[count] = R23_grid[rr,oo] 
                 O32_node[count] = O32_grid[rr,oo]
                 avg_R23[count]  = np.average(np.log10(R23)[index])
                 avg_O32[count]  = np.average(np.log10(O32)[index])
                 N_gal[count] = len(index)
                 subgrid= image2DM[index]
+
+
+                print('R23:', R23_node[count],'O32:', O32_node[count], 'avg_R23', avg_R23[count], 'avg_O32', avg_O32[count])
 
                 if exists(outfile):
                     Spect1D = stack_2d[count]

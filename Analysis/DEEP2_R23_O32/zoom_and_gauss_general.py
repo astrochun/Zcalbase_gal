@@ -194,8 +194,6 @@ def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0,
     equivalent width in terms of angstrumns 
     update plots '''
 
-    
-
 
 
     
@@ -338,19 +336,25 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
 
             #Filling in Balmer Arrays
-            if line_type == 'Balmer':
-                 xbar_array[rr] = o1[0]
-                 sig1_array[rr] = o1[1]
-                 pos_amp_array[rr]= o1[2]
-                 const_array[rr] = o1[3]
-                 sig2_array[rr] = o1[4]
-                 neg_amp_array[rr] = o1[5]
-            
+            if line_type == "Single":
+                xbar_array[rr] = o1[0]
+                sig1_array[rr] = o1[1]
+                pos_amp_array[rr]= o1[2]
+                const_array[rr] = o1[3]
+                 
+            if line_type == 'Balmer' or line_type == 'Oxy2':
+                xbar_array[rr] = o1[0]
+                sig1_array[rr] = o1[1]
+                pos_amp_array[rr]= o1[2]
+                const_array[rr] = o1[3]
+                sig2_array[rr] = o1[4]
+                neg_amp_array[rr] = o1[5]
+
                 
-                 out_ascii_balmer = fitspath+'/'+line_name+'_Balmer_fitting_values.tbl'
-                 n_balmer = ('ID', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
-                 tab_balmer = Table([ID, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names = n_balmer)
-                 asc.write(tab_balmer, out_ascii_balmer, format= 'fixed_width_two_line')
+                 #out_ascii_balmer = fitspath+'/'+line_name+'_Balmer_fitting_values.tbl'
+                 #n_balmer = ('ID', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
+                 #tab_balmer = Table([ID, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names = n_balmer)
+                 #asc.write(tab_balmer, out_ascii_balmer, format= 'fixed_width_two_line')
             #Plotting
 
             if y_correction == 'y_smooth': emis= t_ax.plot(wave, y_smooth,'k', linewidth=0.3, label= 'Emission')
@@ -429,7 +433,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             #plt.draw()
             fig.savefig(pdf_pages, format='pdf')
 
-            
+
         
         
         
@@ -442,17 +446,30 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     #error_prop_chuncodes(fitspath, dataset, working_wave, flux_g_array, RMS_array)
      
     #Writing Ascii Tables and Fits Tables
+    #Repetive Columns have been added: The last four ot six columns will be used for individual graphing 
     out_ascii = fitspath+'/'+dataset+'_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
     out_fits = fitspath+'/'+dataset+'_Flux_gaussian_'+line_name+'.fits'
     #if not exists(out_ascii):
-    n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS', 'S/N')
-    n = tuple([line_name + '_' + val for val in n])
-    tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array], names=n)
-    if line_type == 'Balmer':
-        print 'Adding an Equ_Width Column'
-        names = 'EW_'+str(np.int(working_wave))+'_abs'
-        equ_add = Column(name=names, data = flux_neg_array)
-        tab0.add_column(equ_add, 2)
+
+
+
+    if line_type == 'Single': 
+        n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS', 'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const')
+        n = tuple([line_name + '_' + val for val in n])
+        tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array], names=n)
+        asc.write(tab0, out_ascii, format='fixed_width_two_line')
+
+
+    if line_type == 'Balmer' or line_type == 'Oxy2': 
+         n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS', 'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
+         n = tuple([line_name + '_' + val for val in n])
+         tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)
+    
+         if line_type == 'Balmer':
+             print 'Adding an Equ_Width Column'
+             names = 'EW_'+str(np.int(working_wave))+'_abs'
+             equ_add = Column(name=names, data = flux_neg_array)
+             tab0.add_column(equ_add, 2)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
     
         #fits.writeto(out_fits, tab0)

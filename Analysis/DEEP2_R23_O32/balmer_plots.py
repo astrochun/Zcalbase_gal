@@ -37,7 +37,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general as zm
 scalefact = 1e-17
 
 
-def balmer_graphs(fitspath, nrow, ncol,Stack_name,HBETA_table, HGAMMA_table, HDELTA_table, out_pdf): 
+def balmer_graphs(fitspath, nrow, ncol,Stack_name,combine_flux_tab, out_pdf): 
 
     #Stack_name= '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Stacking_Masked_MasterGrid_singleDouble_Bin.fits'
  
@@ -45,38 +45,31 @@ def balmer_graphs(fitspath, nrow, ncol,Stack_name,HBETA_table, HGAMMA_table, HDE
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']
 
+    combine_asc = asc.read(combine_flux_tab)
 
 
+    ID = combine_asc['ID']
 
-    #H_Beta_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/HBETA_Balmer_fitting_values.tbl'
-    H_Beta = asc.read(HBETA_table)
-    #H_Gamma_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Hgamma_Balmer_fitting_values.tbl'
-    H_Gamma = asc.read(HGAMMA_table)
-    #H_Delta_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/HDELTA_Balmer_fitting_values.tbl'
-    H_Delta = asc.read(HDELTA_table)
+    B_xbar = combine_asc['HBETA_X_bar']
+    B_sp= combine_asc['HBETA_Pos_Sig']
+    B_ap= combine_asc['HBETA_Pos_Amp']
+    B_con= combine_asc['HBETA_Const']
+    B_sn= combine_asc['HBETA_Neg_Sig']
+    B_an= combine_asc['HBETA_Neg_Amp']
 
-    ID = H_Beta['ID']
+    G_xbar = combine_asc['Hgamma_X_bar']
+    G_sp= combine_asc['Hgamma_Pos_Sig']
+    G_ap= combine_asc['Hgamma_Pos_Amp']
+    G_con= combine_asc['Hgamma_Const']
+    G_sn= combine_asc['Hgamma_Neg_Sig']
+    G_an= combine_asc['Hgamma_Neg_Amp']
 
-    B_xbar = H_Beta['X_bar']
-    B_sp= H_Beta['Pos_Sig']
-    B_ap= H_Beta['Pos_Amp']
-    B_con= H_Beta['Const']
-    B_sn= H_Beta['Neg_Sig']
-    B_an= H_Beta['Neg_Amp']
-
-    G_xbar = H_Gamma['X_bar']
-    G_sp= H_Gamma['Pos_Sig']
-    G_ap= H_Gamma['Pos_Amp']
-    G_con= H_Gamma['Const']
-    G_sn= H_Gamma['Neg_Sig']
-    G_an= H_Gamma['Neg_Amp']
-
-    D_xbar = H_Delta['X_bar']
-    D_sp= H_Delta['Pos_Sig']
-    D_ap= H_Delta['Pos_Amp']
-    D_con= H_Delta['Const']
-    D_sn= H_Delta['Neg_Sig']
-    D_an= H_Delta['Neg_Amp']
+    D_xbar = combine_asc['HDELTA_X_bar']
+    D_sp= combine_asc['HDELTA_Pos_Sig']
+    D_ap= combine_asc['HDELTA_Pos_Amp']
+    D_con= combine_asc['HDELTA_Const']
+    D_sn= combine_asc['HDELTA_Neg_Sig']
+    D_an= combine_asc['HDELTA_Neg_Amp']
 
 
 
@@ -200,6 +193,36 @@ def balmer_graphs(fitspath, nrow, ncol,Stack_name,HBETA_table, HGAMMA_table, HDE
     pdfpages.close()
 
 
+'''
+    #H_Beta_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/HBETA_Balmer_fitting_values.tbl'
+    H_Beta = asc.read(HBETA_table)
+    #H_Gamma_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Hgamma_Balmer_fitting_values.tbl'
+    H_Gamma = asc.read(HGAMMA_table)
+    #H_Delta_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/HDELTA_Balmer_fitting_values.tbl'
+    H_Delta = asc.read(HDELTA_table)
+
+    ID = H_Beta['ID']
+
+    B_xbar = H_Beta['X_bar']
+    B_sp= H_Beta['Pos_Sig']
+    B_ap= H_Beta['Pos_Amp']
+    B_con= H_Beta['Const']
+    B_sn= H_Beta['Neg_Sig']
+    B_an= H_Beta['Neg_Amp']
+
+    G_xbar = H_Gamma['X_bar']
+    G_sp= H_Gamma['Pos_Sig']
+    G_ap= H_Gamma['Pos_Amp']
+    G_con= H_Gamma['Const']
+    G_sn= H_Gamma['Neg_Sig']
+    G_an= H_Gamma['Neg_Amp']
+
+    D_xbar = H_Delta['X_bar']
+    D_sp= H_Delta['Pos_Sig']
+    D_ap= H_Delta['Pos_Amp']
+    D_con= H_Delta['Const']
+    D_sn= H_Delta['Neg_Sig']
+    D_an= H_Delta['Neg_Amp']'''
 
 
 

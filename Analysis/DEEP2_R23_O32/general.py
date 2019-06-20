@@ -777,8 +777,3 @@ if dataset == 'O32_Grid': outfile_single = fitspath +'single_grid_O32.npz'
         det_4363 = np.where((SN_4363>=3))[0]
         print det_4363'''
 
-
-###This weekend###
-'''Redo R23_single grid so that you can get the bins for each grid
-then make the R23 verse SN5007 and O32 verse SN5007
-then write paper due on monday maybe in latex if time'''

@@ -105,7 +105,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     N_Galaxy = combine_fits['N_Galaxies'].data
     ID = combine_fits['ID'].data
 
-    SN_Hgamma    = combine_fits['Hgamma_S/N'].data
+    SN_Hgamma     = combine_fits['Hgamma_S/N'].data
     SN_5007       = combine_fits['OIII_5007_S/N'].data
     SN_4959       = combine_fits['OIII_4958_S/N'].data
     SN_4363       = combine_fits['OIII_4363_S/N'].data

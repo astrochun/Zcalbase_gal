@@ -22,6 +22,11 @@ from mpl_toolkits.mplot3d import Axes3D
 import sys
 
 
+from astropy import units as u
+from chun_codes.cardelli import *
+
+
+
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 #fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/'
 #dataset = 'Double Bin'
@@ -260,3 +265,18 @@ def dust_attentuation(combine_ascii):
     asc.write(tab1, out_ascii, format='fixed_width_two_line')
     
     
+def call_cardelli(): #, extrapolate=False):
+    lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]* u.nm
+    line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
+    k_values = np.zeros(len(lambda0))
+    for ii in range(len(lambda0)):
+        k= cardelli(lambda0[ii],R=3.1)
+        print k
+        k_values[ii]= k
+    k_ascii = fitspath_ini+'/cardelli_k_values.tbl'
+    n3 = ('Line_Name','K_value')
+    tab3 = Table([line_name, k_values])
+    asc.write(tab3, k_ascii, format = 'fixed_width_two_line')
+       
+        
+        

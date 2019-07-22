@@ -233,50 +233,7 @@ def balmer_graphs(fitspath, nrow, ncol,Stack_name,combine_flux_tab, out_pdf):
 
 
 
-def dust_attentuation(combine_ascii):
 
-    combine_asc = asc.read(combine_ascii)
-    ini_con = 0.468
-    ID = combine_asc['ID']
-    HBeta= combine_asc['HBETA_Flux_Observed']
-    HGamma= combine_asc['Hgamma_Flux_Observed']
-    k_g = 2   #some number
-    k_b = 1   #some number
-    k_L = 3   #some number
-
-    degree_red = np.zeros(len(ID))
-    extinction = np.zeros(len(ID))
-
-    
-    for ii in range(len(ID)):
-        E= np.log10((HGamma[ii]/HBeta[ii])*(1/ini_con))*2.5*(1/(k_g-k_b))
-        A = E*k_L
-
-        degree_red[ii] = E
-        extinction[ii] = A
-        
-    print degree_red, extinction
-
-
-    out_ascii = fitspath+'/dust_attentuation_values.tbl'
-    #if not exists(out_ascii_single):
-    n2= ('ID','Degree of Reddening', 'Extinction')
-    tab1 = Table([ID, degree_red, extinction], names=n2)
-    asc.write(tab1, out_ascii, format='fixed_width_two_line')
-    
-    
-def call_cardelli(): #, extrapolate=False):
-    lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]* u.nm
-    line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
-    k_values = np.zeros(len(lambda0))
-    for ii in range(len(lambda0)):
-        k= cardelli(lambda0[ii],R=3.1)
-        print k
-        k_values[ii]= k
-    k_ascii = fitspath_ini+'/cardelli_k_values.tbl'
-    n3 = ('Line_Name','K_value')
-    tab3 = Table([line_name, k_values])
-    asc.write(tab3, k_ascii, format = 'fixed_width_two_line')
        
         
         

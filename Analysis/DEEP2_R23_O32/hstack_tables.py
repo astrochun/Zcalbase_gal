@@ -40,7 +40,7 @@ def h_stack(fitspath, table_files, asc_intro,new_name):
     #Grid Fits Files
     #hstacking.write(new_name, format='fits')
     #Grid Ascii Files
-    asc.write(hstacking,new_name, overwrite = True)
+    asc.write(hstacking,new_name, format= 'fixed_width_two_line', overwrite = True)
 
 
 

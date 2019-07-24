@@ -38,9 +38,10 @@ a = 13205
 b = 0.92506
 c = 0.98062
 
-def R_calculation(OIII4363, OIII5007, OIII4959):
+def R_calculation(der_4363_5007,der_4363_4959)   ###How to math??          #OIII4363, OIII5007, OIII4959):
   
-    R_value = OIII4363/(OIII5007+OIII4959)
+    #R_value = OIII4363/(OIII5007+OIII4959)
+    R_value = 
     return R_value  
 
 def temp_calculation(R):
@@ -50,13 +51,13 @@ def temp_calculation(R):
     return T_e  
 
 
-def metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727):
+def metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA):                 #OIII5007, OIII4959, OIII4363, HBETA, OII3727):
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
     #t_2 = 0.7*t_3 +0.17
     
-    two_beta = OII3727/HBETA
-    three_beta= (OIII4959+OIII5007)/HBETA
+    two_beta = der_3727_HBETA                     #OII3727/HBETA
+    three_beta= der_4959_HBETA+ der_5007_HBETA    #(OIII4959+OIII5007)/HBETA
     t_3 = T_e*1e-4
     t_2 = 0.7*t_3 +0.17
     x2 = 1e-4 * 1e3 * t_2**(-0.5)
@@ -89,18 +90,18 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
 
     #Dust Attentuation Values Call
     ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    print(Using attentuated dust values)
+    print 'Using attenuated dust values'
     dust = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
     atten_val = asc.read(dust)
 
-    A_3727 = atten_val['A_3727']
-    A_HDELTA = atten_val['A_HDELTA']
-    A_Hgamma = atten_val['A_Hgamma']
-    A_HBETA = atten_val['A_HBETA']
-    A_4363 = atten_val['A_4363']
-    A_4958 = atten_val['A_4959']
-    A_5007 = atten_val['A_5007']
-
+    k_3727 = atten_val['A_3727']
+    k_HDELTA = atten_val['A_HDELTA']
+    k_Hgamma = atten_val['A_Hgamma']
+    k_HBETA = atten_val['A_HBETA']
+    k_4363 = atten_val['A_4363']
+    k_4959 = atten_val['A_4959']
+    k_5007 = atten_val['A_5007']
+    EBV = atten_val['E(B-V)']
 
     #Fits Table Calls
     #combine_fits, header = fits.getdata(combine_flux_table, header = True)
@@ -110,12 +111,12 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
 
     #Ascii Table from FITTING 
-    uOIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
-    uOIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
-    uraw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
-    uHgamma = combine_fits['Hgamma_Flux_Observed'].data
-    uHBETA    = combine_fits['HBETA_Flux_Observed'].data
-    uOII3727  = combine_fits['OII_3727_Flux_Observed'].data
+    OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
+    OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
+    raw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
+    Hgamma = combine_fits['Hgamma_Flux_Observed'].data
+    HBETA    = combine_fits['HBETA_Flux_Observed'].data
+    OII3727  = combine_fits['OII_3727_Flux_Observed'].data
     R23_avg      = combine_fits['R_23_Average'].data
     O32_avg      = combine_fits['O_32_Average'].data
     N_Galaxy = combine_fits['N_Galaxies'].data
@@ -127,15 +128,6 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     SN_4363       = combine_fits['OIII_4363_S/N'].data
     SN_HBETA      = combine_fits['HBETA_S/N'].data
     SN_3727       = combine_fits['OII_3727_S/N'].data
-
-    #Adding Attentuation
-    OIII5007 = uOIII5007 + A_5007
-    OIII4959 = uOIII4959 + A_4958
-    raw_OIII4363 = uraw_OIII4363 + A_4363
-    Hgamma = uHgamma + A_Hgamma
-    HBETA  = uHBETA  + A_HBETA
-    OII372 = uOII372 + A_3727
-
 
     #DEEP2 Derived 
     er_R23 = derived['R23'].data
@@ -184,17 +176,27 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     print indicate 
 
     #Line Ratios
-    '''3727_HBETA = OII3727/HBETA
+    3727_HBETA = OII3727/HBETA
     5007_HBETA = OIII5007/HBETA
     4959_HBETA = OIII4959/HBETA
+    4363_5007  = OIII4363/OIII5007
+    4363_4959  = OIII4363/OIII4959
+    
     5007_3727  = OIII5007/OII3727
     4959_3727  = OIII4959/OII3727
-    4363_5007  = OIII4363/OIII5007'''
+
+    #Attenuated Ratios
+    der_4363_5007  = 4363_5007 * 10**(0.4*EBV*(k_4363-k_5007))
+    der_4363_4959  = 4363_4959 * 10**(0.4*EBV*(k_4363-k_4959))
+    der_3727_HBETA = 3727_HBETA* 10**(0.4*EBV*(k_3727-k_HBETA))
+    der_4959_HBETA = 4959_HBETA* 10**(0.4*EBV*(k_4959-k_HBETA))
+    der_5007_HBETA = 5007_HBETA* 10**(0.4*EBV*(k_5007-k_HBETA))
+    
     
     #Raw Data
-    R_value= R_calculation(OIII4363, OIII5007, OIII4959)   #, SN_4636, SN_5007, SN_495)
+    R_value= R_calculation(der_4363_5007, der_4363_4959)     #R_calculation(OIII4363, OIII5007, OIII4959)   #, SN_4636, SN_5007, SN_495)
     T_e= temp_calculation(R_value)  #, R_std)
-    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,OIII5007, OIII4959, OIII4363, HBETA, OII3727)
+    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA)  #OIII5007, OIII4959, OIII4363, HBETA, OII3727)
 
 
     #if not exists(out_ascii):
@@ -439,8 +441,12 @@ def dust_attenuation(combine_ascii):
     k_5007 = call_cardelli(lam0_5007)
 
     
+    
     EBV= np.log10((HBeta/HGamma)*(ini_con))*2.5*(1/(k_Hgamma-k_HBETA))
-
+    for nn in range(len(HGamma)):
+        if EBV[nn] <= 0: EBV[nn] = 0
+    
+    
     A_3727 = EBV*k_3727
     A_HDELTA = EBV*k_HDELTA
     A_Hgamma = EBV*k_Hgamma
@@ -452,8 +458,8 @@ def dust_attenuation(combine_ascii):
 
     out_ascii = fitspath_ini+'/dust_attentuation_values.tbl'
     #if not exists(out_ascii_single):
-    n2= ('ID','A_3727', 'A_HDELTA', 'A_Hgamma', 'A_HBETA', 'A_4363', 'A_4958', 'A_5007', 'E(B-V)')
-    tab1 = Table([ID,A_3727, A_HDELTA, A_Hgamma, A_HBETA , A_4363, A_4958, A_5007, EBV], names=n2)
+    n2= ('ID','k_3727', 'k_HDELTA', 'k_Hgamma', 'k_HBETA', 'k_4363', 'k_4958', 'k_5007', 'E(B-V)')
+    tab1 = Table([ID,k_3727, k_HDELTA, k_Hgamma, k_HBETA , k_4363, k_4958, k_5007, EBV], names=n2)
     asc.write(tab1, out_ascii, format='fixed_width_two_line')
     
     

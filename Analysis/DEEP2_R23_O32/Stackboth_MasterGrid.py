@@ -37,14 +37,14 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
 
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3()
-
     grid_data = np.load(grid_data_file)
     R23_grid = grid_data['R23_grid']
     O32_grid = grid_data['O32_grid']
     
     image2DM = np.nan_to_num(image2D[det3]) 
     
-    if mask[det3] !=None:
+    print 'Mask[det3]', mask[det3]
+    if type(mask) != type(None):
         image2DM = np.ma.masked_array(image2DM, mask[det3])
         
     outfile = name.replace('.pdf', '.fits')  #fits file name and initialization 
@@ -87,7 +87,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
                 if exists(outfile):
                     Spect1D = stack_2d[count]
                 else:
-                    if mask != None:                         
+                    if type(mask) != type(None):                         
                         Spect1D = np.ma.mean(subgrid, axis=0)
                 
                     else:

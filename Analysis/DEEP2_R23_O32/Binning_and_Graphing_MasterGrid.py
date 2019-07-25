@@ -496,6 +496,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     sort0 = np.argsort(R23)
     R23_sort0 = R23[sort0]
 
+    
+
     n_bins = len(galinbin)
     
     print n_bins   
@@ -543,43 +545,36 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
         print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
 
 
-        if n_split == 2: 
-            idx1 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
-            #idx1 = np.where((R23>= bin_start_1) & (R23<= bin_end_1))[0]
-            med_val = np.median(O32[idx1])
-
-            idx2 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]) & (O32 <= med_val))[0]
-            idx3 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]) & (O32 > med_val))[0]
-
-
+        
+        R23_idx = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
+        O32_ii = O32[R23_idx]
+        sortO32 = np.argsort(O32_ii)
+        
+        n_subbins = np.int(np.round(float(len(sortO32))/n_split))
+       
+        for jj in range(n_split):
+            O32_bin_idx = sortO32[jj*n_subbins:(jj+1)*n_subbins]
             
-            O32_grid[ii,0]   = np.median(O32[idx2])    
-            O32_grid[ii,1] = np.median(O32[idx3])
-            R23_grid[ii,0] = R23_sort0[bin_start_1[ii]]
-            R23_grid[ii,1] = R23_sort0[bin_start_1[ii]]
-        
-
-            N_arr0[ii,0]  += len(idx2)
-            N_arr0[ii,1]+= len(idx3)
-        
-            T_arr[ii,0]   = idx2
-            T_arr[ii,1] = idx3
-        
-            N_bin[idx2]= ii*2
-            N_bin[idx3]= ii*2+1
-
+            N_bin_idx = R23_idx[O32_bin_idx]
             
+            O32_grid[ii,jj]   = np.median(sortO32[O32_bin_idx])    
+           
+            R23_grid[ii,jj] = R23_sort0[bin_start_1[ii]]
 
-            xBar[ii*2]= np.log10(np.average(R23[idx2]))
-            xBar[ii*2+1]= np.log10(np.average(R23[idx3]))
-
-            yBar[ii*2]= np.log10(np.average(O32[idx2]))
-            yBar[ii*2+1]= np.log10(np.average(O32[idx3]))
+            N_arr0[ii,jj]  += len(O32_bin_idx)
+           
+            T_arr[ii,jj]   = O32_bin_idx
         
-            area[ii*2]= len(idx2)
-            area[ii*2+1]= len(idx3)
+            N_bin[N_bin_idx] = (ii*n_split)+jj
 
-        if n_split == 3: 
+            xBar[(ii*n_split)+jj]= np.log10(np.average(R23[O32_bin_idx]))
+            
+            yBar[(ii*n_split)+jj]= np.log10(np.average(sortO32[O32_bin_idx]))
+            
+            area[(ii*n_split)+jj]= len(O32_bin_idx)
+
+
+        '''if n_split == 3: 
             idx1 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
 
             low_cut = 0.40* idx1.size   ###This is most likely not correct###
@@ -625,7 +620,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
         
             area[ii*3]= len(idx2)
             area[ii*3+1]= len(idx3)
-            area[ii*3+2]= len(idx4)
+            area[ii*3+2]= len(idx4)'''
 
 
 

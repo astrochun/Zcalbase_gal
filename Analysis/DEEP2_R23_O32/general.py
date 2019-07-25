@@ -29,7 +29,7 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_Grid_Stacking_0722/'
+fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
@@ -83,7 +83,7 @@ def get_det3():
     SNR3_ini = data0['OIIIR_SNR']
     SNRH_ini = data0['HB_SNR']
 
-    logR23 = np.log10(R23)
+    logR23 = np.log10(R23_ini)
     print 'O2 len:', len(O2_ini)
     
     #SNR code: This rules out major outliers by only using specified data
@@ -119,8 +119,8 @@ def get_det3():
 #redue calling for look at hb
 
 
-def run_grid_R23_O32_analysis(dataset,y_correction, adaptive = False, mask='None'):
-    #dataset options: Grid, O32_Grid, R23_Grid, Double_Bin
+def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, mask='None'):
+    #dataset options: Grid, O32_Grid, R23_Grid, n_Bins
     
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()     #, O2_det3, O3_det3, Hb_det3
@@ -134,8 +134,9 @@ def run_grid_R23_O32_analysis(dataset,y_correction, adaptive = False, mask='None
     #Binning and Graphing MasterGrid
     #Options to Change: Bin Size
     #galinbin = 400
-    if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each will be split in half
-    if adaptive == True: galinbin = [908,700,575,450,176] #Must sum to 2809 
+
+    if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
+    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2809 
     print '# of Gal in Bin:', galinbin
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
@@ -159,15 +160,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, adaptive = False, mask='None
 
 
 
-    if dataset == 'Double_Bin':
-        if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
-        if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2809 
-        pdf_pages = fitspath +'double_grid.pdf'
-        grid_data_file = fitspath +'double_grid.npz'
-        asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
-        asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-        if n_split == 2: Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, grid_data_file,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive) 
-        if n_split == 3: Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, n_split, grid_data_file,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive)
+    if dataset == 'n_Bins':
+        pdf_pages = fitspath +'nsplit_grid.pdf'
+        grid_data_file = fitspath +'nsplit_grid.npz'
+        asc_table1 = fitspath+ '/nsplit_binning_averages.tbl'
+        asc_table2 = fitspath+ 'nsplit_2d_binning_datadet3.tbl'
+        if n_split == 2: Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, pdf_pages, grid_data_file,n_split, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive) 
+        if n_split == 3: Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, pdf_pages, grid_data_file,n_split, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive)
 
 
     print 'made npz, pdf files , testmastergrid(need to find if this is used anywhere)'
@@ -183,7 +182,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, adaptive = False, mask='None
     outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
     outsingle_O32 = fitspath +'single_grid_O32.npz'
     outsingle_R23 = fitspath +'single_grid_R23.npz'
-    outdouble_bin = fitspath +'double_grid.npz'
+    outdouble_bin = fitspath +'nsplit_grid.npz'
     if dataset =='Grid' : grid_data_file = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'     ##np.load(outfile025)   ###This will have to be changed if we start doing the 01 analysis again (but we haven't worked on that analysis in a year) 
     if dataset == 'O32_Grid': grid_data_file = fitspath +'single_grid_O32.npz'      # = np.load(outsingle_O32)
     if dataset == 'R23_Grid': grid_data_file = fitspath +'single_grid_R23.npz'      # = np.load(outsingle_R23)
@@ -268,12 +267,12 @@ def run_grid_R23_O32_analysis(dataset,y_correction, adaptive = False, mask='None
         combine_flux_table = fitspath + 'R23_Grid_combined_flux_table.fits'
         combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
 
-    if dataset == 'Double_Bin':
-        intro = fitspath + 'Double_Bin_Average_R23_O32_Values.tbl' 
+    if dataset == 'n_Bins':
+        intro = fitspath + 'nsplit_Average_R23_O32_Values.tbl' 
         asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath +'/Double_Bin_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'Double_Bin_combined_flux_table.fits'
-        combine_flux_ascii = fitspath + 'Double_Bin_combined_flux_table.tbl'
+        table_files = glob.glob(fitspath +'/nsplit_flux_gaussian_*.tbl') 
+        combine_flux_table = fitspath + 'nsplit_combined_flux_table.fits'
+        combine_flux_ascii = fitspath + 'n_split_combined_flux_table.tbl'
 
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
         
@@ -293,25 +292,28 @@ def run_grid_R23_O32_analysis(dataset,y_correction, adaptive = False, mask='None
         temp_m_gascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/Grid_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
+        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
     if dataset == 'O32_Grid':
         combine_flux_ascii = fitspath + 'O32_Grid_combined_flux_table.tbl'
         temp_m_gascii = fitspath+ '/O32_Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/O32_Grid_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'O32_Grid_Temp_Composite_Metallicity.pdf'
+        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
     if dataset == 'R23_Grid':
         combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
         temp_m_gascii = fitspath+ '/R23_Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/R23_Grid_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'R23_Grid_Temp_Composite_Metallicity.pdf'
+        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
-    if dataset == 'Double_Bin':
-        combine_flux_ascii = fitspath + 'Double_Bin_combined_flux_table.tbl'
-        temp_m_gascii = fitspath+ '/Double_Bin_temperatures_metalicity.tbl'
-        temp_m_gfits = fitspath+ '/Double_temperatures_metalicity.fits'
-        temp_m_gpdf_name = 'Double_Bin_Temp_Composite_Metallicity.pdf'
+    if dataset == 'n_Bins':
+        combine_flux_ascii = fitspath + 'nsplit_combined_flux_table.tbl'
+        temp_m_gascii = fitspath+ '/nsplit_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/nsplit_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
 
-    R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
+        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=True) 
 
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
@@ -472,7 +474,8 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     temp_met_fits = fitspath+ '/'+dataset+'_temperatures_metalicity.fits'
     pdf_name_temp_met = dataset+'_Temp_Composite_Metallicity.pdf'
 
-    R_temp_calcul.run_function(fitspath,dataset, temp_met_ascii,temp_met_fits, pdf_name_temp_met, combine_flux_ascii)
+    R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
+
   
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath,dataset,temp_met_ascii)
@@ -505,11 +508,10 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
 
 
 
-###USING TO TEST IF I AM WRITING THE DOUBLE BIN METHOD CORRECTLY###
 
 
-def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, n_split, adaptive = False, mask='None'):
-    #dataset options: Voronoi10,Voronoi14, Voronoi20
+def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='None'):
+    #dataset must equal Double_bin
     
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()
@@ -522,8 +524,8 @@ def TEST_FUNCTION_TO_RUN_TWO_BINS(dataset,y_correction, n_split, adaptive = Fals
         grid_data_file = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-        if n_split == 2: Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, grid_data_file,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive) 
-        if n_split == 3: Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, n_split, grid_data_file,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive) 
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, grid_data_file,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive) 
+        
 
     #Stacking_MASKED_MASTERGRID
     Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf' 

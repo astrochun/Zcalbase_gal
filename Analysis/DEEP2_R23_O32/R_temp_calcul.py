@@ -38,10 +38,9 @@ a = 13205
 b = 0.92506
 c = 0.98062
 
-def R_calculation(der_4363_5007,der_4363_4959)   ###How to math??          #OIII4363, OIII5007, OIII4959):
+def R_calculation(OIII4363, OIII5007, OIII4959, EBV, k_4636, k_5007):
   
-    #R_value = OIII4363/(OIII5007+OIII4959)
-    R_value = 
+    R_value = OIII4363/(OIII5007+OIII4959)* 10**(0.4*EBV*(k_4363-k_5007))
     return R_value  
 
 def temp_calculation(R):
@@ -84,24 +83,9 @@ def limit_function(combine_flux_ascii):
     print 'up_temp', up_temp
     return up_temp
     
-def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux_ascii):  #combine_fits, header
+def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux_ascii, dustatt= False):  #combine_fits, header
     verification_table = fitspath_ini+'/Master_Verification_Tables/'+dataset+'_table.tbl'
     mver_tab = asc.read(verification_table)
-
-    #Dust Attentuation Values Call
-    ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    print 'Using attenuated dust values'
-    dust = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
-    atten_val = asc.read(dust)
-
-    k_3727 = atten_val['A_3727']
-    k_HDELTA = atten_val['A_HDELTA']
-    k_Hgamma = atten_val['A_Hgamma']
-    k_HBETA = atten_val['A_HBETA']
-    k_4363 = atten_val['A_4363']
-    k_4959 = atten_val['A_4959']
-    k_5007 = atten_val['A_5007']
-    EBV = atten_val['E(B-V)']
 
     #Fits Table Calls
     #combine_fits, header = fits.getdata(combine_flux_table, header = True)
@@ -128,6 +112,24 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     SN_4363       = combine_fits['OIII_4363_S/N'].data
     SN_HBETA      = combine_fits['HBETA_S/N'].data
     SN_3727       = combine_fits['OII_3727_S/N'].data
+
+    #Dust Attenuation Values Call
+    ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
+    print 'Using attenuated dust values'
+    dust = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
+    atten_val = asc.read(dust)
+
+    k_3727 = atten_val['A_3727']
+    k_HDELTA = atten_val['A_HDELTA']
+    k_Hgamma = atten_val['A_Hgamma']
+    k_HBETA = atten_val['A_HBETA']
+    k_4363 = atten_val['A_4363']
+    k_4959 = atten_val['A_4959']
+    k_5007 = atten_val['A_5007']
+    
+    if dustatt == False: EBV = np.zeros(len(ID))
+    if dustatt == True: EBV = atten_val['E(B-V)']
+
 
     #DEEP2 Derived 
     er_R23 = derived['R23'].data
@@ -194,7 +196,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     
     
     #Raw Data
-    R_value= R_calculation(der_4363_5007, der_4363_4959)     #R_calculation(OIII4363, OIII5007, OIII4959)   #, SN_4636, SN_5007, SN_495)
+    R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)   #, SN_4636, SN_5007, SN_495)
     T_e= temp_calculation(R_value)  #, R_std)
     O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA)  #OIII5007, OIII4959, OIII4363, HBETA, OII3727)
 

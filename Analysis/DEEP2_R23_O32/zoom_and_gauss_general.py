@@ -102,7 +102,7 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
             p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0] #must have some reasonable values
             para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
 
-        if dataset == 'Voronoi10' or dataset =='Voronoi14' or dataset== 'Voronoi20'  or dataset =='Double_Bin':
+        if dataset == 'Voronoi10' or dataset =='Voronoi14' or dataset== 'Voronoi20'  or dataset =='Double_Bin' or dataset =='n_Bins':
             #print 'med0:', med0, 'max0:', max0
             p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0] #must have some reasonable values
             para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0) 
@@ -202,7 +202,7 @@ def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0,
 #Plotting Zoomed 
 def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lambda0, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
 
-    pdfpages3 = PdfPages(fitspath + '/' +dataset+'_PlottingBalmer_'+line_name+'.pdf')
+    #pdfpages3 = PdfPages(fitspath + '/' +dataset+'_PlottingBalmer_'+line_name+'.pdf')
     asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
     nrows = 4
@@ -369,7 +369,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             
             
             
-            if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid' or dataset =='Double_Bin':
+            if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid' or dataset =='Double_Bin' or dataset =='n_Bins':
                 if line_type == 'Balmer': 
                     txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
@@ -387,18 +387,18 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
             else:
                 if line_type =='Balmer':
-                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['R23_value'][rr], asc_tab['O32_value'][rr]) + '\n'
                     txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
-                    txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], N_gal_array[rr]) 
+                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += 'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f'% (o1[2], o1[4], o1[5]) + '\n'
                     txt0 += 'F_G: %.3f F_S: %.3f' %(flux_g, flux_s) + '\n'
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
                 if line_type =='Single' or line_type=='Oxy2':
-                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['xnode'][rr], asc_tab['ynode'][rr]) + '\n'
+                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['R23_value'][rr], asc_tab['O32_value'][rr]) + '\n'
                     txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
-                    txt0 += 'RMS: %.3f RMS/pix: %.3f, Scale: %.3f, N: %i \n' % (ini_sig1, RMS_pix, asc_tab['scale'][rr], N_gal_array[rr]) 
+                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0,o1[2]) + '\n'
                     txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
@@ -473,7 +473,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
     
         #fits.writeto(out_fits, tab0)
-         
+
+    
     out_ascii_single = fitspath+'/'+dataset+'_Average_R23_O32_Values.tbl'
     #if not exists(out_ascii_single):
     n2= ('ID','R_23_Average', 'O_32_Average', 'N_Galaxies', 'RMS')

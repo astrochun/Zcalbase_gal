@@ -37,6 +37,8 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
 
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3()
+
+
     grid_data = np.load(grid_data_file)
     R23_grid = grid_data['R23_grid']
     O32_grid = grid_data['O32_grid']
@@ -61,13 +63,10 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     N_gal = np.zeros(len(R23_grid)*len(O32_grid))
 
     n_N = R23_grid.shape[0]
-    if dataset == 'Double_Bin': n_M = R23_grid.shape[1]
+    if dataset == 'n_Bins' or dataset == 'Double_Bin': n_M = R23_grid.shape[1]
     else: n_M = O32_grid.shape[0]
     count = 0
-    '''for rr in range(len(R23_grid)):
-        for oo in range(len(O32_grid)):
-            #print 'T_arr:', grid_data['T_arr'] 
-            #if dataset == 'Double_Bin': index = grid_data['T_arr'][rr,1]'''
+    
     for rr in range(n_N):
         for oo in range(n_M):
             print rr,oo

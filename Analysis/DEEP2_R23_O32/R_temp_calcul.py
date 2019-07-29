@@ -50,13 +50,17 @@ def temp_calculation(R):
     return T_e  
 
 
-def metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA):                 #OIII5007, OIII4959, OIII4363, HBETA, OII3727):
+def metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt = False):
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
     #t_2 = 0.7*t_3 +0.17
-    
-    two_beta = der_3727_HBETA                     #OII3727/HBETA
-    three_beta= der_4959_HBETA+ der_5007_HBETA    #(OIII4959+OIII5007)/HBETA
+
+    if dustatt == False: 
+        two_beta = OII3727/HBETA
+        three_beta= (OIII4959+OIII5007)/HBETA
+    else:
+        two_beta = der_3727_HBETA                    
+        three_beta= der_4959_HBETA+ der_5007_HBETA 
     t_3 = T_e*1e-4
     t_2 = 0.7*t_3 +0.17
     x2 = 1e-4 * 1e3 * t_2**(-0.5)
@@ -127,8 +131,8 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     k_4959 = atten_val['A_4959']
     k_5007 = atten_val['A_5007']
     
-    if dustatt == False: EBV = np.zeros(len(ID))
-    if dustatt == True: EBV = atten_val['E(B-V)']
+    if dustatt ==False: EBV = np.zeros(len(ID))
+    if dustatt ==True: EBV = atten_val['E(B-V)']
 
 
     #DEEP2 Derived 
@@ -178,27 +182,27 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     print indicate 
 
     #Line Ratios
-    3727_HBETA = OII3727/HBETA
-    5007_HBETA = OIII5007/HBETA
-    4959_HBETA = OIII4959/HBETA
-    4363_5007  = OIII4363/OIII5007
-    4363_4959  = OIII4363/OIII4959
+    O3727_HBETA = OII3727/HBETA
+    O5007_HBETA = OIII5007/HBETA
+    O4959_HBETA = OIII4959/HBETA
+    O4363_O5007  = OIII4363/OIII5007
+    O4363_O4959  = OIII4363/OIII4959
     
-    5007_3727  = OIII5007/OII3727
-    4959_3727  = OIII4959/OII3727
+    O5007_O3727  = OIII5007/OII3727
+    O4959_O3727  = OIII4959/OII3727
 
     #Attenuated Ratios
-    der_4363_5007  = 4363_5007 * 10**(0.4*EBV*(k_4363-k_5007))
-    der_4363_4959  = 4363_4959 * 10**(0.4*EBV*(k_4363-k_4959))
-    der_3727_HBETA = 3727_HBETA* 10**(0.4*EBV*(k_3727-k_HBETA))
-    der_4959_HBETA = 4959_HBETA* 10**(0.4*EBV*(k_4959-k_HBETA))
-    der_5007_HBETA = 5007_HBETA* 10**(0.4*EBV*(k_5007-k_HBETA))
+    der_4363_5007  = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
+    der_4363_4959  = O4363_O4959 * 10**(0.4*EBV*(k_4363-k_4959))
+    der_3727_HBETA = O3727_HBETA* 10**(0.4*EBV*(k_3727-k_HBETA))
+    der_4959_HBETA = O4959_HBETA* 10**(0.4*EBV*(k_4959-k_HBETA))
+    der_5007_HBETA = O5007_HBETA* 10**(0.4*EBV*(k_5007-k_HBETA))
     
     
     #Raw Data
     R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)   #, SN_4636, SN_5007, SN_495)
     T_e= temp_calculation(R_value)  #, R_std)
-    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA)  #OIII5007, OIII4959, OIII4363, HBETA, OII3727)
+    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt)
 
 
     #if not exists(out_ascii):

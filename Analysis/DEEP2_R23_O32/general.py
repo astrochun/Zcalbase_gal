@@ -161,12 +161,26 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, m
 
 
     if dataset == 'n_Bins':
-        pdf_pages = fitspath +'nsplit_grid.pdf'
-        grid_data_file = fitspath +'nsplit_grid.npz'
-        asc_table1 = fitspath+ '/nsplit_binning_averages.tbl'
-        asc_table2 = fitspath+ 'nsplit_2d_binning_datadet3.tbl'
-        if n_split == 2: Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, pdf_pages, grid_data_file,n_split, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive) 
-        if n_split == 3: Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, pdf_pages, grid_data_file,n_split, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive)
+        pdf_pages = fitspath +'n_Bins_grid.pdf'
+        grid_data_file = fitspath +'n_Bins_grid.npz'
+        asc_table1 = fitspath+ '/n_Bins_binning_averages.tbl'
+        asc_table2 = fitspath+ 'n_Bins_2d_binning_datadet3.tbl'
+        Binning_and_Graphing_MasterGrid.n_times_binned(fitspath,
+                                                       pdf_pages,
+                                                       grid_data_file,
+                                                       n_split,
+                                                       R23,
+                                                       O32,
+                                                       O2,
+                                                       O3,
+                                                       Hb,
+                                                       SNR2,
+                                                       SNR3,
+                                                       SNRH,
+                                                       det3,
+                                                       data3,
+                                                       galinbin,
+                                                       adaptive)
 
 
     print 'made npz, pdf files , testmastergrid(need to find if this is used anywhere)'
@@ -201,10 +215,10 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, m
             Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data_file)
     else:
         if mask == True:
-            Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf'
+            Stack_name = 'Stacking_Masked_MasterGrid_'+dataset+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
         else:
-            Stack_name = 'Stacking_MasterGrid__single'+dataset+'.pdf'
+            Stack_name = 'Stacking_MasterGrid__'+dataset+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data_file)
 
     #Outfile and pdf both use name
@@ -268,11 +282,11 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, m
         combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
 
     if dataset == 'n_Bins':
-        intro = fitspath + 'nsplit_Average_R23_O32_Values.tbl' 
+        intro = fitspath + 'n_Bins_Average_R23_O32_Values.tbl' 
         asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath +'/nsplit_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'nsplit_combined_flux_table.fits'
-        combine_flux_ascii = fitspath + 'n_split_combined_flux_table.tbl'
+        table_files = glob.glob(fitspath +'/n_Bins_flux_gaussian_*.tbl') 
+        combine_flux_table = fitspath + 'n_Bins_combined_flux_table.fits'
+        combine_flux_ascii = fitspath + 'n_Bins_combined_flux_table.tbl'
 
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
         

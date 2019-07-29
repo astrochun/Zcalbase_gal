@@ -482,12 +482,10 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
 
 
-
-
-#############################Under Construction for Multi Bin Splitting#########################################
 def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
+    dataset = 'n_Bins'
     #O2_det3, O3_det3, Hb_det3
-    #One_dimensional binning for R23 followed by each bin being split in half one with high O32 and one with low O32
+    #One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins 
     '''increase the number of galaxies as R23 increases'''
     pdf_pages = PdfPages(pdf_pages)
 
@@ -547,17 +545,52 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
 
         
         R23_idx = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
-        O32_ii = O32[R23_idx]
-        sortO32 = np.argsort(O32_ii)
+        # There is probably a more streamline way to do this but let's start with version 1 first then update later
+        # @{
+        # Let's first grab an unsorted index list that "sorts" it for us - remember, these are index locations
+        # of the values in order of least to greatest
+        sortO32 = np.argsort(O32[R23_idx])
+        sortR23_byO32 = R23[sortO32]
+
+        # While we are at it, let's just grab the sorted values in an easy manner - might be useful
+        # Sorts the array in place (cannot assign at the same time using sort())
+        O32[R23_idx].sort()
+        # Reassign the sorted array to a variable for ease of typing
+        sortO32Values = O32[R23_idx]
+        #sortO32Values = O32[R23_idx][sortO32] # Currently yields results that we didn't really like - come back to this method though?
+        print sortO32
+        # }
+
         
-        n_subbins = np.int(np.round(float(len(sortO32))/n_split))
-       
+        
+        # The following lines could go into a defintion called "evenSplit( ... )" therefore
+        # allowing you to create a different splitting method definition called "optimalSplit( ... )"
+        # or something to that effect if so desired.
+        # @{
+        n_subbins = np.int(np.floor(float(len(sortO32))/n_split))
+        subbin_arr = np.ones(len(range(n_split)), dtype = int)*n_subbins #We have to take the length of the range of n_split because n_split is of type int
+        n_remainder = len(sortO32) - n_subbins*n_split
+        backwardsIdx = -1
+        forwardsIdx = 0
+        
+        # Sorting all the remainders into the correct bins: Use backwardsIdx or forwardsIdx to start adding spectra
+        #from the front or the back of the list of bins 
+        for rr in range(n_remainder):
+            subbin_arr[backwardsIdx] = n_subbins+1
+            backwardsIdx -= 1
+        subbin_arr[backwardsIdx] = n_subbins
+        # }
+        
+        startIdx = 0
+        endIdx = subbin_arr[0]
         for jj in range(n_split):
-            O32_bin_idx = sortO32[jj*n_subbins:(jj+1)*n_subbins]
-            
+            # Let's grab all O32 values -> This could be the place where the problem is? 
+            O32_bin_idx = sortO32[startIdx:endIdx]
+
+            # Now let's start storing our data into variables to use later
             N_bin_idx = R23_idx[O32_bin_idx]
             
-            O32_grid[ii,jj]   = np.median(sortO32[O32_bin_idx])    
+            O32_grid[ii,jj]   = np.median(sortO32Values[startIdx:endIdx])    
            
             R23_grid[ii,jj] = R23_sort0[bin_start_1[ii]]
 
@@ -567,61 +600,15 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
         
             N_bin[N_bin_idx] = (ii*n_split)+jj
 
-            xBar[(ii*n_split)+jj]= np.log10(np.average(R23[O32_bin_idx]))
+            xBar[(ii*n_split)+jj]= np.log10(np.average(sortR23_byO32[O32_bin_idx]))   #Not grabbing proper R23 information... need to figure out what to index R23 with
             
-            yBar[(ii*n_split)+jj]= np.log10(np.average(sortO32[O32_bin_idx]))
+            yBar[(ii*n_split)+jj]= np.log10(np.average(sortO32Values[startIdx:endIdx]))
             
             area[(ii*n_split)+jj]= len(O32_bin_idx)
 
-
-        '''if n_split == 3: 
-            idx1 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
-
-            low_cut = 0.40* idx1.size   ###This is most likely not correct###
-            high_cut = 0.70* idx1.size
-            
-            O32_sort = np.argsort(O32[idx1])
-            print 'O32_sort:' O32_sort
-
-            idx2 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]) & (0<=O32_sort<low_cut))[0]
-            idx3 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]) & (low_cut<O32_sort<high_cut))[0]
-            idx4 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]) & (high_cut<O32_sort<np.max(O32_sort)))[0]
-
-            
-            O32_grid[ii,0]   = np.median(O32[idx2])    
-            O32_grid[ii,1]   = np.median(O32[idx3])
-            O32_grid[ii,2]   = np.median(O32[idx4])
-            R23_grid[ii,0] = R23_sort0[bin_start_1[ii]]
-            R23_grid[ii,1] = R23_sort0[bin_start_1[ii]]
-            R23_grid[ii,2] = R23_sort0[bin_start_1[ii]]
-        
-
-            N_arr0[ii,0]  += len(idx2)
-            N_arr0[ii,1]  += len(idx3)
-            N_arr0[ii,2]  += len(idx4)
-        
-            T_arr[ii,0]   = idx2
-            T_arr[ii,1]   = idx3
-            T_arr[ii,2]   = idx4
-        
-            N_bin[idx2]= ii*3
-            N_bin[idx3]= ii*3+1
-            N_bin[idx4]= ii*3+2
-
-            
-
-            xBar[ii*3]= np.log10(np.average(R23[idx2]))
-            xBar[ii*3+1]= np.log10(np.average(R23[idx3]))
-            xBar[ii*3+2]= np.log10(np.average(R23[idx4]))
-
-            yBar[ii*3]= np.log10(np.average(O32[idx2]))
-            yBar[ii*3+1]= np.log10(np.average(O32[idx3]))
-            yBar[ii*3+2]= np.log10(np.average(O32[idx4]))
-        
-            area[ii*3]= len(idx2)
-            area[ii*3+1]= len(idx3)
-            area[ii*3+2]= len(idx4)'''
-
+            # Now we can shift our window over for the next split like the counting index the Stacking code
+            startIdx = endIdx
+            endIdx = startIdx+subbin_arr[jj]+1
 
 
     O32_values   = O32_grid.reshape(n_split*n_bins) 
@@ -642,7 +629,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     #hlines_end = np.log10()
     #vlines = np.log10(bin_start_2)
     ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
-    for pp in range(2*len(bin_start_1)): plt.axvline(x = hlines[pp], linewidth= 0.3, color= 'k')
+    for pp in range(n_split*len(bin_start_1)): plt.axvline(x = hlines[pp], linewidth= 0.3, color= 'k')
     #for ll in range(len(bin_end_1)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
     #for jj in range(len(bin_start_2)): plt.axhline(y =vlines[jj], linewidth= 0.3, color= 'b')
     fig.savefig(pdf_pages, format ='pdf')
@@ -653,13 +640,13 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
 
     n1 = ('ID' , 'R23_value', 'O32_value', 'xBar','yBar', 'area')
     tab1 = Table([n_bins_range, R23_values, O32_values,xBar, yBar,area], names = n1)
-    asc.write(tab1, fitspath+'/Double_Bin_binning_averages.tbl', format='fixed_width_two_line')
+    asc.write(tab1, fitspath+'/'+dataset+'_binning_averages.tbl', format='fixed_width_two_line')
     
     fig.clear()
 
     n2=('R23', 'O32', 'SN_5007', 'N_bin')
     tab2= Table([R23, O32, SNR3, N_bin], names=n2)
-    asc.write(tab2, fitspath+'/Double_Bin_2d_binning_datadet3.tbl', format='fixed_width_two_line')
+    asc.write(tab2, fitspath+'/'+ dataset+'_2d_binning_datadet3.tbl', format='fixed_width_two_line')
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')
     tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)

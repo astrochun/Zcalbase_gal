@@ -73,15 +73,15 @@ def get_det3():
     exclude_flag = exclude_outliers(objno)
     print "exclude flag: ", np.where(exclude_flag == 1)
     
-    O2_ini = data0['OII_FLUX_MOD']
-    O3_ini = 1.33*data0['OIIIR_FLUX_MOD']
-    Hb_ini = data0['HB_FLUX_MOD']
+    O2_ini = data0['OII_FLUX_MOD'].data
+    O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data
+    Hb_ini = data0['HB_FLUX_MOD'].data
     R23_ini = (O2_ini+O3_ini)/Hb_ini
     O32_ini = O3_ini/O2_ini
 
-    SNR2_ini = data0['OII_SNR']
-    SNR3_ini = data0['OIIIR_SNR']
-    SNRH_ini = data0['HB_SNR']
+    SNR2_ini = data0['OII_SNR'].data
+    SNR3_ini = data0['OIIIR_SNR'].data
+    SNRH_ini = data0['HB_SNR'].data
 
     logR23 = np.log10(R23_ini)
     print 'O2 len:', len(O2_ini)
@@ -538,7 +538,21 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
         grid_data_file = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, grid_data_file,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive) 
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath,
+                                                         pdf_pages,
+                                                         grid_data_file,
+                                                         R23,
+                                                         O32,
+                                                         O2,
+                                                         O3,
+                                                         Hb,
+                                                         SNR2,
+                                                         SNR3,
+                                                         SNRH,
+                                                         det3,
+                                                         data3,
+                                                         galinbin,
+                                                         adaptive) 
         
 
     #Stacking_MASKED_MASTERGRID

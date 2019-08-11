@@ -8,11 +8,7 @@
 
 ###Create r 23 grid to have nxm dimensions and update each of the corresponding values, like a table
 ### m will be 2 and
-'''R23 grid np.zeros ((5,2)) for rr in range(R23_grid.shape[0])) print rr
-for oo in range ((R23_grid.shape[1])) print oo
-define n_N = R23_grid.shape[0] or [1]
 
-R23_grid[0][:] = 3.0'''
 
 
 import numpy as np
@@ -606,9 +602,9 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
         
             N_bin[N_bin_idx] = (ii*n_split)+jj                            #Gives the bin number for each spectra
 
-            xBar[(ii*n_split)+jj]= np.average(R23[N_bin_idx])   #Gives the average R23 value for each bin
+            xBar[(ii*n_split)+jj]= np.log10(np.average(R23[N_bin_idx]))   #Gives the average R23 value for each bin
             
-            yBar[(ii*n_split)+jj]= np.average(O32_values_perbin)   #Gives the average O32 value for each bin
+            yBar[(ii*n_split)+jj]= np.log10(np.average(O32_values_perbin))   #Gives the average O32 value for each bin
             
             area[(ii*n_split)+jj]= len(O32_values_perbin)                 #Gives the number of galaxies in each bin
 
@@ -633,13 +629,21 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     y1 = y[finite0]
     x = np.log10(x1)
     y = np.log10(y1)
-    hlines = np.log10(R23_values)
-    #hlines_end = np.log10()
-    #vlines = np.log10(bin_start_2)
+    vlines = np.log10(R23_grids)
+    hlines = np.log10(O32_grids)
+    print vlines
     ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
-    for pp in range(n_split*len(bin_start_1)): plt.axvline(x = hlines[pp], linewidth= 0.3, color= 'k')
-    #for ll in range(len(bin_end_1)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
-    #for jj in range(len(bin_start_2)): plt.axhline(y =vlines[jj], linewidth= 0.3, color= 'b')
+    #for pp in range(n_split*len(bin_start_1)): plt.axvline(x = vlines[pp], linewidth= 0.3, color= 'k')
+    for jj in range(len(O32_grids)):
+        xmin = vlines[jj]
+        #print (len(O32_grids)-n_split) = 16
+        if jj <= (len(O32_grids)-n_split-1): xmax = vlines[jj+n_split]
+        else: xmax = vlines[jj]
+        print jj, xmin, xmax, hlines[jj]
+        plt.axvline(x = vlines[jj], linewidth= 0.3, color= 'k')
+        plt.axhline(y = hlines[jj],xmin= xmin, xmax = xmax, linewidth= 0.3, color= 'b')
+        plt.axhline(y = yBar[jj], xmin= xmin, xmax = xmax, linewidth= 0.3, color= 'g')
+        plt.xlim(-0.3, 1)
     fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()
 

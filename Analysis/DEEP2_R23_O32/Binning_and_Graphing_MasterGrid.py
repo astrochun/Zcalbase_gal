@@ -631,19 +631,29 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     y = np.log10(y1)
     vlines = np.log10(R23_grids)
     hlines = np.log10(O32_grids)
-    print vlines
     ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
     #for pp in range(n_split*len(bin_start_1)): plt.axvline(x = vlines[pp], linewidth= 0.3, color= 'k')
+
+    print "R23_grids:", np.log10(R23_grids)
+    print "O32_grids:", np.log10(O32_grids)
+
     for jj in range(len(O32_grids)):
         xmin = vlines[jj]
         #print (len(O32_grids)-n_split) = 16
         if jj <= (len(O32_grids)-n_split-1): xmax = vlines[jj+n_split]
-        else: xmax = vlines[jj]
-        print jj, xmin, xmax, hlines[jj]
+        else: xmax = np.log10(max(R23))
+        print "jj, xmin, xmax, hlines[jj], vlines[jj]", jj, xmin, xmax, hlines[jj], vlines[jj]
         plt.axvline(x = vlines[jj], linewidth= 0.3, color= 'k')
-        plt.axhline(y = hlines[jj],xmin= xmin, xmax = xmax, linewidth= 0.3, color= 'b')
-        plt.axhline(y = yBar[jj], xmin= xmin, xmax = xmax, linewidth= 0.3, color= 'g')
-        plt.xlim(-0.3, 1)
+        
+        x_value = [xmin,xmax]
+        y_value = [hlines[jj], hlines[jj]]
+        y_average = [yBar[jj],yBar[jj]]
+        plt.plot(x_value,y_value, linewidth= 0.3, color= 'b')
+        plt.plot(x_value, y_average, linewidth= 0.3, color= 'g')
+
+
+
+        #plt.xlim(-0.3, 1)
     fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()
 

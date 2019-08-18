@@ -83,7 +83,7 @@ def single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
         bin_start[ii] = y_sort0[ii*galinbin]
         bin_end[ii]   = y_sort0[(ii+1)*galinbin-1]
         if ii == max(n_bins):  bin_end[ii] = max(y_sort0)
-        print bin_start[ii] , bin_end[ii]
+        #print bin_start[ii] , bin_end[ii]
 
     #Organizes data into bins
     for oo in range(n_bins):
@@ -458,7 +458,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
     np.savez(outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=O32_grid, N_arr0=N_arr0)
 
-    n1 = ('ID' , 'R23_value', 'O32_value', 'xBar','yBar', 'area')
+    n1 = ('ID' , 'R23_value', 'O32_median', 'xBar','yBar', 'area')
     tab1 = Table([n_bins_range, R23_values, O32_values,xBar, yBar,area], names = n1)
     asc.write(tab1, fitspath+'/Double_Bin_binning_averages.tbl', format='fixed_width_two_line')
     
@@ -487,8 +487,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
 
     #One_dimensional binning for R23 
 
-    sort0 = np.argsort(R23)
-    R23_sort0 = R23[sort0]
+    sortR23 = np.argsort(R23)
+    R23_sort0 = R23[sortR23]
 
     
 
@@ -497,55 +497,42 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     print n_bins   
     n_bins_range = np.arange(0,n_split*n_bins,1)
 
-    #Initializing Arrays for outfile later if using Voronoi Stacking
-    '''N_arr0 = np.zeros(2*n_bins)
-    T_arr  = np.zeros((n_bins*2), dtype = object)
-    O32_grid    = np.zeros(2*n_bins)
-    R23_grid  = np.zeros(2*n_bins)
-    xBar  = np.zeros(2*n_bins)
-    yBar  = np.zeros(2*n_bins)
-    area  = np.zeros(2*n_bins)
-    N_bin = np.zeros(len(data3), dtype = int)'''
 
     #Initializing Arrays for Grid stacking
-    N_arr0 = np.zeros((n_bins,n_split))
-    T_arr  = np.zeros((n_bins,n_split), dtype = object)
-    O32_grid    = np.zeros((n_bins,n_split))
-    R23_grid  = np.zeros((n_bins,n_split))
+    Number_inbin = np.zeros((n_bins,n_split))   #Used to be N_arr0
+    locator  = np.zeros((n_bins,n_split), dtype = object) #Used to be T_arr
+    O32_minimum    = np.zeros((n_bins,n_split))    #Used to be O32_grid
+    R23_minimum    = np.zeros((n_bins,n_split))      #Used to be R23_grid
     O32_median = np.zeros((n_bins,n_split))
     R23_median = np.zeros((n_bins,n_split))
     xBar  = np.zeros(n_split*n_bins)
     yBar  = np.zeros(n_split*n_bins)
     area  = np.zeros(n_split*n_bins)
-    N_bin = np.zeros(len(data3), dtype = int)
+    Bin_number = np.zeros(len(data3), dtype = int) #Used to be N_bin
 
-    O32_values    = np.zeros(n_split*n_bins)
-    R23_values  = np.zeros(n_split*n_bins)
+
     
 
     #Bin starts and stops initializing
-    bin_start_1 = np.zeros(n_bins, dtype=np.int)
-    bin_end_1   = np.zeros(n_bins, dtype=np.int)
+    bin_start = np.zeros(n_bins, dtype=np.int)
+    bin_end   = np.zeros(n_bins, dtype=np.int)
 
 
     for ii in range(n_bins):
         if ii == 0:
-            bin_start_1[ii] = 0
+            bin_start[ii] = 0
         else:
-            bin_start_1[ii]= bin_end_1[ii-1]+1
+            bin_start[ii]= bin_end[ii-1]+1
         if ii == n_bins-1:
-            bin_end_1[ii] = len(R23_sort0)-1
+            bin_end[ii] = len(R23_sort0)-1
         else:
-            print galinbin[ii]+bin_start_1[ii]
-            bin_end_1[ii] = galinbin[ii]+bin_start_1[ii]-1   
-        print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
+            #print galinbin[ii]+bin_start_1[ii]
+            bin_end[ii] = galinbin[ii]+bin_start[ii]-1   
+        print 'Bin Start:', bin_start[ii] , 'Bin end:', bin_end[ii]
 
-
-        #sort0 = np.argsort(R23)
-        #R23_sort0 = R23[sort0]
 
         
-        R23_idx = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
+        R23_idx = np.where((R23>= R23_sort0[bin_start[ii]]) & (R23<= R23_sort0[bin_end[ii]]))[0]
         # There is probably a more streamline way to do this but let's start with version 1 first then update later
         # @{
 
@@ -587,20 +574,20 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
 
 
             # Now let's start storing our data into variables to use later
-            print(ii,jj, O32[O32_inbins_idx])
-            O32_grid[ii,jj] = O32_values_perbin[0]   #O32[O32_inbins_idx[0]]             #These two values give the lowest O32 and R23 value set for each bin
-            R23_grid[ii,jj] = R23_sort0[bin_start_1[ii]]
+            #print(ii,jj, O32[O32_inbins_idx])
+            O32_minimum[ii,jj] = O32_values_perbin[0]   #O32[O32_inbins_idx[0]]             #These two values give the lowest O32 and R23 value set for each bin
+            R23_minimum[ii,jj] = R23_sort0[bin_start[ii]]
 
             O32_median[ii,jj] = np.median(O32_values_perbin)      #These two give the median R23 and O32 value for each bin 
             R23_median[ii,jj] = np.median(R23[N_bin_idx])
             #print('O32_median:', O32_median)
             #print('R23_median:', R23_median)
 
-            N_arr0[ii,jj]  += len(O32_values_perbin)                      #Gives the number of galaxies in each bin
+            Number_inbin[ii,jj]  += len(O32_values_perbin)                      #Gives the number of galaxies in each bin
            
-            T_arr[ii,jj]   = N_bin_idx                                    #Gives the index (location numbers) for the spectra in each bin and is used later loop over and get the galaxies 
+            locator[ii,jj]   = N_bin_idx                                    #Gives the index (location numbers) for the spectra in each bin and is used later loop over and get the galaxies 
         
-            N_bin[N_bin_idx] = (ii*n_split)+jj                            #Gives the bin number for each spectra
+            Bin_number[N_bin_idx] = (ii*n_split)+jj                            #Gives the bin number for each spectra
 
             xBar[(ii*n_split)+jj]= np.log10(np.average(R23[N_bin_idx]))   #Gives the average R23 value for each bin
             
@@ -613,8 +600,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
             endIdx = startIdx+subbin_arr[jj]+1
 
 
-    O32_grids = O32_grid.reshape(n_split*n_bins) 
-    R23_grids = R23_grid.reshape(n_split*n_bins)
+    O32_lowlimit = O32_minimum.reshape(n_split*n_bins) #Used to be O32_grids
+    R23_lowlimit = R23_minimum.reshape(n_split*n_bins) #Used to be R23_grids
     O32_medians = O32_median.reshape(n_split*n_bins)
     R23_medians = R23_median.reshape(n_split*n_bins)
     #print 'O32_values', O32_grid
@@ -630,19 +617,18 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     x = np.log10(x1)
     y = np.log10(y1)
     vlines = np.log10(R23_grids)
-    hlines = np.log10(O32_grids)
+    hlines = np.log10(O32_lowlimit)
     ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
-    #for pp in range(n_split*len(bin_start_1)): plt.axvline(x = vlines[pp], linewidth= 0.3, color= 'k')
+    #for pp in range(n_split*len(bin_start)): plt.axvline(x = vlines[pp], linewidth= 0.3, color= 'k')
 
-    print "R23_grids:", np.log10(R23_grids)
-    print "O32_grids:", np.log10(O32_grids)
+    #print "R23_grids:", np.log10(R23_lowlimit)
+    #print "O32_grids:", np.log10(O32_lowlimit)
 
-    for jj in range(len(O32_grids)):
+    for jj in range(len(O32_lowlimit)):
         xmin = vlines[jj]
-        #print (len(O32_grids)-n_split) = 16
-        if jj <= (len(O32_grids)-n_split-1): xmax = vlines[jj+n_split]
+        if jj <= (len(O32_lowlimit)-n_split-1): xmax = vlines[jj+n_split]
         else: xmax = np.log10(max(R23))
-        print "jj, xmin, xmax, hlines[jj], vlines[jj]", jj, xmin, xmax, hlines[jj], vlines[jj]
+        #print "jj, xmin, xmax, hlines[jj], vlines[jj]", jj, xmin, xmax, hlines[jj], vlines[jj]
         plt.axvline(x = vlines[jj], linewidth= 0.3, color= 'k')
         
         x_value = [xmin,xmax]
@@ -658,16 +644,16 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     pdf_pages.close()
 
 
-    np.savez(outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=O32_grid, N_arr0=N_arr0)
+    np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
 
-    n1 = ('ID' , 'R23_grid', 'O32_grid', 'xBar','yBar', 'R23_median','O32_median','area')
-    tab1 = Table([n_bins_range, R23_grids, O32_grids,xBar, yBar,R23_medians, O32_medians, area], names = n1)
+    n1 = ('ID' , 'R23_minimum', 'O32_minimum', 'xBar','yBar', 'R23_median','O32_median','area')
+    tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,R23_medians, O32_medians, area], names = n1)
     asc.write(tab1, fitspath+'/'+dataset+'_binning_averages.tbl', format='fixed_width_two_line')
     
     fig.clear()
 
-    n2=('R23', 'O32', 'SN_5007', 'N_bin')
-    tab2= Table([R23, O32, SNR3, N_bin], names=n2)
+    n2=('R23', 'O32', 'SN_5007', 'Bin_number')
+    tab2= Table([R23, O32, SNR3, Bin_number], names=n2)
     asc.write(tab2, fitspath+'/'+ dataset+'_2d_binning_datadet3.tbl', format='fixed_width_two_line')
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')

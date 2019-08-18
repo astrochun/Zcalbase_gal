@@ -155,8 +155,8 @@ def error_prop_chuncodes(fitspath, dataset, working_wave, values,RMS):
     #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
     #print p_page
     #pdf_pages_err = PdfPages(p_page)
-    print 'values:', values
-    print 'RMS:', RMS
+    #print 'values:', values
+    #print 'RMS:', RMS
     fluxg_pdf = random_pdf(values,RMS, seed_i =1, n_iter=1000, silent = False)
     print 'err_function:', fluxg_pdf
     print 'ran errors'
@@ -275,7 +275,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             if line_type == 'Balmer':
                 x_sigsnip = np.where(np.abs((x0-working_wave))/o1[1]<=2.5 )[0]
                 gauss0 = double_gauss(x0, *o1)
-                print 'o1:', o1
+                #print 'o1:', o1
                 o1_neg = [o1[0], o1[4], o1[5], o1[3]]
                 neg0   = gauss(x0, *o1_neg)
                 gauss0_diff = gauss0 - neg0

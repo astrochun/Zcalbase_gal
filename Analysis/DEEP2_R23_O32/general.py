@@ -119,7 +119,7 @@ def get_det3():
 #redue calling for look at hb
 
 
-def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, mask='None'):
+def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, dustatten = 'False', mask='None'):
     #dataset options: Grid, O32_Grid, R23_Grid, n_Bins
     
     
@@ -136,7 +136,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, m
     #galinbin = 400
 
     if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
-    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2809 
+    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
     print '# of Gal in Bin:', galinbin
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
@@ -327,7 +327,8 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, m
         temp_m_gfits = fitspath+ '/nsplit_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
 
-        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=True) 
+        if dustatten == 'False': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= False)
+        if dustatten == 'True': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= True)
 
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
@@ -657,177 +658,105 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###NOT IN USE###
-'''
-    temp_table= asc.read(temp_met_ascii)
-    SN_4363 = temp_table['S/N_4363']
-    det_4363 = np.where((SN_4363>=3))[0]
-    nan_det_4363 = np.where((SN_4363<3))[0]
+#Below function will run the individual functions in the codes above that produce graphs
+#Enter a keyword for want to indictate what function you want to run
+#This will ease the reproduction process
+#CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
+def run_individual_functions(want, adaptive, y_correction, dustatten= False):
+    #Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
     
-    print 'Begin Local analog Calibration'
+    dataset = 'n_Bins'
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()
 
-    ###Implimenting Local analog calibration###
-    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
 
-    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
-    O32_all = temp_table['O32_Composite']
-    R23_all = temp_table['R23_Composite']
-    com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
-    ID = temp_table['ID']
-    print O32_all
-
-    det_O32 = [O32_all[det_4363]]
-    det_R23 = [R23_all[det_4363]]
-    det_OH  = [com_O_log[det_4363]]
-    det_ID  = [ID[det_4363]]
-
-    nandet_O32 = [O32_all[nan_det_4363]]
-    nandet_R23 = [R23_all[nan_det_4363]]
-    nandet_OH  = [com_O_log[nan_det_4363]]
-    nandet_ID  = [ID[nan_det_4363]]
-    
-    lR23 = [det_R23,nandet_R23]
-    lO32 = [det_O32,nandet_O32]
-    OH   = [det_OH,nandet_OH]
-
-    local_analog_calibration.main(lR23, lO23, OH, out_pdf,ctype=['b','g'],label=['Detection','Non-Detection'], silent=False, verbose=True)
-    #ID=[det_ID,nandet_ID]
-
-###Implimenting Local analog calibration###
-#dataset = 'O32_Grid'
-out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
-temp_met_ascii = fitspath+ '/'+dataset+'_temperatures_metalicity.tbl'
-temp_table= asc.read(temp_met_ascii)
-SN_4363 = temp_table['S/N_4363']
-det_4363 = np.where((SN_4363>=3))[0]
-nan_det_4363 = np.where((SN_4363<3))[0]
-print det_4363
-O32_all = temp_table['O32_Composite']
-R23_all = temp_table['R23_Composite']
-com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
-ID = temp_table['ID']
-print O32_all
-
-det_O32 = O32_all[det_4363]
-det_R23 = R23_all[det_4363]
-det_OH = com_O_log[det_4363]
+    if want == 'binning_and_graphing':
+        if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
+        if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
+        pdf_pages = fitspath +'n_Bins_grid.pdf'
+        grid_data_file = fitspath +'n_Bins_grid.npz'
+        asc_table1 = fitspath+ '/n_Bins_binning_averages.tbl'
+        asc_table2 = fitspath+ 'n_Bins_2d_binning_datadet3.tbl'
+        Binning_and_Graphing_MasterGrid.n_times_binned(fitspath,
+                                                       pdf_pages,
+                                                       grid_data_file,
+                                                       n_split,
+                                                       R23,
+                                                       O32,
+                                                       O2,
+                                                       O3,
+                                                       Hb,
+                                                       SNR2,
+                                                       SNR3,
+                                                       SNRH,
+                                                       det3,
+                                                       data3,
+                                                       galinbin,
+                                                       adaptive)
 
 
 
-#OH= local_analog_calibration.bian18_O32(det_O32)
-#print OH
-#R23_func = local_analog_calibration.bian18_R23(OH)
-#xsprint R23_func
-
-lR23 = [det_R23]
-lO32 = [det_O32]
-OH = [det_OH]
-
-local_analog_calibration.main(lR23, lO32, OH, out_pdf, ID=[ID], silent=False, verbose=True)
-
-
-    
+    if want == 'stack_mastergrid':
+        outdouble_bin = fitspath +'nsplit_grid.npz'
+        grid_data_file = fitspath +'n_Bins_grid.npz'
+        Stack_name = 'Stacking_Masked_MasterGrid_'+dataset+'.pdf'
+        Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
 
 
 
-
-###NOT IN USE###
-
-if dataset == 'O32_Grid': outfile_single = fitspath +'single_grid_O32.npz'
-    if dataset == 'R23_Grid': outfile_single = fitspath+'single_grid_R23.npz'
-    
-    grid_data = np.load(outfile_single)
-        
-    N_arr_grid = grid_data['N_arr0']
-    R23_grid = grid_data['R23_grid']
-    O32_grid = grid_data['O32_grid']
-    T_arr = grid_data['T_arr']
-        
-        
-    #Option to Change: Masking the night sky emission lines 
-        if mask == True:
-            Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data)
-        else:
-            Stack_name = 'Stacking_MasterGrid__single'+dataset+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data)
-        #Outfile and pdf both use name
-        print 'finished with stacking,' + Stack_name + 'pdf and fits files created'
-
-
-
-        #Zoom_and_gauss_general
-        Stack_name = Stack_name.replace('.pdf', '.fits')
+    if want == 'zoom':
+        Stack_name = 'Stacking_Masked_MasterGrid_'+dataset+'.fits'
         outfile_grid = fitspath + Stack_name
-        print outfile_grid
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-        #Spect_1D = fits.getdata(outfile_grid)
         dispersion = header['CDELT1']
         binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
-
+    
+    
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   
             idx = np.where(np.absolute(wave - ii)<=5)[0]
             if len(idx) > 0:
                 lineflag[idx] = 1
-        #Option to change: Constants used as initial guesses for gaussian fit
-        s=1.0
+    
+    
+        s= 1.0
         a= 1.0
-        c = 1
-        
-        s1=-0.3
-        a1= 4.7
-        s2 = 1
-        a2 = -1.8
+        c= 2.0
+        s1= 1.3
+        a1= 1.5
+        s2= 5.0
+        a2= 1.8
+    
 
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name, s,a,c,s1,a1,s2,a2, binning_avg_asc)
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
 
-        print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
 
-        #hstack_table
-        #Option to change: name of new fits file created
-        intro = fitspath + 'Grid_Average_R23_O32_Values.tbl' 
-        asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath +'/Grid_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'Grid_combined_flux_table.fits'
-        combine_flux_ascii = fitspath + 'Grid_combined_flux_table.tbl'
-        hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
-        
-        print 'Grid_combine_flux_table created'
-        
-        ########FIX THIS CODE##########line_ratio_plotting
-        #I need to go back through and figure out what is the average and what is the composite
+    if want == 'R_cal_temp':
+        combine_flux_ascii = fitspath + 'nsplit_combined_flux_table.tbl'
+        temp_m_gascii = fitspath+ '/nsplit_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/nsplit_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
+
+        if dustatten == 'False': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= False)
+        if dustatten == 'True': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= True)
+
+
+    if want =='line_ratio_plotting': 
+        combine_flux_ascii = fitspath + 'nsplit_combined_flux_table.tbl'
+        binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
         line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
 
-       
 
-        #R_temp_calcul
-        combine_flux_ascii = fitspath + 'Grid_combined_flux_table.tbl'
-        temp_m_gascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
-        temp_m_gfits = fitspath+ '/Grid_temperatures_metalicity.fits'
-        temp_m_gpdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
-
-        R_temp_calcul.run_function(fitspath, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii) 
+    if want =='calibration_plots':
+        temp_m_gascii = fitspath+ '/nsplit_temperatures_metalicity.tbl'
+        calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
 
 
-        temp_table= asc.read(temp_m_gascii)
-        SN_4363 = temp_table['S/N_4363']
-        det_4363 = np.where((SN_4363>=3))[0]
-        print det_4363'''
+    print want, 'is done'
+
+    
+
+
+
+
 

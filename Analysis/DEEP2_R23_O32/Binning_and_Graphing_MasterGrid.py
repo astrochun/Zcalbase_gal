@@ -616,7 +616,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     y1 = y[finite0]
     x = np.log10(x1)
     y = np.log10(y1)
-    vlines = np.log10(R23_grids)
+    vlines = np.log10(R23_lowlimit)
     hlines = np.log10(O32_lowlimit)
     ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
     #for pp in range(n_split*len(bin_start)): plt.axvline(x = vlines[pp], linewidth= 0.3, color= 'k')

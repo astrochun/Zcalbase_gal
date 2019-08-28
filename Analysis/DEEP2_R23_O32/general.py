@@ -13,6 +13,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+import os
 from os.path import exists
 import numpy.ma as ma
 from matplotlib.gridspec import GridSpec
@@ -21,6 +22,7 @@ from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
 import scipy.integrate as integ
 import glob
+from datetime import date
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting,calibration_plots, verification_tables, more_plots
 
@@ -29,8 +31,25 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
 
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
-fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
+
+
+
+#############Getting username##############
+
+import getpass
+username = getpass.getuser()
+print(username)
+if username == 'reagenleimbach':
+    fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+if username == 'fill in':
+    fitspath_ini = 'fill in '
+
+
+
+
+
+
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 
@@ -58,7 +77,7 @@ def exclude_outliers(objno):
     
     return flag
 
-def get_det3():
+def get_det3(fitspath):
     for ii in range(1,5):
         file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
         data  = Table(fits.getdata(file1))
@@ -118,22 +137,30 @@ def get_det3():
 
 #redue calling for look at hb
 
+def gettime(org_name,fitspath_ini):
+    today = date.today()
+    path0 = org_name+'_' + "%02i%02i" % (today.month, today.day)+'/'
+    if not exists(path0):
+        os.mkdir(fitspath_ini+path0)
+        fitspath= fitspath_ini+path0
+    else: print "Path already exists"
+    print fitspath
+    return fitspath
+
 
 def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, dustatten = 'False', mask='None'):
     #dataset options: Grid, O32_Grid, R23_Grid, n_Bins
+
+    if dataset == 'O32_Grid': org_name = 'O32_Grid'
+    if dataset == 'R23_Grid': org_name = 'R23_Grid'
+    if dataset == 'Grid': org_name = 'R23O32_Grid'
+    if dataset == 'n_Bins': org_name = 'R23O32_Manual'
+    fitspath = gettime(org_name,fitspath_ini)
     
-    
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()     #, O2_det3, O3_det3, Hb_det3
-    
-    #Grid Methods of Organizing Data
-    #Both One and Two Dimensional Analyzes 
-    #Stackboth_MasterGrid
-    #Option to Change: Bin size 
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)     #, O2_det3, O3_det3, Hb_det3
 
     
-    #Binning and Graphing MasterGrid
-    #Options to Change: Bin Size
-    #galinbin = 400
+    
 
     if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
     if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
@@ -212,7 +239,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
             Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
         else:
             Stack_name = 'Stacking_MasterGrid_bin'+str(binstr)+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data_file)
+            Stackboth_MasterGrid.run_Stacking_Master(fitspath,Stack_name,grid_data_file)
     else:
         if mask == True:
             Stack_name = 'Stacking_Masked_MasterGrid_'+dataset+'.pdf'
@@ -253,7 +280,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     a2= 1.8
     
 
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
+    zoom_and_gauss_general.zm_general(dataset, fitspath,stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
 
     print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
 

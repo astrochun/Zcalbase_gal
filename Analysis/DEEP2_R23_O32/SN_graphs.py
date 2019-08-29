@@ -257,3 +257,27 @@ def SN_each_bin(fitspath, name, asc_tab):
     asc.write(tab, fitspath+'/SN_5007_values.tbl', format = 'fixed_width_two_line')
     pdfpages.close()
     
+
+def SN_5007_stats_plot(fitspath=''):
+
+    infile = fitspath+'/SN_5007_values.tbl'
+
+    tab = asc.read(infile)
+
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+
+    n_split = 3
+
+    O32_idx0 = np.arange(0,len(tab),n_split)
+    O32_idx1 = np.arange(1,len(tab),n_split)
+    O32_idx2 = np.arange(2,len(tab),n_split)
+
+    colnames = tab.colnames[1:]
+
+    for t_ax,colname in zip(ax,colnames):
+        t_ax.scatter(tab[colname][O32_idx0], color='r', marker='o')
+        t_ax.scatter(tab[colname][O32_idx1], color='g', marker='o')
+        t_ax.scatter(tab[colname][O32_idx2], color='b', marker='o')
+
+    out_pdf = fitspath+'SN_5007_stats_plots.pdf'
+    fig.savefig(out_pdf)

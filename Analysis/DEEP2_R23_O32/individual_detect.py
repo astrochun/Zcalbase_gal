@@ -64,10 +64,10 @@ def ind_detection(fitspath, dataset, bin_id):
             three_beta[ii] = O3[ii]/Hb[ii]
             average_temp[ii] = temp_bin[bin_id]
 
-
-    out_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0902/'+dataset+'_'+bin_id+'_individual_ratios_temp.tbl'
-    n = ('ID', 'R23_Average', 'O32_Average', 'two_beta', 'three_beta', 'Temperature')
-    ind_tab = Table([ID, R23, O32, two_beta, three_beta, average_temp], name=n)
+    print 
+    out_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(bin_id)+'_individual_ratios_temp.tbl'
+    n = ('two_beta', 'three_beta', 'Temperature')   #'ID', 'R23_Average', 'O32_Average'
+    ind_tab = Table([two_beta, three_beta, average_temp], names=n) #ID, R23, O32,
     asc.write(ind_tab, out_ascii, format = 'fixed_width_two_line')
 
 

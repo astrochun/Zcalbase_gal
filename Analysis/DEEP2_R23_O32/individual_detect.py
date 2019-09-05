@@ -49,22 +49,24 @@ def ind_detection(fitspath, dataset, bin_id):
     ID = N_gal_tab['ID']
     R23 = N_gal_tab['R_23_Average']
     O32 = N_gal_tab['O_32_Average']
-    print N_Galaxies[bin_id]
+    
     #Initializing Arrays
-    two_beta = np.zeros(int(N_Galaxies[bin_id]))
+    '''two_beta = np.zeros(int(N_Galaxies[bin_id]))
     three_beta = np.zeros(int(N_Galaxies[bin_id]))
-    average_temp = np.zeros(int(N_Galaxies[bin_id]))
+    average_temp = np.zeros(int(N_Galaxies[bin_id]))'''
     
-
+    two_beta = []
+    three_beta = []
+    average_temp = []
     
-    for ii in range(int(N_Galaxies[bin_id])):
+    for ii in range(len(O2)):
         if Bin_number[ii] == bin_id:
             print 'Bin_number:', Bin_number[ii], 'O2:', O2[ii], 'O3:', O3[ii], 'Hb:', Hb[ii]
-            two_beta[ii] = O2[ii]/Hb[ii]
-            three_beta[ii] = O3[ii]/Hb[ii]
-            average_temp[ii] = temp_bin[bin_id]
+            two_beta.append(O2[ii]/Hb[ii])
+            three_beta.append(O3[ii]/Hb[ii])
+            average_temp.append(temp_bin[bin_id])
 
-    print 
+    
     out_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(bin_id)+'_individual_ratios_temp.tbl'
     n = ('two_beta', 'three_beta', 'Temperature')   #'ID', 'R23_Average', 'O32_Average'
     ind_tab = Table([two_beta, three_beta, average_temp], names=n) #ID, R23, O32,

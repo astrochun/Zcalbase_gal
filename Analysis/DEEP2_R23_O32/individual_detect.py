@@ -30,7 +30,19 @@ c = 0.98062
 
 '''fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0902/'
 dataset = 'n_Bins'
-bin_id = 0'''
+bin_id = 0
+individual_ascii =  '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(bin_id)+'_individual_ratios_temp.tbl'''
+
+
+def run_ind_detection(fitspath, dataset, average_value_ascii):
+    N_gal_tab = asc.read(average_value_ascii)  #fitspath+dataset+'_Average_R23_O32_Values.tbl'
+    ID = N_gal_tab['ID']
+    for aa in range(len(ID)):
+        print ID[aa]
+        ind_detection(fitspath,dataset,ID[aa])
+    new_name = fitspath+'Individual_ratio_temperature.tbl'
+    vertical_stacking(fitspath,dataset, new_name)
+    print('run complete')
 
 def ind_detection(fitspath, dataset, bin_id):
 
@@ -46,7 +58,7 @@ def ind_detection(fitspath, dataset, bin_id):
     Hb = get_det3_tab['Hb']
     N_Galaxies = N_gal_tab['N_Galaxies']
     temp_bin = stackmeas_tab['Temperature']
-    ID = N_gal_tab['ID']
+    
     R23 = N_gal_tab['R_23_Average']
     O32 = N_gal_tab['O_32_Average']
     
@@ -61,24 +73,26 @@ def ind_detection(fitspath, dataset, bin_id):
     
     for ii in range(len(O2)):
         if Bin_number[ii] == bin_id:
-            print 'Bin_number:', Bin_number[ii], 'O2:', O2[ii], 'O3:', O3[ii], 'Hb:', Hb[ii]
+            #print 'Bin_number:', Bin_number[ii], 'O2:', O2[ii], 'O3:', O3[ii], 'Hb:', Hb[ii]
             two_beta.append(O2[ii]/Hb[ii])
             three_beta.append(O3[ii]/Hb[ii])
             average_temp.append(temp_bin[bin_id])
 
     
-    out_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(bin_id)+'_individual_ratios_temp.tbl'
+    individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(bin_id)+'_individual_ratios_temp.tbl'
     n = ('two_beta', 'three_beta', 'Temperature')   #'ID', 'R23_Average', 'O32_Average'
     ind_tab = Table([two_beta, three_beta, average_temp], names=n) #ID, R23, O32,
-    asc.write(ind_tab, out_ascii, format = 'fixed_width_two_line')
+    asc.write(ind_tab, individual_ascii, format = 'fixed_width_two_line')
 
 
-def vstack(fitspath,new_name):
-    table_files = glob.glob(fitspath+dataset+'_'+bin_id+'_individual_ratios_temp.tbl')
-    table_files.sort()
+def vertical_stacking(fitspath,dataset, new_name):
+    individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/*_individual_ratios_temp.tbl'
+    table_files = glob.glob(individual_ascii)
+    #table_files.sort()
 
     for ii in range(len(table_files)):
         asc_tab = asc.read(table_files[ii])
+        print asc_tab[0]
         if ii == 0: vstacking = asc_tab
         else: vstacking = vstack([vstacking,asc_tab])
     asc.write(vstacking,new_name, format='fixed_width_two_line', overwrite = True)

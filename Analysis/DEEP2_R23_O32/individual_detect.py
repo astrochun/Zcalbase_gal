@@ -85,7 +85,7 @@ def ind_detection(fitspath, dataset, bin_id):
     asc.write(ind_tab, individual_ascii, format = 'fixed_width_two_line')
 
 
-def vertical_stacking(fitspath,dataset, new_name):
+def individual_galaxy_table_stacking(fitspath,dataset, new_name):
     individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/*_individual_ratios_temp.tbl'
     table_files = glob.glob(individual_ascii)
     #table_files.sort()

@@ -52,6 +52,9 @@ def ind_detection(fitspath, dataset, bin_id):
     stackmeas_tab = asc.read(fitspath+dataset+'_temperatures_metalicity.tbl')
 
     #From tables
+    Source_id = get_det3_tab['Individual_IDs']
+    O4959 = get_det3_tab['O4959']
+    O5007 = get_det3_tab['O5007']
     Bin_number = bin_tab['Bin_number']
     O2 = get_det3_tab['O2']
     O3 = get_det3_tab['O3']
@@ -67,9 +70,13 @@ def ind_detection(fitspath, dataset, bin_id):
     three_beta = np.zeros(int(N_Galaxies[bin_id]))
     average_temp = np.zeros(int(N_Galaxies[bin_id]))'''
     
+    Source_IDs = []
     Bin_ID = []
     two_beta = []
     three_beta = []
+    OIII4959 = []
+    OIII5007=[]
+    HBeta = []
     average_temp = []
     R23_ind = []
     O32_ind = []
@@ -77,24 +84,28 @@ def ind_detection(fitspath, dataset, bin_id):
     for ii in range(len(O2)):
         if Bin_number[ii] == bin_id:
             #print 'Bin_number:', Bin_number[ii], 'O2:', O2[ii], 'O3:', O3[ii], 'Hb:', Hb[ii]
+            Source_ID.append(Source_id[ii])
             Bin_ID.append(bin_id)
             R23_ind.append(R23[ii])
             O32_ind.append(O32[ii])
             two_beta.append(O2[ii]/Hb[ii])
             three_beta.append(O3[ii]/Hb[ii])
+            OIII4959.append(O4959[ii])
+            OIII5007.append(O5007[ii])
+            HBeta.append(Hb[ii])
             average_temp.append(temp_bin[bin_id])
             
     
     individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(bin_id)+'_individual_ratios_temp.tbl'
-    n = ('Bin_ID','Individual_R23', 'Individual_O32','two_beta', 'three_beta', 'Temperature')   #'ID', 'R23_Average', 'O32_Average'
-    ind_tab = Table([Bin_ID, R23_ind, O32_ind, two_beta, three_beta, average_temp], names=n) #ID, R23, O32,
+    n = ('Source_ID','Bin_ID','Individual_R23', 'Individual_O32','two_beta', 'three_beta', 'OIII4959','OIII5007','HBeta','Temperature')   #'ID', 'R23_Average', 'O32_Average'
+    ind_tab = Table([Source_ID, Bin_ID, R23_ind, O32_ind, two_beta, three_beta, OIII4959, OIII5007, HBeta, average_temp], names=n) #ID, R23, O32,
     asc.write(ind_tab, individual_ascii, format = 'fixed_width_two_line')
 
 
 def individual_galaxy_table_stacking(fitspath,dataset, new_name):
     individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/*_individual_ratios_temp.tbl'
     table_files = glob.glob(individual_ascii)
-    #table_files.sort()
+    table_files.sort()
 
     for ii in range(len(table_files)):
         asc_tab = asc.read(table_files[ii])

@@ -38,7 +38,7 @@ a = 13205
 b = 0.92506
 c = 0.98062
 
-def R_calculation(OIII4363, OIII5007, OIII4959, EBV, k_4636, k_5007):
+def R_calculation(OIII4363, OIII5007, OIII4959, EBV, k_4363, k_5007):
   
     R_value = OIII4363/(OIII5007+OIII4959)* 10**(0.4*EBV*(k_4363-k_5007))
     return R_value  
@@ -50,23 +50,18 @@ def temp_calculation(R):
     return T_e  
 
 
-def metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt = False):
+def metalicity_calculation(T_e, TWO_BETA, THREE_BETA)
+#(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt = False):
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
     #t_2 = 0.7*t_3 +0.17
-
-    if dustatt == False: 
-        two_beta = OII3727/HBETA
-        three_beta= (OIII4959+OIII5007)/HBETA
-    else:
-        two_beta = der_3727_HBETA                    
-        three_beta= der_4959_HBETA+ der_5007_HBETA 
+    
     t_3 = T_e*1e-4
     t_2 = 0.7*t_3 +0.17
     x2 = 1e-4 * 1e3 * t_2**(-0.5)
 
-    O_s_ion_log = np.log10(two_beta) +5.961 +1.676/t_2 - 0.4*np.log10(t_2) - 0.034*t_2 + np.log10(1+1.35*x2)-12
-    O_d_ion_log = np.log10(three_beta)+6.200+1.251/t_3 - 0.55*np.log10(t_3) - 0.014*(t_3)-12
+    O_s_ion_log = np.log10(TWO_BETA) +5.961 +1.676/t_2 - 0.4*np.log10(t_2) - 0.034*t_2 + np.log10(1+1.35*x2)-12
+    O_d_ion_log = np.log10(THREE_BETA)+6.200+1.251/t_3 - 0.55*np.log10(t_3) - 0.014*(t_3)-12
 
     O_s_ion = 10**(O_s_ion_log)
     O_d_ion = 10**(O_d_ion_log)
@@ -87,53 +82,42 @@ def limit_function(combine_flux_ascii):
     print 'up_temp', up_temp
     return up_temp
     
-def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux_ascii, dustatt= False):  #combine_fits, header
-    verification_table = fitspath_ini+'/Master_Verification_Tables/'+dataset+'_table.tbl'
-    mver_tab = asc.read(verification_table)
+def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='',individual_ascii='', detection='', dust_ascii='', dustatt= False):  #combine_fits, header  
+    NEED TO ADD datatype=''
 
-    #Fits Table Calls
-    #combine_fits, header = fits.getdata(combine_flux_table, header = True)
-    combine_fits= asc.read(combine_flux_ascii)
-
-    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
-
-    #Ascii Table from FITTING 
-    OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
-    OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
-    raw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
-    Hgamma = combine_fits['Hgamma_Flux_Observed'].data
-    HBETA    = combine_fits['HBETA_Flux_Observed'].data
-    OII3727  = combine_fits['OII_3727_Flux_Observed'].data
-    R23_avg      = combine_fits['R_23_Average'].data
-    O32_avg      = combine_fits['O_32_Average'].data
-    N_Galaxy = combine_fits['N_Galaxies'].data
-    ID = combine_fits['ID'].data
-
-    SN_Hgamma     = combine_fits['Hgamma_S/N'].data
-    SN_5007       = combine_fits['OIII_5007_S/N'].data
-    SN_4959       = combine_fits['OIII_4958_S/N'].data
-    SN_4363       = combine_fits['OIII_4363_S/N'].data
-    SN_HBETA      = combine_fits['HBETA_S/N'].data
-    SN_3727       = combine_fits['OII_3727_S/N'].data
+    #####Verification Table Import#######
+    #verification_table = fitspath_ini+'/Master_Verification_Tables/'+dataset+'_table.tbl'
+    #mver_tab = asc.read(verification_table)
 
     #Dust Attenuation Values Call
     ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    print 'Using attenuated dust values'
-    dust = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
-    atten_val = asc.read(dust)
+    if dustatt ==False:
+        EBV = np.zeros(len(ID))
+        k_3727 = np.zeros(len(ID))
+        k_HDELTA = np.zeros(len(ID))
+        k_Hgamma = np.zeros(len(ID))
+        k_HBETA = np.zeros(len(ID))
+        k_4363 = np.zeros(len(ID))
+        k_4959 = np.zeros(len(ID))
+        k_5007 = np.zeros(len(ID))
+    if dustatt ==True:
+        EBV = atten_val['E(B-V)']
+        print 'Using attenuated dust values'
+        #dust = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
+        atten_val = asc.read(dust)
 
-    k_3727 = atten_val['A_3727']
-    k_HDELTA = atten_val['A_HDELTA']
-    k_Hgamma = atten_val['A_Hgamma']
-    k_HBETA = atten_val['A_HBETA']
-    k_4363 = atten_val['A_4363']
-    k_4959 = atten_val['A_4959']
-    k_5007 = atten_val['A_5007']
+        k_3727 = atten_val['k_3727']
+        k_HDELTA = atten_val['k_HDELTA']
+        k_Hgamma = atten_val['k_Hgamma']
+        k_HBETA = atten_val['k_HBETA']
+        k_4363 = atten_val['k_4363']
+        k_4959 = atten_val['k_4958']
+        k_5007 = atten_val['k_5007']
     
-    if dustatt ==False: EBV = np.zeros(len(ID))
-    if dustatt ==True: EBV = atten_val['E(B-V)']
-
+    
+    ###DEEP2 and MACT Data#####
+    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
+    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
 
     #DEEP2 Derived 
     er_R23 = derived['R23'].data
@@ -155,65 +139,120 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     ID_der_MACT = derived_MACT['ID'].data
     print len(der_Te_MACT), len(der_R23_MACT)
 
-    R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
-    O32_composite = np.log10((1.33*OIII5007)/OII3727)
 
-    print 'R23_composite', R23_composite
-    print 'O32_composite', O32_composite 
+
+    #Fits Table Calls
+    combine_fits= asc.read(combine_flux_ascii)
+
+    if datatype == 'Stacked':
+        #Ascii Table from FITTING 
+        OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
+        OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
+        raw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
+        Hgamma = combine_fits['Hgamma_Flux_Observed'].data
+        HBETA    = combine_fits['HBETA_Flux_Observed'].data
+        OII3727  = combine_fits['OII_3727_Flux_Observed'].data
+        R23_avg      = combine_fits['R_23_Average'].data
+        O32_avg      = combine_fits['O_32_Average'].data
+        N_Galaxy = combine_fits['N_Galaxies'].data
+        ID = combine_fits['ID'].data
+
+        SN_Hgamma     = combine_fits['Hgamma_S/N'].data
+        SN_5007       = combine_fits['OIII_5007_S/N'].data
+        SN_4959       = combine_fits['OIII_4958_S/N'].data
+        SN_4363       = combine_fits['OIII_4363_S/N'].data
+        SN_HBETA      = combine_fits['HBETA_S/N'].data
+        SN_3727       = combine_fits['OII_3727_S/N'].data
+
+        R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
+        O32_composite = np.log10((1.33*OIII5007)/OII3727)
+
+        print 'R23_composite', R23_composite
+        print 'O32_composite', O32_composite 
     
-    up_limit = (Hgamma/SN_Hgamma) *3
-    print 'up_limit', up_limit
-
-    OIII4363 = np.zeros(len(raw_OIII4363))
-    indicate = np.zeros(len(raw_OIII4363))
-    for ii in range(len(OIII4363)):
-        print SN_4363[ii]
-        if SN_4363[ii] >= 3:
-            print 'regular'
-            print '4363:' , raw_OIII4363[ii]
-            OIII4363[ii]= raw_OIII4363[ii]
-            indicate[ii]= 1 
-        else:
-            print 'upper limit'
-            print '4363: ', up_limit[ii]
-            OIII4363[ii]= up_limit[ii]
-            indicate[ii]= 0
-    print OIII4363
-    print indicate 
-
-    #Line Ratios
-    O3727_HBETA = OII3727/HBETA
-    O5007_HBETA = OIII5007/HBETA
-    O4959_HBETA = OIII4959/HBETA
-    O4363_O5007  = OIII4363/OIII5007
-    O4363_O4959  = OIII4363/OIII4959
-    
-    O5007_O3727  = OIII5007/OII3727
-    O4959_O3727  = OIII4959/OII3727
-
-    #Attenuated Ratios
-    der_4363_5007  = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
-    der_4363_4959  = O4363_O4959 * 10**(0.4*EBV*(k_4363-k_4959))
-    der_3727_HBETA = O3727_HBETA* 10**(0.4*EBV*(k_3727-k_HBETA))
-    der_4959_HBETA = O4959_HBETA* 10**(0.4*EBV*(k_4959-k_HBETA))
-    der_5007_HBETA = O5007_HBETA* 10**(0.4*EBV*(k_5007-k_HBETA))
-    
-    
-    #Raw Data
-    R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)   #, SN_4636, SN_5007, SN_495)
-    T_e= temp_calculation(R_value)  #, R_std)
-    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt)
-
-
-    #if not exists(out_ascii):
-    n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+        up_limit = (Hgamma/SN_Hgamma) *3
+        print 'up_limit', up_limit
         
-    tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
+        OIII4363 = np.zeros(len(raw_OIII4363))
+        indicate = np.zeros(len(raw_OIII4363))
+        for ii in range(len(OIII4363)):
+            print SN_4363[ii]
+            if SN_4363[ii] >= 3:
+                print 'regular'
+                print '4363:' , raw_OIII4363[ii]
+                OIII4363[ii]= raw_OIII4363[ii]
+                indicate[ii]= 1 
+            else:
+                print 'upper limit'
+                print '4363: ', up_limit[ii]
+                OIII4363[ii]= up_limit[ii]
+                indicate[ii]= 0
+            print OIII4363
+            print indicate 
+
+        #Line Ratios
+        O3727_HBETA = OII3727/HBETA
+        O5007_HBETA = OIII5007/HBETA
+        O4959_HBETA = OIII4959/HBETA
+        O4363_O5007  = OIII4363/OIII5007
+        O4363_O4959  = OIII4363/OIII4959
+    
+        O5007_O3727  = OIII5007/OII3727
+        O4959_O3727  = OIII4959/OII3727
+        
+        #Attenuated Ratios
+        der_4363_5007  = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
+        der_4363_4959  = O4363_O4959 * 10**(0.4*EBV*(k_4363-k_4959))
+        der_3727_HBETA = O3727_HBETA* 10**(0.4*EBV*(k_3727-k_HBETA))
+        der_4959_HBETA = O4959_HBETA* 10**(0.4*EBV*(k_4959-k_HBETA))
+        der_5007_HBETA = O5007_HBETA* 10**(0.4*EBV*(k_5007-k_HBETA))
+
+        if dustatt == False: 
+            Two_Beta = OII3727/HBETA
+            Three_Beta= (OIII4959+OIII5007)/HBETA
+        else:
+            Two_Beta = der_3727_HBETA                    
+            Three_Beta= der_4959_HBETA+ der_5007_HBETA 
+    
+        #Raw Data
+        R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)   #, SN_4636, SN_5007, SN_495)
+        T_e= temp_calculation(R_value)  #, R_std)
+        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+
+
+        #O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt)
+
+        n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+        
+        tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
+
+
+    if datatype == 'Individual':
+        OIII5007 = combine_fits['OIII5007'].data
+        OIII4959 = combine_fits['OIII4959'].data
+        HBETA    = combine_fits['HBeta'].data
+        R23_individual = combine_fits['Individual_R23'].data
+        O32_individual = combine_fits['Individual_O32'].data
+
+        Two_Beta = combine_fits['two_beta'].data
+        Three_Beta = combine_fits['three_beta'].data
+        T_e = = combine_fits['average_temp'].data
+        Source_ID = combine_fits['Source_ ID'].data
+
+        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+
+        
+        n=  ('Source_ID', 'R23', 'O32', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+        
+        tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, HBETA, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
+
+    
+
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     
     tab0.write(out_fits,format = 'fits', overwrite = True)
-
+'''
     #Plots
     #name = 'Grid_temperature_vs_R23.pdf'
     pdf_pages = PdfPages(fitspath+pdf_name)
@@ -417,7 +456,7 @@ def run_function(fitspath, dataset, out_ascii, out_fits, pdf_name,  combine_flux
     fig5.clear()
     fig6.clear()
     fig7.clear()
-    fig_3d.clear()
+    fig_3d.clear()'''
    
 
 
@@ -452,7 +491,7 @@ def dust_attenuation(combine_ascii):
     for nn in range(len(HGamma)):
         if EBV[nn] <= 0: EBV[nn] = 0
     
-    
+    print EBV
     A_3727 = EBV*k_3727
     A_HDELTA = EBV*k_HDELTA
     A_Hgamma = EBV*k_Hgamma
@@ -460,7 +499,7 @@ def dust_attenuation(combine_ascii):
     A_4363 = EBV*k_4363
     A_4958 = EBV*k_4958
     A_5007 = EBV*k_5007
-
+    print "A_3727:", A_3727
 
     out_ascii = fitspath_ini+'/dust_attentuation_values.tbl'
     #if not exists(out_ascii_single):

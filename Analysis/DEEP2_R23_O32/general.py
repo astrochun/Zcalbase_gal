@@ -94,6 +94,9 @@ def get_det3(fitspath):
     
     O2_ini = data0['OII_FLUX_MOD'].data
     O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data
+    O4959_ini = data0['OIIIB_FLUX_MOD'].data
+    O5007_ini = data0['OIIIR_FLUX_MOD'].data
+    
     Hb_ini = data0['HB_FLUX_MOD'].data
     R23_ini = (O2_ini+O3_ini)/Hb_ini
     O32_ini = O3_ini/O2_ini
@@ -117,17 +120,20 @@ def get_det3(fitspath):
     Hb  = Hb_ini[det3]
     O2  = O2_ini[det3]
     O3  = O3_ini[det3]
+    O4959 = O4959_ini[det3]
+    O5007 = O5007_ini[det3]
     SNR2 =SNR2_ini[det3]
     SNR3 =SNR3_ini[det3]
     SNRH =SNRH_ini[det3]
+    individual_names = objno[det3]
 
     print 'R23:',len(R23)
     O2_det3 =O2_ini[det3]
     O3_det3 =O3_ini[det3]
     Hb_det3 =Hb_ini[det3]
 
-    n2= ('R23','O32', 'O2', 'O3', 'Hb', 'SNR2', 'SNR3', 'SNRH', 'det3', 'O2_det3', 'O3_det3', 'Hb_det3')  #'data3',
-    tab1 = Table([R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, O2_det3, O3_det3, Hb_det3], names=n2)  #data3
+    n2= ('Individual_IDs','R23','O32', 'O2', 'O3', 'O4959','O5007','Hb', 'SNR2', 'SNR3', 'SNRH', 'det3', 'O2_det3', 'O3_det3', 'Hb_det3')  #'data3',
+    tab1 = Table([individual_names, R23, O32, O2, O3, O4959, O5007, Hb, SNR2, SNR3, SNRH, det3, O2_det3, O3_det3, Hb_det3], names=n2)  #data3
     asc.write(tab1, fitspath+'get_det3_table2.tbl', format='fixed_width_two_line')
     #tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
     
@@ -349,13 +355,14 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
     if dataset == 'n_Bins':
-        combine_flux_ascii = fitspath + 'nsplit_combined_flux_table.tbl'
-        temp_m_gascii = fitspath+ '/nsplit_temperatures_metalicity.tbl'
-        temp_m_gfits = fitspath+ '/nsplit_temperatures_metalicity.fits'
-        temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
+        combine_flux_ascii = fitspath + 'n_Bins_combined_flux_table.tbl'
+        temp_m_gascii = fitspath+ '/n_Bins_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ '/n_Bins_temperatures_metalicity.fits'
+        temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
+        dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
 
-        if dustatten == 'False': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= False)
-        if dustatten == 'True': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= True)
+        if dustatten == 'False': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, individual_ascii = '', detection = 'Stacked', dustatt= False)   #dust_ascii need to add back in 
+        if dustatten == 'True': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= True)   #need to add back in dust_ascii
 
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
@@ -689,14 +696,15 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
 #Enter a keyword for want to indictate what function you want to run
 #This will ease the reproduction process
 #CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
-def run_individual_functions(want, adaptive, y_correction, dustatten= False):
+def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten= False, individual=False):
     #Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
     
     dataset = 'n_Bins'
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()
+    
 
 
     if want == 'binning_and_graphing':
+        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)
         if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
         if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
         pdf_pages = fitspath +'n_Bins_grid.pdf'
@@ -767,7 +775,7 @@ def run_individual_functions(want, adaptive, y_correction, dustatten= False):
         if dustatten == 'False': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= False)
         if dustatten == 'True': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt= True)
 
-
+        
     if want =='line_ratio_plotting': 
         combine_flux_ascii = fitspath + 'nsplit_combined_flux_table.tbl'
         binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
@@ -787,3 +795,13 @@ def run_individual_functions(want, adaptive, y_correction, dustatten= False):
 
 
 
+
+
+
+
+
+#####Not Using Yet######
+'''if individual == 'True':
+            individual_variables_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0902/Individual_ratio_temperature.tbl'
+            R_temp_calcul.run_individual_function(fitspath,dataset,individual_variables_ascii, 
+'''

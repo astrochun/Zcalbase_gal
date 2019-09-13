@@ -50,7 +50,7 @@ def temp_calculation(R):
     return T_e  
 
 
-def metalicity_calculation(T_e, TWO_BETA, THREE_BETA)
+def metalicity_calculation(T_e, TWO_BETA, THREE_BETA):
 #(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt = False):
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
@@ -82,8 +82,10 @@ def limit_function(combine_flux_ascii):
     print 'up_temp', up_temp
     return up_temp
     
-def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='',individual_ascii='', detection='', dust_ascii='', dustatt= False):  #combine_fits, header  
-    NEED TO ADD datatype=''
+def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):  #combine_fits, header  
+    combine_fits= asc.read(combine_flux_ascii)
+    #ID = combine_fits['Bin_ID']
+
 
     #####Verification Table Import#######
     #verification_table = fitspath_ini+'/Master_Verification_Tables/'+dataset+'_table.tbl'
@@ -91,7 +93,8 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
     #Dust Attenuation Values Call
     ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    if dustatt ==False:
+    '''if dustatt ==False:
+        
         EBV = np.zeros(len(ID))
         k_3727 = np.zeros(len(ID))
         k_HDELTA = np.zeros(len(ID))
@@ -112,7 +115,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         k_HBETA = atten_val['k_HBETA']
         k_4363 = atten_val['k_4363']
         k_4959 = atten_val['k_4958']
-        k_5007 = atten_val['k_5007']
+        k_5007 = atten_val['k_5007']'''
     
     
     ###DEEP2 and MACT Data#####
@@ -142,9 +145,57 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
 
     #Fits Table Calls
-    combine_fits= asc.read(combine_flux_ascii)
+    
+    
+    if 'two_beta' in combine_fits.keys():
+        print 'Running Metallicity Calculation for Individual Spectra'
+        OIII5007 = combine_fits['OIII5007'].data
+        OIII4959 = combine_fits['OIII4959'].data
+        HBETA    = combine_fits['HBeta'].data
+        R23_individual = combine_fits['Individual_R23'].data
+        O32_individual = combine_fits['Individual_O32'].data
 
-    if datatype == 'Stacked':
+        Two_Beta = combine_fits['two_beta'].data
+        Three_Beta = combine_fits['three_beta'].data
+        T_e = combine_fits['Temperature'].data
+        Source_ID = combine_fits['Source_ID'].data
+
+        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+
+        
+        n=  ('Source_ID', 'R23', 'O32', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Observed_Flux_HBETA', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+        
+        tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, HBETA, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007
+
+
+    if 'Log10(Mass)' in combine_fits.keys():
+        print 'Running Metallicity Calculation for Individual Spectra'
+        OIII5007 = combine_fits['OIII5007_Flux'].data
+        OIII4959 = combine_fits['OIII4959_Flux'].data
+        HBETA    = combine_fits['HBETA_Flux'].data
+        Mass = combine_fits['Log10(Mass)'].data
+        LHbeta = combine_fits['HBeta_Luminosity'].data
+        OII = combine_fits['OII_Flux'].data
+
+        #Two_Beta = combine_fits['two_beta'].data
+        #Three_Beta = combine_fits['three_beta'].data
+        T_e = combine_fits['Te'].data
+        Source_ID = combine_fits['OBJNO'].data
+        Two_Beta = OII/HBETA
+        Three_Beta = (OIII5007+OIII4959)/HBETA
+
+        
+        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+
+        
+        n=  ('Source_ID', 'Mass', 'LHbeta', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Observed_Flux_HBETA', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+        
+        tab0 = Table([Source_ID, Mass, LHbeta, OIII5007, OIII4959, HBETA, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
+
+
+
+    else:
+        print 'Running R, Temperature, and Metallicity Calculations for Stacked Spectra'
         #Ascii Table from FITTING 
         OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
         OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
@@ -227,24 +278,8 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
 
 
-    if datatype == 'Individual':
-        OIII5007 = combine_fits['OIII5007'].data
-        OIII4959 = combine_fits['OIII4959'].data
-        HBETA    = combine_fits['HBeta'].data
-        R23_individual = combine_fits['Individual_R23'].data
-        O32_individual = combine_fits['Individual_O32'].data
-
-        Two_Beta = combine_fits['two_beta'].data
-        Three_Beta = combine_fits['three_beta'].data
-        T_e = = combine_fits['average_temp'].data
-        Source_ID = combine_fits['Source_ ID'].data
-
-        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
-
+    
         
-        n=  ('Source_ID', 'R23', 'O32', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
-        
-        tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, HBETA, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
 
     
 

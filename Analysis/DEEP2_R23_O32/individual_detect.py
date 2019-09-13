@@ -66,9 +66,6 @@ def ind_detection(fitspath, dataset, bin_id):
     O32 = get_det3_tab['O32']
     
     #Initializing Arrays
-    '''two_beta = np.zeros(int(N_Galaxies[bin_id]))
-    three_beta = np.zeros(int(N_Galaxies[bin_id]))
-    average_temp = np.zeros(int(N_Galaxies[bin_id]))'''
     
     Source_IDs = []
     Bin_ID = []

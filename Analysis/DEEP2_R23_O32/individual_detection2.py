@@ -44,6 +44,10 @@ def ind_detection(fitspath, dataset):
     Source_id = get_det3_tab['Individual_IDs']
     O4959 = get_det3_tab['O4959']
     O5007 = get_det3_tab['O5007']
+    Hgamma = get_det3_tab['Hgamma']
+    SNRHG = get_det3_tab['SNRHG']
+    SNR4363 = get_det3_tab['SNR4363']
+    O4363 = get_det3_tab['O4363']
     Bin_number = bin_tab['Bin_number']
     O2 = get_det3_tab['O2']
     O3 = get_det3_tab['O3']
@@ -51,6 +55,7 @@ def ind_detection(fitspath, dataset):
     N_Galaxies = N_gal_tab['N_Galaxies']
     Bin_ID = N_gal_tab['ID']
     temp_bin = stackmeas_tab['Temperature']
+    detection = stackmeas_tab['Detection']
     
     R23 = get_det3_tab['R23']
     O32 = get_det3_tab['O32']
@@ -62,16 +67,23 @@ def ind_detection(fitspath, dataset):
         two_beta = (O2[current_bin]/Hb[current_bin])
         three_beta = (O3[current_bin]/Hb[current_bin])
         OIII4959 = O4959[current_bin]
-        OIII5007=O5007[current_bin]
+        OIII5007 = O5007[current_bin]
         HBeta = Hb[current_bin]
         average_temp = np.repeat(temp_bin[ii],len(current_bin))  #np.repeat() or [ii]* number of times to repeat
+        Detection = np.repeat(detection[ii],len(current_bin))
         R23_ind = R23[current_bin]
         O32_ind = O32[current_bin]
 
+        OIII4363 = O4363[current_bin]
+        HGamma = Hgamma[current_bin]
+        SNR_HG = SNRHG[current_bin]
+        SNR_4363 = SNR4363[current_bin]
+        
+
 
         individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(ii)+'_individual_ratios_temp.tbl'
-        n = ('Source_ID','Bin_ID','Individual_R23', 'Individual_O32','two_beta', 'three_beta', 'OIII4959','OIII5007','HBeta','Temperature')   #'ID', 'R23_Average', 'O32_Average'
-        ind_tab = Table([Source_IDs, Bin_ID, R23_ind, O32_ind, two_beta, three_beta, OIII4959, OIII5007, HBeta, average_temp], names=n) #ID, R23, O32,
+        n = ('Source_ID','Bin_ID','Individual_R23', 'Individual_O32','two_beta', 'three_beta', 'HGamma','SNR_HG','OIII4363','SNR_4363','OIII4959','OIII5007','HBeta','Temperature','Detection')   #'ID', 'R23_Average', 'O32_Average'
+        ind_tab = Table([Source_IDs, Bin_ID, R23_ind, O32_ind, two_beta, three_beta, HGamma, SNR_HG, OIII4363, SNR_4363, OIII4959, OIII5007, HBeta, average_temp,Detection], names=n) #ID, R23, O32,
         asc.write(ind_tab, individual_ascii, format = 'fixed_width_two_line')
 
 
@@ -109,9 +121,13 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table):
 
     R23_ind = MT_ascii['R23']
     O32_ind = MT_ascii['O32']
+    Detection = MT_ascii['Detection']
     ind_metal = MT_ascii['com_O_log']
-    R23 = np.log10(R23_ind)
-    O32 = np.log10(O32_ind)
+    R23_log = np.log10(R23_ind)
+    O32_log = np.log10(O32_ind)
+    detect = np.where((Detection ==1))[0]
+    nan_detect = np.where((Detection ==0))[0]
+    
 
     pdf_name= 'R23vsO32_individual_metal_plots.pdf'
     pdf_pages = PdfPages(fitspath+pdf_name)
@@ -119,7 +135,8 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table):
     fig1, ax1 = plt.subplots()
     cm = plt.cm.get_cmap('BuPu_r')
 
-    plot1= ax1.scatter(R23,O32,0.8, c=ind_metal ,marker='*')
+    plot1= ax1.scatter(R23[detect],O32[detect],0.8, c=ind_metal ,marker='*')
+    plot2= ax1.scatter(R23[nan_detect],O32[nan_detect],0.8, c=ind_metal ,marker='.')
     cb = fig1.colorbar(plot1)
     cb.set_label('Metallicity')
     ax1.set_xlabel('R23')
@@ -147,13 +164,15 @@ def massvslum_plots(fitspath, dataset, individual_combine_table):
     LHBETA = MT_ascii['LHbeta']
     ind_metal = MT_ascii['com_O_log']
 
+    detect = np.where((LHBETA =! -1.0))[0]
+
     pdf_name= 'MvsL_individual_metal_plots.pdf'
     pdf_pages = PdfPages(fitspath+pdf_name)
 
     fig1, ax1 = plt.subplots()
     cm = plt.cm.get_cmap('BuPu_r')
 
-    plot1= ax1.scatter(MASS,LHBETA,0.8, c=ind_metal ,marker='*')
+    plot1= ax1.scatter(MASS,LHBETA[detect],0.8, c=ind_metal ,marker='*')
     cb = fig1.colorbar(plot1)
     cb.set_label('Metallicity')
     ax1.set_xlabel('Mass')

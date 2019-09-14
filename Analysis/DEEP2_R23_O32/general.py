@@ -96,6 +96,8 @@ def get_det3(fitspath):
     O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data
     O4959_ini = data0['OIIIB_FLUX_MOD'].data
     O5007_ini = data0['OIIIR_FLUX_MOD'].data
+    Hgamma_ini = data0['HG_FLUX_MOD'].data
+    O4363_ini = data0['OIIIA_FLUX_MOD'].data
     
     Hb_ini = data0['HB_FLUX_MOD'].data
     R23_ini = (O2_ini+O3_ini)/Hb_ini
@@ -104,6 +106,8 @@ def get_det3(fitspath):
     SNR2_ini = data0['OII_SNR'].data
     SNR3_ini = data0['OIIIR_SNR'].data
     SNRH_ini = data0['HB_SNR'].data
+    SNRHg_ini = data0['HG_SNR'].data
+    SNR4363_ini = data0['OIIIA_SNR'].data
 
     logR23 = np.log10(R23_ini)
     print 'O2 len:', len(O2_ini)
@@ -120,11 +124,15 @@ def get_det3(fitspath):
     Hb  = Hb_ini[det3]
     O2  = O2_ini[det3]
     O3  = O3_ini[det3]
+    Hgamma = Hgamma_ini[det3]
+    O4363 = O4363_ini[det3]
     O4959 = O4959_ini[det3]
     O5007 = O5007_ini[det3]
     SNR2 =SNR2_ini[det3]
     SNR3 =SNR3_ini[det3]
     SNRH =SNRH_ini[det3]
+    SNRHG = SNRHg_ini[det3]
+    SNR4363 = SNR4363_ini[det3]
     individual_names = objno[det3]
 
     print 'R23:',len(R23)
@@ -132,8 +140,8 @@ def get_det3(fitspath):
     O3_det3 =O3_ini[det3]
     Hb_det3 =Hb_ini[det3]
 
-    n2= ('Individual_IDs','R23','O32', 'O2', 'O3', 'O4959','O5007','Hb', 'SNR2', 'SNR3', 'SNRH', 'det3', 'O2_det3', 'O3_det3', 'Hb_det3')  #'data3',
-    tab1 = Table([individual_names, R23, O32, O2, O3, O4959, O5007, Hb, SNR2, SNR3, SNRH, det3, O2_det3, O3_det3, Hb_det3], names=n2)  #data3
+    n2= ('Individual_IDs','R23','O32', 'O2', 'O3', 'Hgamma','O4363','O4959','O5007','Hb', 'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363','det3', 'O2_det3', 'O3_det3', 'Hb_det3')  #'data3',
+    tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007, Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363,det3, O2_det3, O3_det3, Hb_det3], names=n2)  #data3
     asc.write(tab1, fitspath+'get_det3_table2.tbl', format='fixed_width_two_line')
     #tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
     

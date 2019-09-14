@@ -152,9 +152,35 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         OIII5007 = combine_fits['OIII5007'].data
         OIII4959 = combine_fits['OIII4959'].data
         HBETA    = combine_fits['HBeta'].data
+        HGamma = combine_fits['HGamma'].data
+        SNR_HG = combine_fits['SNR_HG'].data
+        raw_OIII4363 = combine_fits['OIII4363'].data
+        SNR_4363 = combine_fits['SNR_4363'].data
         R23_individual = combine_fits['Individual_R23'].data
         O32_individual = combine_fits['Individual_O32'].data
+        Detection = combine_fits['Detection'].data
 
+        up_limit = (Hgamma/SN_Hgamma) *3
+        print 'up_limit', up_limit
+        
+        OIII4363 = np.zeros(len(raw_OIII4363))
+        indicate = np.zeros(len(raw_OIII4363))
+        for ii in range(len(OIII4363)):
+            print SN_4363[ii]
+            if SN_4363[ii] >= 3:
+                print 'regular'
+                print '4363:' , raw_OIII4363[ii]
+                OIII4363[ii]= raw_OIII4363[ii]
+                indicate[ii]= 1 
+            else:
+                print 'upper limit'
+                print '4363: ', up_limit[ii]
+                OIII4363[ii]= up_limit[ii]
+                indicate[ii]= 0
+            print OIII4363
+            print indicate 
+        
+        
         Two_Beta = combine_fits['two_beta'].data
         Three_Beta = combine_fits['three_beta'].data
         T_e = combine_fits['Temperature'].data
@@ -163,9 +189,9 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
 
         
-        n=  ('Source_ID', 'R23', 'O32', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Observed_Flux_HBETA', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+        n=  ('Source_ID', 'R23', 'O32', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Flux_4363','Observed_Flux_HBETA','Temperature', 'Detection','O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
         
-        tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, HBETA, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007
+        tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, OIII4363, HBETA, T_e, Detection, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007
 
 
     if 'Log10(Mass)' in combine_fits.keys():

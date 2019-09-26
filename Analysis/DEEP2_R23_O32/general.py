@@ -77,7 +77,7 @@ def exclude_outliers(objno):
     
     return flag
 
-def get_det3(fitspath):
+def get_det3(fitspath, individual_detect=False):
     for ii in range(1,5):
         file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
         data  = Table(fits.getdata(file1))
@@ -114,7 +114,7 @@ def get_det3(fitspath):
     
     #SNR code: This rules out major outliers by only using specified data
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
-                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0) & (logR23 < 1.4))[0]
+                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0) & (logR23 < 1.4))[0]  #May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
 
     
     data3 = data0[det3]
@@ -145,6 +145,56 @@ def get_det3(fitspath):
     asc.write(tab1, fitspath+'get_det3_table2.tbl', format='fixed_width_two_line')
     #tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
     
+    if individual_detect == True:
+        ML_data_det = np.where((np.isfinite(temp_x)==True) & (temp_x>0) & (temp_x < 1e13) & (exclude_flag == 0))[0]   ###Need to Change/Find Variables!!!
+
+        individ_data = objno[ML_data_det]
+        ML_data = np.repeat(1,len(individ_data))
+        R23_O32_data = np.zeros(len(individ_data))
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+        print('Using mass evolve table from 09/24')
+        mass_valid_idx_tab = np.load('/Users/reagenleimbach/Desktop/Zcalbase_gal/From_Caroline/mass_bin_hbeta_revised_75_112_113_300_600_1444_1444.npz')
+        mass_LHbeta_file = np.load('/Users/reagenleimbach/Desktop/Zcalbase_gal/From_Caroline/revised_75_112_113_300_600_1444_1444_mass_SFR_data.npz')
+
+        bin_idx = mass_valid_idx_tab['bin_ind']
+        mass= mass_LHbeta_file['mass']
+        LHbeta = mass_LHbeta_file['lum']
+        
+        valid_idx = []
+        for i in range(len(bin_idx)):           #bin_ind is 2D array of indices (an array for each bin)
+            valid_idx += list(bin_idx[i])               #creates 1D array of all indices
+        idx_array = np.array(valid_idx)
+        
+        mass_array =np.log10(mass[valid_idx])
+        LHbeta_array = LHbeta[valid_idx]
+        objectname = objno[valid_idx]
+        
+
+        n_massL = ('Object', 'Mass', 'Luminosity')
+        mL_tab = Table([objectname, mass_array, LHbeta_array], names=n_massL)
+        asc.write(mL_tab, fitspath+'mass_LHbeat_tab.tbl', format = 'fixed_width_two_line')
+     
+        
+       
+        print ('R_detection:', R_detection)
+        print ('C_detection:', C_detection)
+
+
+
+
     return R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3    #, O2_det3, O3_det3, Hb_det3
 
 
@@ -364,13 +414,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     if dataset == 'n_Bins':
         combine_flux_ascii = fitspath + 'n_Bins_combined_flux_table.tbl'
-        temp_m_gascii = fitspath+ '/n_Bins_temperatures_metalicity.tbl'
-        temp_m_gfits = fitspath+ '/n_Bins_temperatures_metalicity.fits'
+        temp_m_gascii = fitspath+ 'n_Bins_temperatures_metalicity.tbl'
+        temp_m_gfits = fitspath+ 'n_Bins_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
-        dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
+        dust_ascii_name = fitspath + 'dust_attentuation_values.tbl'
 
-        if dustatten == 'False': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, individual_ascii = '', detection = 'Stacked', dustatt= False)   #dust_ascii need to add back in 
-        if dustatten == 'True': R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= True)   #need to add back in dust_ascii
+        if dustatten == False: R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
+        if dustatten == True: R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii
 
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
@@ -387,8 +437,8 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     m_ver_table = fitspath_ini+'Master_Verification_Tables/'+dataset+'_table.tbl'
     #ver_tab = fitspath+'/'+dataset+'_verification.tbl'
     
-    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_met_gascii, m_ver_table)
-    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_met_gascii, m_ver_table)
+    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, m_ver_table)
+    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, m_ver_table)
     more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, m_ver_table)
     more_plots.hist_for_bin(dataset, asc_table2)
 

@@ -4,6 +4,42 @@
 #Calculates the R value, electron temperature, and metallicity from the flux table
 #produced by the zoom_and_gauss_general functions
 
+
+##############Functions#######################
+# R_calculation(OIII4363, OIII5007, OIII4959, EBV, k_4363, k_5007)
+# temp_calculation(R)
+# metalicity_calculation(T_e, TWO_BETA, THREE_BETA)
+# limit_function(combine_flux_ascii)
+# run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False)
+'''
+Input variables: 
+fitspath
+dataset
+out_ascii          -> name of the output ascii table that file produces
+out_fits           -> name of the output fits table that file produces
+pdf_name           -> name of the pdf file with the graphs that the function will produce
+combine_flux_ascii -> ascii table with all the emission lines 
+dust_ascii         -> name of ascii table with dust attenuation values 
+dustatt            -> True/False input; if True dust attenuation values are used for calculations; automatic = false 
+
+
+
+
+Calling order: 
+verification tables   --> need to work on making these tables; need to put the verification table into the call
+dust attenuation      --> called in function by True or False, but need to pass the table into the function
+Called DEEP2 and MACT Data
+Depending on which combine_fits table is passed in --> run individual or stacked spectra and makes a table
+Plots (currently commented out)
+'''
+# dust_attenuation(combine_ascii)
+# call_cardelli(lam0)
+# dust_vs_nondust_table
+'''
+creates a table for the non-dust and dust attenuation metallicity values
+called independently from the run_function 
+'''
+
 #Currently running: Grid
 import numpy as np
 import matplotlib.pyplot as plt
@@ -82,18 +118,19 @@ def limit_function(combine_flux_ascii):
     print 'up_temp', up_temp
     return up_temp
     
-def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):  #combine_fits, header  
+def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):  #combine_fits, header
     combine_fits= asc.read(combine_flux_ascii)
     #ID = combine_fits['Bin_ID']
 
 
     #####Verification Table Import#######
     #verification_table = fitspath_ini+'/Master_Verification_Tables/'+dataset+'_table.tbl'
+    #print('Using verification table' + verification_table)
     #mver_tab = asc.read(verification_table)
 
     #Dust Attenuation Values Call
     ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    '''if dustatt ==False:
+    if dustatt ==False:
         
         EBV = np.zeros(len(ID))
         k_3727 = np.zeros(len(ID))
@@ -103,19 +140,20 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         k_4363 = np.zeros(len(ID))
         k_4959 = np.zeros(len(ID))
         k_5007 = np.zeros(len(ID))
-    if dustatt ==True:
-        EBV = atten_val['E(B-V)']
-        print 'Using attenuated dust values'
-        #dust = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
-        atten_val = asc.read(dust)
 
+    if dustatt ==True:
+        dust_attenuation(fitspath, combine_flux_ascii)
+        print('Using attenuated dust values')
+        atten_val = asc.read(dust_ascii)
+
+        EBV = atten_val['E(B-V)']
         k_3727 = atten_val['k_3727']
         k_HDELTA = atten_val['k_HDELTA']
         k_Hgamma = atten_val['k_Hgamma']
         k_HBETA = atten_val['k_HBETA']
         k_4363 = atten_val['k_4363']
         k_4959 = atten_val['k_4958']
-        k_5007 = atten_val['k_5007']'''
+        k_5007 = atten_val['k_5007']
     
     
     ###DEEP2 and MACT Data#####
@@ -295,6 +333,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)   #, SN_4636, SN_5007, SN_495)
         T_e= temp_calculation(R_value)  #, R_std)
         O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+
 
 
         #O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt)
@@ -521,7 +560,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
    
 
 
-def dust_attenuation(combine_ascii):
+def dust_attenuation(fitspath, combine_ascii):
     line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
     
     combine_asc = asc.read(combine_ascii)
@@ -562,7 +601,7 @@ def dust_attenuation(combine_ascii):
     A_5007 = EBV*k_5007
     print "A_3727:", A_3727
 
-    out_ascii = fitspath_ini+'/dust_attentuation_values.tbl'
+    out_ascii = fitspath+'/dust_attentuation_values.tbl'
     #if not exists(out_ascii_single):
     n2= ('ID','k_3727', 'k_HDELTA', 'k_Hgamma', 'k_HBETA', 'k_4363', 'k_4958', 'k_5007', 'E(B-V)')
     tab1 = Table([ID,k_3727, k_HDELTA, k_Hgamma, k_HBETA , k_4363, k_4958, k_5007, EBV], names=n2)
@@ -581,3 +620,28 @@ def call_cardelli(lam0): #, extrapolate=False):
     n3 = ('Line_Name','K_value')
     tab3 = Table([line_name, k_values])
     asc.write(tab3, k_ascii, format = 'fixed_width_two_line')'''
+
+
+
+
+def dust_vs_nondust_table(fitspath, dust_metal_table, nondust_metal_table, dust_atten_values, name):
+    #dust_vs_nondust_table = fitspath + 'dust_and_nondust_metaltab.tbl'
+    dust_vs_nondust_table = fitspath + name
+    
+    #Non Dust attentuation
+    nondust = asc.read(nondust_metal_table)
+    dust = asc.read(dust_atten_values)
+    
+    nondust_metal = nondust['com_O_log'].data
+    dust_metal = dust['com_O_log'].data
+    ID = nondust['ID'].data
+    R23_composite = nondust['R23_Composite'].data
+    O32_composite = nondust['O32_Composite'].data
+    Temperature = nondust['Temperature'].data
+
+    n_dust = ('ID','R23_Composite','O32_Composite', 'Non-Dust Attenuated Metallicities','Dust Attenuated Metallicities','Temperature')
+    tab_dust = Table([ID, R23_composite, O32_composite, nondust_metal, dust_metal, Temperature], names =n_dust)
+    asc.write(tab_dust, dust_vs_nondust_table, format = 'fixed_width_two_line')
+
+
+

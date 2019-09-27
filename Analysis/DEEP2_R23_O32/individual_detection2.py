@@ -24,18 +24,57 @@ from datetime import date
 
 from . import R_temp_calcul
 
+#Caroline's where statement:  valid_ind = np.where((np.isfinite(temp_x)==True) & (temp_x>0) & (temp_x < 1e13) & (temp_flag == 0))[0]
 
+def individual_galaxy_detections_plots(fitspath,dataset, new_name):
+    #fitspath+dataset+'_Average_R23_O32_Values.tbl'
+    #new_name = fitspath+'Individual_ratio_temperature.tbl'
 
-def run_ind_detection(fitspath, dataset):    #, average_value_ascii):
-    #N_gal_tab = asc.read(average_value_ascii)  #fitspath+dataset+'_Average_R23_O32_Values.tbl'
+    #Rewrite this function so that it pulls values for both Caroline and Reagen's individual detections
     ind_detection(fitspath,dataset)
-    new_name = fitspath+'Individual_ratio_temperature.tbl'
-    individual_galaxy_table_stacking(fitspath,dataset, new_name)
-    print('run complete')
+    
+    ###Write code so that you pulls the new table, don't think we need to stack them anymore
+    individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/*_individual_ratios_temp.tbl'
+    '''table_files = glob.glob(individual_ascii)
+    table_files.sort()
 
+    for ii in range(len(table_files)):
+        asc_tab = asc.read(table_files[ii])
+        print asc_tab[0]
+        if ii == 0: vstacking = asc_tab
+        else: vstacking = vstack([vstacking,asc_tab])
+    asc.write(vstacking,new_name, format='fixed_width_two_line', overwrite = True)'''
+
+
+    pdf_pages= PdfPages()
+    if: ####Something that calls Reagen's data:
+        individual_combine_table = ''
+        #out_ascii = fitspath+'Individual_temp_metal.tbl'
+        #out_fits = fitspath+'Individual_temp_metal.fits'
+        #temp_pdf = fitspath+'Individual_temp_metal.pdf'
+        #dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
+        metal_pdf= fitspath + 'R23vsO32_individual_metal_plots.pdf'
+        call_metallicity_calculation(fitspath,dataset,individual_combine_table,out_ascii,out_fits,temp_pdf, metal_pdf)  #verification table?!
+
+
+    if: ####Something that calls Caroline's data:
+        individual_combine_table = ''
+        #out_ascii = fitspath+'Individual_temp_metal.tbl'
+        #out_fits = fitspath+'Individual_temp_metal.fits'
+        #temp_pdf = fitspath+'Individual_temp_metal.pdf'
+        #dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
+        metal_pdf= fitspath + 'MassvsLum_individual_metal_plots.pdf'
+        massvslum_plots(fitspath, dataset, individual_combine_table,out_ascii,out_fits, temp_pdf, metal_pdf)  #verification table?!
+
+    
 def ind_detection(fitspath, dataset):
 
     get_det3_tab = asc.read(fitspath+'get_det3_table2.tbl')
+    get_massL_tab = asc.read()
+    
+    
+
+
     bin_tab = asc.read(fitspath+dataset+'_2d_binning_datadet3.tbl')
     N_gal_tab = asc.read(fitspath+dataset+'_Average_R23_O32_Values.tbl')
     stackmeas_tab = asc.read(fitspath+dataset+'_temperatures_metalicity.tbl')
@@ -59,7 +98,7 @@ def ind_detection(fitspath, dataset):
     
     R23 = get_det3_tab['R23']
     O32 = get_det3_tab['O32']
-      
+    
     for ii in Bin_ID:
         current_bin = np.where((Bin_number == ii))[0]
         Source_IDs = Source_id[current_bin]
@@ -78,6 +117,9 @@ def ind_detection(fitspath, dataset):
         HGamma = Hgamma[current_bin]
         SNR_HG = SNRHG[current_bin]
         SNR_4363 = SNR4363[current_bin]
+
+        Reagens_data = np.where
+        Carolines_data = np.where
         
 
 
@@ -87,18 +129,6 @@ def ind_detection(fitspath, dataset):
         asc.write(ind_tab, individual_ascii, format = 'fixed_width_two_line')
 
 
-def individual_galaxy_table_stacking(fitspath,dataset, new_name):
-    individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/*_individual_ratios_temp.tbl'
-    table_files = glob.glob(individual_ascii)
-    #table_files.sort()
-
-    for ii in range(len(table_files)):
-        asc_tab = asc.read(table_files[ii])
-        print asc_tab[0]
-        if ii == 0: vstacking = asc_tab
-        else: vstacking = vstack([vstacking,asc_tab])
-    asc.write(vstacking,new_name, format='fixed_width_two_line', overwrite = True)
-
 
 
 
@@ -106,12 +136,10 @@ def individual_galaxy_table_stacking(fitspath,dataset, new_name):
 
 def call_metallicity_calculation(fitspath, dataset, individual_combine_table):
     #individual_combine_table = /Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0902/Individual_ratio_temperature.tbl'
-
-    
-    out_ascii = fitspath+'Individual_temp_metal.tbl'
-    out_fits = fitspath+'Individual_temp_metal.fits'
-    pdf_name = fitspath+'Individual_temp_metal.pdf'
-    dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
+    #out_ascii = fitspath+'Individual_temp_metal.tbl'
+    #out_fits = fitspath+'Individual_temp_metal.fits'
+    #pdf_name = fitspath+'Individual_temp_metal.pdf'
+    #dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
 
     R_temp_calcul.run_function(fitspath, dataset, out_ascii, out_fits, pdf_name, individual_combine_table, dust_ascii, dustatt=False)
 
@@ -128,9 +156,7 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table):
     detect = np.where((Detection ==1))[0]
     nan_detect = np.where((Detection ==0))[0]
     
-
-    pdf_name= 'R23vsO32_individual_metal_plots.pdf'
-    pdf_pages = PdfPages(fitspath+pdf_name)
+    pdf_pages = PdfPages(metal_pdf)
 
     fig1, ax1 = plt.subplots()
     cm = plt.cm.get_cmap('BuPu_r')
@@ -148,11 +174,11 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table):
     pdf_pages.close()
 
 
-def massvslum_plots(fitspath, dataset, individual_combine_table):
-    out_ascii = fitspath+'Individual_temp_metal.tbl'
-    out_fits = fitspath+'Individual_temp_metal.fits'
-    pdf_name = fitspath+'Individual_temp_metal.pdf'
-    dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
+def massvslum_plots(fitspath, dataset, individual_combine_table,out_ascii,out_fits, temp_pdf, metal_pdf): 
+    #out_ascii = fitspath+'Individual_temp_metal.tbl'
+    #out_fits = fitspath+'Individual_temp_metal.fits'
+    #temp_pdf = fitspath+'Individual_temp_metal.pdf'
+    #dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
 
     R_temp_calcul.run_function(fitspath, dataset, out_ascii, out_fits, pdf_name, individual_combine_table, dust_ascii, dustatt=False)
 

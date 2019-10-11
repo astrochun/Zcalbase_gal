@@ -28,37 +28,62 @@ from chun_codes import random_pdf, compute_onesig_pdf
 #error_prop_chuncodes(fitspath, dataset, working_wave, flux_g_array, RMS_array)
 # TM_tab is the table with your metallicities, temperatures, and line ratios
 # flux_tab (for Reagen) is produced by the zoom_and_gauss_general code and has the RMS values for each bin
+# flux_tab (for Caroline) is produced by emission_line_fit code and has the RMS values for each bin
 def error_prop_chuncodes(fitspath, project, dataset):
     if project == 'R23O32':
         TM_tab = asc.read(fitspath +dataset +'_temperatures_metalicity.tbl')
         combine_flux_tab = asc.read(fitspath +dataset+'_combined_flux_table.tbl')
+        
+        #R23O32 table calls
+        OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
+        OII_RMS       = combine_flux_tab['OII_3727_RMS'].data
+        NeIII_flux    = combine_flux_tab['NeIII_Flux_Gaussian'].data
+        NeIII_RMS     = combine_flux_tab['NeIII_RMS'].data
+        HeI_flux      = combine_flux_tab['HeI_Flux_Gaussian'].data
+        HeI_RMS       = combine_flux_tab['HeI_RMS'].data
+        Hdelta_flux   = combine_flux_tab['HDELTA_Flux_Gaussian'].data
+        Hdelta_RMS    = combine_flux_tab['HDELTA_RMS'].data
+        Hgamma_flux   = combine_flux_tab['Hgamma_Flux_Gaussian'].data
+        Hgamma_RMS    = combine_flux_tab['Hgamma_RMS'].data
+        OIII4363_flux = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
+        OIII4363_RMS  = combine_flux_tab['OIII_4363_RMS'].data
+        OIII4959_flux = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
+        OIII4959_RMS  = combine_flux_tab['OIII_4958_RMS'].data
+        OIII5007_flux = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
+        OIII5007_RMS  = combine_flux_tab['OIII_5007_RMS'].data
+        
+        flux_data = [OII_flux,NeIII_flux, HeI_flux, Hdelta_flux, Hgamma_flux,OIII4363_flux,OIII4959_flux, OIII5007_flux ]
+        RMS_data  = [OII_RMS,NeIII_RMS, HeI_RMS, Hdelta_RMS, Hgamma_RMS,OIII4363_RMS,OIII4959_RMS, OIII5007_RMS]
+        
     if project == 'ML':
+        TM_tab = asc.read(fitspath + dataset + '_derived_properties_metallicity.tbl')
+        combine_flux_tab = asc.read(fitspath + dataset + '_emission_lines.tbl')
+        
         print('ML table calls')
+        #ML table calls
+        OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
+        OII_RMS       = combine_flux_tab['OII_3727_RMS'].data
+        Hdelta_flux   = combine_flux_tab['HDELTA_Flux_Gaussian'].data
+        Hdelta_RMS    = combine_flux_tab['HDELTA_RMS'].data
+        Hgamma_flux   = combine_flux_tab['HGAMMA_Flux_Gaussian'].data
+        Hgamma_RMS    = combine_flux_tab['HGAMMA_RMS'].data
+        OIII4363_flux = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
+        OIII4363_RMS  = combine_flux_tab['OIII_4363_RMS'].data
+        OIII4959_flux = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
+        OIII4959_RMS  = combine_flux_tab['OIII_4958_RMS'].data
+        OIII5007_flux = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
+        OIII5007_RMS  = combine_flux_tab['OIII_5007_RMS'].data
+        
+        flux_data = [OII_flux, Hdelta_flux, Hgamma_flux, OIII4363_flux, OIII4959_flux, OIII5007_flux ]
+        RMS_data  = [OII_RMS, Hdelta_RMS, Hgamma_RMS, OIII4363_RMS, OIII4959_RMS, OIII5007_RMS]
+        
+        
     if project == '': print('Please specify project')
+    
 
-    ###I am going to assume our table headers are the same, otherwise we can change the headers or put the table calls in the if statements###
-
-    OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
-    OII_RMS       = combine_flux_tab['OII_3727_RMS'].data
-    NeIII_flux    = combine_flux_tab['NeIII_Flux_Gaussian'].data
-    NeIII_RMS     = combine_flux_tab['NeIII_RMS'].data
-    HeI_flux      = combine_flux_tab['HeI_Flux_Gaussian'].data
-    HeI_RMS       = combine_flux_tab['HeI_RMS'].data
-    Hdelta_flux   = combine_flux_tab['HDELTA_Flux_Gaussian'].data
-    Hdelta_RMS    = combine_flux_tab['HDELTA_RMS'].data
-    Hgamma_flux   = combine_flux_tab['Hgamma_Flux_Gaussian'].data
-    Hgamma_RMS    = combine_flux_tab['Hgamma_RMS'].data
-    OIII4363_flux = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
-    OIII4363_RMS  = combine_flux_tab['OIII_4363_RMS'].data
-    OIII4959_flux = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
-    OIII4959_RMS  = combine_flux_tab['OIII_4958_RMS'].data
-    OIII5007_flux = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
-    OIII5007_RMS  = combine_flux_tab['OIII_5007_RMS'].data
     Temp          = TM_tab['Temperature'].data
     metallicity   = TM_tab['com_O_log'].data
 
-    flux_data = [OII_flux,NeIII_flux, HeI_flux, Hdelta_flux, Hgamma_flux,OIII4363_flux,OIII4959_flux, OIII5007_flux ]
-    RMS_data  = [OII_RMS,NeIII_RMS, HeI_RMS, Hdelta_RMS, Hgamma_RMS,OIII4363_RMS,OIII4959_RMS, OIII5007_RMS]
     x_arr = np.random.random(1000)
     #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
     
@@ -67,7 +92,7 @@ def error_prop_chuncodes(fitspath, project, dataset):
     for aa in range(len(flux_data)):
         flux_gpdf = random_pdf(flux_data[aa],RMS_data[aa], seed_i =1, n_iter=1000, silent = False)
 
-    print 'err_function:', flux_gpdf, flux_gpdf.shape
+    print('err_function:', flux_gpdf, flux_gpdf.shape)
 
     
     for bb in range(len(flux_data)): 

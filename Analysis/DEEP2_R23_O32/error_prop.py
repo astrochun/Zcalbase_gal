@@ -31,13 +31,13 @@ from chun_codes import random_pdf, compute_onesig_pdf
 # flux_tab (for Caroline) is produced by emission_line_fit code and has the RMS values for each bin
 def error_prop_chuncodes(fitspath, project, dataset):
     if project == 'R23O32':
-        TM_file = '_temperatures_metalicity.tbl'
-        flux_file = '_combined_flux_table.tbl'
+        TM_file = fitspath + dataset + '_temperatures_metalicity.tbl'
+        flux_file = fitspath + dataset + '_combined_flux_table.tbl'
         
         
     if project == 'ML':
-        TM_file = '_derived_properties_metallicity.tbl'
-        flux_file = '_emission_lines.tbl'
+        TM_file = fitspath + dataset + '_derived_properties_metallicity.tbl'
+        flux_file = fitspath + dataset + '_emission_lines.tbl'
         
         
     if project == '': 
@@ -45,8 +45,8 @@ def error_prop_chuncodes(fitspath, project, dataset):
         return
     
     
-    TM_tab = asc.read(fitspath + dataset + TM_file)
-    combine_flux_tab = asc.read(fitspath + dataset + flux_file)
+    TM_tab = asc.read(TM_file)
+    combine_flux_tab = asc.read(flux_file)
     
     OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
     OII_RMS       = combine_flux_tab['OII_3727_RMS'].data
@@ -66,6 +66,7 @@ def error_prop_chuncodes(fitspath, project, dataset):
         Hgamma_RMS    = combine_flux_tab['Hgamma_RMS'].data
         
     
+    line_names = ['OII_3727', 'HDELTA', 'HGAMMA', 'OIII_4363', 'OIII_4958', 'OIII_5007']
     flux_data = [OII_flux, Hdelta_flux, Hgamma_flux, OIII4363_flux, OIII4959_flux, OIII5007_flux ]
     RMS_data  = [OII_RMS, Hdelta_RMS, Hgamma_RMS, OIII4363_RMS, OIII4959_RMS, OIII5007_RMS]
 
@@ -79,13 +80,16 @@ def error_prop_chuncodes(fitspath, project, dataset):
     
     for aa in range(len(flux_data)):
         flux_gpdf = random_pdf(flux_data[aa],RMS_data[aa], seed_i =aa, n_iter=1000, silent = False)
-        err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[bb], usepeak=False, silent=True, verbose = True)
+        err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=False, silent=True, verbose = True)
         
-        ##add columns in combine_flux_tab to store error
-        ##i.e. add column to table named "OIII_4363_Low_Error" for err[0] and "OIII_4363_High_Error" for err[1]
+        ##Won't work for Reagen's Hgamma_Flux_Gaussian column bc lower case gamma
+        col_name_idx = flux_file.index_column(line_names[aa] + '_Flux_Gaussian')
+        flux_file.add_column([err[0], err[1]], indexes = [col_name_idx + 1, col_name_idx + 2], 
+                             names = [line_names[aa] + '_Low_Error', line_names[aa] + '_High_Error'])
         
         print('err_function:', flux_gpdf, flux_gpdf.shape)
         print('err',err, len(err),'xpeak', xpeak,len(err))
+    
     
     ##only saves the last line array
     '''

@@ -84,7 +84,7 @@ def error_prop_chuncodes(fitspath, project, dataset):
         
         ##Won't work for Reagen's Hgamma_Flux_Gaussian column bc lower case gamma
         col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
-        flux_file.add_column([err[0], err[1]], indexes = [col_name_idx + 1, col_name_idx + 2], 
+        combine_flux_tab.add_column([err[0], err[1]], indexes = [col_name_idx + 1, col_name_idx + 2],
                              names = [line_names[aa] + '_Low_Error', line_names[aa] + '_High_Error'])
         
         print('err_function:', flux_gpdf, flux_gpdf.shape)

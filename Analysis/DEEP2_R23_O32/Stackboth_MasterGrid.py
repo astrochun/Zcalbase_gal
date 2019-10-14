@@ -43,9 +43,9 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     R23_minimum = grid_data['R23_minimum'] #used to be R23_grid
     O32_minimum = grid_data['O32_minimum'] #Used to be O32_grid
     
-    image2DM = np.nan_to_num(image2D[det3]) 
+    image2DM = np.nan_to_num(image2D[det3]) #gets data
     
-    print 'Mask[det3]', mask[det3]
+    print 'Mask[det3]', mask[det3] #takes mask and limits it to just our data
     if type(mask) != type(None):
         image2DM = np.ma.masked_array(image2DM, mask[det3])
         
@@ -72,6 +72,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
             print rr,oo
             index= grid_data['locator'][rr,oo]
             #print rr, oo, 'index:', index, index.dtype
+            #calculating the average and minimum values of R23 and O32
             if len(index) >10:
                 R23_node[count] = R23_minimum[rr,oo] 
                 O32_node[count] = O32_minimum[rr,oo]

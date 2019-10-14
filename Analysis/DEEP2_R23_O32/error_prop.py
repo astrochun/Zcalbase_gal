@@ -70,10 +70,11 @@ def error_prop_chuncodes(fitspath, flux_file):
         c1 = Column(err_t[0], name=line_names[aa]+'_Low_Error')
         c2 = Column(err_t[1], name=line_names[aa]+'_High_Error')
         combine_flux_tab.add_columns([c1, c2], indexes=[col_name_idx,col_name_idx])
-        
+   
         print('err_function:', flux_gpdf, flux_gpdf.shape)
         print('err',err, len(err),'xpeak', xpeak,len(err))
-
+    asc.write(combine_flux_tab, flux_file, format= 'fixed_width_two_line')
+        
 
     ###Next Step is to make the curves and graph the functions
     
@@ -94,6 +95,11 @@ def plotting_errors(fitspath, TM_file, flux_file):
     OIII4363_Low_Error = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
     OIII4959_Low_Error = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
     OIII5007_Low_Error = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
+
+    OII_High_Error      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
+    OIII4363_High_Error = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
+    OIII4959_High_Error = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
+    OIII5007_High_Error = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
     
     
     

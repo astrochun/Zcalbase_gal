@@ -64,7 +64,6 @@ def error_prop_chuncodes(fitspath, flux_file):
         flux_gpdf = random_pdf(flux_data[aa],RMS_data[aa], seed_i =aa, n_iter=1000, silent = False)
         err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=False, silent=True, verbose = True)
         
-        ##Won't work for Reagen's Hgamma_Flux_Gaussian column bc lower case gamma
         col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
         err_t = err.transpose()
         c1 = Column(err_t[0], name=line_names[aa]+'_Low_Error')
@@ -94,6 +93,8 @@ def plotting_errors(fitspath, TM_file, flux_file):
     OIII4363_Low_Error = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
     OIII4959_Low_Error = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
     OIII5007_Low_Error = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
+    
+    
     
     
     

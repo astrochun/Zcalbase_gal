@@ -264,7 +264,7 @@ def SN_5007_stats_plot(fitspath=''):
 
     tab = asc.read(infile)
 
-    fig, ax = plt.subplots(nrows=2, ncols=2)
+    fig, [[ax00,ax01],[ax10,ax11]] = plt.subplots(nrows=2, ncols=2)
 
     n_split = 3
 
@@ -274,10 +274,10 @@ def SN_5007_stats_plot(fitspath=''):
 
     colnames = tab.colnames[1:]
 
-    for t_ax,colname in zip(ax,colnames):
-        t_ax.scatter(tab[colname][O32_idx0], color='r', marker='o')
-        t_ax.scatter(tab[colname][O32_idx1], color='g', marker='o')
-        t_ax.scatter(tab[colname][O32_idx2], color='b', marker='o')
+    for t_ax,colname in zip([ax00,ax01,ax10,ax11],colnames):
+        t_ax.scatter(tab['Bin'][O32_idx0],tab[colname][O32_idx0], color='r', marker='.')
+        t_ax.scatter(tab['Bin'][O32_idx1],tab[colname][O32_idx1], color='g', marker='.')
+        t_ax.scatter(tab['Bin'][O32_idx2],tab[colname][O32_idx2], color='b', marker='.')
 
     out_pdf = fitspath+'SN_5007_stats_plots.pdf'
     fig.savefig(out_pdf)

@@ -110,8 +110,8 @@ def limit_function(combine_flux_ascii):
     #hgamma/hgamma_sn*3 = 3sigma
     combine_fits= asc.read(combine_flux_ascii)
 
-    Hgamma = combine_fits['Hgamma_Flux_Observed'].data
-    Hgamma_SN    = combine_fits['Hgamma_S/N'].data
+    Hgamma = combine_fits['HGAMMA_Flux_Observed'].data
+    Hgamma_SN    = combine_fits['HGAMMA_S/N'].data
 
     up_temp = (Hgamma/Hgamma_SN) *3
 
@@ -120,7 +120,7 @@ def limit_function(combine_flux_ascii):
     
 def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):  #combine_fits, header
     combine_fits= asc.read(combine_flux_ascii)
-    #ID = combine_fits['Bin_ID']
+    ID = combine_fits['ID'].data
 
 
     #####Verification Table Import#######

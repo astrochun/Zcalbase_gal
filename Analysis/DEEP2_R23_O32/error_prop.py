@@ -69,32 +69,60 @@ def error_prop_chuncodes(fitspath, flux_file):
         c1 = Column(err_t[0], name=line_names[aa]+'_Low_Error')
         c2 = Column(err_t[1], name=line_names[aa]+'_High_Error')
         combine_flux_tab.add_columns([c1, c2], indexes=[col_name_idx,col_name_idx])
-        
+   
         print('err_function:', flux_gpdf, flux_gpdf.shape)
         print('err',err, len(err),'xpeak', xpeak,len(err))
-
+    asc.write(combine_flux_tab, flux_file, format= 'fixed_width_two_line')
+        
 
     ###Next Step is to make the curves and graph the functions
     
-def plotting_errors(fitspath, TM_file, flux_file):
-       
-    TM_tab = asc.read(TM_file)
+def plotting_errors(fitspath,  flux_file):
+    pdfpages = PdfPages(fitspath+'emission_line_error_graphs.pdf')
+    #TM_tab = asc.read(TM_file)
     combine_flux_tab = asc.read(flux_file)
 
-    Temp          = TM_tab['Temperature'].data
-    metallicity   = TM_tab['com_O_log'].data
-
+    #Temp          = TM_tab['Temperature'].data
+    #metallicity   = TM_tab['com_O_log'].data
+    
+    ID = combine_flux_tab['ID'].data
     OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
     OIII4363_flux = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
     OIII4959_flux = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
     OIII5007_flux = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
 
-    OII_Low_Error      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
-    OIII4363_Low_Error = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
-    OIII4959_Low_Error = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
-    OIII5007_Low_Error = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
+    OII_Low_Error      = combine_flux_tab['OII_3727_Low_Error'].data
+    OIII4363_Low_Error = combine_flux_tab['OIII_4363_Low_Error'].data
+    OIII4959_Low_Error = combine_flux_tab['OIII_4958_Low_Error'].data
+    OIII5007_Low_Error = combine_flux_tab['OIII_5007_Low_Error'].data
+
+    OII_High_Error      = combine_flux_tab['OII_3727_High_Error'].data
+    OIII4363_High_Error = combine_flux_tab['OIII_4363_High_Error'].data
+    OIII4959_High_Error = combine_flux_tab['OIII_4958_High_Error'].data
+    OIII5007_High_Error = combine_flux_tab['OIII_5007_High_Error'].data
+
+    error_OII = np.array([OII_Low_Error, OII_High_Error])
+    print error_OII
+
     
-    
+    line_names = ['OII_3727', 'OIII_4363', 'OIII_4958', 'OIII_5007']
+
+    fig,ax = plt.subplot()
+    for ii in range(len(ID)):
+        
+        
+        ax.plot(3727, OII_flux[ii], 'r')
+        ax.plot(4363, OIII4363_flux[ii], 'r')
+        ax.plot(4959, OIII4959_flux[ii], 'r')
+        ax.plot(5007, OIII5007_flux[ii], 'r')
+
+        ax.errorbar(3727, OII_flux[ii], yerr = error_OII[ii], ecolor = 'k')
+        
+
+        fig.savefig(pdfpages, format='pdf')
+
+    fig.set_size_inches(8,8)
+    fig.savefig(pdf_pages, format='pdf')
     
     
     

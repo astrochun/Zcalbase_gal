@@ -29,7 +29,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid,
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 
 #Imports Error propagation codes from chun_codes
-from chun_codes import random_pdf, compute_onesig_pdf
+from chun_codes import random_pdf, compute_onesig_pdf, intersect
 
 #fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
 
@@ -66,7 +66,7 @@ lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32
 
 line_type = ['Oxy2', 'Single','Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single']
 
-line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']  
+line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'HGAMMA', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']  
 
 def exclude_outliers(objno):
     flag = np.zeros(len(objno), dtype=int)
@@ -111,12 +111,13 @@ def get_det3(fitspath, individual_detect=False):
 
     logR23 = np.log10(R23_ini)
     print 'O2 len:', len(O2_ini)
-    
+
+    #################################################################################
     #SNR code: This rules out major outliers by only using specified data
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
                     (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0) & (logR23 < 1.4))[0]  #May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
 
-    
+    # Organize the R23_032 data
     data3 = data0[det3]
 
     R23 = R23_ini[det3]
@@ -140,27 +141,43 @@ def get_det3(fitspath, individual_detect=False):
     O3_det3 =O3_ini[det3]
     Hb_det3 =Hb_ini[det3]
 
-    n2= ('Individual_IDs','R23','O32', 'O2', 'O3', 'Hgamma','O4363','O4959','O5007','Hb', 'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363','det3', 'O2_det3', 'O3_det3', 'Hb_det3')  #'data3',
-    tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007, Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363,det3, O2_det3, O3_det3, Hb_det3], names=n2)  #data3
-    asc.write(tab1, fitspath+'get_det3_table2.tbl', format='fixed_width_two_line')
+    n2= ('Individual_IDs','R23','O32','O2','O3','HGAMMA','O4363','O4959','O5007',
+         'Hb', 'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363','det3', 'O2_det3', 'O3_det3',
+         'Hb_det3')
+    tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
+                  Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363,det3, O2_det3, O3_det3,
+                  Hb_det3], names=n2)
+
+    # We can create two different kinds of tables here of the R23_032 data (det3)
+    asc.write(tab1, fitspath+'get_det3_table.tbl', format='fixed_width_two_line')
     #tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
     
+
+    # Saving the detection condition (np.where) statements that will be used to call the data
     if individual_detect == True:
-        ML_data_det = np.where((np.isfinite(temp_x)==True) & (temp_x>0) & (temp_x < 1e13) & (exclude_flag == 0))[0]   ###Need to Change/Find Variables!!!
+        DEEP2_m = asc.read(fitspath_ini+'results_deeps_revised.tbl')
+        temp_x = DEEP2_m['best.stellar.m_star'].data
+        ML_data_det = np.where((np.isfinite(temp_x)==True)
+                       & (temp_x>0) & (temp_x < 1e13) & (exclude_flag == 0))[0]
 
-        individ_data = objno[ML_data_det]
-        ML_data = np.repeat(1,len(individ_data))
-        R23_O32_data = np.zeros(len(individ_data))
+        #define column names
+        n_comb = ('Mass_Luminosity_Individual', 'R23_O32_Individual')
+
+        ###Making the columns the same lengths by adding np.nan to shorter dataset
+        if len(ML_data_det) > len(det3):
+            tot_nan = len(ML_data_det)-len(det3)
+            nan_array = np.empty(tot_nan)
+            nan_array[:] = np.nan
+            new_det3 = np.concatenate((det3,nan_array))
+            det_tab = Table([ML_data_det,new_det3], names=n_comb)
+        else:
+            tot_nan = len(det3)-len(ML_data_det)
+            nan_array = np.empty(tot_nan)
+            nan_array[:] = np.nan
+            new_det = np.concatenate((ML_data_det,nan_array))
+            det_tab = Table([new_det,det3], names=n_comb)
+            
         
-        
-        
-        
-        
-
-
-
-
-
 
 
 
@@ -168,7 +185,7 @@ def get_det3(fitspath, individual_detect=False):
         print('Using mass evolve table from 09/24')
         mass_valid_idx_tab = np.load('/Users/reagenleimbach/Desktop/Zcalbase_gal/From_Caroline/mass_bin_hbeta_revised_75_112_113_300_600_1444_1444.npz')
         mass_LHbeta_file = np.load('/Users/reagenleimbach/Desktop/Zcalbase_gal/From_Caroline/revised_75_112_113_300_600_1444_1444_mass_SFR_data.npz')
-
+        
         bin_idx = mass_valid_idx_tab['bin_ind']
         mass= mass_LHbeta_file['mass']
         LHbeta = mass_LHbeta_file['lum']
@@ -177,7 +194,7 @@ def get_det3(fitspath, individual_detect=False):
         for i in range(len(bin_idx)):           #bin_ind is 2D array of indices (an array for each bin)
             valid_idx += list(bin_idx[i])               #creates 1D array of all indices
         idx_array = np.array(valid_idx)
-        
+            
         mass_array =np.log10(mass[valid_idx])
         LHbeta_array = LHbeta[valid_idx]
         objectname = objno[valid_idx]
@@ -185,12 +202,10 @@ def get_det3(fitspath, individual_detect=False):
 
         n_massL = ('Object', 'Mass', 'Luminosity')
         mL_tab = Table([objectname, mass_array, LHbeta_array], names=n_massL)
-        asc.write(mL_tab, fitspath+'mass_LHbeat_tab.tbl', format = 'fixed_width_two_line')
+
+        asc.write(det_tab,fitspath+'indexed_individual.tbl',format = 'fixed_width_two_line')
+        asc.write(mL_tab, fitspath+'mass_LHbeta_tab.tbl', format = 'fixed_width_two_line')
      
-        
-       
-        print ('R_detection:', R_detection)
-        print ('C_detection:', C_detection)
 
 
 

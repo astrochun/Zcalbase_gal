@@ -63,6 +63,7 @@ def error_prop_chuncodes(fitspath, flux_file):
     for aa in range(len(flux_data)):
         flux_gpdf = random_pdf(flux_data[aa],RMS_data[aa], seed_i =aa, n_iter=1000, silent = False)
         err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=False, silent=True, verbose = True)
+
         
         col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
         err_t = err.transpose()
@@ -110,25 +111,25 @@ def plotting_errors(fitspath, flux_file):
     line_names = ['OII_3727', 'OIII_4363', 'OIII_4958', 'OIII_5007']
 
     
-    fig,ax = plt.subplots()
+    
     for ii in range(len(ID)):
         ##plot Gaussian
+        fig,ax = plt.subplots()
+        ax.plot(3727, OII_flux[ii], 'r', marker= 'o', markersize = 2)
+        ax.plot(4363, OIII4363_flux[ii], 'r', marker= 'o', markersize = 2)
+        ax.plot(4959, OIII4959_flux[ii], 'r', marker= 'o', markersize = 2)
+        ax.plot(5007, OIII5007_flux[ii], 'r', marker= 'o', markersize = 2)
         
-        ax.plot(3727, OII_flux[ii], 'r')
-        ax.plot(4363, OIII4363_flux[ii], 'r')
-        ax.plot(4959, OIII4959_flux[ii], 'r')
-        ax.plot(5007, OIII5007_flux[ii], 'r')
-        
-        ax.errorbar(3727, OII_flux[ii], yerr = error_OII, ecolor = 'k')
-        ax.errorbar(4363, OIII4363_flux[ii], yerr = error_OIII4363, ecolor = 'k')
-        ax.errorbar(4959, OIII4959_flux[ii], yerr = error_OIII4959, ecolor = 'k')
-        ax.errorbar(5007, OIII5007_flux[ii], yerr = error_OIII5007, ecolor = 'k')        
+        ax.errorbar(3727, OII_flux[ii], fmt= 'None', yerr = error_OII, ecolor = 'k')
+        ax.errorbar(4363, OIII4363_flux[ii], fmt= 'None',yerr = error_OIII4363, ecolor = 'k')
+        ax.errorbar(4959, OIII4959_flux[ii],fmt= 'None', yerr = error_OIII4959, ecolor = 'k')
+        ax.errorbar(5007, OIII5007_flux[ii], fmt= 'None',yerr = error_OIII5007, ecolor = 'k')        
         
 
         fig.savefig(pdf_pages, format='pdf')
-
+        
     fig.set_size_inches(8,8)
-    fig.savefig(pdf_pages, format='pdf')
+
     
     pdf_pages.close()
     

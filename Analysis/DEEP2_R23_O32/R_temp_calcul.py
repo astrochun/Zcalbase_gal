@@ -86,7 +86,7 @@ def temp_calculation(R):
     return T_e  
 
 
-def metalicity_calculation(T_e, TWO_BETA, THREE_BETA):
+def metalicity_calculation(T_e, TWO_BETA, THREE_BETA):   #metallicity spelled wrong go back and change it if you have time
 #(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt = False):
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
@@ -190,7 +190,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         OIII5007 = combine_fits['OIII5007'].data
         OIII4959 = combine_fits['OIII4959'].data
         HBETA    = combine_fits['HBeta'].data
-        HGamma = combine_fits['HGamma'].data
+        HGamma = combine_fits['HGAMMA'].data
         SNR_HG = combine_fits['SNR_HG'].data
         raw_OIII4363 = combine_fits['OIII4363'].data
         SNR_4363 = combine_fits['SNR_4363'].data
@@ -264,7 +264,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
         OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
         raw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
-        Hgamma = combine_fits['Hgamma_Flux_Observed'].data
+        Hgamma = combine_fits['HGAMMA_Flux_Observed'].data
         HBETA    = combine_fits['HBETA_Flux_Observed'].data
         OII3727  = combine_fits['OII_3727_Flux_Observed'].data
         R23_avg      = combine_fits['R_23_Average'].data
@@ -272,7 +272,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         N_Galaxy = combine_fits['N_Galaxies'].data
         ID = combine_fits['ID'].data
 
-        SN_Hgamma     = combine_fits['Hgamma_S/N'].data
+        SN_Hgamma     = combine_fits['HGAMMA_S/N'].data
         SN_5007       = combine_fits['OIII_5007_S/N'].data
         SN_4959       = combine_fits['OIII_4958_S/N'].data
         SN_4363       = combine_fits['OIII_4363_S/N'].data
@@ -292,7 +292,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         indicate = np.zeros(len(raw_OIII4363))
         for ii in range(len(OIII4363)):
             print SN_4363[ii]
-            if SN_4363[ii] >= 3:
+            if SN_4363[ii] >= 3.0 & SN_5007 >= 100.0:##Adding the requirement that the S/N of 5007 is greater than or equal to 100
                 print 'regular'
                 print '4363:' , raw_OIII4363[ii]
                 OIII4363[ii]= raw_OIII4363[ii]
@@ -339,7 +339,10 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         #O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt)
 
         n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+
         
+        c_add = Column(indicate, name='Detection')
+        combine_flux_tab.add_columns(c_add, index=0) #index = 0 should add the detection column to the front of the combine_flux table
         tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
 
 
@@ -567,11 +570,11 @@ def dust_attenuation(fitspath, combine_ascii):
     ini_con = 0.468
     ID = combine_asc['ID']
     HBeta= combine_asc['HBETA_Flux_Observed'].data
-    HGamma= combine_asc['Hgamma_Flux_Observed'].data
+    HGamma= combine_asc['HGAMMA_Flux_Observed'].data
     
     lam0_OII = combine_asc['OII_3727_X_bar'].data
     lam0_HDELTA = combine_asc['HDELTA_X_bar'].data
-    lam0_Hgamma = combine_asc['Hgamma_X_bar'].data
+    lam0_Hgamma = combine_asc['HGAMMA_X_bar'].data
     lam0_HBETA = combine_asc['HBETA_X_bar'].data
     lam0_4363 = combine_asc['OIII_4363_X_bar'].data
     lam0_4958 = combine_asc['OIII_4958_X_bar'].data

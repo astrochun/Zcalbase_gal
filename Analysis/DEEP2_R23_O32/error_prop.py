@@ -21,6 +21,9 @@ import scipy.integrate as integ
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
 
+#Imports R_temp_calcul code for temp/metallicity calculation
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import R_temp_calcul
+
 
 #line_name = ['OII_3727','NeIII','HeI', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
 
@@ -29,13 +32,14 @@ from chun_codes import random_pdf, compute_onesig_pdf
 # TM_tab is the table with your metallicities, temperatures, and line ratios
 # flux_tab (for Reagen) is produced by the zoom_and_gauss_general code and has the RMS values for each bin
 # flux_tab (for Caroline) is produced by emission_line_fit code and has the RMS values for each bin
-def error_prop_chuncodes(fitspath, flux_file):
+def error_prop_chuncodes(flux_file, TM_file):
     #TM_file = fitspath + dataset + '_temperatures_metalicity.tbl'
     #flux_file = fitspath + dataset + '_combined_flux_table.tbl'
     #TM_file = fitspath + dataset + '_derived_properties_metallicity.tbl'
     #flux_file = fitspath + dataset + '_emission_lines.tbl'
     
     combine_flux_tab = asc.read(flux_file)
+    TM_tab = asc.read(TM_file)
     
     OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
     OII_RMS       = combine_flux_tab['OII_3727_RMS'].data
@@ -49,22 +53,29 @@ def error_prop_chuncodes(fitspath, flux_file):
     OIII5007_RMS  = combine_flux_tab['OIII_5007_RMS'].data
     Hgamma_flux   = combine_flux_tab['HGAMMA_Flux_Gaussian'].data
     Hgamma_RMS    = combine_flux_tab['HGAMMA_RMS'].data
-        
+    Hbeta_flux    = combine_flux_tab['HBETA_Flux_Gaussian'].data
+    Hbeta_RMS     = combine_flux_tab['HBETA_RMS'].data
+
+    Temp          = TM_tab['Temperature'].data
+    metallicity   = TM_tab['com_O_log'].data
     
-    line_names = ['OII_3727', 'HDELTA', 'HGAMMA', 'OIII_4363', 'OIII_4958', 'OIII_5007']
-    flux_data = [OII_flux, Hdelta_flux, Hgamma_flux, OIII4363_flux, OIII4959_flux, OIII5007_flux ]
-    RMS_data  = [OII_RMS, Hdelta_RMS, Hgamma_RMS, OIII4363_RMS, OIII4959_RMS, OIII5007_RMS]
+    line_names = ['OII_3727', 'HBETA', 'HDELTA', 'HGAMMA', 'OIII_4363', 'OIII_4958', 'OIII_5007']
+    flux_data = [OII_flux,Hbeta_flux ,Hdelta_flux, Hgamma_flux, OIII4363_flux, OIII4959_flux, OIII5007_flux ]
+    RMS_data  = [OII_RMS, Hbeta_RMS,Hdelta_RMS, Hgamma_RMS, OIII4363_RMS, OIII4959_RMS, OIII5007_RMS]
 
     x_arr = np.random.random(1000)
     #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
-    
-    #pdf_pages_err = PdfPages(p_page)
+
+    #Initialize Dictionary for flux_gpdf
+    pdf_dict = {}
     
     for aa in range(len(flux_data)):
         flux_gpdf = random_pdf(flux_data[aa],RMS_data[aa], seed_i =aa, n_iter=1000, silent = False)
         err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=False, silent=True, verbose = True)
 
-        
+        #Fill In Dictionary
+        pdf_dict[line_names[aa]] = flux_gpdf
+
         col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
         err_t = err.transpose()
         c1 = Column(err_t[0], name=line_names[aa]+'_Low_Error')
@@ -74,17 +85,47 @@ def error_prop_chuncodes(fitspath, flux_file):
         print('err_function:', flux_gpdf, flux_gpdf.shape)
         print('err',err, len(err),'xpeak', xpeak,len(err))
     asc.write(combine_flux_tab, flux_file, format= 'fixed_width_two_line')
+    print pdf_dict
+
+    ####################R_temp_calcul calls############################
+    EBV = np.zeros(pdf_dict['OIII_4363'].shape)
+    k_4363 = np.zeros(pdf_dict['OIII_4363'].shape)
+    k_5007 = np.zeros(pdf_dict['OIII_4363'].shape)
+
+    R = R_temp_calcul.R_calculation(pdf_dict['OIII_4363'], pdf_dict['OIII_5007'], pdf_dict['OIII_4958'], EBV, k_4363, k_5007)
+
+    Te = R_temp_calcul.temp_calculation(R)
+
+    two_beta = pdf_dict['OII_3727']/pdf_dict['HBETA']
+    three_beta = (pdf_dict['OIII_5007'] + pdf_dict['OIII_4958'])/pdf_dict['HBETA']
+
+    O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log = R_temp_calcul.metalicity_calculation(Te, two_beta, three_beta)
+
+    print O_s_ion, O_s_ion.shape
+    
+    ###########compute_onesig_pdf for all the metallicity outputs#############
+    metallicity_names = ['O_s_ion' , 'O_d_ion', 'com_O_log', 'O_s_ion_log', 'O_d_ion_log']
+    for ii in range(len(metallicity_names)):
+        
+        #err, xpeak = compute_onesig_pdf(metallicity elements[ii], binned metallicity from stacked messurements, usepeak=False, silent=True, verbose = True)
+        #Question: Can the compute_onesig_pdf do 27 calculations? or do I need to do another for loop? 
+        err, xpeak = compute_onesig_pdf(metallicity_name[ii], metallicity, usepeak=False, silent=True, verbose = True)
         
 
     ###Next Step is to make the curves and graph the functions
+
+
+
+
+
+
     
 def plotting_errors(fitspath, flux_file):
     pdf_pages = PdfPages(fitspath+'emission_line_error_graphs.pdf')
     #TM_tab = asc.read(TM_file)
     combine_flux_tab = asc.read(flux_file)
 
-    #Temp          = TM_tab['Temperature'].data
-    #metallicity   = TM_tab['com_O_log'].data
+    
     
     ID = combine_flux_tab['ID'].data
     OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data

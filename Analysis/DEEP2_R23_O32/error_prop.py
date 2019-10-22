@@ -128,9 +128,9 @@ def error_prop_chuncodes(flux_file, TM_file):
     print metal_xpeak
 
 
-
-
-
+    np.savez(fitspath+'metal_errors.npz', **metal_error)
+    np.savez(fitspath+'metal_xpeaks.npz', **metal_xpeak)
+    
 
     
 def plotting_errors(fitspath, flux_file):

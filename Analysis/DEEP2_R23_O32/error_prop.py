@@ -57,7 +57,12 @@ def error_prop_chuncodes(flux_file, TM_file):
     Hbeta_RMS     = combine_flux_tab['HBETA_RMS'].data
 
     Temp          = TM_tab['Temperature'].data
-    metallicity   = TM_tab['com_O_log'].data
+    com_O_log     = TM_tab['com_O_log'].data
+    O_s_ion       = TM_tab['O_s_ion'].data
+    O_d_ion       = TM_tab['O_d_ion'].data
+    log_O_s       = TM_tab['log_O_s'].data
+    log_O_d       = TM_tab['log_O_d'].data
+
     
     line_names = ['OII_3727', 'HBETA', 'HDELTA', 'HGAMMA', 'OIII_4363', 'OIII_4958', 'OIII_5007']
     flux_data = [OII_flux,Hbeta_flux ,Hdelta_flux, Hgamma_flux, OIII4363_flux, OIII4959_flux, OIII5007_flux ]
@@ -75,12 +80,12 @@ def error_prop_chuncodes(flux_file, TM_file):
 
         #Fill In Dictionary
         pdf_dict[line_names[aa]] = flux_gpdf
-
-        col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
+        
+        '''col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
         err_t = err.transpose()
         c1 = Column(err_t[0], name=line_names[aa]+'_Low_Error')
         c2 = Column(err_t[1], name=line_names[aa]+'_High_Error')
-        combine_flux_tab.add_columns([c1, c2], indexes=[col_name_idx,col_name_idx])
+        combine_flux_tab.add_columns([c1, c2], indexes=[col_name_idx,col_name_idx])'''
    
         print('err_function:', flux_gpdf, flux_gpdf.shape)
         print('err',err, len(err),'xpeak', xpeak,len(err))
@@ -92,27 +97,35 @@ def error_prop_chuncodes(flux_file, TM_file):
     k_4363 = np.zeros(pdf_dict['OIII_4363'].shape)
     k_5007 = np.zeros(pdf_dict['OIII_4363'].shape)
 
-    R = R_temp_calcul.R_calculation(pdf_dict['OIII_4363'], pdf_dict['OIII_5007'], pdf_dict['OIII_4958'], EBV, k_4363, k_5007)
+    R_pdf = R_temp_calcul.R_calculation(pdf_dict['OIII_4363'], pdf_dict['OIII_5007'], pdf_dict['OIII_4958'], EBV, k_4363, k_5007)
 
-    Te = R_temp_calcul.temp_calculation(R)
+    Te_pdf = R_temp_calcul.temp_calculation(R_pdf)
 
-    two_beta = pdf_dict['OII_3727']/pdf_dict['HBETA']
-    three_beta = (pdf_dict['OIII_5007'] + pdf_dict['OIII_4958'])/pdf_dict['HBETA']
+    two_beta_pdf = pdf_dict['OII_3727']/pdf_dict['HBETA']
+    three_beta_pdf = (pdf_dict['OIII_5007'] + pdf_dict['OIII_4958'])/pdf_dict['HBETA']
 
-    O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log = R_temp_calcul.metalicity_calculation(Te, two_beta, three_beta)
+    O_s_ion_pdf , O_d_ion_pdf, com_O_log_pdf, O_s_ion_log_pdf, O_d_ion_log_pdf = R_temp_calcul.metalicity_calculation(Te_pdf, two_beta_pdf, three_beta_pdf)
 
-    print O_s_ion, O_s_ion.shape
+    print O_s_ion.shape
+
+    metal_error = {}
+    metal_xpeak = {}
     
     ###########compute_onesig_pdf for all the metallicity outputs#############
-    metallicity_names = ['O_s_ion' , 'O_d_ion', 'com_O_log', 'O_s_ion_log', 'O_d_ion_log']
+    # Pass in the pdf metallicities, all the stacked measurements
+    metal_str = ['O_s_ion_pdf' , 'O_d_ion_pdf', 'com_O_log_pdf', 'O_s_ion_log_pdf', 'O_d_ion_log_pdf']
+    metallicity_names = [O_s_ion_pdf , O_d_ion_pdf, com_O_log_pdf, O_s_ion_log_pdf, O_d_ion_log_pdf]
+    
+    combined_metallicity = [O_s_ion , O_d_ion, com_O_log, log_O_s, log_O_d]
     for ii in range(len(metallicity_names)):
-        
-        #err, xpeak = compute_onesig_pdf(metallicity elements[ii], binned metallicity from stacked messurements, usepeak=False, silent=True, verbose = True)
-        #Question: Can the compute_onesig_pdf do 27 calculations? or do I need to do another for loop? 
-        err, xpeak = compute_onesig_pdf(metallicity_name[ii], metallicity, usepeak=False, silent=True, verbose = True)
-        
+        err_metal, xpeak_metal = compute_onesig_pdf(metallicity_names[ii], combined_metallicity[ii], usepeak=False, silent=True, verbose = True)
+        print err_metal, len(err_metal), xpeak_metal
 
-    ###Next Step is to make the curves and graph the functions
+        metal_error[metal_str[ii]] = err_metal
+        metal_xpeak[metal_str[ii]] = xpeak_metal
+
+    print metal_error
+    print metal_xpeak
 
 
 

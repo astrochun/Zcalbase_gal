@@ -32,7 +32,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import R_temp_calcul
 # TM_tab is the table with your metallicities, temperatures, and line ratios
 # flux_tab (for Reagen) is produced by the zoom_and_gauss_general code and has the RMS values for each bin
 # flux_tab (for Caroline) is produced by emission_line_fit code and has the RMS values for each bin
-def error_prop_chuncodes(flux_file, TM_file):
+def error_prop_chuncodes(fitspath, flux_file, TM_file):
     #TM_file = fitspath + dataset + '_temperatures_metalicity.tbl'
     #flux_file = fitspath + dataset + '_combined_flux_table.tbl'
     #TM_file = fitspath + dataset + '_derived_properties_metallicity.tbl'

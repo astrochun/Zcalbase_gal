@@ -124,9 +124,9 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
 
     #####Verification Table Import#######
-    #verification_table = fitspath_ini+'/Master_Verification_Tables/'+dataset+'_table.tbl'
+    verification_table = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_1022/vertab.tbl'
     #print('Using verification table' + verification_table)
-    #mver_tab = asc.read(verification_table)
+    mver_tab = asc.read(verification_table)
 
     #Dust Attenuation Values Call
     ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
@@ -359,9 +359,17 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
     
     tab0.write(out_fits,format = 'fits', overwrite = True)
-'''
+
     #Plots
     #name = 'Grid_temperature_vs_R23.pdf'
+
+    error_npz = np.load(fitspath +'metal_errors.npz')
+    
+    com_O_log = error_npz['com_O_log_pdf']
+    metal_low = com_O_log[0,:]
+    metal_high = com_O_log[1,:]
+   
+    
     pdf_pages = PdfPages(fitspath+pdf_name)
     color_len = len(R23_composite)
     
@@ -375,17 +383,20 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     lder_Te = np.log10(der_Te)
     lMACT_Te = np.log10(der_Te_MACT)
 
+
     mDect = mver_tab['Detection'].data
+    print 'indicate:', indicate 
+    print 'mDect:', mDect
     Te_marker = []
     #print Te_marker
     #print('!!!!!', len(OIII4363))
     for oo in range(len(OIII4363)):
         #print indicate[oo]
         #print mDect[oo]
-        if indicate[oo]== 0 and mDect[oo]== 0: Marker= '<'
-        if indicate[oo]== 1 and mDect[oo]== 0: Marker= '<'
-        if indicate[oo]== 0 and mDect[oo]== 1:  Marker = '.'
-        if indicate[oo]== 1 and mDect[oo]== 1:  Marker = '.'
+        if indicate[oo]== 0 and mDect[oo]== 0: Marker = '<'
+        if indicate[oo]== 1 and mDect[oo]== 0: Marker = '<'
+        if indicate[oo]== 0 and mDect[oo]== 1: Marker = '.'
+        if indicate[oo]== 1 and mDect[oo]== 1: Marker = '.'
         Te_marker.append(Marker)
     print Te_marker
 
@@ -479,8 +490,9 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     fig3, ax3 = plt.subplots()
     
     for zz in range(len(ID)):
-        ax3.scatter(R23_composite[zz], com_O_log[zz], marker = M_marker[zz], color = 'b')
+        ax3.errorbar(R23_composite[zz], com_O_log[zz], marker = M_marker[zz], color = 'b')
         ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
+        ax3.errorbar(R23_composite[zz], com_O_log[zz], yerr = [metal_low[zz], metal_high[zz]])
     ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
     for gg in range(len(ID_der)):
         ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize = '2')
@@ -499,6 +511,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     for ww in range(len(ID)):
         ax4.scatter(O32_composite[ww], com_O_log[ww], marker = M_marker[ww], color = 'b')
         ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
+        #ax4.errorbar(R23_composite[zz], com_O_log[zz], yerr = [metal_low, metal_high])
     ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for hh in range(len(ID_der)):
         ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize = '2')
@@ -541,7 +554,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     pdf_pages.close()
 
     
-
+    '''
     #3D plots
     fig_3d= plt.figure(figsize=(10,8))
     ax_3d = plt.axes(projection='3d')
@@ -550,7 +563,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     ax_3d.set_zlabel('Temperature')
     ax_3d.set_zlim(4000,26000)
     ax_3d.scatter(R23_composite, O32_composite, T_e, marker='.', linewidths = None)
-    #plt.show()
+    #plt.show()'''
 
 
 
@@ -563,7 +576,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     fig5.clear()
     fig6.clear()
     fig7.clear()
-    fig_3d.clear()'''
+    #fig_3d.clear()
    
 
 

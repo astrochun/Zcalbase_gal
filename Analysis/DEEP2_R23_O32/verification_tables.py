@@ -57,14 +57,14 @@ def verification_master(fitspath, dataset,temp_table, combine_flux_ascii, ver_ta
     all_4363 =temp_tab['Observed_Flux_4363'].data
     N_Gal_all = temp_tab['N_Galaxies'].data
     temp_all = temp_tab['Temperature'].data
-    Hgamma = com_flux['Hgamma_Flux_Observed'].data
-    Hgamma_SN    = com_flux['Hgamma_S/N'].data
+    Hgamma = com_flux['HGAMMA_Flux_Observed'].data
+    Hgamma_SN    = com_flux['HGAMMA_S/N'].data
 
 
     OIII5007 = com_flux['OIII_5007_Flux_Observed'].data
     OIII4959 = com_flux['OIII_4958_Flux_Observed'].data
     raw_OIII4363 = com_flux['OIII_4363_Flux_Observed'].data
-    Hgamma = com_flux['Hgamma_Flux_Observed'].data
+    Hgamma = com_flux['HGAMMA_Flux_Observed'].data
     HBETA    = com_flux['HBETA_Flux_Observed'].data
     OII3727  = com_flux['OII_3727_Flux_Observed'].data
     R23_avg      = com_flux['R_23_Average'].data
@@ -72,7 +72,7 @@ def verification_master(fitspath, dataset,temp_table, combine_flux_ascii, ver_ta
     N_Galaxy = com_flux['N_Galaxies'].data
    
 
-    SN_Hgamma    = com_flux['Hgamma_S/N'].data
+    SN_Hgamma    = com_flux['HGAMMA_S/N'].data
     SN_5007       = com_flux['OIII_5007_S/N'].data
     SN_4959       = com_flux['OIII_4958_S/N'].data
     SN_4363       = com_flux['OIII_4363_S/N'].data
@@ -94,8 +94,10 @@ def verification_master(fitspath, dataset,temp_table, combine_flux_ascii, ver_ta
     if dataset== 'O32_Grid': det_4363 = np.where((ID ==6))[0]
     if dataset== 'Double_Bin': det_4363 = np.where((ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
     #if dataset== 'Double_Bin': det_4363 = np.where((SN_4363>=3) | (ID ==0)| (ID ==1)| (ID ==2) | (ID ==7) | (ID ==9) | (ID ==10) | (ID ==11) | (ID ==13))[0]
+    if dataset== 'n_Bins': det_4363= np.where((ID ==2) |(ID==7) | (ID==8) | (ID ==10) | (ID==14) | (ID ==15) | (ID ==20) | (ID==23) | (ID ==26))[0]
     print 'det_4363:', det_4363
-
+    #5, 7, 8, 10, 11, 13, 14, 15, 16, 17, 19, 20, 22, 23,26
+    #2,7, 8, 10, 14, 15, 20, 23, 26 
     
     indicate[det_4363] = 1
 

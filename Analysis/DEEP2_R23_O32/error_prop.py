@@ -32,7 +32,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import R_temp_calcul
 # TM_tab is the table with your metallicities, temperatures, and line ratios
 # flux_tab (for Reagen) is produced by the zoom_and_gauss_general code and has the RMS values for each bin
 # flux_tab (for Caroline) is produced by emission_line_fit code and has the RMS values for each bin
-def error_prop_chuncodes(fitspath, flux_file, TM_file):
+def error_prop_chuncodes(fitspath, flux_file, TM_file, indicate = False):
     #TM_file = fitspath + dataset + '_temperatures_metalicity.tbl'
     #flux_file = fitspath + dataset + '_combined_flux_table.tbl'
     #TM_file = fitspath + dataset + '_derived_properties_metallicity.tbl'
@@ -40,35 +40,84 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     
     combine_flux_tab = asc.read(flux_file)
     TM_tab = asc.read(TM_file)
-    
-    OII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
-    OII_RMS       = combine_flux_tab['OII_3727_RMS'].data
-    Hdelta_flux   = combine_flux_tab['HDELTA_Flux_Gaussian'].data
-    Hdelta_RMS    = combine_flux_tab['HDELTA_RMS'].data
-    OIII4363_flux = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
-    OIII4363_RMS  = combine_flux_tab['OIII_4363_RMS'].data
-    OIII4959_flux = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
-    OIII4959_RMS  = combine_flux_tab['OIII_4958_RMS'].data
-    OIII5007_flux = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
-    OIII5007_RMS  = combine_flux_tab['OIII_5007_RMS'].data
-    Hgamma_flux   = combine_flux_tab['HGAMMA_Flux_Gaussian'].data
-    Hgamma_RMS    = combine_flux_tab['HGAMMA_RMS'].data
-    Hbeta_flux    = combine_flux_tab['HBETA_Flux_Gaussian'].data
-    Hbeta_RMS     = combine_flux_tab['HBETA_RMS'].data
-
-    Temp          = TM_tab['Temperature'].data
-    com_O_log     = TM_tab['com_O_log'].data
-    O_s_ion       = TM_tab['O_s_ion'].data
-    O_d_ion       = TM_tab['O_d_ion'].data
-    log_O_s       = TM_tab['log_O_s'].data
-    log_O_d       = TM_tab['log_O_d'].data
 
     
+    dOII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
+    dOII_RMS       = combine_flux_tab['OII_3727_RMS'].data
+    dHdelta_flux   = combine_flux_tab['HDELTA_Flux_Gaussian'].data
+    dHdelta_RMS    = combine_flux_tab['HDELTA_RMS'].data
+    dOIII4363_flux = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
+    dOIII4363_RMS  = combine_flux_tab['OIII_4363_RMS'].data
+    dOIII4959_flux = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
+    dOIII4959_RMS  = combine_flux_tab['OIII_4958_RMS'].data
+    dOIII5007_flux = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
+    dOIII5007_RMS  = combine_flux_tab['OIII_5007_RMS'].data
+    dHgamma_flux   = combine_flux_tab['HGAMMA_Flux_Gaussian'].data
+    dHgamma_RMS    = combine_flux_tab['HGAMMA_RMS'].data
+    dHbeta_flux    = combine_flux_tab['HBETA_Flux_Gaussian'].data
+    dHbeta_RMS     = combine_flux_tab['HBETA_RMS'].data
+
+    ID             = TM_tab['Detections'].data
+    dTemp          = TM_tab['Temperature'].data
+    dcom_O_log     = TM_tab['com_O_log'].data
+    dO_s_ion       = TM_tab['O_s_ion'].data
+    dO_d_ion       = TM_tab['O_d_ion'].data
+    dlog_O_s       = TM_tab['log_O_s'].data
+    dlog_O_d       = TM_tab['log_O_d'].data
+
+    ###########Currently working with calculating error for all cases and for those just with detections. Once I verify that working with just detections works, I'll delete the other option and get rid of the keyword in the function call
+    if indicate == True:
+        detect = np.where((ID ==1))[0]
+        
+        OII_flux = dOII_flux[detect]       
+        OII_RMS = dOII_RMS[detect]         
+        Hdelta_flux = dHdelta_flux[detect]     
+        Hdelta_RMS= dHdelta_RMS[detect]     
+        OIII4363_flux = dOIII4363_flux[detect]   
+        OIII4363_RMS= dOIII4363_RMS[detect]    
+        OIII4959_flux = dOIII4959_flux[detect]  
+        OIII4959_RMS = dOIII4959_RMS[detect]    
+        OIII5007_flux = dOIII5007_flux[detect]  
+        OIII5007_RMS = dOIII5007_RMS[detect]  
+        Hgamma_flux = dHgamma_flux[detect]   
+        Hgamma_RMS = dHgamma_RMS[detect]     
+        Hbeta_flux = dHbeta_flux[detect]   
+        Hbeta_RMS = dHbeta_RMS[detect]     
+        
+        Temp = dTemp[detect]          
+        com_O_log = dcom_O_log[detect]     
+        O_s_ion = dO_s_ion[detect]      
+        O_d_ion = dO_d_ion[detect]      
+        log_O_s = dlog_O_s[detect]      
+        log_O_d = dlog_O_d[detect]      
+    else:
+        OII_flux = dOII_flux       
+        OII_RMS = dOII_RMS        
+        Hdelta_flux = dHdelta_flux    
+        Hdelta_RMS= dHdelta_RMS    
+        OIII4363_flux = dOIII4363_flux  
+        OIII4363_RMS= dOIII4363_RMS   
+        OIII4959_flux = dOIII4959_flux 
+        OIII4959_RMS = dOIII4959_RMS   
+        OIII5007_flux = dOIII5007_flux 
+        OIII5007_RMS = dOIII5007_RMS 
+        Hgamma_flux = dHgamma_flux  
+        Hgamma_RMS = dHgamma_RMS    
+        Hbeta_flux = dHbeta_flux  
+        Hbeta_RMS = dHbeta_RMS    
+        
+        Temp = dTemp         
+        com_O_log = dcom_O_log    
+        O_s_ion = dO_s_ion     
+        O_d_ion = dO_d_ion     
+        log_O_s = dlog_O_s     
+        log_O_d = dlog_O_d     
+
+    #################Starting Error Calculations#################################################
     line_names = ['OII_3727', 'HBETA', 'HDELTA', 'HGAMMA', 'OIII_4363', 'OIII_4958', 'OIII_5007']
     flux_data = [OII_flux,Hbeta_flux ,Hdelta_flux, Hgamma_flux, OIII4363_flux, OIII4959_flux, OIII5007_flux ]
     RMS_data  = [OII_RMS, Hbeta_RMS,Hdelta_RMS, Hgamma_RMS, OIII4363_RMS, OIII4959_RMS, OIII5007_RMS]
 
-    x_arr = np.random.random(1000)
     #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
 
     #Initialize Dictionary for flux_gpdf

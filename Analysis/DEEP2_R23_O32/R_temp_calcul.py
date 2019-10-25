@@ -115,7 +115,7 @@ def limit_function(combine_flux_ascii):
 
     up_temp = (Hgamma/Hgamma_SN) *3
 
-    print 'up_temp', up_temp
+    #print 'up_temp', up_temp
     return up_temp
     
 def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):  #combine_fits, header
@@ -365,19 +365,23 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
     error_npz = np.load(fitspath +'metal_errors.npz')
     
-    com_O_log = error_npz['com_O_log_pdf']
-    metal_low = com_O_log[0,:]
-    metal_high = com_O_log[1,:]
-   
+    npz_comOlog = error_npz['com_O_log_pdf']
+    metal_error = np.transpose(npz_comOlog)
+    print "metal_error:", metal_error
+
+    #npz_te_err = np.load(fitspath + 'Te_errors.npz')
+    #npz_te = npz_te_err['T_e_pdf']
+    #Te_error = np.transpose(npz_te)
     
     pdf_pages = PdfPages(fitspath+pdf_name)
+    print(fitspath+pdf_name)
     color_len = len(R23_composite)
     
     color_arr = plt.cm.get_cmap('rainbow')
     
-    print 'T_e', T_e
-    print 'R23', R23_composite 
-    print 'O32', O32_composite
+    #print 'T_e', T_e
+    #print 'R23', R23_composite 
+    #print 'O32', O32_composite
 
     lTe = np.log10(T_e)
     lder_Te = np.log10(der_Te)
@@ -385,145 +389,138 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
 
     mDect = mver_tab['Detection'].data
-    print 'indicate:', indicate 
-    print 'mDect:', mDect
-    Te_marker = []
-    #print Te_marker
-    #print('!!!!!', len(OIII4363))
-    for oo in range(len(OIII4363)):
-        #print indicate[oo]
-        #print mDect[oo]
-        if indicate[oo]== 0 and mDect[oo]== 0: Marker = '<'
-        if indicate[oo]== 1 and mDect[oo]== 0: Marker = '<'
-        if indicate[oo]== 0 and mDect[oo]== 1: Marker = '.'
-        if indicate[oo]== 1 and mDect[oo]== 1: Marker = '.'
-        Te_marker.append(Marker)
-    print Te_marker
 
-    M_marker = []
-    print M_marker
-    for ww in range(len(OIII4363)):
-        #print indicate[ww]
-        #print mDect[ww]
-        if indicate[ww]== 0 and mDect[ww]== 0: Marker= '^'
-        if indicate[ww]== 1 and mDect[ww]== 0: Marker= '^'
-        if indicate[ww]== 0 and mDect[ww]== 1:  Marker = '.'
-        if indicate[ww]== 1 and mDect[ww]== 1:  Marker = '.'
-        M_marker.append(Marker)
-    #print M_marker
+    detect = np.where((mDect== 1))[0]
+    nan_de = np.where((mDect== 0))[0]
 
-
-    
-        
-    
+    #################################Temperature vs R23_composite #################################
     fig1, ax1 = plt.subplots()
-    
-    for aa in range(len(ID)):
-        ax1.scatter(lTe[aa], R23_composite[aa], marker = Te_marker[aa], color = 'b')
-        ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
+    ax1.scatter(lTe[detect], R23_composite[detect], marker = '.', s = 50, color = 'b')
+    ax1.scatter(lTe[nan_de], R23_composite[nan_de], marker = '<', s = 25, color = 'b')
+    #ax1.errorbar()
+    for aa in range(len(ID)): ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
+
     ax1.scatter(lder_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for bb in range(len(ID_der)):
-        ax1.annotate(ID_der[bb], (lder_Te[bb], der_R23[bb]), fontsize ='2')
+    for bb in range(len(ID_der)): ax1.annotate(ID_der[bb], (lder_Te[bb], der_R23[bb]), fontsize ='2')
+
     ax1.scatter(lMACT_Te, der_R23_MACT, s = 20, marker = 'P', color = 'r', edgecolors = 'None', alpha = 0.5)
-    for qq in range(len(ID_der_MACT)):
-        ax1.annotate(ID_der_MACT[qq], (lMACT_Te[qq], der_R23_MACT[qq]), fontsize= '2')
+    for qq in range(len(ID_der_MACT)): ax1.annotate(ID_der_MACT[qq], (lMACT_Te[qq], der_R23_MACT[qq]), fontsize= '2')
+
     ax1.set_xlabel('Log Temperature (K)')
     ax1.set_ylabel('R_23')
     ax1.set_title('Temperatures_vs_R23')
-    pdf_pages.savefig()
-
-    #With Limits
+    fig1.savefig(pdf_pages, format = "pdf")
+    #pdf_pages.savefig()
+    
+###########################################################################################
+##############################Temperature vs R23_composite With Limits#####################
     fig5, ax5 = plt.subplots()
     
-    for a in range(len(ID)):
-        ax5.scatter(T_e[a], R23_composite[a], marker = Te_marker[a], color = 'b')
-        ax5.annotate(ID[a], (T_e[a], R23_composite[a]), fontsize = '6')
+    ax5.scatter(T_e[detect], R23_composite[detect], marker = '.',s = 50, color = 'b')
+    ax5.scatter(T_e[nan_de], R23_composite[nan_de], marker = '<', s = 25, color = 'b')
+    #ax5.errorbar()
+    for xx in range(len(ID)): ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
+
     ax5.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for b in range(len(ID_der)):
-        ax5.annotate(ID_der[b], (der_Te[b], der_R23[b]), fontsize = '2')
+    for b in range(len(ID_der)): ax5.annotate(ID_der[b], (der_Te[b], der_R23[b]), fontsize = '2')
+
     ax5.scatter(der_Te_MACT, der_R23_MACT, s =20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
-    for q in range(len(ID_der_MACT)):
-        ax5.annotate(ID_der_MACT[q], (der_Te_MACT[q], der_R23_MACT[q]), fontsize= '2')
+    for q in range(len(ID_der_MACT)): ax5.annotate(ID_der_MACT[q], (der_Te_MACT[q], der_R23_MACT[q]), fontsize= '2')
+
     ax5.set_xlabel('Temperature (K)')
     ax5.set_ylabel('R_23')
     ax5.set_title('Temperatures_vs_R23 with Limits on Temperature')
     ax5.set_xlim(5000,21500)
-    pdf_pages.savefig()
-     
+    fig5.savefig(pdf_pages, format = "pdf")
+
+############################################################################################
+###########################Temperature vs O32_composite#####################################
     fig2, ax2 = plt.subplots()
     
-    for cc in range(len(ID)):
-        ax2.scatter(lTe[cc], O32_composite[cc], marker = Te_marker[cc], color = 'b')
-        ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
+    ax2.scatter(lTe[detect], O32_composite[detect], marker = '.',s = 50, color = 'b')
+    ax2.scatter(lTe[nan_de], O32_composite[nan_de], marker = '<',s = 25, color = 'b')
+    #ax2.errorbar()
+    for cc in range(len(ID)): ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
+
     ax2.scatter(lder_Te, der_O32, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for ff in range(len(ID_der)):
-        ax2.annotate(ID_der[ff], (lder_Te[ff], der_O32[ff]), fontsize = '2')
+    for ff in range(len(ID_der)):ax2.annotate(ID_der[ff], (lder_Te[ff], der_O32[ff]), fontsize = '2')
 
     ax2.scatter(lMACT_Te, der_O32_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5,edgecolors = 'None')
-    for ss in range(len(ID_der_MACT)):
-        ax2.annotate(ID_der_MACT[ss], (lMACT_Te[ss], der_O32_MACT[ss]), fontsize= '2')
+    for ss in range(len(ID_der_MACT)): ax2.annotate(ID_der_MACT[ss], (lMACT_Te[ss], der_O32_MACT[ss]), fontsize= '2')
+    
     ax2.set_xlabel('Log Temperature (K)')
     ax2.set_ylabel('O_32')
     ax2.set_title('Temperatures_vs_O32')
-    #ax2.set_xlim(1000,21500)
-    pdf_pages.savefig()
+    fig2.savefig(pdf_pages, format = 'pdf')
+    #pdf_pages.savefig()
 
+###############################################################################################
+####################################Temperature vs O32_Composite with limits##################
     #With Limits
     fig6, ax6 = plt.subplots()
     
-    for c in range(len(ID)):
-        ax6.scatter(T_e[c], O32_composite[c], marker = Te_marker[c], color = 'b')
-        ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
+    ax6.scatter(T_e[detect], O32_composite[detect], marker = '.',s=50, color = 'b')
+    ax6.scatter(T_e[nan_de], O32_composite[nan_de], marker = '<',s=25, color = 'b')
+    #ax6.errorbar()
+    for c in range(len(ID)):ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
+
     ax6.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
-    for f in range(len(ID_der)):
-        ax6.annotate(ID_der[f], (der_Te[f], der_O32[f]), fontsize = '2')
+    for f in range(len(ID_der)):ax6.annotate(ID_der[f], (der_Te[f], der_O32[f]), fontsize = '2')
 
     ax6.scatter(der_Te_MACT, der_O32_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors ='None')
-    for s in range(len(ID_der_MACT)):
-        ax6.annotate(ID_der_MACT[s], (der_Te_MACT[s], der_O32_MACT[s]), fontsize= '2')
+    for s in range(len(ID_der_MACT)):ax6.annotate(ID_der_MACT[s], (der_Te_MACT[s], der_O32_MACT[s]), fontsize= '2')
+    
     ax6.set_xlabel('Temperature (K)')
     ax6.set_ylabel('O_32')
     ax6.set_title('Temperatures_vs_O32 with Limits on Temperature')
     ax6.set_xlim(5000,21500)
-    pdf_pages.savefig()
+    fig6.savefig(pdf_pages, format = 'pdf')
+    #pdf_pages.savefig()
 
+################################################################################################
+#########################################R23_composite vs metallicity###########################
     fig3, ax3 = plt.subplots()
     
-    for zz in range(len(ID)):
-        ax3.errorbar(R23_composite[zz], com_O_log[zz], marker = M_marker[zz], color = 'b')
-        ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
-        ax3.errorbar(R23_composite[zz], com_O_log[zz], yerr = [metal_low[zz], metal_high[zz]])
+    ax3.scatter(R23_composite[detect], com_O_log[detect], marker = '.', s = 50, color = 'b')
+    ax3.scatter(R23_composite[nan_de], com_O_log[nan_de], marker = '^', s = 20, color = 'b')
+    ax3.errorbar(R23_composite, com_O_log, yerr = metal_error)
+    for zz in range(len(ID)):ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
+    
     ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
-    for gg in range(len(ID_der)):
-        ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize = '2')
+    for gg in range(len(ID_der)): ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize = '2')
     ax3.scatter(der_R23_MACT, der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors='None')
-    for g in range(len(ID_der_MACT)):
-        ax3.annotate(ID_der_MACT[g], (der_R23_MACT[g], der_OH_MACT[g]), fontsize= '2')
+    for g in range(len(ID_der_MACT)): ax3.annotate(ID_der_MACT[g], (der_R23_MACT[g], der_OH_MACT[g]), fontsize= '2')
+
     ax3.set_xlabel('R23')
     ax3.set_ylabel('12+log(O/H) Te')
     ax3.set_title('R23 vs. Composite Metalicity')
     #ax3.plot(BR23,B_com_R23, 'k')
     #ax2.set_xlim(1000,21500)
-    pdf_pages.savefig()
+    #pdf_pages.savefig()
+    fig3.savefig(pdf_pages, format = 'pdf')
 
+##################################################################################################
+########################################O32_composite vs Metallicity##############################
     fig4, ax4 = plt.subplots()
     
-    for ww in range(len(ID)):
-        ax4.scatter(O32_composite[ww], com_O_log[ww], marker = M_marker[ww], color = 'b')
-        ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
-        #ax4.errorbar(R23_composite[zz], com_O_log[zz], yerr = [metal_low, metal_high])
+    ax4.scatter(O32_composite[detect], com_O_log[detect], marker = '.',s =50, color = 'b')
+    ax4.scatter(O32_composite[nan_de], com_O_log[nan_de], marker = '^',s =20, color = 'b')
+    #ax4.errorbar(R23_composite[zz], com_O_log[zz], yerr = [metal_low, metal_high])
+    for ww in range(len(ID)):ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
+    
     ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for hh in range(len(ID_der)):
-        ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize = '2')
+    for hh in range(len(ID_der)): ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize = '2')
+
     ax4.scatter(der_O32_MACT,der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
-    for h in range(len(ID_der_MACT)):
-        ax4.annotate(ID_der_MACT[h], (der_O32_MACT[h], der_OH_MACT[h]), fontsize= '2')
+    for h in range(len(ID_der_MACT)): ax4.annotate(ID_der_MACT[h], (der_O32_MACT[h], der_OH_MACT[h]), fontsize= '2')
+
     ax4.set_xlabel('O32')
     ax4.set_ylabel('12+log(O/H) Te')
     ax4.set_title('O32 vs. Composite Metalicity')
     #ax4.plot(BO32, B_com_O32, 'k')
     #ax2.set_xlim(1000,21500)
-    pdf_pages.savefig()
+    #pdf_pages.savefig()
+    fig4.savefig(pdf_pages, format ='pdf')
 
 
     #Can you plot OIII4363/OIII5007 vs T_e and overlay the Te--4363/5007 line ratio solution?  Since T_e is so wide, do a logarithmic plot on that axis.
@@ -533,9 +530,10 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     y_value = np.log10(T_e)
     z_value = np.log10(der_Te)
     
-    for r in range(len(ID)):
-        ax7.scatter(x_value[r], y_value[r], marker = Te_marker[r], color = 'b')
-        ax7.annotate(ID[r], (x_value[r], y_value[r]))
+    
+    ax7.scatter(x_value[detect], y_value[detect], marker = 'o', s= 30,  color = 'b')
+    ax7.scatter(x_value[nan_de], y_value[nan_de], marker = 'x', s= 30,  color = 'b')
+    for r in range(len(ID)): ax7.annotate(ID[r], (x_value[r], y_value[r]))
     xxx = np.arange(min(x_value),max(x_value), 1)
     xx_value = np.zeros(len(xxx))
     
@@ -549,12 +547,12 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     ax7.set_xlabel('log(OIII4363/OIII5007)')
     ax7.set_ylabel('log(T_e)')
     ax7.set_title('log(OIII4363/OIII5007) vs log(T_e)')
-    pdf_pages.savefig()
+    fig7.savefig(pdf_pages, format = 'pdf')
 
     pdf_pages.close()
 
     
-    '''
+'''
     #3D plots
     fig_3d= plt.figure(figsize=(10,8))
     ax_3d = plt.axes(projection='3d')
@@ -563,7 +561,39 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     ax_3d.set_zlabel('Temperature')
     ax_3d.set_zlim(4000,26000)
     ax_3d.scatter(R23_composite, O32_composite, T_e, marker='.', linewidths = None)
-    #plt.show()'''
+    #plt.show()
+
+
+    #print 'indicate:', indicate 
+    #print 'mDect:', mDect
+    Te_marker = []
+    #print Te_marker
+    #print('!!!!!', len(OIII4363))
+    for oo in range(len(OIII4363)):
+        #print indicate[oo]
+        #print mDect[oo]
+        if indicate[oo]== 0 and mDect[oo]== 0: Marker = '<'
+        if indicate[oo]== 1 and mDect[oo]== 0: Marker = '<'
+        if indicate[oo]== 0 and mDect[oo]== 1: Marker = '.'
+        if indicate[oo]== 1 and mDect[oo]== 1: Marker = '.'
+        Te_marker.append(Marker)
+    #print Te_marker
+
+    M_marker = []
+    #print M_marker
+    for ww in range(len(OIII4363)):
+        #print indicate[ww]
+        #print mDect[ww]
+        if indicate[ww]== 0 and mDect[ww]== 0: Marker= '^'
+        if indicate[ww]== 1 and mDect[ww]== 0: Marker= '^'
+        if indicate[ww]== 0 and mDect[ww]== 1:  Marker = '.'
+        if indicate[ww]== 1 and mDect[ww]== 1:  Marker = '.'
+        M_marker.append(Marker)
+    #print M_marker
+
+
+
+
 
 
 
@@ -577,7 +607,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     fig6.clear()
     fig7.clear()
     #fig_3d.clear()
-   
+    '''
 
 
 def dust_attenuation(fitspath, combine_ascii):
@@ -611,7 +641,7 @@ def dust_attenuation(fitspath, combine_ascii):
     for nn in range(len(HGamma)):
         if EBV[nn] <= 0: EBV[nn] = 0
     
-    print EBV
+    #print EBV
     A_3727 = EBV*k_3727
     A_HDELTA = EBV*k_HDELTA
     A_Hgamma = EBV*k_Hgamma
@@ -619,7 +649,7 @@ def dust_attenuation(fitspath, combine_ascii):
     A_4363 = EBV*k_4363
     A_4958 = EBV*k_4958
     A_5007 = EBV*k_5007
-    print "A_3727:", A_3727
+    #print "A_3727:", A_3727
 
     out_ascii = fitspath+'/dust_attentuation_values.tbl'
     #if not exists(out_ascii_single):

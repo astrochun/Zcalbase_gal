@@ -97,17 +97,21 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     k_4363 = np.zeros(pdf_dict['OIII_4363'].shape)
     k_5007 = np.zeros(pdf_dict['OIII_4363'].shape)
 
+    Te_error = {}
     R_pdf = R_temp_calcul.R_calculation(pdf_dict['OIII_4363'], pdf_dict['OIII_5007'], pdf_dict['OIII_4958'], EBV, k_4363, k_5007)
 
     Te_pdf = R_temp_calcul.temp_calculation(R_pdf)
+    err_te, xpeak_te = compute_onesig_pdf(Te_pdf, Temp, usepeak=False, silent=True, verbose = True)
+    Te_error['T_e_pdf'] = err_te
 
+    ###################Calculating Metallicity###################3
     two_beta_pdf = pdf_dict['OII_3727']/pdf_dict['HBETA']
     three_beta_pdf = (pdf_dict['OIII_5007'] + pdf_dict['OIII_4958'])/pdf_dict['HBETA']
 
     O_s_ion_pdf , O_d_ion_pdf, com_O_log_pdf, O_s_ion_log_pdf, O_d_ion_log_pdf = R_temp_calcul.metalicity_calculation(Te_pdf, two_beta_pdf, three_beta_pdf)
 
     print O_s_ion.shape
-
+    
     metal_error = {}
     metal_xpeak = {}
     
@@ -127,7 +131,7 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     print metal_error
     print metal_xpeak
 
-
+    np.savez(fitspath+'Te_errors.npz', **Te_error)
     np.savez(fitspath+'metal_errors.npz', **metal_error)
     np.savez(fitspath+'metal_xpeaks.npz', **metal_xpeak)
     

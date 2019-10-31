@@ -367,11 +367,12 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     
     npz_comOlog = error_npz['com_O_log_pdf']
     metal_error = np.transpose(npz_comOlog)
+    ### metal_error is an array with shape (2,N), how do I index over that????
     print "metal_error:", metal_error
 
-    #npz_te_err = np.load(fitspath + 'Te_errors.npz')
-    #npz_te = npz_te_err['T_e_pdf']
-    #Te_error = np.transpose(npz_te)
+    npz_te_err = np.load(fitspath + 'Te_errors.npz')
+    npz_te = npz_te_err['T_e_pdf']
+    Te_error = np.transpose(npz_te)
     
     pdf_pages = PdfPages(fitspath+pdf_name)
     print(fitspath+pdf_name)
@@ -386,18 +387,20 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     lTe = np.log10(T_e)
     lder_Te = np.log10(der_Te)
     lMACT_Te = np.log10(der_Te_MACT)
-
+    l_Te_err = np.log10(Te_error)
 
     mDect = mver_tab['Detection'].data
 
     detect = np.where((mDect== 1))[0]
     nan_de = np.where((mDect== 0))[0]
 
+
+
     #################################Temperature vs R23_composite #################################
     fig1, ax1 = plt.subplots()
     ax1.scatter(lTe[detect], R23_composite[detect], marker = '.', s = 50, color = 'b')
     ax1.scatter(lTe[nan_de], R23_composite[nan_de], marker = '<', s = 25, color = 'b')
-    #ax1.errorbar(lTe, R23_composite, xerr = Te_error, ls = 'none')
+    ax1.errorbar(lTe[detect], R23_composite[detect], xerr = l_Te_err[:,detect], ls = 'none')
     for aa in range(len(ID)): ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
 
     ax1.scatter(lder_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -418,7 +421,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     
     ax5.scatter(T_e[detect], R23_composite[detect], marker = '.',s = 50, color = 'b')
     ax5.scatter(T_e[nan_de], R23_composite[nan_de], marker = '<', s = 25, color = 'b')
-    #ax5.errorbar(lTe, R23_composite, xerr = Te_error, ls = 'none')
+    ax5.errorbar(T_e[detect], R23_composite[detect], xerr = Te_error[:,detect], ls = 'none')
     for xx in range(len(ID)): ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
 
     ax5.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -439,7 +442,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     
     ax2.scatter(lTe[detect], O32_composite[detect], marker = '.',s = 50, color = 'b')
     ax2.scatter(lTe[nan_de], O32_composite[nan_de], marker = '<',s = 25, color = 'b')
-    #ax2.errorbar(lTe, O32_composite, xerr = Te_error, ls = 'none')
+    ax2.errorbar(lTe[detect], O32_composite[detect], xerr = l_Te_err[:,detect], ls = 'none')
     for cc in range(len(ID)): ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
 
     ax2.scatter(lder_Te, der_O32, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -461,7 +464,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     
     ax6.scatter(T_e[detect], O32_composite[detect], marker = '.',s=50, color = 'b')
     ax6.scatter(T_e[nan_de], O32_composite[nan_de], marker = '<',s=25, color = 'b')
-    #ax6.errorbar(lTe, O32_composite, xerr = Te_error, ls = 'none')
+    ax6.errorbar(T_e[detect], O32_composite[detect], xerr = Te_error[:,detect], ls = 'none')
     for c in range(len(ID)):ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
 
     ax6.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
@@ -483,7 +486,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     
     ax3.scatter(R23_composite[detect], com_O_log[detect], marker = '.', s = 50, color = 'b')
     ax3.scatter(R23_composite[nan_de], com_O_log[nan_de], marker = '^', s = 20, color = 'b')
-    ax3.errorbar(R23_composite, com_O_log, yerr = metal_error, ls = 'none')
+    ax3.errorbar(R23_composite[detect], com_O_log[detect], yerr = metal_error[:,detect], ls = 'none')
     for zz in range(len(ID)):ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
     
     ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
@@ -505,7 +508,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     
     ax4.scatter(O32_composite[detect], com_O_log[detect], marker = '.',s =50, color = 'b')
     ax4.scatter(O32_composite[nan_de], com_O_log[nan_de], marker = '^',s =20, color = 'b')
-    ax4.errorbar(O32_composite, com_O_log, yerr = metal_error, ls = 'none')
+    ax4.errorbar(O32_composite[detect], com_O_log[detect], yerr = metal_error[:,detect], ls = 'none')
     for ww in range(len(ID)):ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
     
     ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')

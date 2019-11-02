@@ -27,7 +27,8 @@ def histogram(path, data_path,table_path, pdf_name , statistical_peaks, table_ke
 
     statistical_all = np.load(statistical_peaks)
     xpeaks = statistical_all[data_name]
-    print xpeaks.shape[0]
+    print xpeaks.shape
+    print data_hist.shape
 
     tab1 = asc.read(table_path)
     if table_key == 'ID':
@@ -38,12 +39,23 @@ def histogram(path, data_path,table_path, pdf_name , statistical_peaks, table_ke
         detection = np.where((detect==1))[0]
         com_metal = calculated_metal[detection]
         ID_detect = ID[detection]
+
+
     pdf_pages = PdfPages(path+pdf_name)
-    
+
+    nrows = 4
+    rows =[0,1,2,3]
+    ncols = 2
     
     
     for aa in range(xpeaks.shape[0]):
-        fig, ax = plt.subplots()
+        row = rows[aa/2]
+        col = aa% ncols
+        print row, col
+        if aa % (nrows*ncols) ==0:
+            fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols, squeeze =False)
+
+        ax = ax_arr[row,col]
         min_val = np.nanmin(data_hist[aa])
         max_val = np.nanmax(data_hist[aa])
         print min_val, max_val
@@ -57,8 +69,10 @@ def histogram(path, data_path,table_path, pdf_name , statistical_peaks, table_ke
         ax.axvline(x = com_metal[aa],color = 'm', label = 'stacked metallicities')
         title ='Bin: ',ID_detect[aa]     #,'Detection: ',detect[aa]
         #print title
-        ax.set_title(title)
-        ax.legend()
-        fig.savefig(pdf_pages, format ='pdf')
-        fig.clear()
+        ax.set_title(title, fontsize = 6)
+        ax.set_xlim(7.75,9.15)
+        if aa%(nrows*ncols) == 0:ax.legend(fontsize = 'xx-small')
+        if row != 3: ax.set_xticklabels([])
+    fig.savefig(pdf_pages, format ='pdf')
+        
     pdf_pages.close()

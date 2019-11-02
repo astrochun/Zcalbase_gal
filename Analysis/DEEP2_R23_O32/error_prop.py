@@ -32,7 +32,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import R_temp_calcul
 # TM_tab is the table with your metallicities, temperatures, and line ratios
 # flux_tab (for Reagen) is produced by the zoom_and_gauss_general code and has the RMS values for each bin
 # flux_tab (for Caroline) is produced by emission_line_fit code and has the RMS values for each bin
-def error_prop_chuncodes(fitspath, flux_file, TM_file, indicate = False):
+def error_prop_chuncodes(fitspath, flux_file, TM_file):    
     #TM_file = fitspath + dataset + '_temperatures_metalicity.tbl'
     #flux_file = fitspath + dataset + '_combined_flux_table.tbl'
     #TM_file = fitspath + dataset + '_derived_properties_metallicity.tbl'
@@ -41,78 +41,35 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file, indicate = False):
     combine_flux_tab = asc.read(flux_file)
     TM_tab = asc.read(TM_file)
 
+    ID = TM_tab['Detection'].data
+    detect = np.where((ID ==1))[0]
+
+    combine_flux = combine_flux_tab[detect]
+    TM = TM_tab[detect]
+
+    OII_flux      = combine_flux['OII_3727_Flux_Gaussian'].data
+    OII_RMS       = combine_flux['OII_3727_RMS'].data
+    Hdelta_flux   = combine_flux['HDELTA_Flux_Gaussian'].data
+    Hdelta_RMS    = combine_flux['HDELTA_RMS'].data
+    OIII4363_flux = combine_flux['OIII_4363_Flux_Gaussian'].data
+    OIII4363_RMS  = combine_flux['OIII_4363_RMS'].data
+    OIII4959_flux = combine_flux['OIII_4958_Flux_Gaussian'].data
+    OIII4959_RMS  = combine_flux['OIII_4958_RMS'].data
+    OIII5007_flux = combine_flux['OIII_5007_Flux_Gaussian'].data
+    OIII5007_RMS  = combine_flux['OIII_5007_RMS'].data
+    Hgamma_flux   = combine_flux['HGAMMA_Flux_Gaussian'].data
+    Hgamma_RMS    = combine_flux['HGAMMA_RMS'].data
+    Hbeta_flux    = combine_flux['HBETA_Flux_Gaussian'].data
+    Hbeta_RMS     = combine_flux['HBETA_RMS'].data
+
     
-    dOII_flux      = combine_flux_tab['OII_3727_Flux_Gaussian'].data
-    dOII_RMS       = combine_flux_tab['OII_3727_RMS'].data
-    dHdelta_flux   = combine_flux_tab['HDELTA_Flux_Gaussian'].data
-    dHdelta_RMS    = combine_flux_tab['HDELTA_RMS'].data
-    dOIII4363_flux = combine_flux_tab['OIII_4363_Flux_Gaussian'].data
-    dOIII4363_RMS  = combine_flux_tab['OIII_4363_RMS'].data
-    dOIII4959_flux = combine_flux_tab['OIII_4958_Flux_Gaussian'].data
-    dOIII4959_RMS  = combine_flux_tab['OIII_4958_RMS'].data
-    dOIII5007_flux = combine_flux_tab['OIII_5007_Flux_Gaussian'].data
-    dOIII5007_RMS  = combine_flux_tab['OIII_5007_RMS'].data
-    dHgamma_flux   = combine_flux_tab['HGAMMA_Flux_Gaussian'].data
-    dHgamma_RMS    = combine_flux_tab['HGAMMA_RMS'].data
-    dHbeta_flux    = combine_flux_tab['HBETA_Flux_Gaussian'].data
-    dHbeta_RMS     = combine_flux_tab['HBETA_RMS'].data
-
-    ID             = TM_tab['Detection'].data
-    dTemp          = TM_tab['Temperature'].data
-    dcom_O_log     = TM_tab['com_O_log'].data
-    dO_s_ion       = TM_tab['O_s_ion'].data
-    dO_d_ion       = TM_tab['O_d_ion'].data
-    dlog_O_s       = TM_tab['log_O_s'].data
-    dlog_O_d       = TM_tab['log_O_d'].data
-
-    ###########Currently working with calculating error for all cases and for those just with detections. Once I verify that working with just detections works, I'll delete the other option and get rid of the keyword in the function call
-    if indicate == True:
-        detect = np.where((ID ==1))[0]
-        
-        OII_flux = dOII_flux[detect]       
-        OII_RMS = dOII_RMS[detect]         
-        Hdelta_flux = dHdelta_flux[detect]     
-        Hdelta_RMS= dHdelta_RMS[detect]     
-        OIII4363_flux = dOIII4363_flux[detect]   
-        OIII4363_RMS= dOIII4363_RMS[detect]    
-        OIII4959_flux = dOIII4959_flux[detect]  
-        OIII4959_RMS = dOIII4959_RMS[detect]    
-        OIII5007_flux = dOIII5007_flux[detect]  
-        OIII5007_RMS = dOIII5007_RMS[detect]  
-        Hgamma_flux = dHgamma_flux[detect]   
-        Hgamma_RMS = dHgamma_RMS[detect]     
-        Hbeta_flux = dHbeta_flux[detect]   
-        Hbeta_RMS = dHbeta_RMS[detect]     
-        
-        Temp = dTemp[detect]          
-        com_O_log = dcom_O_log[detect]     
-        O_s_ion = dO_s_ion[detect]      
-        O_d_ion = dO_d_ion[detect]      
-        log_O_s = dlog_O_s[detect]      
-        log_O_d = dlog_O_d[detect]      
-    else:
-        OII_flux = dOII_flux       
-        OII_RMS = dOII_RMS        
-        Hdelta_flux = dHdelta_flux    
-        Hdelta_RMS= dHdelta_RMS    
-        OIII4363_flux = dOIII4363_flux  
-        OIII4363_RMS= dOIII4363_RMS   
-        OIII4959_flux = dOIII4959_flux 
-        OIII4959_RMS = dOIII4959_RMS   
-        OIII5007_flux = dOIII5007_flux 
-        OIII5007_RMS = dOIII5007_RMS 
-        Hgamma_flux = dHgamma_flux  
-        Hgamma_RMS = dHgamma_RMS    
-        Hbeta_flux = dHbeta_flux  
-        Hbeta_RMS = dHbeta_RMS    
-        
-        Temp = dTemp         
-        com_O_log = dcom_O_log    
-        O_s_ion = dO_s_ion     
-        O_d_ion = dO_d_ion     
-        log_O_s = dlog_O_s     
-        log_O_d = dlog_O_d     
-
+    Temp          = TM['Temperature'].data
+    com_O_log     = TM['com_O_log'].data
+    O_s_ion       = TM['O_s_ion'].data
+    O_d_ion       = TM['O_d_ion'].data
+    log_O_s       = TM['log_O_s'].data
+    log_O_d       = TM['log_O_d'].data
+      
     #################Starting Error Calculations#################################################
     line_names = ['OII_3727', 'HBETA', 'HDELTA', 'HGAMMA', 'OIII_4363', 'OIII_4958', 'OIII_5007']
     flux_data = [OII_flux,Hbeta_flux ,Hdelta_flux, Hgamma_flux, OIII4363_flux, OIII4959_flux, OIII5007_flux ]
@@ -121,14 +78,14 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file, indicate = False):
     #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
 
     #Initialize Dictionary for flux_gpdf
-    pdf_dict = {}
+    flux_propdist_dict = {}
     
     for aa in range(len(flux_data)):
         flux_gpdf = random_pdf(flux_data[aa],RMS_data[aa], seed_i =aa, n_iter=1000, silent = False)
         err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=False, silent=True, verbose = True)
 
         #Fill In Dictionary
-        pdf_dict[line_names[aa]] = flux_gpdf
+        flux_propdist_dict[line_names[aa]] = flux_gpdf
         
         '''col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
         err_t = err.transpose()
@@ -141,26 +98,27 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file, indicate = False):
     asc.write(combine_flux_tab, flux_file, format= 'fixed_width_two_line')
     #print pdf_dict
 
-    ####################R_temp_calcul calls############################
+    ####################R_temp_calcul calls with probability distribution of fluxes############################
     EBV = np.zeros(pdf_dict['OIII_4363'].shape)
     k_4363 = np.zeros(pdf_dict['OIII_4363'].shape)
     k_5007 = np.zeros(pdf_dict['OIII_4363'].shape)
 
-    Te_error = {}
-    R_pdf = R_temp_calcul.R_calculation(pdf_dict['OIII_4363'], pdf_dict['OIII_5007'], pdf_dict['OIII_4958'], EBV, k_4363, k_5007)
+    Te_propdist_dict = {}
+    R_propdist = R_temp_calcul.R_calculation(pdf_dict['OIII_4363'], pdf_dict['OIII_5007'], pdf_dict['OIII_4958'], EBV, k_4363, k_5007)
 
-    Te_pdf = R_temp_calcul.temp_calculation(R_pdf)
+    Te_propdist = R_temp_calcul.temp_calculation(R_pdf)
     err_te, xpeak_te = compute_onesig_pdf(Te_pdf, Temp, usepeak=False, silent=True, verbose = True)
-    Te_error['T_e_pdf'] = err_te
 
-    two_beta_pdf = pdf_dict['OII_3727']/pdf_dict['HBETA']
-    three_beta_pdf = (pdf_dict['OIII_5007'] + pdf_dict['OIII_4958'])/pdf_dict['HBETA']
+    Te_propdist_dict['T_e_pdf'] = err_te
+
+    two_beta = pdf_dict['OII_3727']/pdf_dict['HBETA']
+    three_beta = (pdf_dict['OIII_5007'] + pdf_dict['OIII_4958'])/pdf_dict['HBETA']
 
     
     
-    O_s_ion_pdf , O_d_ion_pdf, com_O_log_pdf, O_s_ion_log_pdf, O_d_ion_log_pdf = R_temp_calcul.metalicity_calculation(Te_pdf, two_beta_pdf, three_beta_pdf)
+    O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metalicity_calculation(Te_pdf, two_beta_pdf, three_beta_pdf)
 
-    metallicity_pdf = {'O_s_ion_pdf': O_s_ion_pdf, 'O_d_ion_pdf': O_d_ion_pdf , 'com_O_log_pdf': com_O_log_pdf, 'O_s_ion_log_pdf': O_s_ion_log_pdf , 'O_d_ion_log_pdf':  O_d_ion_log_pdf}
+    metallicity_propdist_dict = {'O_s_ion_pdf': O_s_ion_pdf, 'O_d_ion_pdf': O_d_ion_pdf , 'com_O_log_pdf': com_O_log_pdf, 'O_s_ion_log_pdf': O_s_ion_log_pdf , 'O_d_ion_log_pdf':  O_d_ion_log_pdf}
     
     metal_error = {}
     metal_xpeak = {}
@@ -172,7 +130,7 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file, indicate = False):
     
     combined_metallicity = [O_s_ion , O_d_ion, com_O_log, log_O_s, log_O_d]
     for ii in range(len(metallicity_names)):
-        err_metal, xpeak_metal = compute_onesig_pdf(metallicity_names[ii], combined_metallicity[ii], usepeak=False, silent=True, verbose = True)
+        err_metal, xpeak_metal = compute_onesig_pdf(metallicity_names[ii], combined_metallicity[ii], usepeak=True, silent=True, verbose = True)
         #print err_metal, len(err_metal), xpeak_metal
 
         metal_error[metal_str[ii]] = err_metal

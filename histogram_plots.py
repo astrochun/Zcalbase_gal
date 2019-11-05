@@ -43,8 +43,10 @@ def histogram(path, data_path,table_path, pdf_name , statistical_peaks, table_ke
 
     pdf_pages = PdfPages(path+pdf_name)
 
-    nrows = 4
-    rows =[0,1,2,3]
+    nrows = len(com_metal)/2
+    print nrows
+    rows =np.arange(nrows)
+    print 'a', rows
     ncols = 2
     
     
@@ -63,16 +65,38 @@ def histogram(path, data_path,table_path, pdf_name , statistical_peaks, table_ke
         bin_arr = np.linspace(min_val, max_val)
         #print bin_arr
         
-        
+        title ='Bin: ',ID_detect[aa]
         ax.hist(data_hist[aa], bins =bin_arr)
-        ax.axvline(x = xpeaks[aa],color = 'r', label = 'compute_one_sig_xpeak')
-        ax.axvline(x = com_metal[aa],color = 'm', label = 'stacked metallicities')
-        title ='Bin: ',ID_detect[aa]     #,'Detection: ',detect[aa]
-        #print title
-        ax.set_title(title, fontsize = 6)
+        ax.axvline(x = xpeaks[aa],color = 'r', label = 'compute_one_sig_xpeak', linewidth = 0.5)
+        ax.axvline(x = com_metal[aa],color = 'm', label = 'stacked metallicities', linewidth =0.5)
         ax.set_xlim(7.75,9.15)
+        ax.annotate(title, [0.95,0.5], xycoords = 'axes fraction',va = 'center', ha = 'right', fontsize = 6)
+        plt.subplots_adjust(left= 0.05 , bottom= 0.10 , right= 0.95, top= 0.90, wspace = 0.15, hspace =0.15)
         if aa%(nrows*ncols) == 0:ax.legend(fontsize = 'xx-small')
-        if row != 3: ax.set_xticklabels([])
+        if row != 3:
+            ax.set_xticklabels([])
+        if row == 3: plt.xlabel("Metallicity") 
     fig.savefig(pdf_pages, format ='pdf')
         
     pdf_pages.close()
+
+
+
+
+
+def run_histogram_TM(fitspath,Te_pdf_dict,Te_xpeak_dict, metallicity_pdf_dict, metallicity_xpeak_dict, TM_file):
+
+    hist_wanted = ['Te_propdist', 'com_O_log,', 'O_s_ion', 'O_d_ion']
+
+    for ii in range(len(hist_wanted)):
+        data_name = hist_wanted[ii]
+        print data_name
+        if data_name == 'Te':
+            data_path = Te_pdf_dict
+            statistical_peaks = Te_xpeak_dict
+            
+        else:
+            data_path = metallicity_pdf_dict
+            statistical_peaks = metallicity_xpeak_dict
+        pdf_name = data_name+'histogram_plots.pdf'
+        histogram(fitspath, data_path, TM_file,pdf_name, statistical_peaks, table_key = 'ID', data_name = data_name)           

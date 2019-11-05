@@ -105,7 +105,8 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
 
     Te_propdist_dict = {}
     Te_xpeaks = {}
-    R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363'], flux_propdist_dict['OIII_5007'], flux_propdist_dict['OIII_4958'], EBV, k_4363, k_5007)
+    #changed parameters for R_calculation --> got rid of 4959
+    R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363'], flux_propdist_dict['OIII_5007'], EBV, k_4363, k_5007)
 
     Te_propdist = R_temp_calcul.temp_calculation(R_propdist)
     err_te, xpeak_te = compute_onesig_pdf(Te_propdist, Temp, usepeak=False, silent=True, verbose = True)
@@ -114,7 +115,8 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     Te_xpeaks['Te_xpeak']= xpeak_te
 
     two_beta = flux_propdist_dict['OII_3727']/flux_propdist_dict['HBETA']
-    three_beta = (flux_propdist_dict['OIII_5007'] + flux_propdist_dict['OIII_4958'])/flux_propdist_dict['HBETA']
+    #changed three_beta to 5007(1 + 1/3.1) instead of 5007 + 4959
+    three_beta = (flux_propdist_dict['OIII_5007'] * (1 + 1/3.1))/flux_propdist_dict['HBETA']
 
     
     

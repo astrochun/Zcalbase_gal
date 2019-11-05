@@ -99,26 +99,28 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     #print pdf_dict
 
     ####################R_temp_calcul calls with probability distribution of fluxes############################
-    EBV = np.zeros(pdf_dict['OIII_4363'].shape)
-    k_4363 = np.zeros(pdf_dict['OIII_4363'].shape)
-    k_5007 = np.zeros(pdf_dict['OIII_4363'].shape)
+    EBV = np.zeros(flux_propdist_dict['OIII_4363'].shape)
+    k_4363 = np.zeros(flux_propdist_dict['OIII_4363'].shape)
+    k_5007 = np.zeros(flux_propdist_dict['OIII_4363'].shape)
 
     Te_propdist_dict = {}
-    R_propdist = R_temp_calcul.R_calculation(pdf_dict['OIII_4363'], pdf_dict['OIII_5007'], pdf_dict['OIII_4958'], EBV, k_4363, k_5007)
+    Te_xpeaks = {}
+    R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363'], flux_propdist_dict['OIII_5007'], flux_propdist_dict['OIII_4958'], EBV, k_4363, k_5007)
 
-    Te_propdist = R_temp_calcul.temp_calculation(R_pdf)
-    err_te, xpeak_te = compute_onesig_pdf(Te_pdf, Temp, usepeak=False, silent=True, verbose = True)
+    Te_propdist = R_temp_calcul.temp_calculation(R_propdist)
+    err_te, xpeak_te = compute_onesig_pdf(Te_propdist, Temp, usepeak=False, silent=True, verbose = True)
 
-    Te_propdist_dict['T_e_pdf'] = err_te
+    Te_propdist_dict['Te_propdist'] = Te_propdist
+    Te_xpeaks['Te_xpeak']= xpeak_te
 
-    two_beta = pdf_dict['OII_3727']/pdf_dict['HBETA']
-    three_beta = (pdf_dict['OIII_5007'] + pdf_dict['OIII_4958'])/pdf_dict['HBETA']
+    two_beta = flux_propdist_dict['OII_3727']/flux_propdist_dict['HBETA']
+    three_beta = (flux_propdist_dict['OIII_5007'] + flux_propdist_dict['OIII_4958'])/flux_propdist_dict['HBETA']
 
     
     
-    O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metalicity_calculation(Te_pdf, two_beta_pdf, three_beta_pdf)
+    O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metalicity_calculation(Te_propdist, two_beta, three_beta)
 
-    metallicity_propdist_dict = {'O_s_ion_pdf': O_s_ion_pdf, 'O_d_ion_pdf': O_d_ion_pdf , 'com_O_log_pdf': com_O_log_pdf, 'O_s_ion_log_pdf': O_s_ion_log_pdf , 'O_d_ion_log_pdf':  O_d_ion_log_pdf}
+    metallicity_propdist_dict = {'O_s_ion_pdf': O_s_ion_propdist, 'O_d_ion_pdf': O_d_ion_propdist , 'com_O_log_pdf': com_O_log_propdist, 'O_s_ion_log_pdf': O_s_ion_log_propdist , 'O_d_ion_log_pdf':  O_d_ion_log_propdist}
     
     metal_error = {}
     metal_xpeak = {}
@@ -126,7 +128,7 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     ###########compute_onesig_pdf for all the metallicity outputs#############
     # Pass in the pdf metallicities, all the stacked measurements
     metal_str = ['O_s_ion_pdf' , 'O_d_ion_pdf', 'com_O_log_pdf', 'O_s_ion_log_pdf', 'O_d_ion_log_pdf']
-    metallicity_names =[O_s_ion_pdf , O_d_ion_pdf, com_O_log_pdf, O_s_ion_log_pdf, O_d_ion_log_pdf]
+    metallicity_names =[O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist]
     
     combined_metallicity = [O_s_ion , O_d_ion, com_O_log, log_O_s, log_O_d]
     for ii in range(len(metallicity_names)):
@@ -139,10 +141,11 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     #print metal_error
     #print metal_xpeak
 
-    np.savez(fitspath+'Te_errors.npz', **Te_error)
+    np.savez(fitspath+'Te_propdist_dict.npz', **Te_propdist_dict)   #error from compute one sig
+    np.savez(fitspath+'Te_xpeaks.npz', **Te_xpeaks)
     np.savez(fitspath+'metal_errors.npz', **metal_error)
     np.savez(fitspath+'metal_xpeaks.npz', **metal_xpeak)
-    np.savez(fitspath+'metallicity_pdf.npz', **metallicity_pdf)
+    np.savez(fitspath+'metallicity_pdf.npz', **metallicity_propdist_dict)
     
 
     

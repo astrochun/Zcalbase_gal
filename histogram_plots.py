@@ -42,13 +42,15 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
     print xpeaks.shape
     print data_hist.shape'''
 
+    #print data_name.shape()
+
     for bb in range(len(xpeak_key)):
-        for ii in range(len(data_all)):
+        for ii in range(len(data_name[bb])):
             print bb, ii
             hist_name = data_name[bb][ii]
             xpeak_name = xpeak_key[ii]
-            print hist_name, xpeak_name
-            #data_hist = data_all[hist_name]
+            
+            data_hist = data_all[hist_name]
             data_xpeak = data_all[xpeak_name]
             
             #This is defining a quick fix for passing in several wanted histograms 
@@ -57,19 +59,19 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
             if hist_name == 'O_s_ion_pdf': calculated_value = calculated_single[detection]
             if hist_name == 'com_O_log_pdf': calculated_value = calculated_com[detection]
             
-            print(calculated_value)
+            print('Should all be related:', calculated_value, hist_name, xpeak_name)
             
             
             
 
         nrows = len(calculated_value)/2
-        print nrows
+        #print nrows
         rows =np.arange(nrows)
-        print 'a', rows
+        #print 'a', rows
         ncols = 2
     
     
-        for aa in range(xpeaks.shape[0]):
+        for aa in range(len(calculated_value)):
             row = rows[aa/2]
             col = aa% ncols
             #print row, col
@@ -86,7 +88,7 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
         
             title ='Bin: ',ID_detect[aa]
             ax.hist(data_hist[aa], bins =bin_arr)
-            ax.axvline(x = xpeaks[aa],color = 'r', label = 'compute_one_sig_xpeak', linewidth = 0.5)
+            ax.axvline(x = data_xpeak[aa],color = 'r', label = 'compute_one_sig_xpeak', linewidth = 0.5)
             ax.axvline(x = calculated_value[aa],color = 'm', label = 'stacked metallicities', linewidth =0.5)
             ax.set_xlim(min_val, max_val)
             ax.annotate(title, [0.95,0.5], xycoords = 'axes fraction',va = 'center', ha = 'right', fontsize = 6)
@@ -95,7 +97,7 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
             if row != 3:
                 ax.set_xticklabels([])
             if row == 3: plt.xlabel("Metallicity") 
-            fig.savefig(pdf_pages, format ='pdf')
+        fig.savefig(pdf_pages, format ='pdf')
         
     pdf_pages.close()
 
@@ -126,14 +128,14 @@ def run_histogram_TM(fitspath, TM_file, dict_list, data_name):
         dic0 = np.load(dict_list[bb])   ###dictionary = np.load(path of the dictionary)
         #print dic0.keys()
         for aa in range(len(data_name[bb])):
-            print data_name[bb]
+            #print data_name[bb]
             print data_name[bb][aa]
             key_name = data_name[bb][aa]     ###''name of the key
             #print key_name
             dic1 = {key_name: dic0[key_name]}             ###{key: dictionary[''name of key]}
             histo_dict.update(dic1)         ###updates new dictionary 
     
-    print histo_dict
+    #print histo_dict
 
     
     pdf_name = 'Te_M_histogram_plots.pdf'

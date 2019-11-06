@@ -130,6 +130,7 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     ###########compute_onesig_pdf for all the metallicity outputs#############
     # Pass in the pdf metallicities, all the stacked measurements
     metal_str = ['O_s_ion_pdf' , 'O_d_ion_pdf', 'com_O_log_pdf', 'O_s_ion_log_pdf', 'O_d_ion_log_pdf']
+    xpeak_key = ['O_s_ion_xpeak','O_d_ion_xpeak', 'com_O_log_xpeak', 'O_s_ion_log_xpeak', 'O_d_ion_log_xpeak']
     metallicity_names =[O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist]
     
     combined_metallicity = [O_s_ion , O_d_ion, com_O_log, log_O_s, log_O_d]
@@ -138,7 +139,7 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
         #print err_metal, len(err_metal), xpeak_metal
 
         metal_error[metal_str[ii]] = err_metal
-        metal_xpeak[metal_str[ii]] = xpeak_metal
+        metal_xpeak[xpeak_key[ii]] = xpeak_metal
 
     #print metal_error
     #print metal_xpeak

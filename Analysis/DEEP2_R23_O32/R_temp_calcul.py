@@ -74,9 +74,9 @@ a = 13205
 b = 0.92506
 c = 0.98062
 
-def R_calculation(OIII4363, OIII5007, OIII4959, EBV, k_4363, k_5007):
+def R_calculation(OIII4363, OIII5007, EBV, k_4363, k_5007):
   
-    R_value = OIII4363/(OIII5007+OIII4959)* 10**(0.4*EBV*(k_4363-k_5007))
+    R_value = OIII4363/(OIII5007*(1+1/3.1))* 10**(0.4*EBV*(k_4363-k_5007))
     return R_value  
 
 def temp_calculation(R):

@@ -17,11 +17,12 @@ from scipy.optimize import curve_fit
 import scipy.integrate as integ
 from mpl_toolkits.mplot3d import Axes3D
 import sys
+from collections import OrderedDict
 
 
 
 
-def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_key=''):
+def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
     pdf_pages = PdfPages(path+pdf_name)
     #print data_path
     #data_all = np.load(data_path)
@@ -33,6 +34,8 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
         calculated_Te = tab1 ['Temperature']
         calculated_single = tab1['O_s_ion']
         calculated_double = tab1['O_d_ion']
+        calculated_logs = tab1['log_O_s']
+        calculated_logd = tab1['log_O_d']
         detect = tab1['Detection']
         detection = np.where((detect==1))[0]
         ID_detect = ID[detection]
@@ -44,22 +47,37 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
 
     #print data_name.shape()
 
-    for bb in range(len(xpeak_key)):
-        for ii in range(len(data_name[bb])):
-            print bb, ii
-            hist_name = data_name[bb][ii]
-            xpeak_name = xpeak_key[ii]
+    histo_keys = data_all.keys()
+    print(histo_keys)
+
+    pdf_list = [histo_keys[xx] for xx in range(len(histo_keys)) if ('pdf' in histo_keys[xx])]
+    print(pdf_list)
+    xpeak_list = [str0.replace('pdf','xpeak') for str0 in pdf_list]
+    print(xpeak_list)
+
+
+
+
+
+
+    for ii in range(len(pdf_list)):
             
-            data_hist = data_all[hist_name]
-            data_xpeak = data_all[xpeak_name]
+        hist_name = pdf_list[ii]
+        xpeak_name = xpeak_list[ii]
             
-            #This is defining a quick fix for passing in several wanted histograms 
-            if hist_name == 'Te_propdist': calculated_value = calculated_Te[detection]
-            if hist_name == 'O_d_ion_pdf': calculated_value = calculated_double[detection]
-            if hist_name == 'O_s_ion_pdf': calculated_value = calculated_single[detection]
-            if hist_name == 'com_O_log_pdf': calculated_value = calculated_com[detection]
+        data_hist = data_all[hist_name]
+        data_xpeak = data_all[xpeak_name]
+
+        print(hist_name, xpeak_name)
             
-            print('Should all be related:', calculated_value, hist_name, xpeak_name)
+        #This is defining a quick fix for passing in several wanted histograms 
+        if hist_name == 'Te_pdf': calculated_value = calculated_Te[detection]
+        if hist_name == 'O_d_ion_pdf': calculated_value = calculated_double[detection]
+        if hist_name == 'O_s_ion_pdf': calculated_value = calculated_single[detection]
+        if hist_name == 'com_O_log_pdf': calculated_value = calculated_com[detection]
+        if hist_name == 'O_d_ion_log_pdf': calculated_value = calculated_logd[detection]
+        if hist_name == 'O_s_ion_log_pdf': calculated_value = calculated_logs[detection]
+        #print('Should all be related:', calculated_value, hist_name, xpeak_name)
             
             
             
@@ -96,7 +114,7 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
             if aa%(nrows*ncols) == 0:ax.legend(fontsize = 'xx-small')
             if row != 3:
                 ax.set_xticklabels([])
-            if row == 3: plt.xlabel("Metallicity") 
+            if row == 3: plt.xlabel(pdf_list[ii]) 
         fig.savefig(pdf_pages, format ='pdf')
         
     pdf_pages.close()
@@ -105,7 +123,7 @@ def histogram(path, data_all,table_path, pdf_name , data_name, xpeak_key, table_
 
 
 
-def run_histogram_TM(fitspath, TM_file, dict_list, data_name):     
+def run_histogram_TM(fitspath, TM_file, dict_list):    #,data_name):     
 
     #dict_list = [Te_pdf_dict,Te_xpeak_dict, metallicity_pdf_dict, metallicity_xpeak_dict]
     #data_name = [['Te_propdist'], ['Te_xpeak'],['O_d_ion_pdf', 'O_s_ion_pdf', 'com_O_log_pdf'],['O_s_ion_xpeak','O_d_ion_xpeak', 'com_O_log_xpeak']]
@@ -123,23 +141,21 @@ def run_histogram_TM(fitspath, TM_file, dict_list, data_name):
 
     xpeak_key = ['Te_xpeak','O_s_ion_xpeak','O_d_ion_xpeak', 'com_O_log_xpeak']
 
-    histo_dict = {} #will have all the data and xpeaks for all histograms wanted 
+    histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 
     for bb in range(len(dict_list)):
         dic0 = np.load(dict_list[bb])   ###dictionary = np.load(path of the dictionary)
-        #print dic0.keys()
-        for aa in range(len(data_name[bb])):
-            #print data_name[bb]
-            print data_name[bb][aa]
-            key_name = data_name[bb][aa]     ###''name of the key
-            #print key_name
-            dic1 = {key_name: dic0[key_name]}             ###{key: dictionary[''name of key]}
-            histo_dict.update(dic1)         ###updates new dictionary 
+        dic0_keys = dic0.keys()
+        print(dic0_keys)
+        histo_dict.update(dic0)
+        '''for key in dict0_keys:
+            dic1 = {key: dic0[key]}             ###{key: dictionary[''name of key]}
+            histo_dict.update(dic1)'''       ###updates new dictionary 
     
-    #print histo_dict
+    print histo_dict
 
     
     pdf_name = 'Te_M_histogram_plots.pdf'
-    histogram(fitspath, histo_dict, TM_file, pdf_name, data_name, xpeak_key, table_key = 'ID')
+    histogram(fitspath, histo_dict, TM_file, pdf_name, xpeak_key, table_key = 'ID')
 
 
 

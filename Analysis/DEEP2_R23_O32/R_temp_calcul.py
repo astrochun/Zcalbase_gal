@@ -82,7 +82,7 @@ def R_calculation(OIII4363, OIII5007, EBV, k_4363, k_5007):
 def temp_calculation(R):
     #T_e = a(-log(R)-b)^(-c)
     T_e =  a*(-np.log10(R)-b)**(-1*c)     
-    print T_e  
+    print(T_e)  
     return T_e  
 
 
@@ -178,7 +178,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     der_Te_MACT = derived_MACT['Te'].data
     der_OH_MACT = derived_MACT['OH'].data
     ID_der_MACT = derived_MACT['ID'].data
-    print len(der_Te_MACT), len(der_R23_MACT)
+    print(len(der_Te_MACT), len(der_R23_MACT))
 
 
 
@@ -186,7 +186,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     
     
     if 'two_beta' in combine_fits.keys():
-        print 'Running Metallicity Calculation for Individual Spectra'
+        print('Running Metallicity Calculation for Individual Spectra')
         OIII5007 = combine_fits['OIII5007'].data
         OIII4959 = combine_fits['OIII4959'].data
         HBETA    = combine_fits['HBeta'].data
@@ -199,24 +199,24 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         Detection = combine_fits['Detection'].data
 
         up_limit = (Hgamma/SN_Hgamma) *3
-        print 'up_limit', up_limit
+        print('up_limit', up_limit)
         
         OIII4363 = np.zeros(len(raw_OIII4363))
         indicate = np.zeros(len(raw_OIII4363))
         for ii in range(len(OIII4363)):
-            print SN_4363[ii]
+            print(SN_4363[ii])
             if SN_4363[ii] >= 3:
-                print 'regular'
-                print '4363:' , raw_OIII4363[ii]
+                print('regular')
+                print('4363:' , raw_OIII4363[ii])
                 OIII4363[ii]= raw_OIII4363[ii]
                 indicate[ii]= 1 
             else:
-                print 'upper limit'
-                print '4363: ', up_limit[ii]
+                print('upper limit')
+                print('4363: ', up_limit[ii])
                 OIII4363[ii]= up_limit[ii]
                 indicate[ii]= 0
-            print OIII4363
-            print indicate 
+            print(OIII4363)
+            print(indicate) 
         
         
         Two_Beta = combine_fits['two_beta'].data
@@ -233,7 +233,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
 
     if 'Log10(Mass)' in combine_fits.keys():
-        print 'Running Metallicity Calculation for Individual Spectra'
+        print('Running Metallicity Calculation for Individual Spectra')
         OIII5007 = combine_fits['OIII5007_Flux'].data
         OIII4959 = combine_fits['OIII4959_Flux'].data
         HBETA    = combine_fits['HBETA_Flux'].data
@@ -259,7 +259,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
 
     else:
-        print 'Running R, Temperature, and Metallicity Calculations for Stacked Spectra'
+        print('Running R, Temperature, and Metallicity Calculations for Stacked Spectra')
         #Ascii Table from FITTING 
         OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
         OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
@@ -282,28 +282,28 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
         O32_composite = np.log10((1.33*OIII5007)/OII3727)
 
-        print 'R23_composite', R23_composite
-        print 'O32_composite', O32_composite 
+        print('R23_composite', R23_composite)
+        print('O32_composite', O32_composite)
     
         up_limit = (Hgamma/SN_Hgamma) *3
-        print 'up_limit', up_limit
+        print('up_limit', up_limit)
         
         OIII4363 = np.zeros(len(raw_OIII4363))
         indicate = np.zeros(len(raw_OIII4363))
         for ii in range(len(OIII4363)):
-            print SN_4363[ii]
+            print(SN_4363[ii])
             if (SN_4363[ii] >= 3.0) and (SN_5007[ii] >= 100.0):##Adding the requirement that the S/N of 5007 is greater than or equal to 100
-                print 'regular'
-                print '4363:' , raw_OIII4363[ii]
+                print('regular')
+                print('4363:' , raw_OIII4363[ii])
                 OIII4363[ii]= raw_OIII4363[ii]
                 indicate[ii]= 1 
             else:
-                print 'upper limit'
-                print '4363: ', up_limit[ii]
+                print('upper limit')
+                print('4363: ', up_limit[ii])
                 OIII4363[ii]= up_limit[ii]
                 indicate[ii]= 0
-            print OIII4363
-            print indicate 
+            print(OIII4363)
+            print(indicate)
 
         #Line Ratios
         O3727_HBETA = OII3727/HBETA
@@ -368,7 +368,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     npz_comOlog = error_npz['com_O_log_pdf']
     metal_error = np.transpose(npz_comOlog)
     ### metal_error is an array with shape (2,N), how do I index over that????
-    print "metal_error:", metal_error
+    print("metal_error:", metal_error)
 
     npz_te_err = np.load(fitspath + 'Te_errors.npz')
     npz_te = npz_te_err['T_e_pdf']

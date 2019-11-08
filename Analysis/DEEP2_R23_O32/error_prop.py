@@ -111,7 +111,7 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     Te_propdist = R_temp_calcul.temp_calculation(R_propdist)
     err_te, xpeak_te = compute_onesig_pdf(Te_propdist, Temp, usepeak=False, silent=True, verbose = True)
 
-    Te_propdist_dict['Te_propdist'] = Te_propdist
+    Te_propdist_dict['Te_pdf'] = Te_propdist
     Te_xpeaks['Te_xpeak']= xpeak_te
 
     two_beta = flux_propdist_dict['OII_3727']/flux_propdist_dict['HBETA']

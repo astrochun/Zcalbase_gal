@@ -27,8 +27,8 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
     #print data_path
     #data_all = np.load(data_path)
     tab1 = asc.read(table_path)
-    if table_key == 'ID' or table_key == 'Detection':
-        #ID = tab1['ID']
+    if table_key == 'ID':
+        ID = tab1['ID']
         
         calculated_com = tab1['com_O_log']
         calculated_Te = tab1 ['Temperature']
@@ -38,7 +38,7 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
         calculated_logd = tab1['log_O_d']
         detect = tab1['Detection']
         detection = np.where((detect==1))[0]
-        #ID_detect = ID[detection]
+        ID_detect = ID[detection]
 
     '''statistical_all = np.load(statistical_peaks)
     xpeaks = statistical_all[xpeak_key]
@@ -106,7 +106,7 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
             bin_arr = np.linspace(min_val, max_val)
             #print bin_arr
         
-            #title ='Bin: ',ID_detect[aa]
+            title ='Bin: ',ID_detect[aa]
             ax.hist(data_hist[aa], bins =bin_arr)
             ax.axvline(x = data_xpeak[aa],color = 'r', label = 'compute_one_sig_xpeak', linewidth = 0.5)
             ax.axvline(x = calculated_value[aa],color = 'm', label = 'stacked metallicities', linewidth =0.5)

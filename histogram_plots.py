@@ -68,7 +68,7 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
         data_hist = data_all[hist_name]
         data_xpeak = data_all[xpeak_name]
 
-        print(hist_name, xpeak_name)
+        print(xpeak_name)
             
         #This is defining a quick fix for passing in several wanted histograms 
         if hist_name == 'Te_pdf': calculated_value = calculated_Te[detection]
@@ -79,7 +79,8 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
         if hist_name == 'O_s_ion_log_pdf': calculated_value = calculated_logs[detection]
         #print('Should all be related:', calculated_value, hist_name, xpeak_name)
             
-            
+        print('xpeak: ', data_xpeak)
+        print('stacked: ', calculated_value)
             
 
         nrows = len(calculated_value)/2

@@ -177,7 +177,7 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
 
 
 def run_histogram(path, table_path, dict_list, xpeak_key):    #,data_name):
-    
+    if path[-1] != "/": path +="/"
     histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 
     for bb in range(len(dict_list)):
         dic0 = np.load(dict_list[bb])   ###dictionary = np.load(path of the dictionary)

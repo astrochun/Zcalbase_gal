@@ -1,6 +1,53 @@
+######Creates histograms of data inputted in dictionaries#####
+######Currently set up to plot tempature and metallicity error propagation#####
+'''
+
+##############Functions#######################
+# histogram(path, data_all, table_path, pdf_name, xpeak_key, table_key='')
+Input variables: 
+path            -> location of where the outputted pdf_file will be saved
+data_all        -> big dictionary of all the error propagation data that will be put into 
+                   histogram plot; created in run_histogram_TM
+table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal 
+                   functions; can also be the combine_flux_table created by 
+                   zoom_and_gauss_general
+pdf_name        -> name of the outputted pdf file
+xpeak_key       -> list of names of the median values outputted from compute_one_sig as xpeak
+                   used for naming and referencing
+table_key       -> name of one of the columns of the table inputted by table_path
+                   used to call the binned data
+
+
+
+# run_histogram_TM(path,table_path, dict_list,xpeak_key): 
+Input variables: 
+path            -> name of where you are working and location of where the 
+                   outputted pdf_file will be saved
+table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal 
+                   functions; can also be the combine_flux_table created by 
+                   zoom_and_gauss_general
+dict_list       -> list of dictionaries whose data we want to plot in a histogram
+xpeak_key       -> list of names of the median values outputted from compute_one_sig as xpeak
+                   used for naming and referencing
+#Example :
+    #         dict_list = [Te_pdf_dict,Te_xpeak_dict,
+    #                     metallicity_pdf_dict, metallicity_xpeak_dict]
+    #         xpeak_key = ['Te_xpeak','O_s_ion_xpeak',
+    #                     'O_d_ion_xpeak', 'com_O_log_xpeak']
+
+
+Calling order: call run_histogram to combine all dictionaries into one large dictionary that gets passed into histogram and from there is plotted 
+
+'''
+
+
+
+
+
+
+
 import numpy as np
 import matplotlib.pyplot as plt
-#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack, hstack
@@ -134,24 +181,8 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
 
 
 
-def run_histogram_TM(fitspath, TM_file, dict_list):    #,data_name):     
-
-    #dict_list = [Te_pdf_dict,Te_xpeak_dict, metallicity_pdf_dict, metallicity_xpeak_dict]
-    #data_name = [['Te_propdist'], ['Te_xpeak'],['O_d_ion_pdf', 'O_s_ion_pdf', 'com_O_log_pdf'],['O_s_ion_xpeak','O_d_ion_xpeak', 'com_O_log_xpeak']]
-
-
-    #['O_d_ion_pdf', 'O_s_ion_pdf', 'com_O_log_pdf'],
-    #['O_d_ion_pdf', 'O_s_ion_pdf', 'com_O_log_pdf']]
-
-
-
-    #dictxpeak_key = ['Te_xpeak','O_d_ion_pdf', 'O_s_ion_pdf', 'com_O_log_pdf']
-
-
-
-
-    xpeak_key = ['Te_xpeak','O_s_ion_xpeak','O_d_ion_xpeak', 'com_O_log_xpeak']
-
+def run_histogram(path, table_path, dict_list, xpeak_key):    #,data_name):
+    
     histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 
     for bb in range(len(dict_list)):
         dic0 = np.load(dict_list[bb])   ###dictionary = np.load(path of the dictionary)
@@ -166,7 +197,7 @@ def run_histogram_TM(fitspath, TM_file, dict_list):    #,data_name):
 
     
     pdf_name = 'Te_M_histogram_plots.pdf'
-    histogram(fitspath, histo_dict, TM_file, pdf_name, xpeak_key, table_key = 'ID')
+    histogram(fitspath, histo_dict, table_path, pdf_name, xpeak_key, table_key = 'ID')
 
 
 
@@ -191,4 +222,3 @@ def run_histogram_TM(fitspath, TM_file, dict_list):    #,data_name):
 
 
 
-###generalize code further so that the run function passes in a list of stuff

@@ -49,6 +49,8 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
 
     histo_keys = data_all.keys()
     print(histo_keys)
+    if type(histo_keys) != list:
+        histo_keys = list(histo_keys)
 
     pdf_list = [histo_keys[xx] for xx in range(len(histo_keys)) if ('pdf' in histo_keys[xx])]
     print(pdf_list)
@@ -79,11 +81,19 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
         if hist_name == 'O_s_ion_log_pdf': calculated_value = calculated_logs[detection]
         #print('Should all be related:', calculated_value, hist_name, xpeak_name)
             
+
         print('xpeak: ', data_xpeak)
         print('stacked: ', calculated_value)
             
 
-        nrows = len(calculated_value)/2
+       
+            
+    
+        if len(calculated_value) % 2 == 0:
+            nrows = len(calculated_value)//2
+        else:
+            nrows = len(calculated_value)//2 + 1
+
         #print nrows
         rows =np.arange(nrows)
         #print 'a', rows
@@ -91,31 +101,31 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
     
     
         for aa in range(len(calculated_value)):
-            row = rows[aa/2]
+            row = rows[aa//2]
             col = aa% ncols
             #print row, col
             if aa % (nrows*ncols) ==0:
-                fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols, squeeze =False)
+                fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols, sharex=True, squeeze =False)
 
             ax = ax_arr[row,col]
-            min_val = np.nanmin(data_hist[aa])
-            max_val = np.nanmax(data_hist[aa])
+            non_inf = np.where(np.isfinite(data_hist[aa]) == True)[0]
+            min_val = np.nanmin(data_hist[aa][non_inf])
+            max_val = np.nanmax(data_hist[aa][non_inf])
             #print min_val, max_val
         
             bin_arr = np.linspace(min_val, max_val)
             #print bin_arr
         
             title ='Bin: ',ID_detect[aa]
-            ax.hist(data_hist[aa], bins =bin_arr)
+            ax.hist(data_hist[aa][non_inf], bins =bin_arr)
             ax.axvline(x = data_xpeak[aa],color = 'r', label = 'compute_one_sig_xpeak', linewidth = 0.5)
             ax.axvline(x = calculated_value[aa],color = 'm', label = 'stacked metallicities', linewidth =0.5)
             ax.set_xlim(min_val, max_val)
             ax.annotate(title, [0.95,0.5], xycoords = 'axes fraction',va = 'center', ha = 'right', fontsize = 6)
             plt.subplots_adjust(left= 0.07 , bottom= 0.10 , right= 0.97, top= 0.97, wspace = 0.15, hspace =0.15)
-            if aa%(nrows*ncols) == 0:ax.legend(fontsize = 'xx-small')
-            if row != 3:
-                ax.set_xticklabels([])
-            if row == 3: plt.xlabel(pdf_list[ii]) 
+            if aa%(nrows*ncols) == 0:
+                ax.legend(title = hist_name, fontsize = 3) #fontsize = 'xx-small')
+            #if row == 3: plt.xlabel(pdf_list[ii])
         fig.savefig(pdf_pages, format ='pdf')
         
     pdf_pages.close()
@@ -152,7 +162,7 @@ def run_histogram_TM(fitspath, TM_file, dict_list):    #,data_name):
             dic1 = {key: dic0[key]}             ###{key: dictionary[''name of key]}
             histo_dict.update(dic1)'''       ###updates new dictionary 
     
-    print histo_dict
+    print(histo_dict)
 
     
     pdf_name = 'Te_M_histogram_plots.pdf'

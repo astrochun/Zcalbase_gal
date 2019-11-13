@@ -17,7 +17,7 @@ xpeak_key       -> list of names of the median values outputted from compute_one
 table_key       -> name of one of the columns of the table inputted by table_path
                    used to call the binned data
 
-
+Output: pdf file with all the histograms plotted  
 
 # run_histogram_TM(path,table_path, dict_list,xpeak_key): 
 Input variables: 
@@ -194,26 +194,6 @@ def run_histogram(path, table_path, dict_list, xpeak_key):    #,data_name):
     pdf_name = 'Te_M_histogram_plots.pdf'
     histogram(fitspath, histo_dict, table_path, pdf_name, xpeak_key, table_key = 'ID')
 
-
-
-    ''''
-    for ii in range(len(hist_wanted)):
-        #data_name = hist_wanted[ii]
-        #print data_name
-        if data_name == 'Te_propdist':
-            print 'Te'
-            data_path = Te_pdf_dict
-            print data_path
-            statistical_peaks = Te_xpeak_dict
-            
-        else:
-            data_path = metallicity_pdf_dict
-            statistical_peaks = metallicity_xpeak_dict
-        pdf_name = data_name+'histogram_plots.pdf'
-        print pdf_name
-        histogram(fitspath, data_path, TM_file,pdf_name, statistical_peaks, table_key = 'ID', data_name = data_name,xpeak_key= xpeak_key[ii])
-
-        histogram(fitspath, histo_dict, TM_file, pdf_name, table_key = 'ID', data_name, xpeak_key)'''
 
 
 

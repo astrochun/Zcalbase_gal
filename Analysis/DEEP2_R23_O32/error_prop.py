@@ -1,8 +1,25 @@
+####Runs ranom_pudf and compute_onesig_pdf from chun_codes to perform error propagation######
+####Error propagation for fluxes, temperature, and metallicity#####
+'''
 
+################Functions###################
+#error_prop_chuncodes(path, flux_file, TM_file)
+Input variables: 
+path           -> location of where the outputted pdf_file will be saved
+flux_file      -> ascii file with all the line fluxes and RMS values created by 
+                  zoom_and_gauss_general (Reagen) and emission_line_fit (Caroline)
+TM_file        -> ascii file with the temperature and metallicity of the bins 
+                  created by R_temp_calcul.py
+
+Outputs: Four dictionaries of the temperatures and metallicities 
+
+#plotting_linear_errors(fitspath, flux_file)
+Function not being called currently
+Output: pdf file with plots of calculated fluxes with lower and high bounds marked 
+'''
 
 import numpy as np
 import matplotlib.pyplot as plt
-#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack, hstack
@@ -11,10 +28,7 @@ from astropy.table import Table, Column
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 from os.path import exists
-import numpy.ma as ma
-from matplotlib.gridspec import GridSpec
 from pylab import subplots_adjust
-from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
 import scipy.integrate as integ
 
@@ -27,12 +41,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import R_temp_calcul
 
 #line_name = ['OII_3727','NeIII','HeI', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
 
-#Calling Error Propogation
-#error_prop_chuncodes(fitspath, dataset, working_wave, flux_g_array, RMS_array)
-# TM_tab is the table with your metallicities, temperatures, and line ratios
-# flux_tab (for Reagen) is produced by the zoom_and_gauss_general code and has the RMS values for each bin
-# flux_tab (for Caroline) is produced by emission_line_fit code and has the RMS values for each bin
-def error_prop_chuncodes(fitspath, flux_file, TM_file):    
+def error_prop_chuncodes(path, flux_file, TM_file):    
     #TM_file = fitspath + dataset + '_temperatures_metalicity.tbl'
     #flux_file = fitspath + dataset + '_combined_flux_table.tbl'
     #TM_file = fitspath + dataset + '_derived_properties_metallicity.tbl'
@@ -152,7 +161,7 @@ def error_prop_chuncodes(fitspath, flux_file, TM_file):
     
 
     
-def plotting_linear_errors(fitspath, flux_file):
+def plotting_linear_errors(path, flux_file):
     pdf_pages = PdfPages(fitspath+'emission_line_error_graphs.pdf')
     #TM_tab = asc.read(TM_file)
     combine_flux_tab = asc.read(flux_file)

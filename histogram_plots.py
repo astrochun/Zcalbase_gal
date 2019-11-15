@@ -12,8 +12,6 @@ table_path      -> location of the temperature_metallicity table outputted by th
                    functions; can also be the combine_flux_table created by 
                    zoom_and_gauss_general
 pdf_name        -> name of the outputted pdf file
-xpeak_key       -> list of names of the median values outputted from compute_one_sig as xpeak
-                   used for naming and referencing
 table_key       -> name of one of the columns of the table inputted by table_path
                    used to call the binned data
 
@@ -27,15 +25,14 @@ table_path      -> location of the temperature_metallicity table outputted by th
                    functions; can also be the combine_flux_table created by 
                    zoom_and_gauss_general
 dict_list       -> list of dictionaries whose data we want to plot in a histogram
-xpeak_key       -> list of names of the median values outputted from compute_one_sig as xpeak
-                   used for naming and referencing
+
 #Example :
     #         dict_list = [Te_pdf_dict,Te_xpeak_dict,
     #                     metallicity_pdf_dict, metallicity_xpeak_dict]
     #         xpeak_key = ['Te_xpeak','O_s_ion_xpeak',
     #                     'O_d_ion_xpeak', 'com_O_log_xpeak']
 
-
+***Adding error bars to the plots: error_prop creates more dictionaries with the errors for each distribution calculated. These dictionaries  will be included in the dict_list pasted into run_histogram and will be called in histogram to create an error_list
 Calling order: call run_histogram to combine all dictionaries into one large dictionary that gets passed into histogram and from there is plotted 
 
 '''
@@ -64,7 +61,7 @@ from collections import OrderedDict
 
 
 
-def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
+def histogram(path, data_all,table_path, pdf_name,  table_key=''):
     pdf_pages = PdfPages(path+pdf_name)
     #print data_path
     #data_all = np.load(data_path)
@@ -90,7 +87,7 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
     #print data_name.shape()
 
     histo_keys = data_all.keys()
-    print(histo_keys)
+    #print(histo_keys)
     if type(histo_keys) != list:
         histo_keys = list(histo_keys)
 
@@ -98,6 +95,8 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
     print(pdf_list)
     xpeak_list = [str0.replace('pdf','xpeak') for str0 in pdf_list]
     print(xpeak_list)
+    error_list = [str0.replace('pdf','lowhigh_error') for str0 in pdf_list]
+    print(error_list)
 
 
 
@@ -108,11 +107,18 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
             
         hist_name = pdf_list[ii]
         xpeak_name = xpeak_list[ii]
+        error_name = error_list[ii]
             
         data_hist = data_all[hist_name]
         data_xpeak = data_all[xpeak_name]
+        data_errors = data_all[error_name]
 
-        print(xpeak_name)
+        data_lowerror = data_errors[:,0]
+        data_higherror= data_errors[:,1]
+        print(data_errors)
+        print('Low: ',data_lowerror)
+        print('High: ',data_higherror)
+        
             
         #This is defining a quick fix for passing in several wanted histograms 
         if hist_name == 'Te_pdf': calculated_value = calculated_Te[detection]
@@ -124,8 +130,8 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
         #print('Should all be related:', calculated_value, hist_name, xpeak_name)
             
 
-        print('xpeak: ', data_xpeak)
-        print('stacked: ', calculated_value)
+        #print('xpeak: ', data_xpeak)
+        #print('stacked: ', calculated_value)
             
 
        
@@ -147,22 +153,31 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
             col = aa% ncols
             #print row, col
             if aa % (nrows*ncols) ==0:
-                fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols, sharex=True, squeeze =False)
+                fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols,sharex=True, squeeze =False)   
 
             ax = ax_arr[row,col]
+
             non_inf = np.where(np.isfinite(data_hist[aa]) == True)[0]
             min_val = np.nanmin(data_hist[aa][non_inf])
             max_val = np.nanmax(data_hist[aa][non_inf])
             #print min_val, max_val
-        
+
+            lowerr= calculated_value[aa]*data_lowerror[aa]
+            higherr =  calculated_value[aa]*data_higherror[aa]
+            print('Low error value:  ', lowerr, 'High error value:  ' higherr) #This print statement should print one value if I have done the indexing correctly
+            
             bin_arr = np.linspace(min_val, max_val)
             #print bin_arr
-        
+            
             title ='Bin: ',ID_detect[aa]
             ax.hist(data_hist[aa][non_inf], bins =bin_arr)
             ax.axvline(x = data_xpeak[aa],color = 'r', label = 'compute_one_sig_xpeak', linewidth = 0.5)
             ax.axvline(x = calculated_value[aa],color = 'm', label = 'stacked metallicities', linewidth =0.5)
-            ax.set_xlim(min_val, max_val)
+            #ax.axvline(x = lowerr,color = 'g', label = 'Lower Limit', linewidth =0.5)
+            #ax.axvline(x = higherr,color = 'k', label = 'Upper Limit', linewidth =0.5)
+
+
+            #ax.set_xlim(min_val, max_val)
             ax.annotate(title, [0.95,0.5], xycoords = 'axes fraction',va = 'center', ha = 'right', fontsize = 6)
             plt.subplots_adjust(left= 0.07 , bottom= 0.10 , right= 0.97, top= 0.97, wspace = 0.15, hspace =0.15)
             if aa%(nrows*ncols) == 0:
@@ -176,23 +191,23 @@ def histogram(path, data_all,table_path, pdf_name , xpeak_key, table_key=''):
 
 
 
-def run_histogram(path, table_path, dict_list, xpeak_key):    #,data_name):
+def run_histogram(path, table_path, dict_list):    #,data_name):
     if path[-1] != "/": path +="/"
     histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 
     for bb in range(len(dict_list)):
         dic0 = np.load(dict_list[bb])   ###dictionary = np.load(path of the dictionary)
         dic0_keys = dic0.keys()
-        print(dic0_keys)
+        #print(dic0_keys)
         histo_dict.update(dic0)
         '''for key in dict0_keys:
             dic1 = {key: dic0[key]}             ###{key: dictionary[''name of key]}
             histo_dict.update(dic1)'''       ###updates new dictionary 
     
-    print(histo_dict)
+    #print(histo_dict)
 
     
     pdf_name = 'Te_M_histogram_plots.pdf'
-    histogram(fitspath, histo_dict, table_path, pdf_name, xpeak_key, table_key = 'ID')
+    histogram(path, histo_dict, table_path, pdf_name, table_key = 'ID')
 
 
 

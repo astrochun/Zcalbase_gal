@@ -88,23 +88,32 @@ def error_prop_chuncodes(path, flux_file, TM_file):
 
     #Initialize Dictionary for flux_gpdf
     flux_propdist_dict = {}
+    flux_xpeak = {}
+    flux_lowhigh = {}
     
     for aa in range(len(flux_data)):
         flux_gpdf = random_pdf(flux_data[aa],RMS_data[aa], seed_i =aa, n_iter=1000, silent = False)
-        err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=False, silent=True, verbose = True)
+        err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=True, silent=True, verbose = True)
 
         #Fill In Dictionary
         flux_propdist_dict[line_names[aa]] = flux_gpdf
+        flux_xpeak[line_names[aa]+'xpeak'] = xpeak
+        flux_lowhigh[line_names[aa]] = err
+
+        #Edit Ascii Table
+        combine_flux_new_name = flux_file.replace('.tbl','revised.tbl')
         
-        '''col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
-        err_t = err.transpose()
-        c1 = Column(err_t[0], name=line_names[aa]+'_Low_Error')
-        c2 = Column(err_t[1], name=line_names[aa]+'_High_Error')
-        combine_flux_tab.add_columns([c1, c2], indexes=[col_name_idx,col_name_idx])'''
+        combine_flux_tab[line_names[aa]+'_Flux_Gaussian'][detect] = xpeak 
+        
+        #col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
+        #err_t = err.transpose()
+        #c1 = Column(err_t[0], name=line_names[aa]+'_Low_Error')
+        #c2 = Column(err_t[1], name=line_names[aa]+'_High_Error')
+        #combine_flux_tab.add_columns([c1, c2], indexes=[col_name_idx,col_name_idx])
    
         #print('err_function:', flux_gpdf, flux_gpdf.shape)
         #print('err',err, len(err),'xpeak', xpeak,len(err))
-    asc.write(combine_flux_tab, flux_file, format= 'fixed_width_two_line')
+    asc.write(combine_flux_tab, combine_flux_new_name, format= 'fixed_width_two_line')
     #print pdf_dict
 
     ####################R_temp_calcul calls with probability distribution of fluxes############################
@@ -114,19 +123,28 @@ def error_prop_chuncodes(path, flux_file, TM_file):
 
     Te_propdist_dict = {}
     Te_xpeaks = {}
+    Te_lowhigh = {}
     #changed parameters for R_calculation --> got rid of 4959
     R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363'], flux_propdist_dict['OIII_5007'], EBV, k_4363, k_5007)
 
     Te_propdist = R_temp_calcul.temp_calculation(R_propdist)
-    err_te, xpeak_te = compute_onesig_pdf(Te_propdist, Temp, usepeak=False, silent=True, verbose = True)
+    err_te, xpeak_te = compute_onesig_pdf(Te_propdist, Temp, usepeak=True, silent=True, verbose = True)
 
     Te_propdist_dict['Te_pdf'] = Te_propdist
     Te_xpeaks['Te_xpeak']= xpeak_te
+    Te_lowhigh['Te_lowhigh_error'] = err_te
 
     two_beta = flux_propdist_dict['OII_3727']/flux_propdist_dict['HBETA']
     #changed three_beta to 5007(1 + 1/3.1) instead of 5007 + 4959
     three_beta = (flux_propdist_dict['OIII_5007'] * (1 + 1/3.1))/flux_propdist_dict['HBETA']
 
+    #Edit TM_File to add temperature errors
+    TM_new_name = TM_file.replace('.tbl','revised.tbl')
+    TM_tab['Temperature'][detect] = xpeak_te 
+    #err_tT = err_te.transpose()
+    #c1 = Column(err_tT[0], name='Temperature_Low_Error')
+    #c2 = Column(err_tT[1], name='Temperature_High_Error')
+    #TM_tab.add_columns([c1, c2], indexes=[18,18])
     
     
     O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metalicity_calculation(Te_propdist, two_beta, three_beta)
@@ -136,28 +154,40 @@ def error_prop_chuncodes(path, flux_file, TM_file):
     metal_error = {}
     metal_xpeak = {}
     
+    
     ###########compute_onesig_pdf for all the metallicity outputs#############
     # Pass in the pdf metallicities, all the stacked measurements
     metal_str = ['O_s_ion_pdf' , 'O_d_ion_pdf', 'com_O_log_pdf', 'O_s_ion_log_pdf', 'O_d_ion_log_pdf']
+    metal_err = ['O_s_ion_lowhigh_error' , 'O_d_ion_lowhigh_error', 'com_O_log_lowhigh_error', 'O_s_ion_log_lowhigh_error', 'O_d_ion_log_lowhigh_error']
     xpeak_key = ['O_s_ion_xpeak','O_d_ion_xpeak', 'com_O_log_xpeak', 'O_s_ion_log_xpeak', 'O_d_ion_log_xpeak']
     metallicity_names =[O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist]
     
     combined_metallicity = [O_s_ion , O_d_ion, com_O_log, log_O_s, log_O_d]
+    metal_names = ['O_s_ion' , 'O_d_ion', 'com_O_log', 'log_O_s', 'log_O_d']
     for ii in range(len(metallicity_names)):
         err_metal, xpeak_metal = compute_onesig_pdf(metallicity_names[ii], combined_metallicity[ii], usepeak=True, silent=True, verbose = True)
-        #print err_metal, len(err_metal), xpeak_metal
-
-        metal_error[metal_str[ii]] = err_metal
+        
+        #Filling in dictionaries 
+        metal_error[metal_err[ii]] = err_metal
         metal_xpeak[xpeak_key[ii]] = xpeak_metal
 
-    #print metal_error
-    #print metal_xpeak
+        #Editing TM_File to add errors for metallicities
+        #err_mT = err_metal.transpose()
+        #colu_name_idx = TM_tab.index_column(metal_names[ii])
+        #c1 = Column(err_tT[0], name=metal_names[ii]+'_Low_Error')
+        #c2 = Column(err_tT[1], name=metal_names[ii]+'_High_Error')
+        #TM_tab.add_columns([c1, c2], indexes=[colu_name_idx,colu_name_idx])
+        TM_tab[metal_names[ii]][detect] = xpeak_metal 
 
-    np.savez(fitspath+'Te_propdist_dict.npz', **Te_propdist_dict)   #error from compute one sig
-    np.savez(fitspath+'Te_xpeaks.npz', **Te_xpeaks)
-    np.savez(fitspath+'metal_errors.npz', **metal_error)
-    np.savez(fitspath+'metal_xpeaks.npz', **metal_xpeak)
-    np.savez(fitspath+'metallicity_pdf.npz', **metallicity_propdist_dict)
+    asc.write(TM_tab, TM_new_name, format = 'fixed_width_two_line')
+    np.savez(path+'Te_propdist_dict.npz', **Te_propdist_dict)   #error from compute one sig
+    np.savez(path+'Te_xpeaks.npz', **Te_xpeaks)
+    np.savez(path+'metal_errors.npz', **metal_error)
+    np.savez(path+'metal_xpeaks.npz', **metal_xpeak)
+    np.savez(path+'metallicity_pdf.npz', **metallicity_propdist_dict)
+    np.savez(path+'flux_propdist.npz', **flux_propdist_dict)
+    np.savez(path+'flux_errors.npz',**flux_lowhigh)
+    np.savez(path+'Te_errors.npz',**Te_lowhigh)
     
 
     

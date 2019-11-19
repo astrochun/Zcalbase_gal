@@ -164,7 +164,7 @@ def histogram(path, data_all,table_path, pdf_name,  table_key=''):
 
             lowerr= calculated_value[aa]*data_lowerror[aa]
             higherr =  calculated_value[aa]*data_higherror[aa]
-            print('Low error value:  ', lowerr, 'High error value:  ' higherr) #This print statement should print one value if I have done the indexing correctly
+            print('Low error value:  ', lowerr, 'High error value:  ', higherr) #This print statement should print one value if I have done the indexing correctly
             
             bin_arr = np.linspace(min_val, max_val)
             #print bin_arr

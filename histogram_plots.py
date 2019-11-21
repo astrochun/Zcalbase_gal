@@ -115,9 +115,9 @@ def histogram(path, data_all,table_path, pdf_name,  table_key=''):
 
         data_lowerror = data_errors[:,0]
         data_higherror= data_errors[:,1]
-        print(data_errors)
-        print('Low: ',data_lowerror)
-        print('High: ',data_higherror)
+        #print(data_errors)
+        #print('Low: ',data_lowerror)
+        #print('High: ',data_higherror)
         
             
         #This is defining a quick fix for passing in several wanted histograms 
@@ -127,14 +127,10 @@ def histogram(path, data_all,table_path, pdf_name,  table_key=''):
         if hist_name == 'com_O_log_pdf': calculated_value = calculated_com[detection]
         if hist_name == 'O_d_ion_log_pdf': calculated_value = calculated_logd[detection]
         if hist_name == 'O_s_ion_log_pdf': calculated_value = calculated_logs[detection]
-        #print('Should all be related:', calculated_value, hist_name, xpeak_name)
+        
             
 
-        #print('xpeak: ', data_xpeak)
-        #print('stacked: ', calculated_value)
-            
-
-       
+    
             
     
         if len(calculated_value) % 2 == 0:
@@ -153,35 +149,34 @@ def histogram(path, data_all,table_path, pdf_name,  table_key=''):
             col = aa% ncols
             #print row, col
             if aa % (nrows*ncols) ==0:
-                fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols,sharex=True, squeeze =False)   
+                fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols,  sharex=True,squeeze =False)  
 
             ax = ax_arr[row,col]
 
             non_inf = np.where(np.isfinite(data_hist[aa]) == True)[0]
             min_val = np.nanmin(data_hist[aa][non_inf])
             max_val = np.nanmax(data_hist[aa][non_inf])
-            #print min_val, max_val
-
-            lowerr= calculated_value[aa]*data_lowerror[aa]
-            higherr =  calculated_value[aa]*data_higherror[aa]
-            print('Low error value:  ', lowerr, 'High error value:  ', higherr) #This print statement should print one value if I have done the indexing correctly
+            
+            #print(data_xpeak[aa], data_lowerror[aa], data_higherror[aa])
+            lowerr= data_xpeak[aa]-data_lowerror[aa]
+            higherr =  data_xpeak[aa]+data_higherror[aa]
+            
             
             bin_arr = np.linspace(min_val, max_val)
-            #print bin_arr
             
             title ='Bin: ',ID_detect[aa]
             ax.hist(data_hist[aa][non_inf], bins =bin_arr)
             ax.axvline(x = data_xpeak[aa],color = 'r', label = 'compute_one_sig_xpeak', linewidth = 0.5)
             ax.axvline(x = calculated_value[aa],color = 'm', label = 'stacked metallicities', linewidth =0.5)
-            #ax.axvline(x = lowerr,color = 'g', label = 'Lower Limit', linewidth =0.5)
-            #ax.axvline(x = higherr,color = 'k', label = 'Upper Limit', linewidth =0.5)
+            ax.axvline(x = lowerr,color = 'g', label = 'Lower Limit', linewidth =0.5)
+            ax.axvline(x = higherr,color = 'k', label = 'Upper Limit', linewidth =0.5)
 
 
             #ax.set_xlim(min_val, max_val)
             ax.annotate(title, [0.95,0.5], xycoords = 'axes fraction',va = 'center', ha = 'right', fontsize = 6)
             plt.subplots_adjust(left= 0.07 , bottom= 0.10 , right= 0.97, top= 0.97, wspace = 0.15, hspace =0.15)
             if aa%(nrows*ncols) == 0:
-                ax.legend(title = hist_name, fontsize = 3) #fontsize = 'xx-small')
+                ax.legend(title = hist_name, fontsize = 3) 
             #if row == 3: plt.xlabel(pdf_list[ii])
         fig.savefig(pdf_pages, format ='pdf')
         

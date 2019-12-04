@@ -41,7 +41,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import R_temp_calcul
 
 #line_name = ['OII_3727','NeIII','HeI', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
 
-def error_prop_chuncodes(path, flux_file, TM_file):    
+def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):    
     #TM_file = fitspath + dataset + '_temperatures_metalicity.tbl'
     #flux_file = fitspath + dataset + '_combined_flux_table.tbl'
     #TM_file = fitspath + dataset + '_derived_properties_metallicity.tbl'
@@ -49,12 +49,16 @@ def error_prop_chuncodes(path, flux_file, TM_file):
     
     combine_flux_tab = asc.read(flux_file)
     TM_tab = asc.read(TM_file)
+    verify = asc.read(verification_tab)
+    detect = verify['Detection']
+    ID = verify['ID']
+    detection = np.where((detect==1))[0]
+    ID_detect = ID[detection]
+    print (ID_detect)
 
-    ID = TM_tab['Detection'].data
-    detect = np.where((ID ==1))[0]
-
-    combine_flux = combine_flux_tab[detect]
-    TM = TM_tab[detect]
+    
+    combine_flux = combine_flux_tab[detection]
+    TM = TM_tab[detection]
 
     OII_flux      = combine_flux['OII_3727_Flux_Gaussian'].data
     OII_RMS       = combine_flux['OII_3727_RMS'].data
@@ -97,13 +101,13 @@ def error_prop_chuncodes(path, flux_file, TM_file):
 
         #Fill In Dictionary
         flux_propdist_dict[line_names[aa]] = flux_gpdf
-        flux_xpeak[line_names[aa]+'xpeak'] = xpeak
-        flux_lowhigh[line_names[aa]] = err
+        flux_xpeak[line_names[aa]+'_xpeak'] = xpeak
+        flux_lowhigh[line_names[aa]+'_lowhigh_error'] = err
 
         #Edit Ascii Table
         combine_flux_new_name = flux_file.replace('.tbl','revised.tbl')
         
-        combine_flux_tab[line_names[aa]+'_Flux_Gaussian'][detect] = xpeak 
+        combine_flux_tab[line_names[aa]+'_Flux_Gaussian'][detection] = xpeak 
         
         #col_name_idx = combine_flux_tab.index_column(line_names[aa] + '_Flux_Gaussian')
         #err_t = err.transpose()
@@ -140,7 +144,7 @@ def error_prop_chuncodes(path, flux_file, TM_file):
 
     #Edit TM_File to add temperature errors
     TM_new_name = TM_file.replace('.tbl','revised.tbl')
-    TM_tab['Temperature'][detect] = xpeak_te 
+    TM_tab['Temperature'][detection] = xpeak_te 
     #err_tT = err_te.transpose()
     #c1 = Column(err_tT[0], name='Temperature_Low_Error')
     #c2 = Column(err_tT[1], name='Temperature_High_Error')
@@ -177,7 +181,7 @@ def error_prop_chuncodes(path, flux_file, TM_file):
         #c1 = Column(err_tT[0], name=metal_names[ii]+'_Low_Error')
         #c2 = Column(err_tT[1], name=metal_names[ii]+'_High_Error')
         #TM_tab.add_columns([c1, c2], indexes=[colu_name_idx,colu_name_idx])
-        TM_tab[metal_names[ii]][detect] = xpeak_metal 
+        TM_tab[metal_names[ii]][detection] = xpeak_metal 
 
     asc.write(TM_tab, TM_new_name, format = 'fixed_width_two_line')
     np.savez(path+'Te_propdist_dict.npz', **Te_propdist_dict)   #error from compute one sig
@@ -187,6 +191,7 @@ def error_prop_chuncodes(path, flux_file, TM_file):
     np.savez(path+'metallicity_pdf.npz', **metallicity_propdist_dict)
     np.savez(path+'flux_propdist.npz', **flux_propdist_dict)
     np.savez(path+'flux_errors.npz',**flux_lowhigh)
+    np.savez(path+'flux_xpeak.npz', **flux_xpeak)
     np.savez(path+'Te_errors.npz',**Te_lowhigh)
     
 

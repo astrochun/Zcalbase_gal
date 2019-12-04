@@ -59,18 +59,25 @@ import sys
 from collections import OrderedDict
 from datetime import date
 
+from chun_codes import compute_onesig_pdf
 
 
-
-def histogram(path, data_all,table_path, pdf_name,  table_key='', sharex = False):
+def histogram(path, data_all,table_path, pdf_name,  verification_table, table_key='', sharex = False):
+    
     pdf_pages = PdfPages(path+pdf_name)
     #print data_path
     #data_all = np.load(data_path)
     tab1 = asc.read(table_path)
+    verify = asc.read(verification_table)
+    detect = verify['Detection']
+    ID = verify['ID']
+    detection = np.where((detect==1))[0]
+    ID_detect = ID[detection]
+    print(ID_detect)
 
     #For plotting Temperature and Metallicity Histograms 
     if table_key == 'Temperature':
-        ID = tab1['ID']
+        #ID = tab1['ID']
         
         calculated_com = tab1['com_O_log']
         calculated_Te = tab1 ['Temperature']
@@ -78,9 +85,7 @@ def histogram(path, data_all,table_path, pdf_name,  table_key='', sharex = False
         calculated_double = tab1['O_d_ion']
         calculated_logs = tab1['log_O_s']
         calculated_logd = tab1['log_O_d']
-        detect = tab1['Detection']
-        detection = np.where((detect==1))[0]
-        ID_detect = ID[detection]
+        
 
         
        
@@ -93,27 +98,29 @@ def histogram(path, data_all,table_path, pdf_name,  table_key='', sharex = False
         HBETA = tab1['HBETA_Flux_Observed']
         O3727 = tab1['OII_3727_Flux_Observed']
 
-        O3727_HBETA = O3727/HBETA
-        O5007_HBETA = O5007/HBETA
-        O4959_HBETA = O4959/HBETA
-        O4363_O5007  = O4363/O5007
-        O4363_O4959  = O4363/O4959
+        O3727_HBETA = O3727[detection]/HBETA[detection]
+        O5007_HBETA = O5007[detection]/HBETA[detection]
+        O4959_HBETA = O4959[detection]/HBETA[detection]
+        O4363_O5007  = O4363[detection]/O5007[detection]
+        O4363_O4959  = O4363[detection]/O4959[detection]
     
-        O5007_O3727  = O5007/O3727
-        O4959_O3727  = O4959/O3727 
+        O5007_O3727  = O5007[detection]/O3727[detection]
+        O4959_O3727  = O4959[detection]/O3727[detection]
+
+        print('O3727_HBETA', O3727_HBETA, 'O5007_HBETA', O5007_HBETA, 'O4959_HBETA', O4959_HBETA, 'O4363_O5007', O4363_O5007, 'O4363_O4959', O4363_O4959, 'O5007_O3727', O5007_O3727, 'O4959_O3727', O4959_O3727)
+        
 
     histo_keys = data_all.keys()
-        
+    #print(histo_keys)
     if type(histo_keys) != list:
         histo_keys = list(histo_keys)
             
-    pdf_list = [histo_keys[xx] for xx in range(len(histo_keys)) if ('pdf' in histo_keys[xx])]
-    print(pdf_list)
-    xpeak_list = [str0.replace('pdf','xpeak') for str0 in pdf_list]
+    xpeak_list = [histo_keys[xx] for xx in range(len(histo_keys)) if ('xpeak' in histo_keys[xx])]
+    pdf_list = [str0.replace('_xpeak','' ) for str0 in xpeak_list]
     print(xpeak_list)
-    error_list = [str0.replace('pdf','lowhigh_error') for str0 in pdf_list]
+    error_list = [str0.replace('xpeak','lowhigh_error') for str0 in pdf_list]
     print(error_list)
-
+    print(len(pdf_list), pdf_list)
 
 
 
@@ -160,13 +167,14 @@ def histogram(path, data_all,table_path, pdf_name,  table_key='', sharex = False
         else:
             nrows = len(calculated_value)//2 + 1
 
-        #print nrows
+        print('nrows', nrows)
         rows =np.arange(nrows)
-        #print 'a', rows
+        print 'rows', rows
         ncols = 2
     
     
         for aa in range(len(calculated_value)):
+            print(aa)
             row = rows[aa//2]
             col = aa% ncols
             #print row, col
@@ -174,14 +182,15 @@ def histogram(path, data_all,table_path, pdf_name,  table_key='', sharex = False
                 fig, ax_arr = plt.subplots(nrows = nrows, ncols= ncols,  sharex=sharex,squeeze =False)  
 
             ax = ax_arr[row,col]
+            print(row,col)
 
             non_inf = np.where(np.isfinite(data_hist[aa]) == True)[0]
             min_val = np.nanmin(data_hist[aa][non_inf])
             max_val = np.nanmax(data_hist[aa][non_inf])
             
             #print(data_xpeak[aa], data_lowerror[aa], data_higherror[aa])
-            #lowerr= data_xpeak[aa]-data_lowerror[aa]
-            #higherr =  data_xpeak[aa]+data_higherror[aa]
+            lowerr= data_xpeak[aa]-data_lowerror[aa]
+            higherr =  data_xpeak[aa]+data_higherror[aa]
             
             
             bin_arr = np.linspace(min_val, max_val)
@@ -238,32 +247,68 @@ def run_histogram_TM(path, table_path, dict_list, sharex = False):    #,data_nam
 
     today = date.today()
     pdf_name = 'Te_M_histogram_plots_' + "%02i%02i" % (today.month, today.day)+'.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, table_key = 'Temperature', sharex = sharex)
+    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key = 'Temperature', sharex = sharex)
 
 
 
 
-
+###Flux Dictionary List for Reagen###
+#dict_list = [flux_pdf_dict, flux_errors, flux_lowhigh]
 
 
 
 #This call will create histograms for the flux ratios
-#We need this second call because the flux dictionaries have to be changed into ratios 
-def run_histogram_FR(path, table_path, dict_list, sharex = False):    #,data_name):
+#We need this second call because the flux dictionaries have to be changed into ratios
+
+#This call calculates the flux ratios from the combine_flux_ascii table and random_pdf (of each line), gets the one_sig_pdf measurements for the ratios, and saves all in dictionary before 
+def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = False):    #,data_name):
     if path[-1] != "/": path +="/"
 
+    tab1 = asc.read(table_path)
+    O5007 = tab1['OIII_5007_Flux_Observed']
+    O4363 = tab1 ['OIII_4363_Flux_Observed']
+    O4959 = tab1['OIII_4958_Flux_Observed']
+    HBETA = tab1['HBETA_Flux_Observed']
+    O3727 = tab1['OII_3727_Flux_Observed']
+
+    O3727_HBETA = O3727/HBETA
+    O5007_HBETA = O5007/HBETA
+    O4959_HBETA = O4959/HBETA
+    O4363_O5007  = O4363/O5007
+    O4363_O4959  = O4363/O4959
     
-    c3727_HBETA = data_all['OII_3727']/ data_all['HBETA'] 
-    c5007_HBETA = data_all['OIII_5007']/ data_all['HBETA'] 
-    c4959_HBETA = data_all['OIII_4958']/ data_all['HBETA']
-    c4363_c5007 = data_all['OIII_4363']/ data_all['OIII_5007']
-    c4363_c4959 = data_all['OIII_4363']/ data_all['OIII_4958']
+    O5007_O3727  = O5007/O3727
+    O4959_O3727  = O4959/O3727 
     
-    c5007_c3727  = data_all['OIII_5007']/ data_all['OII_3727']
-    c4959_c3727  = data_all['OIII_4958']/ data_all['OII_3727']
+    flux_dict = np.load(dict_list[0])
+    
+
+    ####Making the flux_ratio dictionary########
+    c3727_HBETA = flux_dict['OII_3727'] / flux_dict['HBETA'] 
+    c5007_HBETA = flux_dict['OIII_5007']/ flux_dict['HBETA'] 
+    c4959_HBETA = flux_dict['OIII_4958']/ flux_dict['HBETA']
+    c4363_c5007 = flux_dict['OIII_4363']/ flux_dict['OIII_5007']
+    c4363_c4959 = flux_dict['OIII_4363']/ flux_dict['OIII_4958']
+    
+    c5007_c3727  = flux_dict['OIII_5007']/ flux_dict['OII_3727']
+    c4959_c3727  = flux_dict['OIII_4958']/ flux_dict['OII_3727']
         
+    
+    pdf_list = ['3727/HBETA', '5007/HBETA', '4959/HBETA', '4363/5007', '4363/4959','5007/3727', '4959/3727']
     data_list = [c3727_HBETA,c5007_HBETA, c4959_HBETA,c4363_c5007, c4363_c4959,c5007_c3727, c4959_c3727]
-    pdf_list = ['3727/HBETA ', '5007/HBETA ', '4959/HBETA ', '4363/5007 ', '4363/4959 ','5007/3727 ', '4959/3727 ']
+    ratio_list = [O3727_HBETA,O5007_HBETA, O4959_HBETA,O4363_O5007,O4363_O4959, O5007_O3727, O4959_O3727]
+
+    flux_ratio_dict = {}
+    fr_xpeak_dict = {}
+    fr_error_dict = {}
+    
+    for ii in range(len(pdf_list)):
+        flux_ratio_dict[pdf_list[ii]] = data_list[ii]
+
+        error, xpeak = compute_onesig_pdf(data_list[ii], ratio_list[ii], usepeak=True, silent=True, verbose = True)
+        #print('EX:', error, xpeak)
+        fr_xpeak_dict[pdf_list[ii]+'_xpeak'] = xpeak
+        fr_error_dict[pdf_list[ii]+'_errors'] = error
 
 
 
@@ -272,13 +317,11 @@ def run_histogram_FR(path, table_path, dict_list, sharex = False):    #,data_nam
 
 
 
-
-
+    new_dict_list = [flux_ratio_dict, fr_xpeak_dict, fr_error_dict]
     histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 
-    for bb in range(len(dict_list)):
-        dic0 = np.load(dict_list[bb])   ###dictionary = np.load(path of the dictionary)
-        #dic0_keys = dic0.keys()
-        #print(dic0_keys)
+    for bb in range(len(new_dict_list)):
+        dic0 = new_dict_list[bb]   ###dictionary = np.load(path of the dictionary)
+        
         histo_dict.update(dic0)
         '''for key in dict0_keys:
             dic1 = {key: dic0[key]}             ###{key: dictionary[''name of key]}
@@ -287,5 +330,53 @@ def run_histogram_FR(path, table_path, dict_list, sharex = False):    #,data_nam
     #print(histo_dict)
 
     
-    pdf_name = 'Te_M_histogram_plots.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, table_key = 'ID', sharex = sharex)
+    pdf_name = 'Flux_Ratio_histogram_plots.pdf'
+    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key = 'ID', sharex = sharex)
+
+
+
+
+
+    
+################Not in use################
+#
+'''
+     ####Making the xpeak fr dictionary########
+    x3727_HBETA = xpeak_dict['OII_3727_xpeak'] / xpeak_dict['HBETA_xpeak'] 
+    x5007_HBETA = xpeak_dict['OIII_5007_xpeak']/ xpeak_dict['HBETA_xpeak'] 
+    x4959_HBETA = xpeak_dict['OIII_4958_xpeak']/ xpeak_dict['HBETA_xpeak']
+    x4363_x5007 = xpeak_dict['OIII_4363_xpeak']/ xpeak_dict['OIII_5007_xpeak']
+    x4363_x4959 = xpeak_dict['OIII_4363_xpeak']/ xpeak_dict['OIII_4958_xpeak']
+    
+    x5007_x3727  = xpeak_dict['OIII_5007_xpeak']/ xpeak_dict['OII_3727_xpeak']
+    x4959_x3727  = xpeak_dict['OIII_4958_xpeak']/ xpeak_dict['OII_3727_xpeak']
+        
+    
+    xpeak_list = ['3727/HBETA ', '5007/HBETA ', '4959/HBETA ', '4363/5007 ', '4363/4959 ','5007/3727 ', '4959/3727 ']
+    data_list = [x3727_HBETA,x5007_HBETA, x4959_HBETA,x4363_x5007, x4363_x4959,x5007_x3727, x4959_x3727]
+
+    
+    for ii in range(len(xpeak_list)):
+        fr_xpeak_dict[xpeak_list[ii] +'_xpeak'] = data_list[ii]
+
+
+
+
+
+    ####Making the lowhigh error  dictionary########
+    e3727_HBETA = lowhigh_dict['OII_3727_lowhigh_error'] / lowhigh_dict['HBETA_lowhigh_error'] 
+    e5007_HBETA = lowhigh_dict['OIII_5007_lowhigh_error']/ lowhigh_dict['HBETA_lowhigh_error'] 
+    e4959_HBETA = lowhigh_dict['OIII_4958_lowhigh_error']/ lowhigh_dict['HBETA_lowhigh_error']
+    e4363_e5007 = lowhigh_dict['OIII_4363_lowhigh_error']/ lowhigh_dict['OIII_5007_lowhigh_error']
+    e4363_e4959 = lowhigh_dict['OIII_4363_lowhigh_error']/ lowhigh_dict['OIII_4958_lowhigh_error']
+    
+    e5007_e3727  = lowhigh_dict['OIII_5007_lowhigh_error']/ lowhigh_dict['OII_3727_lowhigh_error']
+    e4959_e3727  = lowhigh_dict['OIII_4958_lowhigh_error']/ lowhigh_dict['OII_3727_lowhigh_error']
+        
+    
+    error_list = ['3727/HBETA', '5007/HBETA', '4959/HBETA', '4363/5007', '4363/4959','5007/3727', '4959/3727']
+    edata_list = [e3727_HBETA,e5007_HBETA, e4959_HBETA,e4363_e5007, e4363_e4959,e5007_e3727, e4959_e3727]
+
+    
+    for ii in range(len(pdf_list)):
+        fr_error_dict[error_list[ii]+'_lowhigh'] = edata_list[ii]'''

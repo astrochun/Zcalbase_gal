@@ -340,7 +340,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
         n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
 
-        
+         
         '''c_add = Column(indicate, name='Detection')
         combine_fits.add_columns(c_add) #index = 0 should add the detection column to the front of the combine_flux table'''
         

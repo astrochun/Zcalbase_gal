@@ -32,9 +32,24 @@ dict_list       -> list of dictionaries whose data we want to plot in a histogra
     #         xpeak_key = ['Te_xpeak','O_s_ion_xpeak',
     #                     'O_d_ion_xpeak', 'com_O_log_xpeak']
 
-***Adding error bars to the plots: error_prop creates more dictionaries with the errors for each distribution calculated. These dictionaries  will be included in the dict_list pasted into run_histogram and will be called in histogram to create an error_list
+
 Calling order: call run_histogram to combine all dictionaries into one large dictionary that gets passed into histogram and from there is plotted 
 
+
+
+#run_histogram_FR(path, table_path, dict_list, verification_table, sharex = False)
+
+#Notes: This function takes the flux_pdf distributions computed in error_prop and calculates the flux ratios. Then it calls compute_onesig_pdf from chun_codes for the flux ratios. Finally it create the compute dictionary of ratios, xpeaks, and low/high limits and passes it all into histogram
+Input Variables 
+path            -> name of where you are working and location of where the 
+                   outputted pdf_file will be saved
+table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal 
+                   functions; can also be the combine_flux_table created by 
+                   zoom_and_gauss_general
+dict_list       -> list of dictionaries whose data we want to plot in a histogram
+verification_table -> table created independently of this code that tells us whether or not each bin is a detection
+
+Outputs: pdf file of all the histograms
 '''
 
 
@@ -310,13 +325,6 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
         fr_xpeak_dict[pdf_list[ii]+'_xpeak'] = xpeak
         fr_error_dict[pdf_list[ii]+'_errors'] = error
 
-
-
-
-
-
-
-
     new_dict_list = [flux_ratio_dict, fr_xpeak_dict, fr_error_dict]
     histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 
     for bb in range(len(new_dict_list)):
@@ -334,49 +342,3 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
     histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key = 'ID', sharex = sharex)
 
 
-
-
-
-    
-################Not in use################
-#
-'''
-     ####Making the xpeak fr dictionary########
-    x3727_HBETA = xpeak_dict['OII_3727_xpeak'] / xpeak_dict['HBETA_xpeak'] 
-    x5007_HBETA = xpeak_dict['OIII_5007_xpeak']/ xpeak_dict['HBETA_xpeak'] 
-    x4959_HBETA = xpeak_dict['OIII_4958_xpeak']/ xpeak_dict['HBETA_xpeak']
-    x4363_x5007 = xpeak_dict['OIII_4363_xpeak']/ xpeak_dict['OIII_5007_xpeak']
-    x4363_x4959 = xpeak_dict['OIII_4363_xpeak']/ xpeak_dict['OIII_4958_xpeak']
-    
-    x5007_x3727  = xpeak_dict['OIII_5007_xpeak']/ xpeak_dict['OII_3727_xpeak']
-    x4959_x3727  = xpeak_dict['OIII_4958_xpeak']/ xpeak_dict['OII_3727_xpeak']
-        
-    
-    xpeak_list = ['3727/HBETA ', '5007/HBETA ', '4959/HBETA ', '4363/5007 ', '4363/4959 ','5007/3727 ', '4959/3727 ']
-    data_list = [x3727_HBETA,x5007_HBETA, x4959_HBETA,x4363_x5007, x4363_x4959,x5007_x3727, x4959_x3727]
-
-    
-    for ii in range(len(xpeak_list)):
-        fr_xpeak_dict[xpeak_list[ii] +'_xpeak'] = data_list[ii]
-
-
-
-
-
-    ####Making the lowhigh error  dictionary########
-    e3727_HBETA = lowhigh_dict['OII_3727_lowhigh_error'] / lowhigh_dict['HBETA_lowhigh_error'] 
-    e5007_HBETA = lowhigh_dict['OIII_5007_lowhigh_error']/ lowhigh_dict['HBETA_lowhigh_error'] 
-    e4959_HBETA = lowhigh_dict['OIII_4958_lowhigh_error']/ lowhigh_dict['HBETA_lowhigh_error']
-    e4363_e5007 = lowhigh_dict['OIII_4363_lowhigh_error']/ lowhigh_dict['OIII_5007_lowhigh_error']
-    e4363_e4959 = lowhigh_dict['OIII_4363_lowhigh_error']/ lowhigh_dict['OIII_4958_lowhigh_error']
-    
-    e5007_e3727  = lowhigh_dict['OIII_5007_lowhigh_error']/ lowhigh_dict['OII_3727_lowhigh_error']
-    e4959_e3727  = lowhigh_dict['OIII_4958_lowhigh_error']/ lowhigh_dict['OII_3727_lowhigh_error']
-        
-    
-    error_list = ['3727/HBETA', '5007/HBETA', '4959/HBETA', '4363/5007', '4363/4959','5007/3727', '4959/3727']
-    edata_list = [e3727_HBETA,e5007_HBETA, e4959_HBETA,e4363_e5007, e4363_e4959,e5007_e3727, e4959_e3727]
-
-    
-    for ii in range(len(pdf_list)):
-        fr_error_dict[error_list[ii]+'_lowhigh'] = edata_list[ii]'''

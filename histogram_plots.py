@@ -115,14 +115,17 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
 
         O3727_HBETA = O3727[detection]/HBETA[detection]
         O5007_HBETA = O5007[detection]/HBETA[detection]
-        O4959_HBETA = O4959[detection]/HBETA[detection]
+        #O4959_HBETA = O4959[detection]/HBETA[detection]
         O4363_O5007  = O4363[detection]/O5007[detection]
-        O4363_O4959  = O4363[detection]/O4959[detection]
+        O5007_O4958  = O5007[detection]/O4959[detection]
+        #O4363_O4959  = O4363[detection]/O4959[detection]
     
         O5007_O3727  = O5007[detection]/O3727[detection]
-        O4959_O3727  = O4959[detection]/O3727[detection]
+        #O4959_O3727  = O4959[detection]/O3727[detection]
 
-        print('O3727_HBETA', O3727_HBETA, 'O5007_HBETA', O5007_HBETA, 'O4959_HBETA', O4959_HBETA, 'O4363_O5007', O4363_O5007, 'O4363_O4959', O4363_O4959, 'O5007_O3727', O5007_O3727, 'O4959_O3727', O4959_O3727)
+        R23_combine = (O3727_HBETA + O5007_HBETA*(1+1/3.1))/HBETA[detection]
+
+        #print('O3727_HBETA', O3727_HBETA, 'O5007_HBETA', O5007_HBETA, 'O4959_HBETA', O4959_HBETA, 'O4363_O5007', O4363_O5007, 'O4363_O4959', O4363_O4959, 'O5007_O3727', O5007_O3727, 'O4959_O3727', O4959_O3727)
         
 
     histo_keys = data_all.keys()
@@ -170,11 +173,13 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
         
         if hist_name == '3727/HBETA': calculated_value = O3727_HBETA
         if hist_name == '5007/HBETA': calculated_value = O5007_HBETA
-        if hist_name == '4959/HBETA': calculated_value = O4959_HBETA
+        #if hist_name == '4959/HBETA': calculated_value = O4959_HBETA
         if hist_name == '4363/5007': calculated_value = O4363_O5007
-        if hist_name == '4363/4959': calculated_value =  O4363_O4959
+        #if hist_name == '4363/4959': calculated_value =  O4363_O4959
         if hist_name == '5007/3727': calculated_value = O5007_O3727
-        if hist_name == '4959/3727' : calculated_value = O4959_O3727
+        #if hist_name == '4959/3727' : calculated_value = O4959_O3727
+        if hist_name == '5007/4959': calculated_value = O5007_O4958
+        if hist_name == 'R23': calculated_value = R23_combine
  
     
         if len(calculated_value) % 2 == 0:
@@ -293,25 +298,31 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
     O4363_O4959  = O4363/O4959
     
     O5007_O3727  = O5007/O3727
-    O4959_O3727  = O4959/O3727 
+    O4959_O3727  = O4959/O3727
+
+    O5007_O4958 = O5007/O4959
+    R23_combine = (O3727_HBETA+O5007_HBETA*(1+1/3.1))/HBETA
     
     flux_dict = np.load(dict_list[0])
     
-
+    #Two_Beta = OII/HBETA
+    #Three_Beta = (OIII5007+OIII4959)/HBETA
     ####Making the flux_ratio dictionary########
     c3727_HBETA = flux_dict['OII_3727'] / flux_dict['HBETA'] 
     c5007_HBETA = flux_dict['OIII_5007']/ flux_dict['HBETA'] 
-    c4959_HBETA = flux_dict['OIII_4958']/ flux_dict['HBETA']
+    #c4959_HBETA = flux_dict['OIII_4958']/ flux_dict['HBETA']
     c4363_c5007 = flux_dict['OIII_4363']/ flux_dict['OIII_5007']
-    c4363_c4959 = flux_dict['OIII_4363']/ flux_dict['OIII_4958']
+    c5007_c4958 = flux_dict['OIII_5007']/ flux_dict['OIII_4958']
+    #c4363_c4959 = flux_dict['OIII_4363']/ flux_dict['OIII_4958']
+    R23 = (c3727_HBETA + c5007_HBETA*(1+1/3.1)) /flux_dict['HBETA']
     
     c5007_c3727  = flux_dict['OIII_5007']/ flux_dict['OII_3727']
-    c4959_c3727  = flux_dict['OIII_4958']/ flux_dict['OII_3727']
+    #c4959_c3727  = flux_dict['OIII_4958']/ flux_dict['OII_3727']
         
-    
-    pdf_list = ['3727/HBETA', '5007/HBETA', '4959/HBETA', '4363/5007', '4363/4959','5007/3727', '4959/3727']
-    data_list = [c3727_HBETA,c5007_HBETA, c4959_HBETA,c4363_c5007, c4363_c4959,c5007_c3727, c4959_c3727]
-    ratio_list = [O3727_HBETA,O5007_HBETA, O4959_HBETA,O4363_O5007,O4363_O4959, O5007_O3727, O4959_O3727]
+
+    pdf_list =  ['3727/HBETA', '5007/HBETA', '4363/5007', '5007/4959',  '5007/3727', 'R23']
+    data_list = [c3727_HBETA,   c5007_HBETA,  c4363_c5007, c5007_c4958,  c5007_c3727, R23]
+    ratio_list =[O3727_HBETA,   O5007_HBETA , O4363_O5007, O5007_O4958 , O5007_O3727, R23_combine]
 
     flux_ratio_dict = {}
     fr_xpeak_dict = {}

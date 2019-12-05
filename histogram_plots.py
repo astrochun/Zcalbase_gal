@@ -83,6 +83,9 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
     #print data_path
     #data_all = np.load(data_path)
     tab1 = asc.read(table_path)
+
+
+
     verify = asc.read(verification_table)
     detect = verify['Detection']
     ID = verify['ID']
@@ -123,7 +126,7 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
         O5007_O3727  = O5007[detection]/O3727[detection]
         #O4959_O3727  = O4959[detection]/O3727[detection]
 
-        R23_combine = (O3727_HBETA + O5007_HBETA*(1+1/3.1))/HBETA[detection]
+        R23_combine = (O3727_HBETA + O5007_HBETA*(1+1/3.1))
 
         #print('O3727_HBETA', O3727_HBETA, 'O5007_HBETA', O5007_HBETA, 'O4959_HBETA', O4959_HBETA, 'O4363_O5007', O4363_O5007, 'O4363_O4959', O4363_O4959, 'O5007_O3727', O5007_O3727, 'O4959_O3727', O4959_O3727)
         
@@ -284,7 +287,12 @@ def run_histogram_TM(path, table_path, dict_list, sharex = False):    #,data_nam
 def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = False):    #,data_name):
     if path[-1] != "/": path +="/"
 
-    tab1 = asc.read(table_path)
+    verify = asc.read(verification_table)
+    detect = verify['Detection']
+    detection = np.where((detect ==1))[0]
+    
+    table1 = asc.read(table_path)
+    tab1 = table1[detection]
     O5007 = tab1['OIII_5007_Flux_Observed']
     O4363 = tab1 ['OIII_4363_Flux_Observed']
     O4959 = tab1['OIII_4958_Flux_Observed']
@@ -301,7 +309,7 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
     O4959_O3727  = O4959/O3727
 
     O5007_O4958 = O5007/O4959
-    R23_combine = (O3727_HBETA+O5007_HBETA*(1+1/3.1))/HBETA
+    R23_combine = (O3727_HBETA+O5007_HBETA*(1+1/3.1))
     
     flux_dict = np.load(dict_list[0])
     
@@ -314,7 +322,7 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
     c4363_c5007 = flux_dict['OIII_4363']/ flux_dict['OIII_5007']
     c5007_c4958 = flux_dict['OIII_5007']/ flux_dict['OIII_4958']
     #c4363_c4959 = flux_dict['OIII_4363']/ flux_dict['OIII_4958']
-    R23 = (c3727_HBETA + c5007_HBETA*(1+1/3.1)) /flux_dict['HBETA']
+    R23 = (c3727_HBETA + c5007_HBETA*(1+1/3.1))
     
     c5007_c3727  = flux_dict['OIII_5007']/ flux_dict['OII_3727']
     #c4959_c3727  = flux_dict['OIII_4958']/ flux_dict['OII_3727']

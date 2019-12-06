@@ -118,15 +118,22 @@ def limit_function(combine_flux_ascii):
     #print 'up_temp', up_temp
     return up_temp
     
-def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):  #combine_fits, header
+def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):
+
+
+    ###Combine_Flux_ascii table import 
     combine_fits= asc.read(combine_flux_ascii)
     ID = combine_fits['ID'].data
 
 
     #####Verification Table Import#######
-    verification_table = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_1022/vertab.tbl'
     #print('Using verification table' + verification_table)
-    mver_tab = asc.read(verification_table)
+    ver_tab = asc.read(verification_table)
+    ver_detection = ver_tab['Detection']
+    ver_detect = np.where((ver_detection==1))[0]
+    ver_rlimit = np.where((ver_detectoin ==0.5))[0]
+    detect_ID = ID[ver_detect]
+    rlimit_ID = ID[ver_rlimit]
 
     #Dust Attenuation Values Call
     ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
@@ -155,7 +162,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         k_4959 = atten_val['k_4958']
         k_5007 = atten_val['k_5007']
     
-    
+    #Fits Table Calls
     ###DEEP2 and MACT Data#####
     derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
     derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
@@ -178,13 +185,12 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
     der_Te_MACT = derived_MACT['Te'].data
     der_OH_MACT = derived_MACT['OH'].data
     ID_der_MACT = derived_MACT['ID'].data
-    print(len(der_Te_MACT), len(der_R23_MACT))
+    
 
 
-
-    #Fits Table Calls
     
     
+    ###Calls for individual detections for R23_O32/Reagen project 
     if 'two_beta' in combine_fits.keys():
         print('Running Metallicity Calculation for Individual Spectra')
         OIII5007 = combine_fits['OIII5007'].data
@@ -232,6 +238,13 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, OIII4363, HBETA, T_e, Detection, O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007
 
 
+
+
+
+
+
+
+    ####Calles for the individual detections for the MassLuminosity/Caroline project 
     if 'Log10(Mass)' in combine_fits.keys():
         print('Running Metallicity Calculation for Individual Spectra')
         OIII5007 = combine_fits['OIII5007_Flux'].data
@@ -258,6 +271,10 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
 
 
+
+
+
+    ###Calls for the stacked measurements for R23_O32 project 
     else:
         print('Running R, Temperature, and Metallicity Calculations for Stacked Spectra')
         #Ascii Table from FITTING 
@@ -290,20 +307,28 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
         
         OIII4363 = np.zeros(len(raw_OIII4363))
         indicate = np.zeros(len(raw_OIII4363))
-        for ii in range(len(OIII4363)):
-            print(SN_4363[ii])
-            if (SN_4363[ii] >= 3.0) and (SN_5007[ii] >= 100.0):##Adding the requirement that the S/N of 5007 is greater than or equal to 100
-                print('regular')
-                print('4363:' , raw_OIII4363[ii])
+
+        if ver_detection == 1: 
+            OIII4363= raw_OIII4363
+            indicate= 1
+        if ver_detection == 0.5:
+            OIII4363= up_limit
+            indicate= 0.5
+        if ver_detction ==0: 
+            OIII4363= up_limit
+
+        '''for ii in range(len(OIII4363)):
+            
+            if ver_detection == 1:
                 OIII4363[ii]= raw_OIII4363[ii]
                 indicate[ii]= 1 
-            else:
-                print('upper limit')
-                print('4363: ', up_limit[ii])
-                OIII4363[ii]= up_limit[ii]
-                indicate[ii]= 0
-            print(OIII4363)
-            print(indicate)
+            if ver_detection == 0.5:
+                OIII4363[ii]= up_limit[ii] 
+                indicate[ii]= 0.5
+            if ver_detction ==0: 
+                OIII4363[ii]= up_limit[ii]'''
+                
+        
 
         #Line Ratios
         O3727_HBETA = OII3727/HBETA
@@ -330,13 +355,11 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
             Three_Beta= der_4959_HBETA+ der_5007_HBETA 
     
         #Raw Data
-        R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)   #, SN_4636, SN_5007, SN_495)
-        T_e= temp_calculation(R_value)  #, R_std)
+        R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)  
+        T_e= temp_calculation(R_value)  
         O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
 
 
-
-        #O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt)
 
         n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
 
@@ -347,7 +370,7 @@ def run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  com
 
 
 
-        tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d], names=n)   # 3727_HBETA,5007_HBETA,4959_HBETA,5007_3727, 4959_3727, 4363_5007 
+        tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d], names=n)   
 
 
     

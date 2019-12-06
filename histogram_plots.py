@@ -192,7 +192,7 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
 
         print('nrows', nrows)
         rows =np.arange(nrows)
-        print 'rows', rows
+        print('rows', rows)
         ncols = 2
     
     
@@ -254,7 +254,7 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
 ###Flux Dictionary List for Reagen###
 #dict_list = [flux_pdf_dict, flux_errors, flux_lowhigh]
 
-def run_histogram_TM(path, table_path, dict_list, sharex = False):    #,data_name):
+def run_histogram_TM(path, table_path, dict_list, verification_table, sharex = False):    #,data_name):
     if path[-1] != "/": path +="/"
     histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 
     for bb in range(len(dict_list)):

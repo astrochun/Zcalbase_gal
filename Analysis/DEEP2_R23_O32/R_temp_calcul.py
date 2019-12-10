@@ -8,7 +8,7 @@
 ##############Functions#######################
 # R_calculation(OIII4363, OIII5007, OIII4959, EBV, k_4363, k_5007)
 # temp_calculation(R)
-# metalicity_calculation(T_e, TWO_BETA, THREE_BETA)
+# metallicity_calculation(T_e, TWO_BETA, THREE_BETA)
 # limit_function(combine_flux_ascii)
 # run_function(fitspath, dataset, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False)
 '''
@@ -86,8 +86,8 @@ def temp_calculation(R):
     return T_e  
 
 
-def metalicity_calculation(T_e, TWO_BETA, THREE_BETA):   #metallicity spelled wrong go back and change it if you have time
-#(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt = False):
+def metallicity_calculation(T_e, TWO_BETA, THREE_BETA):   
+    
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
     #t_2 = 0.7*t_3 +0.17
@@ -107,7 +107,7 @@ def metalicity_calculation(T_e, TWO_BETA, THREE_BETA):   #metallicity spelled wr
     return O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log
 
 def limit_function(combine_flux_ascii):
-    #hgamma/hgamma_sn*3 = 3sigma
+    
     combine_fits= asc.read(combine_flux_ascii)
 
     Hgamma = combine_fits['HGAMMA_Flux_Observed'].data
@@ -119,7 +119,7 @@ def limit_function(combine_flux_ascii):
     return up_temp
     
 def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):
-
+    print(combine_flux_ascii)
 
     ###Combine_Flux_ascii table import 
     combine_fits= asc.read(combine_flux_ascii)
@@ -130,8 +130,10 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     #print('Using verification table' + verification_table)
     ver_tab = asc.read(verification_table)
     ver_detection = ver_tab['Detection']
-    ver_detect = np.where((ver_detection==1))[0]
+    ver_detect = np.where((ver_detection ==1))[0]
     ver_rlimit = np.where((ver_detectoin ==0.5))[0]
+    nan_detect = np.where((ver_detection == 0))[0]
+    
     detect_ID = ID[ver_detect]
     rlimit_ID = ID[ver_rlimit]
 
@@ -223,14 +225,22 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
                 indicate[ii]= 0
             print(OIII4363)
             print(indicate) 
-        
+
+        '''if ver_detection == 1: 
+            OIII4363= raw_OIII4363
+            indicate= 1
+        if ver_detection == 0.5:
+            OIII4363= up_limit
+            indicate= 0.5
+        if ver_detction ==0: 
+            OIII4363= up_limit'''
         
         Two_Beta = combine_fits['two_beta'].data
         Three_Beta = combine_fits['three_beta'].data
         T_e = combine_fits['Temperature'].data
         Source_ID = combine_fits['Source_ID'].data
 
-        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 
         
         n=  ('Source_ID', 'R23', 'O32', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Flux_4363','Observed_Flux_HBETA','Temperature', 'Detection','O_s_ion', 'O_d_ion', 'com_O_log','log_O_s', 'log_O_d' )  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
@@ -244,7 +254,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
 
 
-    ####Calles for the individual detections for the MassLuminosity/Caroline project 
+    ####Calls for the individual detections for the MassLuminosity/Caroline project 
     if 'Log10(Mass)' in combine_fits.keys():
         print('Running Metallicity Calculation for Individual Spectra')
         OIII5007 = combine_fits['OIII5007_Flux'].data
@@ -262,7 +272,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         Three_Beta = (OIII5007+OIII4959)/HBETA
 
         
-        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 
         
         n=  ('Source_ID', 'Mass', 'LHbeta', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Observed_Flux_HBETA', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s', 'log_O_d')  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
@@ -278,23 +288,23 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     else:
         print('Running R, Temperature, and Metallicity Calculations for Stacked Spectra')
         #Ascii Table from FITTING 
-        OIII5007 = combine_fits['OIII_5007_Flux_Observed'].data
-        OIII4959 = combine_fits['OIII_4958_Flux_Observed'].data
+        OIII5007     = combine_fits['OIII_5007_Flux_Observed'].data
+        OIII4959     = combine_fits['OIII_4958_Flux_Observed'].data
         raw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
-        Hgamma = combine_fits['HGAMMA_Flux_Observed'].data
-        HBETA    = combine_fits['HBETA_Flux_Observed'].data
-        OII3727  = combine_fits['OII_3727_Flux_Observed'].data
+        Hgamma       = combine_fits['HGAMMA_Flux_Observed'].data
+        HBETA        = combine_fits['HBETA_Flux_Observed'].data
+        OII3727      = combine_fits['OII_3727_Flux_Observed'].data
         R23_avg      = combine_fits['R_23_Average'].data
         O32_avg      = combine_fits['O_32_Average'].data
-        N_Galaxy = combine_fits['N_Galaxies'].data
-        ID = combine_fits['ID'].data
+        N_Galaxy     = combine_fits['N_Galaxies'].data
+        ID           = combine_fits['ID'].data
 
-        SN_Hgamma     = combine_fits['HGAMMA_S/N'].data
-        SN_5007       = combine_fits['OIII_5007_S/N'].data
-        SN_4959       = combine_fits['OIII_4958_S/N'].data
-        SN_4363       = combine_fits['OIII_4363_S/N'].data
-        SN_HBETA      = combine_fits['HBETA_S/N'].data
-        SN_3727       = combine_fits['OII_3727_S/N'].data
+        SN_Hgamma    = combine_fits['HGAMMA_S/N'].data
+        SN_5007      = combine_fits['OIII_5007_S/N'].data
+        SN_4959      = combine_fits['OIII_4958_S/N'].data
+        SN_4363      = combine_fits['OIII_4363_S/N'].data
+        SN_HBETA     = combine_fits['HBETA_S/N'].data
+        SN_3727      = combine_fits['OII_3727_S/N'].data
 
         R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
         O32_composite = np.log10((1.33*OIII5007)/OII3727)
@@ -334,18 +344,18 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         O3727_HBETA = OII3727/HBETA
         O5007_HBETA = OIII5007/HBETA
         O4959_HBETA = OIII4959/HBETA
-        O4363_O5007  = OIII4363/OIII5007
-        O4363_O4959  = OIII4363/OIII4959
+        O4363_O5007 = OIII4363/OIII5007
+        O4363_O4959 = OIII4363/OIII4959
     
-        O5007_O3727  = OIII5007/OII3727
-        O4959_O3727  = OIII4959/OII3727
+        O5007_O3727 = OIII5007/OII3727
+        O4959_O3727 = OIII4959/OII3727
         
         #Attenuated Ratios
         der_4363_5007  = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
         der_4363_4959  = O4363_O4959 * 10**(0.4*EBV*(k_4363-k_4959))
-        der_3727_HBETA = O3727_HBETA* 10**(0.4*EBV*(k_3727-k_HBETA))
-        der_4959_HBETA = O4959_HBETA* 10**(0.4*EBV*(k_4959-k_HBETA))
-        der_5007_HBETA = O5007_HBETA* 10**(0.4*EBV*(k_5007-k_HBETA))
+        der_3727_HBETA = O3727_HBETA * 10**(0.4*EBV*(k_3727-k_HBETA))
+        der_4959_HBETA = O4959_HBETA * 10**(0.4*EBV*(k_4959-k_HBETA))
+        der_5007_HBETA = O5007_HBETA * 10**(0.4*EBV*(k_5007-k_HBETA))
 
         if dustatt == False: 
             Two_Beta = OII3727/HBETA
@@ -357,11 +367,12 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         #Raw Data
         R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)  
         T_e= temp_calculation(R_value)  
-        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metalicity_calculation(T_e, Two_Beta, Three_Beta)
+        O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 
 
 
-        n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')  #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
+        n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')
+        #, '3727_HBETA', '5007_HBETA', '4959_HBETA', '5007_3727', '4959_3727', '4363_5007')
 
          
         '''c_add = Column(indicate, name='Detection')
@@ -384,46 +395,41 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     tab0.write(out_fits,format = 'fits', overwrite = True)
 
     #Plots
-    #name = 'Grid_temperature_vs_R23.pdf'
-
-    error_npz = np.load(fitspath +'metal_errors.npz')
     
+    ###Getting the the upper/lower limits for the metallicity and temperatures###
+    metallicity_npz = np.load(fitspath +'metal_errors.npz')
     npz_comOlog = error_npz['com_O_log_pdf']
     metal_error = np.transpose(npz_comOlog)
-    ### metal_error is an array with shape (2,N), how do I index over that????
     print("metal_error:", metal_error)
 
     npz_te_err = np.load(fitspath + 'Te_errors.npz')
     npz_te = npz_te_err['T_e_pdf']
     Te_error = np.transpose(npz_te)
-    
+
+
+    ###Starting the plots 
     pdf_pages = PdfPages(fitspath+pdf_name)
     print(fitspath+pdf_name)
     color_len = len(R23_composite)
     
     color_arr = plt.cm.get_cmap('rainbow')
     
-    #print 'T_e', T_e
-    #print 'R23', R23_composite 
-    #print 'O32', O32_composite
-
+    
+    ###Defining the logarithms of values
     lTe = np.log10(T_e)
     lder_Te = np.log10(der_Te)
     lMACT_Te = np.log10(der_Te_MACT)
     l_Te_err = np.log10(Te_error)
 
-    mDect = mver_tab['Detection'].data
-
-    detect = np.where((mDect== 1))[0]
-    nan_de = np.where((mDect== 0))[0]
-
 
 
     #################################Temperature vs R23_composite #################################
     fig1, ax1 = plt.subplots()
-    ax1.scatter(lTe[detect], R23_composite[detect], marker = '.', s = 50, color = 'b')
-    ax1.scatter(lTe[nan_de], R23_composite[nan_de], marker = '<', s = 25, color = 'b')
-    ax1.errorbar(lTe[detect], R23_composite[detect], xerr = l_Te_err[:,detect], ls = 'none')
+    ax1.scatter(lTe[ver_detect], R23_composite[ver_detect], marker = '.', s = 50, color = 'b')
+    ax1.scatter(lTe[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
+    ax1.scatter(lTe[ver_rlimit], R23_composite[ver_rlimit], marker = '<', s = 35, color = 'b')
+    
+    ax1.errorbar(lTe[ver_detect], R23_composite[ver_detect], xerr = l_Te_err[:,ver_detect], ls = 'none')
     for aa in range(len(ID)): ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
 
     ax1.scatter(lder_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -436,15 +442,17 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     ax1.set_ylabel('R_23')
     ax1.set_title('Temperatures_vs_R23')
     fig1.savefig(pdf_pages, format = "pdf")
-    #pdf_pages.savefig()
+    
     
 ###########################################################################################
 ##############################Temperature vs R23_composite With Limits#####################
     fig5, ax5 = plt.subplots()
     
-    ax5.scatter(T_e[detect], R23_composite[detect], marker = '.',s = 50, color = 'b')
-    ax5.scatter(T_e[nan_de], R23_composite[nan_de], marker = '<', s = 25, color = 'b')
-    ax5.errorbar(T_e[detect], R23_composite[detect], xerr = Te_error[:,detect], ls = 'none')
+    ax5.scatter(T_e[ver_detect], R23_composite[ver_detect], marker = '.',s = 50, color = 'b')
+    ax5.scatter(T_e[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
+    ax5.scatter(T_e[ver_rlimit], R23_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
+    
+    ax5.errorbar(T_e[ver_detect], R23_composite[ver_detect], xerr = Te_error[:,ver_detect], ls = 'none')
     for xx in range(len(ID)): ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
 
     ax5.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -463,9 +471,11 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 ###########################Temperature vs O32_composite#####################################
     fig2, ax2 = plt.subplots()
     
-    ax2.scatter(lTe[detect], O32_composite[detect], marker = '.',s = 50, color = 'b')
-    ax2.scatter(lTe[nan_de], O32_composite[nan_de], marker = '<',s = 25, color = 'b')
-    ax2.errorbar(lTe[detect], O32_composite[detect], xerr = l_Te_err[:,detect], ls = 'none')
+    ax2.scatter(lTe[ver_detect], O32_composite[ver_detect], marker = '.',s = 50, color = 'b')
+    ax2.scatter(lTe[nan_detect], O32_composite[nan_detect], marker = '<',s = 25, color = 'b')
+    ax2.scatter(lTe[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
+    
+    ax2.errorbar(lTe[ver_detect], O32_composite[ver_detect], xerr = l_Te_err[:,ver_detect], ls = 'none')
     for cc in range(len(ID)): ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
 
     ax2.scatter(lder_Te, der_O32, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -478,16 +488,17 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     ax2.set_ylabel('O_32')
     ax2.set_title('Temperatures_vs_O32')
     fig2.savefig(pdf_pages, format = 'pdf')
-    #pdf_pages.savefig()
+    
 
 ###############################################################################################
 ####################################Temperature vs O32_Composite with limits##################
     #With Limits
     fig6, ax6 = plt.subplots()
     
-    ax6.scatter(T_e[detect], O32_composite[detect], marker = '.',s=50, color = 'b')
-    ax6.scatter(T_e[nan_de], O32_composite[nan_de], marker = '<',s=25, color = 'b')
-    ax6.errorbar(T_e[detect], O32_composite[detect], xerr = Te_error[:,detect], ls = 'none')
+    ax6.scatter(T_e[ver_detect], O32_composite[ver_detect], marker = '.',s=50, color = 'b')
+    ax6.scatter(T_e[nan_detect], O32_composite[nan_detect], marker = '<',s=25, color = 'b')
+    ax6.scatter(T_e[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s=35, color = 'b')
+    ax6.errorbar(T_e[ver_detect], O32_composite[ver_detect], xerr = Te_error[:,ver_detect], ls = 'none')
     for c in range(len(ID)):ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
 
     ax6.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
@@ -501,15 +512,17 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     ax6.set_title('Temperatures_vs_O32 with Limits on Temperature')
     ax6.set_xlim(5000,21500)
     fig6.savefig(pdf_pages, format = 'pdf')
-    #pdf_pages.savefig()
+    
 
 ################################################################################################
 #########################################R23_composite vs metallicity###########################
     fig3, ax3 = plt.subplots()
     
-    ax3.scatter(R23_composite[detect], com_O_log[detect], marker = '.', s = 50, color = 'b')
-    ax3.scatter(R23_composite[nan_de], com_O_log[nan_de], marker = '^', s = 20, color = 'b')
-    ax3.errorbar(R23_composite[detect], com_O_log[detect], yerr = metal_error[:,detect], ls = 'none')
+    ax3.scatter(R23_composite[ver_detect], com_O_log[ver_detect], marker = '.', s = 50, color = 'b')
+    ax3.scatter(R23_composite[nan_detect], com_O_log[nan_detect], marker = '^', s = 20, color = 'b')
+    ax3.scatter(R23_composite[ver_rlimit], com_O_log[ver_rlimit], marker = '^', s = 35, color = 'b')
+    
+    ax3.errorbar(R23_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,ver_detect], ls = 'none')
     for zz in range(len(ID)):ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
     
     ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
@@ -519,19 +532,18 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
     ax3.set_xlabel('R23')
     ax3.set_ylabel('12+log(O/H) Te')
-    ax3.set_title('R23 vs. Composite Metalicity')
-    #ax3.plot(BR23,B_com_R23, 'k')
-    #ax2.set_xlim(1000,21500)
-    #pdf_pages.savefig()
+    ax3.set_title('R23 vs. Composite Metallicity')
     fig3.savefig(pdf_pages, format = 'pdf')
 
 ##################################################################################################
 ########################################O32_composite vs Metallicity##############################
     fig4, ax4 = plt.subplots()
     
-    ax4.scatter(O32_composite[detect], com_O_log[detect], marker = '.',s =50, color = 'b')
-    ax4.scatter(O32_composite[nan_de], com_O_log[nan_de], marker = '^',s =20, color = 'b')
-    ax4.errorbar(O32_composite[detect], com_O_log[detect], yerr = metal_error[:,detect], ls = 'none')
+    ax4.scatter(O32_composite[ver_detect], com_O_log[ver_detect], marker = '.',s =50, color = 'b')
+    ax4.scatter(O32_composite[nan_detect], com_O_log[nan_detect], marker = '^',s =20, color = 'b')
+    ax4.scatter(O32_composite[ver_rlimit], com_O_log[ver_rlimit], marker = '^',s =35, color = 'b')
+    
+    ax4.errorbar(O32_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,ver_detect], ls = 'none')
     for ww in range(len(ID)):ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
     
     ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -542,14 +554,12 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
     ax4.set_xlabel('O32')
     ax4.set_ylabel('12+log(O/H) Te')
-    ax4.set_title('O32 vs. Composite Metalicity')
-    #ax4.plot(BO32, B_com_O32, 'k')
-    #ax2.set_xlim(1000,21500)
-    #pdf_pages.savefig()
+    ax4.set_title('O32 vs. Composite Metallicity')
+    
     fig4.savefig(pdf_pages, format ='pdf')
 
 
-    #Can you plot OIII4363/OIII5007 vs T_e and overlay the Te--4363/5007 line ratio solution?  Since T_e is so wide, do a logarithmic plot on that axis.
+    
 
     fig7, ax7 = plt.subplots()
     x_value = np.log10(OIII4363/OIII5007)
@@ -557,8 +567,9 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     z_value = np.log10(der_Te)
     
     
-    ax7.scatter(x_value[detect], y_value[detect], marker = 'o', s= 30,  color = 'b')
-    ax7.scatter(x_value[nan_de], y_value[nan_de], marker = 'x', s= 30,  color = 'b')
+    ax7.scatter(x_value[ver_detect], y_value[ver_detect], marker = 'o', s= 30,  color = 'b')
+    ax7.scatter(x_value[nan_detect], y_value[nan_detect], marker = 'x', s= 30,  color = 'b')
+    ax7.scatter(x_value[ver_rlimit], y_value[ver_rlimit], marker = 'o', s= 30,  color = 'b')
     for r in range(len(ID)): ax7.annotate(ID[r], (x_value[r], y_value[r]))
     xxx = np.arange(min(x_value),max(x_value), 1)
     xx_value = np.zeros(len(xxx))

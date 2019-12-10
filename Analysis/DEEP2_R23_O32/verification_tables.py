@@ -24,11 +24,11 @@ import scipy.integrate as integ
 import glob
 
 
-def verification_master(fitspath, dataset, combine_flux_ascii): 
+def verification_master(fitspath_ini, dataset, combine_flux_ascii): 
     #temp_tab = asc.read(temp_table)
     com_flux = asc.read(combine_flux_ascii)
 
-    ver_tab = fitspath + dataset+'verification_tab.tbl'
+    ver_tab = fitspath_ini+'verification_tables/' + dataset+'verification_tab.tbl'
 
     ID = com_flux['ID'].data
     raw_OIII4363 = com_flux['OIII_4363_Flux_Observed'].data

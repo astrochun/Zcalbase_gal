@@ -226,6 +226,15 @@ def gettime(org_name,fitspath_ini):
     print fitspath
     return fitspath
 
+def check_verification_table(fitspath_ini, dataset, combine_flux_ascii):
+    verification_table = fitspath_ini+'verification_tables/'+dataset+'_verification_tab.tbl'
+    if exists(verification_table):
+        return verification_table
+    else:
+        print('Making verification table')
+        verification_tables.verification_master(fitspath,dataset, combine_flux_ascii)
+        return verification_table
+
 
 def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, dustatten = 'False', mask='None'):
     #dataset options: Grid, O32_Grid, R23_Grid, n_Bins
@@ -434,8 +443,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
         dust_ascii_name = fitspath + 'dust_attentuation_values.tbl'
 
-        if dustatten == False: R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
-        if dustatten == True: R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii
+
+    verification_table = check_verification_table(fitspath_ini, dataset)
+    print('verification table path : ', verification_table)
+
+    
+        if dustatten == False: R_temp_calcul.run_function(fitspath, dataset, verification_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
+        if dustatten == True: R_temp_calcul.run_function(fitspath, dataset, verficiation_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii
 
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)

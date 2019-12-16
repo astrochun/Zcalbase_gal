@@ -436,17 +436,16 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         temp_m_gpdf_name = 'R23_Grid_Temp_Composite_Metallicity.pdf'
         R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
+    verification_table = check_verification_table(fitspath_ini, dataset, combine_flux_ascii)
+    print('verification table path : ', verification_table)
+
+
     if dataset == 'n_Bins':
         combine_flux_ascii = fitspath + 'n_Bins_combined_flux_table.tbl'
         temp_m_gascii = fitspath+ 'n_Bins_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ 'n_Bins_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
         dust_ascii_name = fitspath + 'dust_attentuation_values.tbl'
-
-
-    verification_table = check_verification_table(fitspath_ini, dataset)
-    print('verification table path : ', verification_table)
-
     
         if dustatten == False: R_temp_calcul.run_function(fitspath, dataset, verification_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
         if dustatten == True: R_temp_calcul.run_function(fitspath, dataset, verficiation_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii

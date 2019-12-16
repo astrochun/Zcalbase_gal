@@ -131,7 +131,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     ver_tab = asc.read(verification_table)
     ver_detection = ver_tab['Detection']
     ver_detect = np.where((ver_detection ==1))[0]
-    ver_rlimit = np.where((ver_detectoin ==0.5))[0]
+    ver_rlimit = np.where((ver_detection ==0.5))[0]
     nan_detect = np.where((ver_detection == 0))[0]
     
     detect_ID = ID[ver_detect]
@@ -213,27 +213,19 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         indicate = np.zeros(len(raw_OIII4363))
         for ii in range(len(OIII4363)):
             print(SN_4363[ii])
-            if SN_4363[ii] >= 3:
-                print('regular')
-                print('4363:' , raw_OIII4363[ii])
+            if ver_detection[ii] == 1: 
                 OIII4363[ii]= raw_OIII4363[ii]
-                indicate[ii]= 1 
-            else:
+                indicate[ii]= 1
+            if ver_detection[ii] == 0.5:
+                OIII4363= up_limit
+                indicate= 0.5
+            if ver_detction[ii] ==0: 
                 print('upper limit')
                 print('4363: ', up_limit[ii])
                 OIII4363[ii]= up_limit[ii]
                 indicate[ii]= 0
             print(OIII4363)
             print(indicate) 
-
-        '''if ver_detection == 1: 
-            OIII4363= raw_OIII4363
-            indicate= 1
-        if ver_detection == 0.5:
-            OIII4363= up_limit
-            indicate= 0.5
-        if ver_detction ==0: 
-            OIII4363= up_limit'''
         
         Two_Beta = combine_fits['two_beta'].data
         Three_Beta = combine_fits['three_beta'].data
@@ -318,25 +310,16 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         OIII4363 = np.zeros(len(raw_OIII4363))
         indicate = np.zeros(len(raw_OIII4363))
 
-        if ver_detection == 1: 
-            OIII4363= raw_OIII4363
-            indicate= 1
-        if ver_detection == 0.5:
-            OIII4363= up_limit
-            indicate= 0.5
-        if ver_detction ==0: 
-            OIII4363= up_limit
-
-        '''for ii in range(len(OIII4363)):
+        for ii in range(len(OIII4363)):
             
-            if ver_detection == 1:
+            if ver_detection[ii] == 1:
                 OIII4363[ii]= raw_OIII4363[ii]
                 indicate[ii]= 1 
-            if ver_detection == 0.5:
+            if ver_detection[ii] == 0.5:
                 OIII4363[ii]= up_limit[ii] 
                 indicate[ii]= 0.5
-            if ver_detction ==0: 
-                OIII4363[ii]= up_limit[ii]'''
+            if ver_detection[ii] ==0: 
+                OIII4363[ii]= up_limit[ii]
                 
         
 
@@ -359,13 +342,13 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
         if dustatt == False: 
             Two_Beta = OII3727/HBETA
-            Three_Beta= (OIII4959+OIII5007)/HBETA
+            Three_Beta= (OIII5007* (1+1/3.1))/HBETA
         else:
             Two_Beta = der_3727_HBETA                    
-            Three_Beta= der_4959_HBETA+ der_5007_HBETA 
+            Three_Beta= der_5007_HBETA*(1+1/3.1) 
     
         #Raw Data
-        R_value= R_calculation(OIII4363, OIII5007, OIII4959,EBV, k_4363, k_5007)  
+        R_value= R_calculation(OIII4363, OIII5007, EBV, k_4363, k_5007)  
         T_e= temp_calculation(R_value)  
         O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 
@@ -397,7 +380,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     #Plots
     
     ###Getting the the upper/lower limits for the metallicity and temperatures###
-    metallicity_npz = np.load(fitspath +'metal_errors.npz')
+    metallicity_npz = np.load(fitspath_ini +'Error_propagation/metal_errors.npz')
     npz_comOlog = error_npz['com_O_log_pdf']
     metal_error = np.transpose(npz_comOlog)
     print("metal_error:", metal_error)

@@ -381,12 +381,12 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     
     ###Getting the the upper/lower limits for the metallicity and temperatures###
     metallicity_npz = np.load(fitspath_ini +'Error_propagation/metal_errors.npz')
-    npz_comOlog = error_npz['com_O_log_pdf']
+    npz_comOlog = metallicity_npz['com_O_log_lowhigh_error']
     metal_error = np.transpose(npz_comOlog)
     print("metal_error:", metal_error)
 
-    npz_te_err = np.load(fitspath + 'Te_errors.npz')
-    npz_te = npz_te_err['T_e_pdf']
+    npz_te_err = np.load(fitspath_ini + 'Error_propagation/Te_errors.npz')
+    npz_te = npz_te_err['Te_lowhigh_error']
     Te_error = np.transpose(npz_te)
 
 
@@ -407,12 +407,12 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
 
     #################################Temperature vs R23_composite #################################
-    fig1, ax1 = plt.subplots()
-    ax1.scatter(lTe[ver_detect], R23_composite[ver_detect], marker = '.', s = 50, color = 'b')
-    ax1.scatter(lTe[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
-    ax1.scatter(lTe[ver_rlimit], R23_composite[ver_rlimit], marker = '<', s = 35, color = 'b')
+    '''fig1, ax1 = plt.subplots()
+    ax1.scatter(T_e[ver_detect], R23_composite[ver_detect], marker = '.', s = 50, color = 'b')
+    #ax1.scatter(lTe[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
+    ax1.scatter(T_e[ver_rlimit], R23_composite[ver_rlimit], marker = '<', s = 35, color = 'b')
     
-    ax1.errorbar(lTe[ver_detect], R23_composite[ver_detect], xerr = l_Te_err[:,ver_detect], ls = 'none')
+    ax1.errorbar(lTe[ver_detect], R23_composite[ver_detect], xerr = l_Te_err[:,:], ls = 'none')
     for aa in range(len(ID)): ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
 
     ax1.scatter(lder_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -425,18 +425,19 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     ax1.set_ylabel('R_23')
     ax1.set_title('Temperatures_vs_R23')
     fig1.savefig(pdf_pages, format = "pdf")
-    
+    '''
     
 ###########################################################################################
 ##############################Temperature vs R23_composite With Limits#####################
     fig5, ax5 = plt.subplots()
     
     ax5.scatter(T_e[ver_detect], R23_composite[ver_detect], marker = '.',s = 50, color = 'b')
-    ax5.scatter(T_e[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
+    #ax5.scatter(T_e[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
     ax5.scatter(T_e[ver_rlimit], R23_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
     
-    ax5.errorbar(T_e[ver_detect], R23_composite[ver_detect], xerr = Te_error[:,ver_detect], ls = 'none')
-    for xx in range(len(ID)): ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
+    ax5.errorbar(T_e[ver_detect], R23_composite[ver_detect], xerr = Te_error[:,:], ls = 'none')
+    for xx in ver_detect:ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
+    for xx in ver_rlimit:ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
 
     ax5.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for b in range(len(ID_der)): ax5.annotate(ID_der[b], (der_Te[b], der_R23[b]), fontsize = '2')
@@ -452,13 +453,13 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
 ############################################################################################
 ###########################Temperature vs O32_composite#####################################
-    fig2, ax2 = plt.subplots()
+    '''fig2, ax2 = plt.subplots()
     
-    ax2.scatter(lTe[ver_detect], O32_composite[ver_detect], marker = '.',s = 50, color = 'b')
-    ax2.scatter(lTe[nan_detect], O32_composite[nan_detect], marker = '<',s = 25, color = 'b')
-    ax2.scatter(lTe[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
+    ax2.scatter(T_e[ver_detect], O32_composite[ver_detect], marker = '.',s = 50, color = 'b')
+    #ax2.scatter(lTe[nan_detect], O32_composite[nan_detect], marker = '<',s = 25, color = 'b')
+    ax2.scatter(T_e[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
     
-    ax2.errorbar(lTe[ver_detect], O32_composite[ver_detect], xerr = l_Te_err[:,ver_detect], ls = 'none')
+    ax2.errorbar(lTe[ver_detect], O32_composite[ver_detect], xerr = l_Te_err[:,:], ls = 'none')
     for cc in range(len(ID)): ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
 
     ax2.scatter(lder_Te, der_O32, s=20, marker = '*', color = 'k', edgecolors = 'None')
@@ -471,7 +472,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     ax2.set_ylabel('O_32')
     ax2.set_title('Temperatures_vs_O32')
     fig2.savefig(pdf_pages, format = 'pdf')
-    
+    '''
 
 ###############################################################################################
 ####################################Temperature vs O32_Composite with limits##################
@@ -479,10 +480,11 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     fig6, ax6 = plt.subplots()
     
     ax6.scatter(T_e[ver_detect], O32_composite[ver_detect], marker = '.',s=50, color = 'b')
-    ax6.scatter(T_e[nan_detect], O32_composite[nan_detect], marker = '<',s=25, color = 'b')
+    #ax6.scatter(T_e[nan_detect], O32_composite[nan_detect], marker = '<',s=25, color = 'b')
     ax6.scatter(T_e[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s=35, color = 'b')
-    ax6.errorbar(T_e[ver_detect], O32_composite[ver_detect], xerr = Te_error[:,ver_detect], ls = 'none')
-    for c in range(len(ID)):ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
+    ax6.errorbar(T_e[ver_detect], O32_composite[ver_detect], xerr = Te_error[:,:], ls = 'none')
+    for c in ver_detect:ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
+    for c in ver_rlimit:ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
 
     ax6.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
     for f in range(len(ID_der)):ax6.annotate(ID_der[f], (der_Te[f], der_O32[f]), fontsize = '2')
@@ -502,11 +504,12 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     fig3, ax3 = plt.subplots()
     
     ax3.scatter(R23_composite[ver_detect], com_O_log[ver_detect], marker = '.', s = 50, color = 'b')
-    ax3.scatter(R23_composite[nan_detect], com_O_log[nan_detect], marker = '^', s = 20, color = 'b')
+    #ax3.scatter(R23_composite[nan_detect], com_O_log[nan_detect], marker = '^', s = 20, color = 'b')
     ax3.scatter(R23_composite[ver_rlimit], com_O_log[ver_rlimit], marker = '^', s = 35, color = 'b')
     
-    ax3.errorbar(R23_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,ver_detect], ls = 'none')
-    for zz in range(len(ID)):ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
+    ax3.errorbar(R23_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,:], ls = 'none')
+    for zz in ver_detect:ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
+    for zz in ver_rlimit:ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
     
     ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
     for gg in range(len(ID_der)): ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize = '2')
@@ -523,11 +526,12 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     fig4, ax4 = plt.subplots()
     
     ax4.scatter(O32_composite[ver_detect], com_O_log[ver_detect], marker = '.',s =50, color = 'b')
-    ax4.scatter(O32_composite[nan_detect], com_O_log[nan_detect], marker = '^',s =20, color = 'b')
+    #ax4.scatter(O32_composite[nan_detect], com_O_log[nan_detect], marker = '^',s =20, color = 'b')
     ax4.scatter(O32_composite[ver_rlimit], com_O_log[ver_rlimit], marker = '^',s =35, color = 'b')
     
-    ax4.errorbar(O32_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,ver_detect], ls = 'none')
-    for ww in range(len(ID)):ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
+    ax4.errorbar(O32_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,:], ls = 'none')
+    for ww in ver_detect:ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
+    for ww in ver_rlimit:ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
     
     ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
     for hh in range(len(ID_der)): ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize = '2')
@@ -551,9 +555,10 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     
     
     ax7.scatter(x_value[ver_detect], y_value[ver_detect], marker = 'o', s= 30,  color = 'b')
-    ax7.scatter(x_value[nan_detect], y_value[nan_detect], marker = 'x', s= 30,  color = 'b')
+    #ax7.scatter(x_value[nan_detect], y_value[nan_detect], marker = 'x', s= 30,  color = 'b')
     ax7.scatter(x_value[ver_rlimit], y_value[ver_rlimit], marker = 'o', s= 30,  color = 'b')
-    for r in range(len(ID)): ax7.annotate(ID[r], (x_value[r], y_value[r]))
+    for r in ver_detect: ax7.annotate(ID[r], (x_value[r], y_value[r]))
+    for r in ver_rlimit: ax7.annotate(ID[r], (x_value[r], y_value[r]))
     xxx = np.arange(min(x_value),max(x_value), 1)
     xx_value = np.zeros(len(xxx))
     

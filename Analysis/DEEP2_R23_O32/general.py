@@ -462,12 +462,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #asc_table = combine_flux_ascii
     #temp_table = temp_met_ascii
     #asc_table_det3 = asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-    m_ver_table = fitspath_ini+'Master_Verification_Tables/'+dataset+'_table.tbl'
-    #ver_tab = fitspath+'/'+dataset+'_verification.tbl'
     
-    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, m_ver_table)
-    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, m_ver_table)
-    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, m_ver_table)
+    temp_m_gascii = fitspath+ 'n_Bins_temperatures_metalicity.tbl'
+    
+    
+    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
+    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
+    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, verification_table)
     more_plots.hist_for_bin(dataset, asc_table2)
 
 

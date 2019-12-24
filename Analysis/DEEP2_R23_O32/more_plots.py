@@ -65,9 +65,9 @@ def ew_plot_R23(fitspath, asc_table, temp_table, verif_table):
 
     R23 = asc_tab['R_23_Average'].data
     O32 = asc_tab['O_32_Average'].data
-    T_e = ver_tab['Temperature'].data
-    com_O = ver_tab['com_O_log'].data
-    ID = ver_tab['ID'].data
+    T_e = temp_tab['Temperature'].data
+    com_O = temp_tab['com_O_log'].data
+    ID = temp_tab['ID'].data
     detect = ver_tab['Detection'].data
 
 
@@ -101,9 +101,9 @@ def ew_plot_O32(fitspath, asc_table, temp_table, verif_table):
 
     R23 = asc_tab['R_23_Average'].data
     O32 = asc_tab['O_32_Average'].data
-    T_e = ver_tab['Temperature'].data
-    com_O = ver_tab['com_O_log'].data
-    ID = ver_tab['ID'].data
+    T_e = temp_tab['Temperature'].data
+    com_O = temp_tab['com_O_log'].data
+    ID = temp_tab['ID'].data
     detect = ver_tab['Detection'].data
 
     for oo in range(len(lambda0)):
@@ -133,9 +133,9 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
 
     R23 = asc_tab['R_23_Average'].data
     O32 = asc_tab['O_32_Average'].data
-    T_e = ver_tab['Temperature'].data
-    com_O = ver_tab['com_O_log'].data
-    ID = ver_tab['ID'].data
+    T_e = temp_tab['Temperature'].data
+    com_O = temp_tab['com_O_log'].data
+    ID = temp_tab['ID'].data
     detect = ver_tab['Detection'].data
 
     cm= plt.cm.get_cmap('Blues')

@@ -213,8 +213,8 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     fig.clear()
 
 def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, R23_bin, O32_bin):
-    #O2_det3, O3_det3, Hb_det3,
-    fig1, ax1 = plt.subplots() #plt.gcf()
+
+    fig1, ax1 = plt.subplots() 
 
     xlim = [0.4,50]
     ylim = [0.1,20]

@@ -5,7 +5,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack, hstack

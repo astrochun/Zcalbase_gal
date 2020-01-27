@@ -22,6 +22,9 @@ import scipy.integrate as integ
 
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf
+
+from Metallicity_Stack_Commons.fitting import gauss, double_gauss, oxy2_gauss
+
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
 #If 'x0' is infeasible error occurs, check the para_bound values to make sure the expected values are within the range set up upper and lower limits. 
@@ -47,18 +50,6 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     box_kernel = Box1DKernel(width)
     smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
     return smooth
-
-def gauss(x,xbar,s,a,c):
-   
-    return  a*np.exp(-(x-xbar)**2/(2*s**2)) + c 
-
-def double_gauss(x, xbar, s1, a1, c, s2, a2):
-    
-    return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-xbar)**2/(2*s2**2))     #, a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c
-
-def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
-    con1 = 3728.91/3726.16
-    return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-(xbar*con1))**2/(2*s2**2)) 
 
 def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_type):
 

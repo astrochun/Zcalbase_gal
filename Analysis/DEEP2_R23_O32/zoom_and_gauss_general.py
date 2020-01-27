@@ -25,6 +25,7 @@ from chun_codes import random_pdf, compute_onesig_pdf
 
 from Metallicity_Stack_Commons.fitting import gauss, double_gauss, oxy2_gauss
 from Metallicity_Stack_Commons.fitting import movingaverage_box1D, rms_func
+from Metallicity_Stack_Commons import lambda0, line_name, line_type
 
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
@@ -172,7 +173,7 @@ def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0,
 #for each individual stack
 #electron temperature and the R23 and O32 values 
 #Plotting Zoomed 
-def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lambda0, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
+def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
 
     #pdfpages3 = PdfPages(fitspath + '/' +dataset+'_PlottingBalmer_'+line_name+'.pdf')
     asc_tab = asc.read(tab)
@@ -462,7 +463,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     print 'Done!'
 
     fig.clear()
-def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction,s,a,c,s1,a1,s2,a2,tab):
+def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, y_correction,s,a,c,s1,a1,s2,a2,tab):
     
 
     for ii in range(len(lambda0)):

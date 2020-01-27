@@ -24,6 +24,7 @@ import scipy.integrate as integ
 from chun_codes import random_pdf, compute_onesig_pdf
 
 from Metallicity_Stack_Commons.fitting import gauss, double_gauss, oxy2_gauss
+from Metallicity_Stack_Commons.fitting import movingaverage_box1D, rms_func
 
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
@@ -45,11 +46,6 @@ def line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, Spec
     fig.savefig(pdfpages2, format='pdf')
     pdfpages2.close()
     
-
-def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
-    box_kernel = Box1DKernel(width)
-    smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
-    return smooth
 
 def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_type):
 
@@ -123,20 +119,6 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
         return o1, med0, max0
     else:
         return None, med0, max0
-
-
-def rms_func(wave,dispersion,lineflag, lambda_in, y0, scalefact, sigma_array):
-    x_idx = np.where((np.abs(wave-lambda_in)<=100) & (lineflag==0))[0]
-    sigma = np.std(y0[x_idx])
-    RMS_pix = sigma*dispersion/scalefact
-    if sigma_array == 0:
-        RMS = sigma/scalefact
-        return RMS
-    else: 
-        pix =  5* sigma_array / dispersion 
-        s_pix = np.sqrt(pix)
-        ini_sig= s_pix * sigma * dispersion
-        return ini_sig/scalefact, RMS_pix
 
 
 def error_prop_chuncodes(fitspath, dataset, working_wave, values,RMS):

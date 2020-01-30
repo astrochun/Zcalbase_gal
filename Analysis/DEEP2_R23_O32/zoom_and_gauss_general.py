@@ -177,8 +177,8 @@ def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0,
     #fig3,ax3 = plt.subplot()
     plt.plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
     plt.plot(x0,neg0, 'b', linewidth= 0.25, label= 'Negative Component')
-    plt.plot(x0,pos_comp, 'r', linewidth= 0.25, label= 'Positive Component')
-    plt.plot(x0,gauss0, 'g', linewidth= 0.25, label= 'Gauss Fit')
+    #plt.plot(x0,pos_comp, 'r', linewidth= 0.25, label= 'Positive Component')
+    #plt.plot(x0,gauss0, 'g', linewidth= 0.25, label= 'Gauss Fit')
     #plt.show()
     #fig3.set_size_inches(8,8)
     #fig3.savefig(pdfpages3, format='pdf')
@@ -356,13 +356,16 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
                  #asc.write(tab_balmer, out_ascii_balmer, format= 'fixed_width_two_line')
             #Plotting
 
+            ##Emission and Fit
             if y_correction == 'y_smooth': emis= t_ax.plot(wave, y_smooth,'k', linewidth=0.3, label= 'Emission')
             if y_correction == '': emis= t_ax.plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
             if y_correction =='y_smooth': t_ax.plot(x0,gauss0, 'm', linewidth= 0.25, label= 'Gauss Fit')
             if y_correction =='':  t_ax.plot(x0,gauss0, 'b', linewidth= 0.25, label= 'Gauss Fit')
+            
+            
             t_ax.plot(x0[x_sigsnip_2],resid, 'r', linestyle= 'dashed', linewidth = 0.2, label= 'Residuals')
             t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth = 0.1, label = 'Lineflag')
-            #t_ax.legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
+            t_ax.legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
             t_ax.set_xlim(x1+50,x2-50)
  
             
@@ -401,8 +404,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0,o1[2]) + '\n'
                     txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
-        
-       
+
+            
             t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
             for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.1, color= 'k', linestyle = '--')
 

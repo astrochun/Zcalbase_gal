@@ -26,6 +26,7 @@ import scipy.integrate as integ
 from mpl_toolkits.mplot3d import Axes3D
 import sys
 
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general
 
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0502/'
@@ -249,3 +250,123 @@ def dust_att_plot(combine_flux):
     #pdf_pages.close()
 
     
+def plotting_individual_for_stacking_image():
+    name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
+    pdf_pages = PdfPages(name)
+    
+    RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+    image2DM, header = fits.getdata(RestframeMaster, header=True)
+    wave= header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+
+    scalefactor = 1e-17
+    image2d = image2DM/scalefactor
+    for ii in range(100,120):
+        fig,ax = plt.subplots()
+        plt.plot(wave, image2d[ii,:], linewidth = 0.5)
+        plt.xlabel('Wavelength')
+        plt.ylabel('Intensity Scale factor = 1e-17')
+        ax.set_xlim(4100,4500)
+                 
+        pdf_pages.savefig()
+        fig.clear()
+    pdf_pages.close()
+
+
+def plotting_gaussian_curves():
+    
+    fig, (ax1,ax2,ax3) = plt.subplots(1,3)
+    x = np.arange(1,100)
+    xbar = 50.0
+    s = 15.0
+    a = 20.0
+    c = 0.0
+
+    singlecurve = np.zeros(len(x))
+    singlecurve = zoom_and_gauss_general.gauss(x,xbar,s,a,c)
+
+    #plt.plot(x,singlecurve)
+    
+
+    ###Balmer Emission Lines 
+    x = np.arange(1,100)
+    xbar = 50.0
+    s1 = 15.0
+    a1 = 20.0
+    s2 = 25.0
+    a2 = -2.0
+    c = 0.0
+
+
+    doublecurve = np.zeros(len(x))
+    doublecurve = zoom_and_gauss_general.double_gauss(x,xbar,s1,a1,c,s2,a2)
+
+    positive = zoom_and_gauss_general.gauss(x,xbar,s1,a1,doublecurve[0])
+    negative = zoom_and_gauss_general.gauss(x,xbar,s2,a2,c)
+    
+    '''plt.plot(x,doublecurve)
+    plt.plot(x,positive, linestyle ='--')
+    plt.plot(x,negative, linestyle ='--')
+    plt.show()'''
+    
+
+    ###Oxygen Two Line
+    x = np.arange(1,100)
+    xbar = 40.0
+    s1 = 8.0
+    a1 = 20.0
+    s2 = 8.0
+    a2 = 30.0
+    c = 0.0
+
+
+    oxycurve = np.zeros(len(x))
+    oxycurve = oxy2_gauss(x,xbar,s1,a1,c,s2,a2)
+
+    xbar3 = 40.0
+    xbar4 = 63.5
+    s3 = 8.0
+    a3 = 20.0
+
+    s4 = 8.0
+    a4 = 30.0
+   
+    
+    positive1 = zoom_and_gauss_general.gauss(x,xbar3,s3,a3,oxycurve[0])
+    positive2 = zoom_and_gauss_general.gauss(x,xbar4,s4,a4,oxycurve[0])
+    
+    '''plt.plot(x,oxycurve)
+    plt.plot(x,positive1, 'g', linestyle ='--')
+    plt.plot(x,positive2, 'r', linestyle ='--', )
+    plt.show()'''
+
+    ax1.plot(x,singlecurve)
+    ax2.plot(x,doublecurve)
+    ax2.plot(x,positive,'r' ,linestyle ='--')
+    ax2.plot(x,negative,'g' ,linestyle ='--')
+    ax3.plot(x,oxycurve)
+    ax3.plot(x,positive1, 'r', linestyle ='--')
+    ax3.plot(x,positive2, 'r', linestyle ='--', )
+    ax1.set_yticklabels([])
+    ax2.set_yticklabels([])
+    ax1.set_ylim(-3,25.5)
+    ax2.set_ylim(-3,20.5)
+    ax3.set_ylim(-3,30.5)
+    ax3.set_yticklabels([])
+    ax1.set_title('Single Gaussian Curve')
+    ax2.set_title('Balmer Fitting with Gaussian Curves')
+    ax3.set_title('[OII] Fitting with Gaussian Curves')
+    txt1 = '(A)'
+    txt2 = '(B)'
+    txt3 = '(C)'
+    ax1.annotate(txt1, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '10')
+    ax2.annotate(txt2, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '10')
+    ax3.annotate(txt3, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '10')
+
+
+
+    plt.show()
+
+def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
+    #con1 = 3728.91/3726.16
+    con1 = 72.0/45.0
+    return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-(xbar*con1))**2/(2*s2**2)) 

@@ -1,4 +1,3 @@
-
 ###THIS CODE IS RUN IN THE GENERAL FUNCTION###
 
 #Calculates the R value, electron temperature, and metallicity from the flux table
@@ -219,7 +218,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
             if ver_detection[ii] == 0.5:
                 OIII4363= up_limit
                 indicate= 0.5
-            if ver_detction[ii] ==0: 
+            if ver_detection[ii] ==0: 
                 print('upper limit')
                 print('4363: ', up_limit[ii])
                 OIII4363[ii]= up_limit[ii]
@@ -662,7 +661,7 @@ def dust_attenuation(fitspath, combine_ascii):
 
     
     
-    EBV= np.log10((HBeta/HGamma)*(ini_con))*2.5*(1/(k_Hgamma-k_HBETA))
+    EBV= np.log10((HBeta/HGamma)*(ini_con))*2.5*(1/(k_Hgamma-k_HBETA))  
     for nn in range(len(HGamma)):
         if EBV[nn] <= 0: EBV[nn] = 0
     

@@ -131,13 +131,12 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
     histo_keys = data_all.keys()
     if type(histo_keys) != list:
         histo_keys = list(histo_keys)
+        
 
     ###Making our lists we will use for plotting using the histogram keys 
     xpeak_list = [histo_keys[xx] for xx in range(len(histo_keys)) if ('xpeak' in histo_keys[xx])]
-    pdf_list = [str0.replace('_xpeak','' ) for str0 in xpeak_list]
-    error_list = [str0.replace('xpeak','lowhigh_error') for str0 in pdf_list]
-    
-
+    pdf_list = [str0.replace('_xpeak','_pdf' ) for str0 in xpeak_list]
+    error_list = [str0.replace('xpeak','lowhigh_error') for str0 in xpeak_list]
 
 
 
@@ -145,7 +144,6 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
     for ii in range(len(pdf_list)):
             
         hist_name = pdf_list[ii]
-        print(hist_name)
         xpeak_name = xpeak_list[ii]
         error_name = error_list[ii]
             
@@ -169,12 +167,12 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
         if hist_name == 'O_s_ion_log_pdf': calculated_value = calculated_logs[detection]
 
         
-        if hist_name == '3727/HBETA': calculated_value = O3727_HBETA[detection]
-        if hist_name == '5007/HBETA': calculated_value = O5007_HBETA[detection]
-        if hist_name == '4363/5007': calculated_value = O4363_O5007[detection]
-        if hist_name == '5007/3727': calculated_value = O5007_O3727[detection]
-        if hist_name == '5007/4959': calculated_value = O5007_O4958[detection]
-        if hist_name == 'R23': calculated_value = R23_combine[detection]
+        if hist_name == '3727/HBETA_pdf': calculated_value = O3727_HBETA[detection]
+        if hist_name == '5007/HBETA_pdf': calculated_value = O5007_HBETA[detection]
+        if hist_name == '4363/5007_pdf': calculated_value = O4363_O5007[detection]
+        if hist_name == '5007/3727_pdf': calculated_value = O5007_O3727[detection]
+        if hist_name == '5007/4959_pdf': calculated_value = O5007_O4958[detection]
+        if hist_name == 'R23_pdf': calculated_value = R23_combine[detection]
         
         #if hist_name == '4959/HBETA': calculated_value = O4959_HBETA
         #if hist_name == '4959/3727' : calculated_value = O4959_O3727
@@ -246,8 +244,15 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
 ###Temperature and Metallicity Dictionary List for Reagen###
 #dict_list = [Te_pdf_dict,Te_xpeak_dict, metallicity_pdf_dict, metallicity_xpeak_dict, Te_error_dict, metallicity_error_dict]
 
+###Temperature and Metallicity Dictionary List for Caroline###
+#dict_list = [Te_propdist_dict, Te_xpeaks, metal_errors, metal_xpeaks, metallicity_pdf, Te_errors]
+
+
 ###Flux Dictionary List for Reagen###
 #dict_list = [flux_pdf_dict]
+    
+###Flux Dictionary List for Caroline###
+#dict_list = [flux_propdist, flux_errors, flux_xpeak]
 
 def run_histogram_TM(path, table_path, dict_list, verification_table, sharex = False):   
 
@@ -267,6 +272,8 @@ def run_histogram_TM(path, table_path, dict_list, verification_table, sharex = F
 ###Flux Dictionary List for Reagen###
 #dict_list = [flux_pdf_dict]
 
+###Flux Dictionary List for Caroline###
+#dict_list = [flux_propdist, flux_errors, flux_xpeak]
 
 
 #This call will create histograms for the flux ratios
@@ -304,12 +311,12 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
     flux_dict = np.load(dict_list[0])
     
     ####Making the flux_ratio dictionary########
-    c3727_HBETA = flux_dict['OII_3727'] / flux_dict['HBETA'] 
-    c5007_HBETA = flux_dict['OIII_5007']/ flux_dict['HBETA'] 
-    c4363_c5007 = flux_dict['OIII_4363']/ flux_dict['OIII_5007']
-    c5007_c4958 = flux_dict['OIII_5007']/ flux_dict['OIII_4958']
+    c3727_HBETA = flux_dict['OII_3727_pdf'] / flux_dict['HBETA_pdf'] 
+    c5007_HBETA = flux_dict['OIII_5007_pdf']/ flux_dict['HBETA_pdf'] 
+    c4363_c5007 = flux_dict['OIII_4363_pdf']/ flux_dict['OIII_5007_pdf']
+    c5007_c4958 = flux_dict['OIII_5007_pdf']/ flux_dict['OIII_4958_pdf']
     R23 = (c3727_HBETA + c5007_HBETA*(1+1/3.1))
-    c5007_c3727  = flux_dict['OIII_5007']/ flux_dict['OII_3727']
+    c5007_c3727  = flux_dict['OIII_5007_pdf']/ flux_dict['OII_3727_pdf']
 
     #Not in use
     #c4959_c3727  = flux_dict['OIII_4958']/ flux_dict['OII_3727']
@@ -325,12 +332,12 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
     fr_error_dict = {}
     
     for ii in range(len(pdf_list)):
-        flux_ratio_dict[pdf_list[ii]] = data_list[ii]
+        flux_ratio_dict[pdf_list[ii]+'_pdf'] = data_list[ii]
 
         error, xpeak = compute_onesig_pdf(data_list[ii], ratio_list[ii], usepeak=True, silent=True, verbose = True)
         
         fr_xpeak_dict[pdf_list[ii]+'_xpeak'] = xpeak
-        fr_error_dict[pdf_list[ii]+'_errors'] = error
+        fr_error_dict[pdf_list[ii]+'_lowhigh_error'] = error
 
     new_dict_list = [flux_ratio_dict, fr_xpeak_dict, fr_error_dict]
     histo_dict = OrderedDict()  #will have all the data and xpeaks for all histograms wanted 

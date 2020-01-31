@@ -100,7 +100,7 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
         err, xpeak= compute_onesig_pdf(flux_gpdf,flux_data[aa], usepeak=True, silent=True, verbose = True)
 
         #Fill In Dictionary
-        flux_propdist_dict[line_names[aa]] = flux_gpdf
+        flux_propdist_dict[line_names[aa]+'_pdf'] = flux_gpdf
         flux_xpeak[line_names[aa]+'_xpeak'] = xpeak
         flux_lowhigh[line_names[aa]+'_lowhigh_error'] = err
 
@@ -121,15 +121,15 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
     #print pdf_dict
 
     ####################R_temp_calcul calls with probability distribution of fluxes############################
-    EBV = np.zeros(flux_propdist_dict['OIII_4363'].shape)
-    k_4363 = np.zeros(flux_propdist_dict['OIII_4363'].shape)
-    k_5007 = np.zeros(flux_propdist_dict['OIII_4363'].shape)
+    EBV = np.zeros(flux_propdist_dict['OIII_4363_pdf'].shape)
+    k_4363 = np.zeros(flux_propdist_dict['OIII_4363_pdf'].shape)
+    k_5007 = np.zeros(flux_propdist_dict['OIII_4363_pdf'].shape)
 
     Te_propdist_dict = {}
     Te_xpeaks = {}
     Te_lowhigh = {}
     #changed parameters for R_calculation --> got rid of 4959
-    R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363'], flux_propdist_dict['OIII_5007'], EBV, k_4363, k_5007)
+    R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363_pdf'], flux_propdist_dict['OIII_5007_pdf'], EBV, k_4363, k_5007)
 
     Te_propdist = R_temp_calcul.temp_calculation(R_propdist)
     err_te, xpeak_te = compute_onesig_pdf(Te_propdist, Temp, usepeak=True, silent=True, verbose = True)
@@ -138,9 +138,9 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
     Te_xpeaks['Te_xpeak']= xpeak_te
     Te_lowhigh['Te_lowhigh_error'] = err_te
 
-    two_beta = flux_propdist_dict['OII_3727']/flux_propdist_dict['HBETA']
+    two_beta = flux_propdist_dict['OII_3727_pdf']/flux_propdist_dict['HBETA_pdf']
     #changed three_beta to 5007(1 + 1/3.1) instead of 5007 + 4959
-    three_beta = (flux_propdist_dict['OIII_5007'] * (1 + 1/3.1))/flux_propdist_dict['HBETA']
+    three_beta = (flux_propdist_dict['OIII_5007_pdf'] * (1 + 1/3.1))/flux_propdist_dict['HBETA_pdf']
 
     #Edit TM_File to add temperature errors
     TM_new_name = TM_file.replace('.tbl','revised.tbl')
@@ -151,7 +151,7 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
     #TM_tab.add_columns([c1, c2], indexes=[18,18])
     
     
-    O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metalicity_calculation(Te_propdist, two_beta, three_beta)
+    O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metallicity_calculation(Te_propdist, two_beta, three_beta)
 
     metallicity_propdist_dict = {'O_s_ion_pdf': O_s_ion_propdist, 'O_d_ion_pdf': O_d_ion_propdist , 'com_O_log_pdf': com_O_log_propdist, 'O_s_ion_log_pdf': O_s_ion_log_propdist , 'O_d_ion_log_pdf':  O_d_ion_log_propdist}
     

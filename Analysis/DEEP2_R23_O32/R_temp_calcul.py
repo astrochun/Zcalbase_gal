@@ -70,20 +70,7 @@ from Metallicity_Stack_Commons.temp_metallicity_calc import \
 
 from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 
-#Constants
-
-a = 13205
-b = 0.92506
-c = 0.98062
-
-def temp_calculation(R):
-    #T_e = a(-log(R)-b)^(-c)
-    T_e =  a*(-np.log10(R)-b)**(-1*c)     
-    print(T_e)  
-    return T_e  
-
-
-def metallicity_calculation(T_e, TWO_BETA, THREE_BETA):   
+def metallicity_calculation(T_e, TWO_BETA, THREE_BETA):
     
     #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
     #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)

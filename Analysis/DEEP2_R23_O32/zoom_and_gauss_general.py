@@ -129,34 +129,29 @@ def error_prop_chuncodes(values, RMS):
 
     return fluxg_pdf
 
-def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0, wave, y_norm, line_type, pdfpages3):
-    #pdfpages3 = PdfPages(fitspath + '/' +dataset+'_PlottingBalmer_'+line_name+'.pdf')
 
-   
+def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
+    """
+    Purpose:
+      Equivalent width correction/computation
 
-            
-    #fig3,ax3 = plt.subplot()
-    plt.plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
-    plt.plot(x0,neg0, 'b', linewidth= 0.25, label= 'Negative Component')
-    plt.plot(x0,pos_comp, 'r', linewidth= 0.25, label= 'Positive Component')
-    plt.plot(x0,gauss0, 'g', linewidth= 0.25, label= 'Gauss Fit')
-    #plt.show()
-    #fig3.set_size_inches(8,8)
-    #fig3.savefig(pdfpages3, format='pdf')
-    
-    ###Equivalent Width correction
-    '''bottom side of the iceburg / continum 
-    take negative component of gauss and subtract off the postive component 
-    
-    total gauss - the positve component? 
-    x = double gaussian of o1[0,1,2] = 0 
-    x-o1[3] from [-2.5sigma to 2.5 sigma]
-    equivalent width in terms of angstrumns 
-    update plots '''
+    Notes:
+      bottom side of the iceburg / continuum
+      take negative component of gauss and subtract off the positive component
+
+      total gauss - the positive component?
+      x = double gaussian of o1[0,1,2] = 0
+      x-o1[3] from [-2.5sigma to 2.5 sigma]
+      equivalent width in terms of Angstroms
+      update plots
+    """
+
+    plt.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
+    plt.plot(x0, neg0, 'b', linewidth=0.25, label='Negative Component')
+    plt.plot(x0, pos_comp, 'r', linewidth=0.25, label='Positive Component')
+    plt.plot(x0, gauss0, 'g', linewidth=0.25, label='Gauss Fit')
 
 
-
-    
 #for each individual stack
 #electron temperature and the R23 and O32 values 
 #Plotting Zoomed 

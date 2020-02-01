@@ -70,7 +70,7 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
         try:
             o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma= sigma[x_idx], bounds = para_bound)
         except ValueError:
-            print 'fail'
+            print('fail')
             fail = 1
 
     
@@ -99,7 +99,7 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
             o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
             #print o1
         except ValueError:
-            print 'fail'
+            print('fail')
             fail = 1
             
 
@@ -112,7 +112,7 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
         try:
             o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
         except ValueError:
-            print 'fail'
+            print('fail')
             fail = 1
    
     if not fail:

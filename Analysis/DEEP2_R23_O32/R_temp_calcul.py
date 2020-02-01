@@ -64,9 +64,11 @@ import sys
 #For generalizing for several users
 from getpass import getuser
 from astropy import units as u
-from chun_codes.cardelli import *
 
-fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+from Metallicity_Stack_Commons.temp_metallicity_calc import \
+    R_calculation, temp_calculation, metallicity_calculation
+
+from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 
 #Constants
 

@@ -20,21 +20,28 @@ from Metallicity_Stack_Commons import lambda0, line_name, line_type
 
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
-#If 'x0' is infeasible error occurs, check the para_bound values to make sure the expected values are within the range set up upper and lower limits. 
- 
+'''
+Debugging Note:
+   If 'x0' is infeasible error occurs, check the para_bound values to
+   make sure the expected values are within the range set up upper and
+   lower limits.
+'''
 
-def line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr):
-    #print 'Under Construction '
 
-    #New plots for lineflagging
-    pdfpages2 = PdfPages(fitspath + '/' +dataset+'_lineflag_check_'+line_name+'.pdf')
-    t_ax2 = ax_arr[row,col]
+def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
+                    line_name, row, col, fig, ax_arr):
+
+    # New plots for lineflagging
+
+    out_pdf = '%s/%s_lineflag_check_%s.pdf' % (fitspath, dataset, line_name)
+    pdfpages2 = PdfPages(out_pdf)
+
+    t_ax2 = ax_arr[row, col]
     t_ax2.plot(wave, y_norm, 'k', linewidth=0.4, label='Emission')
-    t_ax2.set_xlim([working_wave+150,working_wave-45])
-    t_ax2.plot(wave,lineflag,'g', linestyle='dashed', label = 'Lineflag')
-    #txt2 =  r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr])
-    #t_ax2.annotation(txt2)
-    fig.set_size_inches(8,8)
+    t_ax2.set_xlim([working_wave+150, working_wave-45])
+    t_ax2.plot(wave, lineflag, 'g', linestyle='dashed', label='Lineflag')
+
+    fig.set_size_inches(8, 8)
     fig.savefig(pdfpages2, format='pdf')
     pdfpages2.close()
     
@@ -44,22 +51,18 @@ def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
     sigma = np.repeat(RMS,len(x0))
-    #print sigma
-
-    #print 'med0:', med0
-    #print 'max0:', max0
     
     fail = 0
-
 
     ###Single Emission Line###
     if line_type == 'Single': 
         p0 = [working_wave, 1.0, max0, med0] #must have some reasonable values
        
-        para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
+        para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),
+                      (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
 
         try:
-            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma= sigma[x_idx], bounds = para_bound)
+            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds=para_bound)
         except ValueError:
             print('fail')
             fail = 1

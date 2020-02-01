@@ -124,24 +124,9 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, RMS, line_typ
         return None, med0, max0
 
 
-def error_prop_chuncodes(fitspath, dataset, working_wave, values,RMS):
-    #x_arr = np.random.random_integers(10,10)
-    #all emission lines
-    #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
-    #print p_page
-    #pdf_pages_err = PdfPages(p_page)
-    #print 'values:', values
-    #print 'RMS:', RMS
-    fluxg_pdf = random_pdf(values,RMS, seed_i =1, n_iter=1000, silent = False)
-    print('err_function:', fluxg_pdf)
-    print('ran errors')
-    #fig_err, ax = plt.subplots()
-    #plt.hist(fluxg_pdf, 50)
+def error_prop_chuncodes(values, RMS):
+    fluxg_pdf = random_pdf(values, RMS, seed_i=1, n_iter=1000, silent=False)
 
-    #fig_err.set_size_inches(8,8)
-    #fig_err.savefig(pdf_pages_err, format='pdf')
-    #pdf_pages_err.close()
-    
     return fluxg_pdf
 
 def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0, wave, y_norm, line_type, pdfpages3):

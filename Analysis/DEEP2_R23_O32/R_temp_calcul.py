@@ -69,7 +69,13 @@ from Metallicity_Stack_Commons.temp_metallicity_calc import \
     R_calculation, temp_calculation, metallicity_calculation
 
 from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons import k_dict
 
+k_4363  = k_dict['OIII_4363']
+k_5007  = k_dict['OIII_5007']
+k_3727  = k_dict['OII_3727']
+k_4959  = k_dict['OIII_4958']
+k_HBETA = k_dict['OIII_HBETA']
 
 def limit_function(combine_flux_ascii):
     
@@ -107,28 +113,13 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     if dustatt ==False:
         
         EBV = np.zeros(len(ID))
-        k_3727 = np.zeros(len(ID))
-        k_HDELTA = np.zeros(len(ID))
-        k_Hgamma = np.zeros(len(ID))
-        k_HBETA = np.zeros(len(ID))
-        k_4363 = np.zeros(len(ID))
-        k_4959 = np.zeros(len(ID))
-        k_5007 = np.zeros(len(ID))
-
     if dustatt ==True:
         dust_attenuation(fitspath, combine_flux_ascii)
         print('Using attenuated dust values')
         atten_val = asc.read(dust_ascii)
 
         EBV = atten_val['E(B-V)']
-        k_3727 = atten_val['k_3727']
-        k_HDELTA = atten_val['k_HDELTA']
-        k_Hgamma = atten_val['k_Hgamma']
-        k_HBETA = atten_val['k_HBETA']
-        k_4363 = atten_val['k_4363']
-        k_4959 = atten_val['k_4958']
-        k_5007 = atten_val['k_5007']
-    
+
     #Fits Table Calls
     ###DEEP2 and MACT Data#####
     derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')

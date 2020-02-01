@@ -122,8 +122,8 @@ def error_prop_chuncodes(fitspath, dataset, working_wave, values,RMS):
     #print 'values:', values
     #print 'RMS:', RMS
     fluxg_pdf = random_pdf(values,RMS, seed_i =1, n_iter=1000, silent = False)
-    print 'err_function:', fluxg_pdf
-    print 'ran errors'
+    print('err_function:', fluxg_pdf)
+    print('ran errors')
     #fig_err, ax = plt.subplots()
     #plt.hist(fluxg_pdf, 50)
 
@@ -430,7 +430,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
          tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)
     
          if line_type == 'Balmer':
-             print 'Adding an Equ_Width Column'
+             print('Adding an Equ_Width Column')
              names = 'EW_'+str(np.int(working_wave))+'_abs'
              equ_add = Column(name=names, data = flux_neg_array)
              tab0.add_column(equ_add, 2)
@@ -451,7 +451,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     #pdfpages3.close()
     
     
-    print 'Done!'
+    print('Done!')
 
     fig.clear()
 def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, y_correction,s,a,c,s1,a1,s2,a2,tab):
@@ -461,20 +461,20 @@ def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, y
         #Single Gaussian Fit 
         if line_type[ii] == 'Single':
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
-            print outpdf
+            print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave,lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
         #Balmer Line Fit  
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
-            print outpdf
+            print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction=y_correction, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
          
         #Oxy2 Line Fit     
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
-            print outpdf
+            print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
             

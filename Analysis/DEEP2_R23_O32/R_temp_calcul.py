@@ -70,25 +70,6 @@ from Metallicity_Stack_Commons.temp_metallicity_calc import \
 
 from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 
-def metallicity_calculation(T_e, TWO_BETA, THREE_BETA):
-    
-    #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
-    #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
-    #t_2 = 0.7*t_3 +0.17
-    
-    t_3 = T_e*1e-4
-    t_2 = 0.7*t_3 +0.17
-    x2 = 1e-4 * 1e3 * t_2**(-0.5)
-
-    O_s_ion_log = np.log10(TWO_BETA) +5.961 +1.676/t_2 - 0.4*np.log10(t_2) - 0.034*t_2 + np.log10(1+1.35*x2)-12
-    O_d_ion_log = np.log10(THREE_BETA)+6.200+1.251/t_3 - 0.55*np.log10(t_3) - 0.014*(t_3)-12
-
-    O_s_ion = 10**(O_s_ion_log)
-    O_d_ion = 10**(O_d_ion_log)
-    com_O = O_s_ion + O_d_ion
-    com_O_log = np.log10(com_O) +12
-
-    return O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log
 
 def limit_function(combine_flux_ascii):
     

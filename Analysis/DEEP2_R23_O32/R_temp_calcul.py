@@ -76,11 +76,6 @@ a = 13205
 b = 0.92506
 c = 0.98062
 
-def R_calculation(OIII4363, OIII5007, EBV, k_4363, k_5007):
-  
-    R_value = OIII4363/(OIII5007*(1+1/3.1))* 10**(0.4*EBV*(k_4363-k_5007))
-    return R_value  
-
 def temp_calculation(R):
     #T_e = a(-log(R)-b)^(-c)
     T_e =  a*(-np.log10(R)-b)**(-1*c)     
@@ -350,7 +345,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
             Three_Beta= der_5007_HBETA*(1+1/3.1) 
     
         #Raw Data
-        R_value= R_calculation(OIII4363, OIII5007, EBV, k_4363, k_5007)  
+        R_value= R_calculation(OIII4363, OIII5007, EBV)
         T_e= temp_calculation(R_value)  
         O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 

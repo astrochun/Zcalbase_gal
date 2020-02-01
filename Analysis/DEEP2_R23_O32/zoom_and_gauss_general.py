@@ -29,11 +29,11 @@ Debugging Note:
 
 
 def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
-                    line_name, row, col, fig, ax_arr):
+                    line_name0, row, col, fig, ax_arr):
 
     # New plots for lineflagging
 
-    out_pdf = '%s/%s_lineflag_check_%s.pdf' % (fitspath, dataset, line_name)
+    out_pdf = '%s/%s_lineflag_check_%s.pdf' % (fitspath, dataset, line_name0)
     pdfpages2 = PdfPages(out_pdf)
 
     t_ax2 = ax_arr[row, col]
@@ -46,71 +46,79 @@ def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
     pdfpages2.close()
     
 
-def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_type):
+def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, RMS, line_type0):
 
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
-    sigma = np.repeat(RMS,len(x0))
-    
+    sigma = np.repeat(RMS, len(x0))
+
     fail = 0
 
-    ###Single Emission Line###
-    if line_type == 'Single': 
-        p0 = [working_wave, 1.0, max0, med0] #must have some reasonable values
-       
+    # Single Emission Line
+    if line_type0 == 'Single':
+        p0 = [working_wave, 1.0, max0, med0]  # must have some reasonable values
+
         para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),
                       (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
 
         try:
-            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds=para_bound)
+            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0,
+                               sigma=sigma[x_idx], bounds=para_bound)
         except ValueError:
             print('fail')
             fail = 1
 
-    
-    ###Double Balmer Emission Line###
-    ###initial para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)###
-    if line_type == 'Balmer':
-        '''p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
-        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),25.0,0.0)'''
+    # Double Balmer Emission Line
+    '''
+    initial para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)
+    '''
+    if line_type0 == 'Balmer':
+        '''
+        p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
+        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),
+                     (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),25.0,0.0)
+        '''
 
-        if dataset == 'R23_Grid' or dataset =='O32_Grid':    
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
+        if dataset == 'R23_Grid' or dataset == 'O32_Grid':
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0]  # must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),\
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 30.0, 0.0)
 
         if dataset == 'Grid':
-            #print 'med0:', med0, 'max0:',max0
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0]  # must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),\
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 30.0, 0.0)
 
-        if dataset == 'Voronoi10' or dataset =='Voronoi14' or dataset== 'Voronoi20'  or dataset =='Double_Bin' or dataset =='n_Bins':
-            #print 'med0:', med0, 'max0:', max0
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0) 
+        if dataset == 'Voronoi10' or dataset == 'Voronoi14' or dataset == 'Voronoi20' \
+                or dataset == 'Double_Bin' or dataset == 'n_Bins':
 
-        #print para_bound
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0]  # must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),\
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 30.0, 0)
+
+        # Attempt fit
         try:
-            o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
-            #print o1
+            o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx],
+                               p0=p0, sigma=sigma[x_idx], bounds=para_bound)
         except ValueError:
             print('fail')
             fail = 1
-            
 
-
-    ###OxygenII Emission Line###
-    if line_type == 'Oxy2':
-        p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0] #must have some reasonable values
-        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0, 100.0)
+    # OxygenII Emission Line
+    if line_type0 == 'Oxy2':
+        p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0]  # must have some reasonable values
+        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),\
+                     (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 10.0, 100.0)
 
         try:
-            o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
+            o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx],
+                               p0=p0, sigma=sigma[x_idx], bounds=para_bound)
         except ValueError:
             print('fail')
             fail = 1
    
     if not fail:
-        #print 'o1:', o1
         return o1, med0, max0
     else:
         return None, med0, max0

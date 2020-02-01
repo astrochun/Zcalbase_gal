@@ -5,23 +5,14 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.io import fits
 from astropy.io import ascii as asc
-from astropy.table import vstack, hstack
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table, Column
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-from os.path import exists
-import numpy.ma as ma
-from matplotlib.gridspec import GridSpec
 from pylab import subplots_adjust
-from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
-import scipy.integrate as integ
 
-#Imports Error propagation codes from chun_codes
-from chun_codes import random_pdf, compute_onesig_pdf
+# Import error propagation codes from chun_codes
+from chun_codes import random_pdf
 
 from Metallicity_Stack_Commons.fitting import gauss, double_gauss, oxy2_gauss
 from Metallicity_Stack_Commons.fitting import movingaverage_box1D, rms_func

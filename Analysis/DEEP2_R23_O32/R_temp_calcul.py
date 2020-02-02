@@ -63,47 +63,18 @@ import sys
 #For generalizing for several users
 from getpass import getuser
 from astropy import units as u
-from chun_codes.cardelli import *
 
-fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+from Metallicity_Stack_Commons.temp_metallicity_calc import \
+    R_calculation, temp_calculation, metallicity_calculation
 
-#Constants
+from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons import k_dict
 
-a = 13205
-b = 0.92506
-c = 0.98062
-
-def R_calculation(OIII4363, OIII5007, EBV, k_4363, k_5007):
-  
-    R_value = OIII4363/(OIII5007*(1+1/3.1))* 10**(0.4*EBV*(k_4363-k_5007))
-    return R_value  
-
-def temp_calculation(R):
-    #T_e = a(-log(R)-b)^(-c)
-    T_e =  a*(-np.log10(R)-b)**(-1*c)     
-    print(T_e)  
-    return T_e  
-
-
-def metallicity_calculation(T_e, TWO_BETA, THREE_BETA):   
-    
-    #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
-    #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
-    #t_2 = 0.7*t_3 +0.17
-    
-    t_3 = T_e*1e-4
-    t_2 = 0.7*t_3 +0.17
-    x2 = 1e-4 * 1e3 * t_2**(-0.5)
-
-    O_s_ion_log = np.log10(TWO_BETA) +5.961 +1.676/t_2 - 0.4*np.log10(t_2) - 0.034*t_2 + np.log10(1+1.35*x2)-12
-    O_d_ion_log = np.log10(THREE_BETA)+6.200+1.251/t_3 - 0.55*np.log10(t_3) - 0.014*(t_3)-12
-
-    O_s_ion = 10**(O_s_ion_log)
-    O_d_ion = 10**(O_d_ion_log)
-    com_O = O_s_ion + O_d_ion
-    com_O_log = np.log10(com_O) +12
-
-    return O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log
+k_4363  = k_dict['OIII_4363']
+k_5007  = k_dict['OIII_5007']
+k_3727  = k_dict['OII_3727']
+k_4959  = k_dict['OIII_4958']
+k_HBETA = k_dict['OIII_HBETA']
 
 def limit_function(combine_flux_ascii):
     
@@ -141,28 +112,13 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     if dustatt ==False:
         
         EBV = np.zeros(len(ID))
-        k_3727 = np.zeros(len(ID))
-        k_HDELTA = np.zeros(len(ID))
-        k_Hgamma = np.zeros(len(ID))
-        k_HBETA = np.zeros(len(ID))
-        k_4363 = np.zeros(len(ID))
-        k_4959 = np.zeros(len(ID))
-        k_5007 = np.zeros(len(ID))
-
     if dustatt ==True:
         dust_attenuation(fitspath, combine_flux_ascii)
         print('Using attenuated dust values')
         atten_val = asc.read(dust_ascii)
 
         EBV = atten_val['E(B-V)']
-        k_3727 = atten_val['k_3727']
-        k_HDELTA = atten_val['k_HDELTA']
-        k_Hgamma = atten_val['k_Hgamma']
-        k_HBETA = atten_val['k_HBETA']
-        k_4363 = atten_val['k_4363']
-        k_4959 = atten_val['k_4958']
-        k_5007 = atten_val['k_5007']
-    
+
     #Fits Table Calls
     ###DEEP2 and MACT Data#####
     derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
@@ -347,7 +303,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
             Three_Beta= der_5007_HBETA*(1+1/3.1) 
     
         #Raw Data
-        R_value= R_calculation(OIII4363, OIII5007, EBV, k_4363, k_5007)  
+        R_value= R_calculation(OIII4363, OIII5007, EBV)
         T_e= temp_calculation(R_value)  
         O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 

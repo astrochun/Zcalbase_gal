@@ -74,7 +74,7 @@ k_4363  = k_dict['OIII_4363']
 k_5007  = k_dict['OIII_5007']
 k_3727  = k_dict['OII_3727']
 k_4959  = k_dict['OIII_4958']
-k_HBETA = k_dict['OIII_HBETA']
+k_HBETA = k_dict['HBETA']
 
 def limit_function(combine_flux_ascii):
     

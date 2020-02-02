@@ -339,7 +339,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     a2= 1.8
     
 
-    zoom_and_gauss_general.zm_general(dataset, fitspath,stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
+    zoom_and_gauss_general.zm_general(dataset, fitspath,stack2D, header, wave, lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
 
     print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
 
@@ -553,7 +553,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     a1= 4.7
     s2= 10.0
     a2= -2.0
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
     print 'finished gaussian emission fitting pdf and tables created'
 
@@ -690,7 +690,7 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     a1= 4.7
     s2 = 10.0
     a2 = -2.0
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, lambda0, line_type, line_name, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave,lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
     print 'finished gaussian emission fitting pdf and tables created'
 
@@ -821,7 +821,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten= 
         a2= 1.8
     
 
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
 
 
     if want == 'R_cal_temp':

@@ -156,7 +156,8 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 #for each individual stack
 #electron temperature and the R23 and O32 values 
 #Plotting Zoomed 
-def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
+def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,
+                    s,a,c,s1,a1,s2,a2, wave, working_wave, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
 
     #pdfpages3 = PdfPages(fitspath + '/' +dataset+'_PlottingBalmer_'+line_name+'.pdf')
     asc_tab = asc.read(tab)
@@ -212,12 +213,14 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
 
         y_smooth = movingaverage_box1D(y_norm, 4, boundary='extend')
       
-        RMS= rms_func(wave,dispersion,lineflag,working_wave, y0, scalefact, 0)
+        RMS= rms_func(wave,dispersion,working_wave, y0, 0, lineflag)
+        #sigma array will be set to zero for this run of rms_func
+        #old call variables for the rms_function: wave,dispersion,lineflag,working_wave, y0, scalefact, 0
         #print 'RMS:', RMS
         
-        if y_correction == '': o1, med0, max0  = get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_type)
+        if y_correction == '': o1, med0, max0  = get_gaussian_fit(dataset, s2, working_wave,x0, y_norm, x_idx, RMS, line_type)
 
-        if y_correction == 'y_smooth': o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_smooth, x_idx, RMS, line_type)
+        if y_correction == 'y_smooth': o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave,x0, y_smooth, x_idx, RMS, line_type)
 
         #print 'o1:', o1
         #Calculating Flux: Signal Line Fit
@@ -263,7 +266,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
             
 
             #Calculating RMS
-            ini_sig1, RMS_pix= rms_func(wave,dispersion,lineflag,working_wave, y0, scalefact, o1[1])
+            ini_sig1, RMS_pix= rms_func(wave,dispersion,working_wave, y0, o1[1], lineflag)
 
             #Line Flag Checking Plots
             #line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2D, line_name,row,col,fig,ax_arr)
@@ -457,20 +460,23 @@ def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, y
         if line_type[ii] == 'Single':
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave,lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,
+                            s,a,c,s1,a1,s2,a2, wave,lambda0[ii], lineflag, y_correction, line_type[ii], outpdf, line_name[ii])
 
         #Balmer Line Fit  
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction=y_correction, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,
+                            s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lineflag, y_correction, line_type[ii], outpdf, line_name[ii])
 
          
         #Oxy2 Line Fit     
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,
+                            s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lineflag, y_correction, line_type[ii], outpdf, line_name[ii])
 
             
 

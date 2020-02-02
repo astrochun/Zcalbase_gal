@@ -5,201 +5,158 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.io import fits
 from astropy.io import ascii as asc
-from astropy.table import vstack, hstack
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table, Column
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-from os.path import exists
-import numpy.ma as ma
-from matplotlib.gridspec import GridSpec
 from pylab import subplots_adjust
-from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
-import scipy.integrate as integ
 
-#Imports Error propagation codes from chun_codes
-from chun_codes import random_pdf, compute_onesig_pdf
+# Import error propagation codes from chun_codes
+from chun_codes import random_pdf
+
+from Metallicity_Stack_Commons.fitting import gauss, double_gauss, oxy2_gauss
+from Metallicity_Stack_Commons.fitting import movingaverage_box1D, rms_func
+from Metallicity_Stack_Commons import lambda0, line_name, line_type
+
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
-#If 'x0' is infeasible error occurs, check the para_bound values to make sure the expected values are within the range set up upper and lower limits. 
- 
+'''
+Debugging Note:
+   If 'x0' is infeasible error occurs, check the para_bound values to
+   make sure the expected values are within the range set up upper and
+   lower limits.
+'''
 
-def line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, Spect_1D, line_name,row,col,fig,ax_arr):
-    #print 'Under Construction '
 
-    #New plots for lineflagging
-    pdfpages2 = PdfPages(fitspath + '/' +dataset+'_lineflag_check_'+line_name+'.pdf')
-    t_ax2 = ax_arr[row,col]
+def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
+                    line_name0, row, col, fig, ax_arr):
+
+    # New plots for lineflagging
+
+    out_pdf = '%s/%s_lineflag_check_%s.pdf' % (fitspath, dataset, line_name0)
+    pdfpages2 = PdfPages(out_pdf)
+
+    t_ax2 = ax_arr[row, col]
     t_ax2.plot(wave, y_norm, 'k', linewidth=0.4, label='Emission')
-    t_ax2.set_xlim([working_wave+150,working_wave-45])
-    t_ax2.plot(wave,lineflag,'g', linestyle='dashed', label = 'Lineflag')
-    #txt2 =  r'xnode=%.3f  ynode=%.3f' % (asc_tab['xnode'][rr], asc_tab['ynode'][rr])
-    #t_ax2.annotation(txt2)
-    fig.set_size_inches(8,8)
+    t_ax2.set_xlim([working_wave+150, working_wave-45])
+    t_ax2.plot(wave, lineflag, 'g', linestyle='dashed', label='Lineflag')
+
+    fig.set_size_inches(8, 8)
     fig.savefig(pdfpages2, format='pdf')
     pdfpages2.close()
     
 
-def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
-    box_kernel = Box1DKernel(width)
-    smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
-    return smooth
-
-def gauss(x,xbar,s,a,c):
-   
-    return  a*np.exp(-(x-xbar)**2/(2*s**2)) + c 
-
-def double_gauss(x, xbar, s1, a1, c, s2, a2):
-    
-    return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-xbar)**2/(2*s2**2))     #, a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c
-
-def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
-    con1 = 3728.91/3726.16
-    return a1*np.exp(-(x-xbar)**2/(2*s1**2)) + c + a2*np.exp(-(x-(xbar*con1))**2/(2*s2**2)) 
-
-def get_gaussian_fit(dataset, s2, working_wave,x0, y0, y_norm, x_idx, RMS, line_type):
+def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, RMS, line_type0):
 
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
-    sigma = np.repeat(RMS,len(x0))
-    #print sigma
+    sigma = np.repeat(RMS, len(x0))
 
-    #print 'med0:', med0
-    #print 'max0:', max0
-    
     fail = 0
 
+    # Single Emission Line
+    if line_type0 == 'Single':
+        p0 = [working_wave, 1.0, max0, med0]  # must have some reasonable values
 
-    ###Single Emission Line###
-    if line_type == 'Single': 
-        p0 = [working_wave, 1.0, max0, med0] #must have some reasonable values
-       
-        para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
+        para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),
+                      (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
 
         try:
-            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma= sigma[x_idx], bounds = para_bound)
+            o1, o2 = curve_fit(gauss, x0[x_idx], y_norm[x_idx], p0=p0,
+                               sigma=sigma[x_idx], bounds=para_bound)
         except ValueError:
-            print 'fail'
+            print('fail')
             fail = 1
 
-    
-    ###Double Balmer Emission Line###
-    ###initial para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)###
-    if line_type == 'Balmer':
-        '''p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
-        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),25.0,0.0)'''
+    # Double Balmer Emission Line
+    '''
+    initial para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0,0)
+    '''
+    if line_type0 == 'Balmer':
+        '''
+        p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
+        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -max0),
+                     (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),25.0,0.0)
+        '''
 
-        if dataset == 'R23_Grid' or dataset =='O32_Grid':    
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
+        if dataset == 'R23_Grid' or dataset == 'O32_Grid':
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0]  # must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),\
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 30.0, 0.0)
 
         if dataset == 'Grid':
-            #print 'med0:', med0, 'max0:',max0
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0.0)
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0]  # must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),\
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 30.0, 0.0)
 
-        if dataset == 'Voronoi10' or dataset =='Voronoi14' or dataset== 'Voronoi20'  or dataset =='Double_Bin' or dataset =='n_Bins':
-            #print 'med0:', med0, 'max0:', max0
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0] #must have some reasonable values
-            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),0.0, -med0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),30.0,0) 
+        if dataset == 'Voronoi10' or dataset == 'Voronoi14' or dataset == 'Voronoi20' \
+                or dataset == 'Double_Bin' or dataset == 'n_Bins':
 
-        #print para_bound
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0]  # must have some reasonable values
+            para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, -med0),\
+                         (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 30.0, 0)
+
+        # Attempt fit
         try:
-            o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
-            #print o1
+            o1, o2 = curve_fit(double_gauss, x0[x_idx], y_norm[x_idx],
+                               p0=p0, sigma=sigma[x_idx], bounds=para_bound)
         except ValueError:
-            print 'fail'
+            print('fail')
             fail = 1
-            
 
-
-    ###OxygenII Emission Line###
-    if line_type == 'Oxy2':
-        p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0] #must have some reasonable values
-        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),(working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),10.0, 100.0)
+    # OxygenII Emission Line
+    if line_type0 == 'Oxy2':
+        p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0]  # must have some reasonable values
+        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),\
+                     (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 10.0, 100.0)
 
         try:
-            o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx], p0=p0, sigma=sigma[x_idx], bounds = para_bound)
+            o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx],
+                               p0=p0, sigma=sigma[x_idx], bounds=para_bound)
         except ValueError:
-            print 'fail'
+            print('fail')
             fail = 1
    
     if not fail:
-        #print 'o1:', o1
         return o1, med0, max0
     else:
         return None, med0, max0
 
 
-def rms_func(wave,dispersion,lineflag, lambda_in, y0, scalefact, sigma_array):
-    x_idx = np.where((np.abs(wave-lambda_in)<=100) & (lineflag==0))[0]
-    sigma = np.std(y0[x_idx])
-    RMS_pix = sigma*dispersion/scalefact
-    if sigma_array == 0:
-        RMS = sigma/scalefact
-        return RMS
-    else: 
-        pix =  5* sigma_array / dispersion 
-        s_pix = np.sqrt(pix)
-        ini_sig= s_pix * sigma * dispersion
-        return ini_sig/scalefact, RMS_pix
+def error_prop_chuncodes(values, RMS):
+    fluxg_pdf = random_pdf(values, RMS, seed_i=1, n_iter=1000, silent=False)
 
-
-def error_prop_chuncodes(fitspath, dataset, working_wave, values,RMS):
-    #x_arr = np.random.random_integers(10,10)
-    #all emission lines
-    #p_page= fitspath+dataset+'/'+str(np.int(working_wave))+'error_histogram.pdf'
-    #print p_page
-    #pdf_pages_err = PdfPages(p_page)
-    #print 'values:', values
-    #print 'RMS:', RMS
-    fluxg_pdf = random_pdf(values,RMS, seed_i =1, n_iter=1000, silent = False)
-    print 'err_function:', fluxg_pdf
-    print 'ran errors'
-    #fig_err, ax = plt.subplots()
-    #plt.hist(fluxg_pdf, 50)
-
-    #fig_err.set_size_inches(8,8)
-    #fig_err.savefig(pdf_pages_err, format='pdf')
-    #pdf_pages_err.close()
-    
     return fluxg_pdf
 
-def equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0, wave, y_norm, line_type, pdfpages3):
-    #pdfpages3 = PdfPages(fitspath + '/' +dataset+'_PlottingBalmer_'+line_name+'.pdf')
 
-   
-
-            
-    #fig3,ax3 = plt.subplot()
-    plt.plot(wave, y_norm,'k', linewidth=0.3, label= 'Emission')
-    plt.plot(x0,neg0, 'b', linewidth= 0.25, label= 'Negative Component')
-    #plt.plot(x0,pos_comp, 'r', linewidth= 0.25, label= 'Positive Component')
-    #plt.plot(x0,gauss0, 'g', linewidth= 0.25, label= 'Gauss Fit')
-    #plt.show()
-    #fig3.set_size_inches(8,8)
-    #fig3.savefig(pdfpages3, format='pdf')
-    
-    ###Equivalent Width correction
-    '''bottom side of the iceburg / continum 
-    take negative component of gauss and subtract off the postive component 
-    
-    total gauss - the positve component? 
-    x = double gaussian of o1[0,1,2] = 0 
-    x-o1[3] from [-2.5sigma to 2.5 sigma]
-    equivalent width in terms of angstrumns 
-    update plots '''
+def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
+    """
+    Purpose:
+      Equivalent width correction/computation
 
 
+    Notes:
+      bottom side of the iceburg / continuum
+      take negative component of gauss and subtract off the positive component
 
-    
+      total gauss - the positive component?
+      x = double gaussian of o1[0,1,2] = 0
+      x-o1[3] from [-2.5sigma to 2.5 sigma]
+      equivalent width in terms of Angstroms
+      update plots
+    """
+
+    plt.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
+    plt.plot(x0, neg0, 'b', linewidth=0.25, label='Negative Component')
+    plt.plot(x0, pos_comp, 'r', linewidth=0.25, label='Positive Component')
+    plt.plot(x0, gauss0, 'g', linewidth=0.25, label='Gauss Fit')
+
+
 #for each individual stack
 #electron temperature and the R23 and O32 values 
 #Plotting Zoomed 
-def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lambda0, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
+def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, working_wave, lineflag,  y_correction='', line_type = '',outpdf='', line_name=''):
 
     #pdfpages3 = PdfPages(fitspath + '/' +dataset+'_PlottingBalmer_'+line_name+'.pdf')
     asc_tab = asc.read(tab)
@@ -468,7 +425,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
          tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)
     
          if line_type == 'Balmer':
-             print 'Adding an Equ_Width Column'
+             print('Adding an Equ_Width Column')
              names = 'EW_'+str(np.int(working_wave))+'_abs'
              equ_add = Column(name=names, data = flux_neg_array)
              tab0.add_column(equ_add, 2)
@@ -489,30 +446,30 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,
     #pdfpages3.close()
     
     
-    print 'Done!'
+    print('Done!')
 
     fig.clear()
-def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, lambda0, line_type, line_name,  y_correction,s,a,c,s1,a1,s2,a2,tab):
+def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, y_correction,s,a,c,s1,a1,s2,a2,tab):
     
 
     for ii in range(len(lambda0)):
         #Single Gaussian Fit 
         if line_type[ii] == 'Single':
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
-            print outpdf
+            print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave,lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
         #Balmer Line Fit  
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
-            print outpdf
+            print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction=y_correction, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
          
         #Oxy2 Line Fit     
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
-            print outpdf
+            print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
 
             

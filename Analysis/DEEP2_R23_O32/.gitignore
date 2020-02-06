@@ -1,12 +1,29 @@
 # Ignore File for Zcalbase_gal/Analysis/DEEP2_R23_O32/
 
+
+
+#Attempt to ignore the .py~
+*.py~
+*.txt
+*.ipynb
+*~
+*.fits
+
+
+
+#DS_Store file
+*.DS_Store
+
+
+
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
 
 # Distribution / packaging
 .Python
@@ -72,7 +89,7 @@ docs/_build/
 target/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+.ipynb
 
 # pyenv
 .python-version

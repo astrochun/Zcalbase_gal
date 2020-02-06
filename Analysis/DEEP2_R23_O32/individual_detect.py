@@ -41,12 +41,12 @@ def run_ind_detection(fitspath, dataset, average_value_ascii):
         print ID[aa]
         ind_detection(fitspath,dataset,ID[aa])
     new_name = fitspath+'Individual_ratio_temperature.tbl'
-    vertical_stacking(fitspath,dataset, new_name)
+    individual_galaxy_table_stacking(fitspath,dataset, new_name)
     print('run complete')
 
 def ind_detection(fitspath, dataset, bin_id):
 
-    get_det3_tab = asc.read(fitspath+'get_det3_table2.tbl')
+    get_det3_tab = asc.read(fitspath+'get_det3_table.tbl')
     bin_tab = asc.read(fitspath+dataset+'_2d_binning_datadet3.tbl')
     N_gal_tab = asc.read(fitspath+dataset+'_Average_R23_O32_Values.tbl')
     stackmeas_tab = asc.read(fitspath+dataset+'_temperatures_metalicity.tbl')
@@ -81,7 +81,7 @@ def ind_detection(fitspath, dataset, bin_id):
     for ii in range(len(O2)):
         if Bin_number[ii] == bin_id:
             #print 'Bin_number:', Bin_number[ii], 'O2:', O2[ii], 'O3:', O3[ii], 'Hb:', Hb[ii]
-            Source_ID.append(Source_id[ii])
+            Source_IDs.append(Source_id[ii])
             Bin_ID.append(bin_id)
             R23_ind.append(R23[ii])
             O32_ind.append(O32[ii])
@@ -95,7 +95,7 @@ def ind_detection(fitspath, dataset, bin_id):
     
     individual_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detection/'+str(bin_id)+'_individual_ratios_temp.tbl'
     n = ('Source_ID','Bin_ID','Individual_R23', 'Individual_O32','two_beta', 'three_beta', 'OIII4959','OIII5007','HBeta','Temperature')   #'ID', 'R23_Average', 'O32_Average'
-    ind_tab = Table([Source_ID, Bin_ID, R23_ind, O32_ind, two_beta, three_beta, OIII4959, OIII5007, HBeta, average_temp], names=n) #ID, R23, O32,
+    ind_tab = Table([Source_IDs, Bin_ID, R23_ind, O32_ind, two_beta, three_beta, OIII4959, OIII5007, HBeta, average_temp], names=n) #ID, R23, O32,
     asc.write(ind_tab, individual_ascii, format = 'fixed_width_two_line')
 
 

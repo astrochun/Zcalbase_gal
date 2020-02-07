@@ -450,8 +450,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     #dataset options: Voronoi10,Voronoi14, Voronoi20
     
+    if dataset == 'Voronoi10': org_name = 'Voronoi10'
+    if dataset == 'Voronoi14': org_name = 'Voronoi14'
+    if dataset == 'Voronoi20': org_name = 'Voronoi20'
+    if dataset == 'Double_Bin': org_name = 'Double_Bin'
+    fitspath = gettime(org_name,fitspath_ini)
     
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3() # , O2_det3, O3_det3, Hb_det3
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath) # , O2_det3, O3_det3, Hb_det3
     
     #Grid Methods of Organizing Data
     #Both One and Two Dimensional Analyzes 

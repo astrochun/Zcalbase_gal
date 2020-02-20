@@ -684,20 +684,20 @@ def voronoi_2d_binning(x, y, signal, noise, targetSN, cvt=True,
         rnd = np.argsort(np.random.random(xnode.size))  # Randomize bin colors
         _display_pixels(x, y, rnd[classe], pixelsize)
         plt.plot(xnode, ynode, '+w', scalex=False, scaley=False) # do not rescale after imshow()
-        plt.xlabel('R (arcsec)')
-        plt.ylabel('R (arcsec)')
-        plt.title('Map of Voronoi bins')
+        plt.xlabel('R23')
+        plt.ylabel('O32')
+        plt.title('Map of Voronoi Bins')
 
-        plt.subplot(212)
-        rad = np.sqrt(xBar**2 + yBar**2)  # Use centroids, NOT generators
-        plt.plot(rad[~w], sn[~w], 'or', label='Voronoi bins')
-        plt.xlabel('R (arcsec)')
-        plt.ylabel('Bin S/N')
-        plt.axis([np.min(rad), np.max(rad), 0, np.max(sn)])  # x0, x1, y0, y1
-        if np.sum(w) > 0:
-            plt.plot(rad[w], sn[w], 'xb', label='single spaxels')
-        plt.axhline(targetSN)
-        plt.legend()
+        #plt.subplot(212)
+        #rad = np.sqrt(xBar**2 + yBar**2)  # Use centroids, NOT generators
+        #plt.plot(rad[~w], sn[~w], 'or', label='Voronoi bins')
+        #plt.xlabel('R (arcsec)')
+        #plt.ylabel('Bin S/N')
+        #plt.axis([np.min(rad), np.max(rad), 0, np.max(sn)])  # x0, x1, y0, y1
+        #if np.sum(w) > 0:
+            #plt.plot(rad[w], sn[w], 'xb', label='single spaxels')
+        #plt.axhline(targetSN)
+        #plt.legend()
         plt.pause(1)  # allow plot to appear in certain cases
 
     print('classe : ',len(classe), classe)

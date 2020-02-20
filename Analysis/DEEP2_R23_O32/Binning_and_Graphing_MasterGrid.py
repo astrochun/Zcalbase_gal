@@ -503,7 +503,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
 
     n_bins = len(galinbin)
     
-    print n_bins   
+    print(n_bins, 'n_split',n_split)
     n_bins_range = np.arange(0,n_split*n_bins,1)
 
 

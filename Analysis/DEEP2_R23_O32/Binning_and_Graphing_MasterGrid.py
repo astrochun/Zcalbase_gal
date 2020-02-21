@@ -487,7 +487,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
 
 
-def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
+def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
     dataset = 'n_Bins'
     #O2_det3, O3_det3, Hb_det3
     #One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins 
@@ -664,8 +664,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, R23,O32, O2, O3, Hb, S
     
     fig.clear()
 
-    n2=('R23', 'O32', 'SN_5007', 'Bin_number')
-    tab2= Table([R23, O32, SNR3, Bin_number], names=n2)
+    n2=('R23', 'O32', '5007_S/N', 'bin_ID','ID')
+    tab2= Table([R23, O32, SNR3, Bin_number, individual_ID], names=n2)
     asc.write(tab2, fitspath+'/'+ dataset+'_2d_binning_datadet3.tbl', format='fixed_width_two_line')
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')

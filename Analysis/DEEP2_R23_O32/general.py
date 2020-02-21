@@ -61,7 +61,7 @@ def get_det3(fitspath, individual_detect=False):
     #Excluding Outliers 
     exclude_flag = exclude_outliers(objno)
     print "exclude flag: ", np.where(exclude_flag == 1)
-    
+
     O2_ini = data0['OII_FLUX_MOD'].data
     O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data
     O4959_ini = data0['OIIIB_FLUX_MOD'].data
@@ -111,7 +111,7 @@ def get_det3(fitspath, individual_detect=False):
 
     n2= ('ID','R23','O32','O2_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
          'O4363_Flux_Gaussian','O4959_Flux_Gaussian','O5007_Flux_Gaussian','Hb_Flux_Gaussian',
-         'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363')
+         'R2_S/N', 'R3_S/N', 'RH_S/N', 'RHG_S/N','R4363_S/N')
     tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
                   Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363], names=n2)
 
@@ -177,7 +177,7 @@ def get_det3(fitspath, individual_detect=False):
 
 
 
-    return R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3    #, O2_det3, O3_det3, Hb_det3
+    return individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3    #, O2_det3, O3_det3, Hb_det3
 
 
 
@@ -212,7 +212,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     if dataset == 'n_Bins': org_name = 'R23O32_Manual'
     fitspath = gettime(org_name,fitspath_ini)
     
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)     #, O2_det3, O3_det3, Hb_det3
+    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)     #, O2_det3, O3_det3, Hb_det3
 
     
     
@@ -251,6 +251,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
                                                        pdf_pages,
                                                        grid_data_file,
                                                        n_split,
+                                                       individual_ID,
                                                        R23,
                                                        O32,
                                                        O2,

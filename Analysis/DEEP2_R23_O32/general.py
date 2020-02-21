@@ -79,7 +79,7 @@ def get_det3(fitspath, individual_detect=False):
     SNRHg_ini = data0['HG_SNR'].data
     SNR4363_ini = data0['OIIIA_SNR'].data
 
-    logR23 = np.log10(R23_ini)
+    
     print 'O2 len:', len(O2_ini)
 
     #################################################################################
@@ -106,13 +106,15 @@ def get_det3(fitspath, individual_detect=False):
     SNR4363 = SNR4363_ini[det3]
     individual_names = objno[det3]
 
+    logR23 = np.log10(R23)
+    logO32 = np.log10(O32
     print 'R23:',len(R23)
     
 
-    n2= ('ID','R23','O32','O2_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
+    n2= ('ID','logR23','logO32','O2_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
          'O4363_Flux_Gaussian','O4959_Flux_Gaussian','O5007_Flux_Gaussian','Hb_Flux_Gaussian',
          'R2_S/N', 'R3_S/N', 'RH_S/N', 'RHG_S/N','R4363_S/N')
-    tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
+    tab1 = Table([individual_names, logR23, logO32, O2, O3, Hgamma, O4363, O4959, O5007,
                   Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)

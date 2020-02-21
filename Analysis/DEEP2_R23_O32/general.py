@@ -109,10 +109,11 @@ def get_det3(fitspath, individual_detect=False):
     print 'R23:',len(R23)
     
 
-    n2= ('Individual_IDs','R23','O32','O2','O3','HGAMMA','O4363','O4959','O5007',
-         'Hb', 'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363','det3')
+    n2= ('ID','R23','O32','O2_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
+         'O4363_Flux_Gaussian','O4959_Flux_Gaussian','O5007_Flux_Gaussian','Hb_Flux_Gaussian',
+         'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363')
     tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
-                  Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363,det3], names=n2)
+                  Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     asc.write(tab1, fitspath+'get_det3_table.tbl', format='fixed_width_two_line')

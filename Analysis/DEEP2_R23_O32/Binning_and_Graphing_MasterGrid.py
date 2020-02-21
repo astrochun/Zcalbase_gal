@@ -55,7 +55,7 @@ det3 = np.where((SNR2 >= 3) & (SNR3 >= 3) & (SNRH >= 3) &
 
 
 def single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin):
-    #O2_det3, O3_det3, Hb_det3
+    
     pdf_pages = PdfPages(pdf_pages)
 
     #One_dimensional binning for O32 
@@ -489,7 +489,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
 def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
     dataset = 'n_Bins'
-    #O2_det3, O3_det3, Hb_det3
+    ##R23 and O32 are going to be log values --> check to make sure that this doesn't affect the binning
     #One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins 
     '''increase the number of galaxies as R23 increases'''
     pdf_pages = PdfPages(pdf_pages)
@@ -598,9 +598,9 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         
             Bin_number[N_bin_idx] = (ii*n_split)+jj                            #Gives the bin number for each spectra
 
-            xBar[(ii*n_split)+jj]= np.log10(np.average(R23[N_bin_idx]))   #Gives the average R23 value for each bin
+            xBar[(ii*n_split)+jj]= np.average(R23[N_bin_idx])   #Gives the average R23 value for each bin
             
-            yBar[(ii*n_split)+jj]= np.log10(np.average(O32_values_perbin))   #Gives the average O32 value for each bin
+            yBar[(ii*n_split)+jj]= np.average(O32_values_perbin)  #Gives the average O32 value for each bin
             
             area[(ii*n_split)+jj]= len(O32_values_perbin)                 #Gives the number of galaxies in each bin
 
@@ -618,11 +618,9 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         
     #Plotting
     fig, ax = plt.subplots()
-    x = R23
-    y = O32
     finite0 = np.where((np.isfinite(x)) & (np.isfinite(y)))[0]
-    x1 = x[finite0]
-    y1 = y[finite0]
+    x1 = R23[finite0]
+    y1 = O32[finite0]
     x = np.log10(x1)
     y = np.log10(y1)
     vlines = np.log10(R23_lowlimit)
@@ -658,13 +656,13 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
 
-    n1 = ('ID' , 'R23_minimum', 'O32_minimum', 'xBar','yBar', 'R23_median','O32_median','area')
+    n1 = ('ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','N_stack')
     tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,R23_medians, O32_medians, area], names = n1)
     asc.write(tab1, fitspath+'/'+dataset+'_binning_averages.tbl', format='fixed_width_two_line')
     
     fig.clear()
 
-    n2=('R23', 'O32', '5007_S/N', 'bin_ID','ID')
+    n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID')
     tab2= Table([R23, O32, SNR3, Bin_number, individual_ID], names=n2)
     asc.write(tab2, fitspath+'/'+ dataset+'_2d_binning_datadet3.tbl', format='fixed_width_two_line')
 

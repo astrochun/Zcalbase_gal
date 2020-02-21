@@ -107,16 +107,12 @@ def get_det3(fitspath, individual_detect=False):
     individual_names = objno[det3]
 
     print 'R23:',len(R23)
-    O2_det3 =O2_ini[det3]
-    O3_det3 =O3_ini[det3]
-    Hb_det3 =Hb_ini[det3]
+    
 
     n2= ('Individual_IDs','R23','O32','O2','O3','HGAMMA','O4363','O4959','O5007',
-         'Hb', 'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363','det3', 'O2_det3', 'O3_det3',
-         'Hb_det3')
+         'Hb', 'SNR2', 'SNR3', 'SNRH', 'SNRHG','SNR4363','det3')
     tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
-                  Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363,det3, O2_det3, O3_det3,
-                  Hb_det3], names=n2)
+                  Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363,det3], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     asc.write(tab1, fitspath+'get_det3_table.tbl', format='fixed_width_two_line')

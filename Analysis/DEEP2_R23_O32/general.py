@@ -73,6 +73,9 @@ def get_det3(fitspath, individual_detect=False):
     R23_ini = (O2_ini+O3_ini)/Hb_ini
     O32_ini = O3_ini/O2_ini
 
+    lR23_ini =  np.log10(R23_ini)
+    lO32_ini = np.log10(O32_ini)
+
     SNR2_ini = data0['OII_SNR'].data
     SNR3_ini = data0['OIIIR_SNR'].data
     SNRH_ini = data0['HB_SNR'].data
@@ -85,7 +88,7 @@ def get_det3(fitspath, individual_detect=False):
     #################################################################################
     #SNR code: This rules out major outliers by only using specified data
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
-                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0) & (R23_ini < 1.4))[0]  #May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
+                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0) & (lR23_ini < 1.4))[0]  #May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
 
     # Organize the R23_032 data
     data3 = data0[det3]
@@ -106,15 +109,12 @@ def get_det3(fitspath, individual_detect=False):
     SNR4363 = SNR4363_ini[det3]
     individual_names = objno[det3]
 
-    logR23 = np.log10(R23)
-    logO32 = np.log10(O32)
-    print 'R23:',len(R23)
     
 
     n2= ('ID','logR23','logO32','O2_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
          'O4363_Flux_Gaussian','O4959_Flux_Gaussian','O5007_Flux_Gaussian','Hb_Flux_Gaussian',
          'R2_S/N', 'R3_S/N', 'RH_S/N', 'RHG_S/N','R4363_S/N')
-    tab1 = Table([individual_names, logR23, logO32, O2, O3, Hgamma, O4363, O4959, O5007,
+    tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
                   Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
@@ -216,6 +216,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     
     individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)     #, O2_det3, O3_det3, Hb_det3
 
+    print("length R23: ", len(R23))
     
     
 

@@ -85,7 +85,7 @@ def get_det3(fitspath, individual_detect=False):
     #################################################################################
     #SNR code: This rules out major outliers by only using specified data
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
-                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0) & (logR23 < 1.4))[0]  #May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
+                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini>0) & (exclude_flag==0) & (R23_ini < 1.4))[0]  #May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
 
     # Organize the R23_032 data
     data3 = data0[det3]
@@ -107,7 +107,7 @@ def get_det3(fitspath, individual_detect=False):
     individual_names = objno[det3]
 
     logR23 = np.log10(R23)
-    logO32 = np.log10(O32
+    logO32 = np.log10(O32)
     print 'R23:',len(R23)
     
 
@@ -179,7 +179,7 @@ def get_det3(fitspath, individual_detect=False):
 
 
 
-    return individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3    #, O2_det3, O3_det3, Hb_det3
+    return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3    #, O2_det3, O3_det3, Hb_det3
 
 
 
@@ -247,7 +247,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     if dataset == 'n_Bins':
         pdf_pages = fitspath +'n_Bins_grid.pdf'
         grid_data_file = fitspath +'n_Bins_grid.npz'
-        asc_table1 = fitspath+ '/n_Bins_binning_averages.tbl'
+        asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'n_Bins_2d_binning_datadet3.tbl'
         Binning_and_Graphing_MasterGrid.n_times_binned(fitspath,
                                                        pdf_pages,
@@ -319,7 +319,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     #Spect_1D = fits.getdata(outfile_grid)
     dispersion = header['CDELT1']
-    binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
+    binning_avg_asc = fitspath+'/'+dataset+'bin_info.tbl'
     
     
     lineflag = np.zeros(len(wave))
@@ -349,29 +349,29 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         intro = fitspath + 'Grid_Average_R23_O32_Values.tbl' 
         asc_intro = asc.read(intro)
         table_files = glob.glob(fitspath +'/Grid_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'Grid_combined_flux_table.fits'
-        combine_flux_ascii = fitspath + 'Grid_combined_flux_table.tbl'
+        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
 
     if dataset == 'O32_Grid':
         intro = fitspath + 'O32_Grid_Average_R23_O32_Values.tbl' 
         asc_intro = asc.read(intro)
         table_files = glob.glob(fitspath +'/O32_Grid_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'O32_Grid_combined_flux_table.fits'
-        combine_flux_ascii = fitspath + 'O32_Grid_combined_flux_table.tbl'
+        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
 
     if dataset == 'R23_Grid':
         intro = fitspath + 'R23_Grid_Average_R23_O32_Values.tbl' 
         asc_intro = asc.read(intro)
         table_files = glob.glob(fitspath +'/R23_Grid_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'R23_Grid_combined_flux_table.fits'
-        combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
+        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
 
     if dataset == 'n_Bins':
         intro = fitspath + 'n_Bins_Average_R23_O32_Values.tbl' 
         asc_intro = asc.read(intro)
         table_files = glob.glob(fitspath +'/n_Bins_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'n_Bins_combined_flux_table.fits'
-        combine_flux_ascii = fitspath + 'n_Bins_combined_flux_table.tbl'
+        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
 
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
         
@@ -387,20 +387,20 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     #R_temp_calcul
     if dataset == 'Grid':
-        combine_flux_ascii = fitspath + 'Grid_combined_flux_table.tbl'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
         temp_m_gascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/Grid_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
         R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
     if dataset == 'O32_Grid':
-        combine_flux_ascii = fitspath + 'O32_Grid_combined_flux_table.tbl'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
         temp_m_gascii = fitspath+ '/O32_Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/O32_Grid_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'O32_Grid_Temp_Composite_Metallicity.pdf'
         R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
     if dataset == 'R23_Grid':
-        combine_flux_ascii = fitspath + 'R23_Grid_combined_flux_table.tbl'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
         temp_m_gascii = fitspath+ '/R23_Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/R23_Grid_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'R23_Grid_Temp_Composite_Metallicity.pdf'
@@ -411,7 +411,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
 
     if dataset == 'n_Bins':
-        combine_flux_ascii = fitspath + 'n_Bins_combined_flux_table.tbl'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
         temp_m_gascii = fitspath+ 'n_Bins_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ 'n_Bins_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
@@ -472,21 +472,21 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     if dataset == 'Voronoi10':
         sn_size = 10
         txt_file = fitspath + 'voronoi10_2d_binning_outputs.txt'
-        asc_table1 = fitspath+'voronoi10_binning_averages.tbl' #used to be called asc_tab_fill in name
+        asc_table1 = fitspath+'bin_info.tbl' #used to be called asc_tab_fill in name
         asc_table2 = fitspath+'voronoi10_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_10.tbl'
         adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3)   #, O2_det3, O3_det3, Hb_det3)
         
     if dataset == 'Voronoi14':
         sn_size = 14
         txt_file = fitspath + 'voronoi14_2d_binning_outputs.txt'
-        asc_table1 = fitspath+'voronoi14_binning_averages.tbl'
+        asc_table1 = fitspath+'bin_info.tbl'
         asc_table2 = fitspath+'voronoi14_2d_binning_datadet3.tbl' #used to be called fitspath+'voronoi_2d_binning_output_14.tbl'
         adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3)    #, O2_det3, O3_det3, Hb_det3
         
     if dataset == 'Voronoi20':
         sn_size = 20
         txt_file = fitspath + 'voronoi20_2d_binning_outputs.txt'
-        asc_table1 = fitspath+'voronoi20_binning_averages.tbl'
+        asc_table1 = fitspath+'bin_info.tbl'
         asc_table2 = fitspath+'voronoi20_2d_binning_datadet3.tbl' 
 
         adaptivebinning.voronoi_binning_DEEP2(fitspath, sn_size,txt_file, asc_table1, asc_table2, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3)   #, O2_det3, O3_det3, Hb_det3
@@ -495,7 +495,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
         galinbin = 400
         pdf_pages = fitspath +'double_grid.pdf'
         outfile = fitspath +'double_grid.npz'
-        asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
+        asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
         Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)   #, O2_det3, O3_det3, Hb_det3
 
@@ -566,9 +566,9 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     intro = fitspath + dataset+'_Average_R23_O32_Values.tbl'
     asc_intro = asc.read(intro)
     table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl')
-    combine_flux_fits = fitspath+dataset+'_combined_flux_table.fits'
-    combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
-    print combine_flux_ascii
+    combine_flux_fits = fitspath+'bin_emission_line_fit.fits'
+    combine_flux_ascii = fitspath+'bin_emission_line_fit.tbl'
+    print(combine_flux_ascii)
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
 
     print dataset+'_combine_flux_table created'
@@ -633,7 +633,7 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
         if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2809 
         pdf_pages = fitspath +'double_grid.pdf'
         grid_data_file = fitspath +'double_grid.npz'
-        asc_table1 = fitspath+ '/Double_Bin_binning_averages.tbl'
+        asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
         Binning_and_Graphing_MasterGrid.two_times_binned(fitspath,
                                                          pdf_pages,
@@ -703,9 +703,9 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     intro = fitspath + dataset+'_Average_R23_O32_Values.tbl'
     asc_intro = asc.read(intro)
     table_files = glob.glob(fitspath+ dataset+'_flux_gaussian_*.tbl')
-    combine_flux_fits = fitspath+dataset+'_combined_flux_table.fits'
-    combine_flux_ascii = fitspath+dataset+'_combined_flux_table.tbl'
-    print combine_flux_ascii
+    combine_flux_fits = fitspath+'bin_emission_line_fit.fits'
+    combine_flux_ascii = fitspath+'bin_emission_line_fit.tbl'
+    print(combine_flux_ascii)
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
 
     print dataset+'_combine_flux_table created'
@@ -771,7 +771,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten= 
         if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
         pdf_pages = fitspath +'n_Bins_grid.pdf'
         grid_data_file = fitspath +'n_Bins_grid.npz'
-        asc_table1 = fitspath+ '/n_Bins_binning_averages.tbl'
+        asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'n_Bins_2d_binning_datadet3.tbl'
         Binning_and_Graphing_MasterGrid.n_times_binned(fitspath,
                                                        pdf_pages,
@@ -806,7 +806,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten= 
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         dispersion = header['CDELT1']
-        binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
+        binning_avg_asc = fitspath+'/bin_info.tbl'
     
     
         lineflag = np.zeros(len(wave))
@@ -829,7 +829,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten= 
 
 
     if want == 'R_cal_temp':
-        combine_flux_ascii = fitspath + 'nsplit_combined_flux_table.tbl'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
         temp_m_gascii = fitspath+ '/nsplit_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/nsplit_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
@@ -839,8 +839,8 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten= 
 
         
     if want =='line_ratio_plotting': 
-        combine_flux_ascii = fitspath + 'nsplit_combined_flux_table.tbl'
-        binning_avg_asc = fitspath+'/'+dataset+'binning_averages.tbl'
+        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
+        binning_avg_asc = fitspath+'/bin_info.tbl'
         line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
 
 

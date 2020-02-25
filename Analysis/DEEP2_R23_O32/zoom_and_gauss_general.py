@@ -387,14 +387,14 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
 
 
     if line_type == 'Single': 
-        n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS', 'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const')
+        n=  ('Flux_Gaussian', 'Flux_Observed', 'S/N','Sigma', 'Median', 'Norm', 'RMS',  'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const')
         n = tuple([line_name + '_' + val for val in n])
         tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array], names=n)
         asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
 
     if line_type == 'Balmer' or line_type == 'Oxy2': 
-         n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS', 'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
+         n=  ('Flux_Gaussian', 'Flux_Observed', 'S/N','Sigma', 'Median', 'Norm', 'RMS', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
          n = tuple([line_name + '_' + val for val in n])
          tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)
     
@@ -410,8 +410,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
     
     out_ascii_single = fitspath+'/'+dataset+'_Average_R23_O32_Values.tbl'
 
-    n2= ('ID','R_23_Average', 'O_32_Average', 'N_Galaxies', 'RMS')
-    tab1 = Table([ID, R_23_array, O_32_array, N_gal_array, RMS_array], names=n2)
+    n2= ('bin_ID','logR23_avg', 'logO32_avg', 'N_stack')
+    tab1 = Table([ID, R_23_array, O_32_array, N_gal_array], names=n2)
     asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
 
 

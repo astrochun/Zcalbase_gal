@@ -485,7 +485,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
 
 
-def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
+def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,logO32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
     dataset = 'n_Bins'
     ##R23 and O32 are going to be log values --> check to make sure that this doesn't affect the binning
     #One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins 
@@ -494,10 +494,12 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
     #One_dimensional binning for R23 
 
+    #log10(R23) = number we have R23 => R23 = 10^(logR23)
+    R23 = 10**(logR23)
+    O32 = 10**(logO32)
     sortR23 = np.argsort(R23)
     R23_sort0 = R23[sortR23]
 
-    
 
     n_bins = len(galinbin)
     
@@ -524,8 +526,13 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     bin_start = np.zeros(n_bins, dtype=np.int)
     bin_end   = np.zeros(n_bins, dtype=np.int)
 
-
+    print("bin start:", bin_start)
+    print("bin end:" , bin_end)
+    
+    print("galinbin:", galinbin)
+    
     for ii in range(n_bins):
+        print('ii: ', ii) 
         if ii == 0:
             bin_start[ii] = 0
         else:

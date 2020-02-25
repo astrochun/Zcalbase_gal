@@ -437,11 +437,9 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         
     #Plotting
     fig, ax = plt.subplots()
-    x = R23
-    y = O32
     finite0 = np.where((np.isfinite(x)) & (np.isfinite(y)))[0]
-    x1 = x[finite0]
-    y1 = y[finite0]
+    x1 = R23[finite0]
+    y1 = O32[finite0]
     x = np.log10(x1)
     y = np.log10(y1)
     hlines = np.log10(R23_values)
@@ -656,7 +654,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
 
-    n1 = ('ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','N_stack')
+    n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','N_stack')
     tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,R23_medians, O32_medians, area], names = n1)
     asc.write(tab1, fitspath+'/'+dataset+'_binning_averages.tbl', format='fixed_width_two_line')
     

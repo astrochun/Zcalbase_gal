@@ -113,12 +113,12 @@ def get_det3(fitspath, individual_detect=False):
 
     n2= ('ID','logR23','logO32','O2_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
          'O4363_Flux_Gaussian','O4959_Flux_Gaussian','O5007_Flux_Gaussian','Hb_Flux_Gaussian',
-         'R2_S/N', 'R3_S/N', 'RH_S/N', 'RHG_S/N','R4363_S/N')
+         'O2_S/N', 'O3_S/N', 'RH_S/N', 'HGAMMA_S/N', 'O4363_S/N')
     tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
                   Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
-    asc.write(tab1, fitspath+'get_det3_table.tbl', format='fixed_width_two_line')
+    asc.write(tab1, fitspath+'individual_properites', format='fixed_width_two_line')  #used to be get_det3_table.tbl
     #tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
     
 
@@ -226,12 +226,12 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
         outfile = fitspath +'single_grid_O32.npz'
-        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)    #, O2_det3, O3_det3, Hb_det3,
+        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)    
 
     if dataset =='R23_Grid':
         pdf_pages = fitspath +'single_grid_R23.pdf'
         outfile = fitspath +'single_grid_R23.npz'
-        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)     #O2_det3, O3_det3, Hb_det3,
+        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)    
 
 
     if dataset =='Grid': 
@@ -241,7 +241,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         O32_bin = 0.25
         binstr = 025
         
-        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, R23_bin, O32_bin)   #O2_det3, O3_det3, Hb_det3,
+        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, R23_bin, O32_bin)   
 
 
 
@@ -249,7 +249,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         pdf_pages = fitspath +'n_Bins_grid.pdf'
         grid_data_file = fitspath +'n_Bins_grid.npz'
         asc_table1 = fitspath+ '/bin_info.tbl'
-        asc_table2 = fitspath+ 'n_Bins_2d_binning_datadet3.tbl'
+        asc_table2 = fitspath+ 'individual_bin_info.tbl'                   #used to be 'n_Bins_2d_binning_datadet3.tbl'
         Binning_and_Graphing_MasterGrid.n_times_binned(fitspath,
                                                        pdf_pages,
                                                        grid_data_file,

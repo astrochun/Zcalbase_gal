@@ -623,7 +623,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
         
     #Plotting
     fig, ax = plt.subplots()
-    finite0 = np.where((np.isfinite(x)) & (np.isfinite(y)))[0]
+    finite0 = np.where((np.isfinite(R23)) & (np.isfinite(O32)))[0]
     x1 = R23[finite0]
     y1 = O32[finite0]
     x = np.log10(x1)
@@ -663,13 +663,13 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
 
     n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','N_stack')
     tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,R23_medians, O32_medians, area], names = n1)
-    asc.write(tab1, fitspath+'/'+dataset+'_binning_averages.tbl', format='fixed_width_two_line')
+    asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
     
     fig.clear()
 
     n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID')
     tab2= Table([R23, O32, SNR3, Bin_number, individual_ID], names=n2)
-    asc.write(tab2, fitspath+'/'+ dataset+'_2d_binning_datadet3.tbl', format='fixed_width_two_line')
+    asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line') #used to be + dataset+'_2d_binning_datadet3.tbl
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')
     tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)

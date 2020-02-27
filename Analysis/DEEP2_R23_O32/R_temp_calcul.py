@@ -313,7 +313,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
 
 
-        n=  ('bin_ID', 'Detection', 'R23_Composite', 'O32_Composite', 'logR23_avg', 'logO32_avg', 'N_stack','OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N', 'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N', 'OII_3727_Flux_Observed', 'OII_3727_S/N', 'T_e', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')
+        n=  ('bin_ID', 'Detection', 'logR23_Composite', 'logO32_Composite', 'logR23_avg', 'logO32_avg', 'N_stack','OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N', 'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N', 'OII_3727_Flux_Observed', 'OII_3727_S/N', 'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')    #used to be 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')
 
 
          

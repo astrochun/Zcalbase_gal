@@ -169,7 +169,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
     x0 = wave
     scalefact = 1e-17
 
-    ID = asc_tab['ID'].data
+    ID = asc_tab['bin_ID'].data
 
     # Initializing Arrays
     flux_g_array = np.zeros(stack2D.shape[0])
@@ -272,9 +272,9 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
             SN_array[rr] = (flux_s/ini_sig1)
             if line_type == 'Balmer': flux_neg_array[rr] = flux_neg
 
-            N_gal_array[rr] = asc_tab['area'][rr]
-            R_23_array[rr] = asc_tab['xBar'][rr]
-            O_32_array[rr] = asc_tab['yBar'][rr]
+            N_gal_array[rr] = asc_tab['N_stack'][rr]
+            R_23_array[rr] = asc_tab['logR23_avg'][rr]
+            O_32_array[rr] = asc_tab['logO32_avg'][rr]
         
             # Residuals
             if line_type == 'Oxy2': 
@@ -318,7 +318,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
 
             if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid' or dataset =='Double_Bin' or dataset =='n_Bins':
                 if line_type == 'Balmer': 
-                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], ID[rr], R_23_array[rr],O_32_array[rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f'% (o1[2], o1[4], o1[5]) + '\n'
@@ -326,7 +326,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
                 if line_type == 'Single' or line_type =='Oxy2': 
-                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], ID[rr], R_23_array[rr],O_32_array[rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0, o1[2]) + '\n'
                     txt0 += 'F_G: %.3f F_S: %.3f' %(flux_g, flux_s) + '\n'
@@ -334,8 +334,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
 
             else:
                 if line_type =='Balmer':
-                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['R23_value'][rr], asc_tab['O32_value'][rr]) + '\n'
-                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
+                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], ID[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
+                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['logR23_avg'][rr], asc_tab['logO32_avg'][rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += 'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f'% (o1[2], o1[4], o1[5]) + '\n'
@@ -343,8 +343,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
                 if line_type =='Single' or line_type=='Oxy2':
-                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], asc_tab['ID'][rr], asc_tab['R23_value'][rr], asc_tab['O32_value'][rr]) + '\n'
-                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['xBar'][rr], asc_tab['yBar'][rr])
+                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % (o1[0], ID[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
+                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['logR23_avg'][rr], asc_tab['logO32_avg'][rr])
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (ini_sig1, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0,o1[2]) + '\n'
                     txt0 += 'Flux_G: %.3f Flux_S: %.3f' %(flux_g, flux_s) + '\n'

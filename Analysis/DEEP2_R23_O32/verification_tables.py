@@ -28,7 +28,7 @@ def verification_master(fitspath_ini, dataset, combine_flux_ascii):
     #temp_tab = asc.read(temp_table)
     com_flux = asc.read(combine_flux_ascii)
 
-    ver_tab = fitspath_ini+'verification_tables/' + dataset+'verification_tab.tbl'
+    ver_tab = fitspath_ini+'verification_tables/bin_validation.tbl'
 
     ID = com_flux['ID'].data
     raw_OIII4363 = com_flux['OIII_4363_Flux_Observed'].data
@@ -71,7 +71,7 @@ def verification_master(fitspath_ini, dataset, combine_flux_ascii):
    
 
 
-    n =('ID','Detection', 'Observed_Flux_4363', 'S/N_4363')
+    n =('bin_ID','Detection', 'OIII_4363_Flux_Observed', 'OIII_4363_S/N')
     tab1 = Table([ID, indicate, OIII_4363, SN_4363], names=n)
     asc.write(tab1, ver_tab, format='fixed_width_two_line')
 

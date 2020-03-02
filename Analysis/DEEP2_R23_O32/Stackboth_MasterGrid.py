@@ -36,7 +36,7 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
 def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, header, mask= None):
     pdf_pages = PdfPages(fitspath+name) #open pdf document 
 
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3(fitspath)
+    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3(fitspath, individual_detect=False)
 
 
     grid_data = np.load(grid_data_file)  #This is the npz file 
@@ -56,11 +56,13 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
         #print 'reading ', outfile
         stack_2d = fits.getdata(outfile)
  
-    avg_R23 = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as xBar
-    avg_O32 = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as yBar
-    R23_node = np.zeros(len(R23_minimum)*len(O32_minimum))   #Same as R23_minimum
-    O32_node = np.zeros(len(R23_minimum)*len(O32_minimum))   #Same as O32_minimum
-    N_gal = np.zeros(len(R23_minimum)*len(O32_minimum))      #Same as Number_inbin
+    avg_R23  = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as xBar
+    avg_O32  = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as yBar
+    R23_node = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as R23_minimum
+    O32_node = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as O32_minimum
+    R23_med  = np.zeros(len(R23_minimum)*len(O32_minimum))    #median R23 value
+    O32_med  = np.zeros(len(R23_minimum)*len(O32_minimum))    #median O32 value 
+    N_gal    = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as Number_inbin
 
     n_N = R23_minimum.shape[0]
     if dataset == 'n_Bins' or dataset == 'Double_Bin': n_M = R23_minimum.shape[1]
@@ -76,8 +78,10 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
             if len(index) >10:
                 R23_node[count] = R23_minimum[rr,oo] 
                 O32_node[count] = O32_minimum[rr,oo]
-                avg_R23[count]  = np.average(np.log10(R23)[index])
-                avg_O32[count]  = np.average(np.log10(O32)[index])
+                avg_R23[count]  = np.average(R23[index])        #np.log10(R23)
+                avg_O32[count]  = np.average(O32[index]) #(np.log10(O32
+                R23_med[count]  = np.median(R23[index])   #np.log10(R23)
+                O32_med[count]  = np.median(O32[index])
                 N_gal[count] = len(index)
                 subgrid= image2DM[index]
 
@@ -162,11 +166,12 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     fits.writeto(fitspath+outfile, stack_2d[0:count], header, overwrite= True)
 
     #Writing Ascii Tables and Fits Tables
-    out_ascii = fitspath+'/'+dataset+'binning_averages.tbl'
+    out_ascii = fitspath+'/bin_info.tbl'                        #used to be 'binning_averages.tbl'
 
     ID = np.arange(0,len(R23_node), 1, dtype = int)
-    n=  ('ID','xnode', 'ynode', 'xBar', 'yBar', 'area') #for n_split xnode and ynode are the lowest values of the bin while xBar and yBar are the averages
-    tab0 = Table([ID, R23_node, O32_node,avg_R23,avg_O32, N_gal], names=n)
+    n=  ('bin_ID','logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg', 'logR23_med', 'logO32_med', 'N_stack') #for n_split xnode and ynode are the lowest values of the bin while xBar and yBar are the averages
+
+    tab0 = Table([ID, R23_node, O32_node,avg_R23,avg_O32, R23_med, O32_med, N_gal], names=n)
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
 
     fig.clear()    

@@ -76,6 +76,11 @@ k_3727  = k_dict['OII_3727']
 k_4959  = k_dict['OIII_4958']
 k_HBETA = k_dict['HBETA']
 
+#Constants
+a = 13205
+b = 0.92506
+c = 0.98062
+
 def limit_function(combine_flux_ascii):
     
     combine_fits= asc.read(combine_flux_ascii)
@@ -93,7 +98,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
     ###Combine_Flux_ascii table import 
     combine_fits= asc.read(combine_flux_ascii)
-    ID = combine_fits['ID'].data
+    ID = combine_fits['bin_ID'].data
 
 
     #####Verification Table Import#######
@@ -326,15 +331,8 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e,
                       metal_dict['O_s_ion'], metal_dict['O_d_ion'], com_O_log, metal_dict['O_s_ion_log'],
                       metal_dict['O_d_ion_log']], names=n)
-
-
-    
-        
-
-    
-
-    asc.write(tab0, out_ascii, format='fixed_width_two_line')
-
+        asc.write(tab0, out_ascii, format='fixed_width_two_line')
+    print('table written')
     
     tab0.write(out_fits,format = 'fits', overwrite = True)
 

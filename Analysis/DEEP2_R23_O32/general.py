@@ -320,7 +320,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     #Spect_1D = fits.getdata(outfile_grid)
     dispersion = header['CDELT1']
-    binning_avg_asc = fitspath+'/'+dataset+'bin_info.tbl'
+    binning_avg_asc = fitspath+'/bin_info.tbl'
     
     
     lineflag = np.zeros(len(wave))
@@ -382,7 +382,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
             
     ########FIX THIS CODE##########line_ratio_plotting
     #I need to go back through and figure out what is the average and what is the composite
-    line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
+    #line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
 
        
 
@@ -413,7 +413,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     if dataset == 'n_Bins':
         combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-        temp_m_gascii = fitspath+ 'n_Bins_temperatures_metalicity.tbl'
+        temp_m_gascii = fitspath+ 'bin_derived_properties.tbl'
         temp_m_gfits = fitspath+ 'n_Bins_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
         dust_ascii_name = fitspath + 'dust_attentuation_values.tbl'

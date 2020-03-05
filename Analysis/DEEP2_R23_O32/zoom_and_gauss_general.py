@@ -311,7 +311,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
             if y_correction =='':  t_ax.plot(x0,gauss0, 'b', linewidth= 0.25, label= 'Gauss Fit')
 
             t_ax.plot(x0[x_sigsnip_2],resid, 'r', linestyle= 'dashed', linewidth = 0.2, label= 'Residuals')
-            #t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth = 0.1, label = 'Lineflag')
+            t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth = 0.1, label = 'Lineflag')
             #t_ax.legend(bbox_to_anchor=(0.25,0.1), borderaxespad=0, ncol=2, fontsize = 3)
             t_ax.set_xlim(x1+50,x2-50)
  
@@ -351,7 +351,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
             
-            #t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
+            t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right', fontsize= '5')
             for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.1, color= 'k', linestyle = '--')
 
             if col == 0:

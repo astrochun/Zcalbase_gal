@@ -594,6 +594,10 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
 
             O32_median[ii,jj] = np.median(O32_values_perbin)      #These two give the median R23 and O32 value for each bin 
             R23_median[ii,jj] = np.median(R23[N_bin_idx])
+
+            O32_max[ii,jj]= np.max(O32[N_bin_idx])
+            R23_max[ii,jj]= np.max(R23[N_bin_idx])
+            
             #print('O32_median:', O32_median)
             #print('R23_median:', R23_median)
 
@@ -618,6 +622,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
     R23_lowlimit = R23_minimum.reshape(n_split*n_bins) #Used to be R23_grids
     O32_medians = O32_median.reshape(n_split*n_bins)
     R23_medians = R23_median.reshape(n_split*n_bins)
+    R23_maxval = R23_max.reshape(n_split*n_bins)
+    O32_maxval = O32_max.reshape(n_split*n_bins)
     #print 'O32_values', O32_grid
     #print 'R23_values', R23_grid 
         
@@ -661,8 +667,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
 
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
 
-    n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','N_stack')
-    tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,R23_medians, O32_medians, area], names = n1)
+    n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','logR23_max','logO32_max', 'N_stack')
+    tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,R23_medians, O32_medians, R23_maxval, O32_maxval, area], names = n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
     
     fig.clear()

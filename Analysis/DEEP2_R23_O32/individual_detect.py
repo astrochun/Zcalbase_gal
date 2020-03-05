@@ -24,6 +24,10 @@ from datetime import date
 
 from . import general
 
+#import Metallicity_Stack_Commons
+from Metallicity_Stack_Commons import
+#from Metallicity_Stack_Commons.analysis.composite_indv_detect import main
+
 a = 13205
 b = 0.92506
 c = 0.98062
@@ -35,8 +39,12 @@ individual_ascii =  '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_detec
 
 
 def run_ind_detection(fitspath, dataset, average_value_ascii):
+    '''This function runs the function below to create a table with all the galaxies that can be used for individual detections. Each bin then has a table with the individual galaxies/measurements that then gets stacking into one large table. This table can then be passed into R_temp_cal.py to get the individual metallicities and temperatures.
+
+    '''
+
     N_gal_tab = asc.read(average_value_ascii)  #fitspath+dataset+'_Average_R23_O32_Values.tbl'
-    ID = N_gal_tab['ID']
+    ID = N_gal_tab['bin_ID']
     for aa in range(len(ID)):
         print ID[aa]
         ind_detection(fitspath,dataset,ID[aa])
@@ -59,8 +67,8 @@ def ind_detection(fitspath, dataset, bin_id):
     O2 = get_det3_tab['O2']
     O3 = get_det3_tab['O3']
     Hb = get_det3_tab['Hb']
-    N_Galaxies = N_gal_tab['N_Galaxies']
-    temp_bin = stackmeas_tab['Temperature']
+    N_Galaxies = N_gal_tab['N_stack']
+    temp_bin = stackmeas_tab['T_e']
     
     R23 = get_det3_tab['R23']
     O32 = get_det3_tab['O32']
@@ -110,34 +118,23 @@ def individual_galaxy_table_stacking(fitspath,dataset, new_name):
         if ii == 0: vstacking = asc_tab
         else: vstacking = vstack([vstacking,asc_tab])
     asc.write(vstacking,new_name, format='fixed_width_two_line', overwrite = True)
+
+
+
+
+
+def individual_detection_MSC(fitspath, dataset, det3=True):
+    '''
+    Purpose: import all the required files to run composite_indv_detect.main from Metallicity Stack Commons 
+    Out: ascii file: individual_derived_properties.tbl
+    '''
+    composite_file = fitspath +'bin_derived_properties.tbl'
+    indv_em_line_file = fitspath + 'individual_properties.tbl'#file containing emission line information for individual galaxy
+
+    indv_bin_file = fitspath + 'individual_bin_info.tbl' #bin information for each galaxy
+    outfile = fitspath + 'individual_derived_properties.tbl'
+    main(fitspath, dataset, composite_file, indv_em_line_file, indv_bin_file, outfile, det3=True)
     
 
 
 
-
-
-######NOT USING#########
-def ind_metalicity_calculation(T_e,der_3727_HBETA, der_4959_HBETA, der_5007_HBETA, OIII5007, OIII4959, OIII4363, HBETA, OII3727, dustatt = False):
-    #12 +log(O+/H) = log(OII/Hb) +5.961 +1.676/t_2 - 0.4logt_2 - 0.034t_2 + log(1+1.35x)
-    #12 +log(O++/H) = log(OIII/Hb)+6.200+1.251/t_3 - 0.55log(t_3) - 0.014(t_3)
-    #t_2 = 0.7*t_3 +0.17
-
-    if dustatt == False: 
-        two_beta = OII3727/HBETA
-        three_beta= (OIII4959+OIII5007)/HBETA
-    else:
-        two_beta = der_3727_HBETA                    
-        three_beta= der_4959_HBETA+ der_5007_HBETA 
-    t_3 = T_e*1e-4
-    t_2 = 0.7*t_3 +0.17
-    x2 = 1e-4 * 1e3 * t_2**(-0.5)
-
-    O_s_ion_log = np.log10(two_beta) +5.961 +1.676/t_2 - 0.4*np.log10(t_2) - 0.034*t_2 + np.log10(1+1.35*x2)-12
-    O_d_ion_log = np.log10(three_beta)+6.200+1.251/t_3 - 0.55*np.log10(t_3) - 0.014*(t_3)-12
-
-    O_s_ion = 10**(O_s_ion_log)
-    O_d_ion = 10**(O_d_ion_log)
-    com_O = O_s_ion + O_d_ion
-    com_O_log = np.log10(com_O) +12
-
-    return O_s_ion , O_d_ion, com_O_log, O_s_ion_log, O_d_ion_log

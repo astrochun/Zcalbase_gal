@@ -30,10 +30,10 @@ def verification_master(fitspath_ini, dataset, combine_flux_ascii):
 
     ver_tab = fitspath_ini+'verification_tables/bin_validation.tbl'
 
-    ID = com_flux['ID'].data
+    ID = com_flux['bin_ID'].data
     raw_OIII4363 = com_flux['OIII_4363_Flux_Observed'].data
     SN_4363 = com_flux['OIII_4363_S/N'].data
-    N_Galaxy = com_flux['N_Galaxies'].data
+    N_Galaxy = com_flux['N_stack'].data
     Hgamma_SN    = com_flux['HGAMMA_S/N'].data
     Hgamma = com_flux['HGAMMA_Flux_Observed'].data
 

@@ -389,14 +389,14 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion,
     if line_type == 'Single': 
         n=  ('Flux_Gaussian', 'Flux_Observed', 'S/N','Sigma', 'Median', 'Norm', 'RMS',  'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const')
         n = tuple([line_name + '_' + val for val in n])
-        tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array], names=n)
+        tab0 = Table([flux_g_array, flux_s_array,SN_array,sigma_array,median_array,norm_array,RMS_array,  xbar_array, sig1_array, pos_amp_array, const_array], names=n)
         asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
 
     if line_type == 'Balmer' or line_type == 'Oxy2': 
          n=  ('Flux_Gaussian', 'Flux_Observed', 'S/N','Sigma', 'Median', 'Norm', 'RMS', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
          n = tuple([line_name + '_' + val for val in n])
-         tab0 = Table([flux_g_array, flux_s_array,sigma_array,median_array,norm_array,RMS_array, SN_array, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)
+         tab0 = Table([flux_g_array, flux_s_array, SN_array,sigma_array,median_array,norm_array,RMS_array, xbar_array, sig1_array, pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)
     
          if line_type == 'Balmer':
              print('Adding an Equ_Width Column')

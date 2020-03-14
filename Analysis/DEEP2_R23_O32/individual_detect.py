@@ -24,9 +24,7 @@ from datetime import date
 
 from . import general
 
-#import Metallicity_Stack_Commons
-from Metallicity_Stack_Commons import
-#from Metallicity_Stack_Commons.analysis.composite_indv_detect import main
+from Metallicity_Stack_Commons.analysis.composite_indv_detect import main
 
 a = 13205
 b = 0.92506
@@ -123,18 +121,78 @@ def individual_galaxy_table_stacking(fitspath,dataset, new_name):
 
 
 
-def individual_detection_MSC(fitspath, dataset, det3=True):
+def individual_detection_MSC(fitspath, dataset, out_pdf, det3=True, graphs=False):
     '''
     Purpose: import all the required files to run composite_indv_detect.main from Metallicity Stack Commons 
     Out: ascii file: individual_derived_properties.tbl
     '''
-    composite_file = fitspath +'bin_derived_properties.tbl'
-    indv_em_line_file = fitspath + 'individual_properties.tbl'#file containing emission line information for individual galaxy
+    composite_file = fitspath + 'bin_derived_properties.tbl'
+    indv_em_line_file = 'individual_properties.tbl' #file containing emission line information for individual galaxy
 
-    indv_bin_file = fitspath + 'individual_bin_info.tbl' #bin information for each galaxy
+    indv_bin_file =  'individual_bin_info.tbl' #bin information for each galaxy
     outfile = fitspath + 'individual_derived_properties.tbl'
     main(fitspath, dataset, composite_file, indv_em_line_file, indv_bin_file, outfile, det3=True)
-    
 
+    indv_derived = asc.read(outfile)
+    if graphs == True:
+        ID = indv_derived['ID']
+        Te = indv_derived['T_e']
+        com_log = indv_derived['12+log(O/H)']
+        logR23 = indv_derived['logR23']
+        logO32 = indv_derived['logO32']
+        print('com_log:', com_log)
 
+        com_nan = np.isnan(com_log)
+        idx = np.where((com_nan ==False))[0]
 
+        ID_idv  = ID[idx]
+        Te_idv  = Te[idx]
+        com_idv = com_log[idx]
+        R23_idv = logR23[idx]
+        O32_idv = logO32[idx]
+
+        pdf_pages = PdfPages(fitspath+out_pdf)
+
+        fig, ax = plt.subplots()
+        ax.scatter(R23_idv, O32_idv)
+        ax.set_title(r'$R_{23}$ vs. $O_{32}$')
+        ax.set_xlabel(r'log($R_{23}$)')
+        ax.set_ylabel(r'log($O_{32}$)')
+        fig.savefig(pdf_pages, format ='pdf')
+        fig.clear()
+
+        '''fig1,ax1 = plt.subplots()
+        ax1.scatter(R23_idv, Te_idv)
+        ax1.set_title(r'$R_{23}$ vs. $T_e$')
+        ax1.set_xlabel(r'log($R_{23}$)')
+        ax1.set_ylabel('T_e')
+        fig1.savefig(pdf_pages, format ='pdf')
+        fig1.clear()
+
+        fig2,ax2 = plt.subplots()
+        ax2.scatter(O32_idv, Te_idv)
+        ax2.set_title(r'$O_{32}$ vs. $T_e$')
+        ax2.set_xlabel(r'log($R_{23}$)')
+        ax2.set_ylabel('T_e')
+        fig2.savefig(pdf_pages, format ='pdf')
+        fig2.clear()'''
+
+        fig3,ax3 = plt.subplots()
+        ax3.scatter(R23_idv, com_idv)
+        ax3.set_title(r'$R_{23}$ vs. $12+log(O/H)$')
+        ax3.set_xlabel(r'log($R_{23}$)')
+        ax3.set_ylabel('12+log(O/H)')
+        fig3.savefig(pdf_pages, format ='pdf')
+        fig3.clear()
+
+        fig4,ax4 = plt.subplots()
+        ax4.scatter(O32_idv, com_idv)
+        ax4.set_title(r'$O_{32}$ vs. $12+log(O/H)$')
+        ax4.set_xlabel(r'log($O_{32}$)')
+        ax4.set_ylabel('12+log(O/H)')
+        fig4.savefig(pdf_pages, format ='pdf')
+        fig4.clear()
+        
+        
+        pdf_pages.close()
+        

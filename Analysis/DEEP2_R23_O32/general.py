@@ -95,6 +95,9 @@ def get_det3(fitspath, individual_detect=False):
 
     R23 = R23_ini[det3]
     O32 = O32_ini[det3]
+    lR23 = lR23_ini[det3]
+    lO32 = lO32_ini[det3]
+    
     Hb  = Hb_ini[det3]
     O2  = O2_ini[det3]
     O3  = O3_ini[det3]
@@ -111,14 +114,14 @@ def get_det3(fitspath, individual_detect=False):
 
     
 
-    n2= ('ID','logR23','logO32','O2_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
-         'O4363_Flux_Gaussian','O4959_Flux_Gaussian','O5007_Flux_Gaussian','Hb_Flux_Gaussian',
-         'O2_S/N', 'O3_S/N', 'RH_S/N', 'HGAMMA_S/N', 'O4363_S/N')
-    tab1 = Table([individual_names, R23, O32, O2, O3, Hgamma, O4363, O4959, O5007,
+    n2= ('ID','logR23','logO32','OII_3727_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
+         'OIII_4363_Flux_Gaussian','OIII_4959_Flux_Gaussian','OIII_5007_Flux_Gaussian',
+         'HBETA_Flux_Gaussian', 'O2_S/N', 'O3_S/N', 'RH_S/N', 'HGAMMA_S/N', 'O4363_S/N')
+    tab1 = Table([individual_names, lR23, lO32, O2, O3, Hgamma, O4363, O4959, O5007,
                   Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
-    asc.write(tab1, fitspath+'individual_properites', format='fixed_width_two_line')  #used to be get_det3_table.tbl
+    asc.write(tab1, fitspath+'individual_properties.tbl', format='fixed_width_two_line')  #used to be get_det3_table.tbl
     #tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
     
 

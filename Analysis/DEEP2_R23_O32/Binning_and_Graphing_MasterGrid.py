@@ -514,6 +514,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
     R23_minimum    = np.zeros((n_bins,n_split))      #Used to be R23_grid
     O32_median = np.zeros((n_bins,n_split))
     R23_median = np.zeros((n_bins,n_split))
+    O32_max    = np.zeros((n_bins,n_split))
+    R23_max    = np.zeros((n_bins,n_split))
     xBar  = np.zeros(n_split*n_bins)
     yBar  = np.zeros(n_split*n_bins)
     area  = np.zeros(n_split*n_bins)

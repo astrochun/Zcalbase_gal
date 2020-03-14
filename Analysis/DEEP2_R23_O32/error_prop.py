@@ -51,7 +51,7 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
     TM_tab = asc.read(TM_file)
     verify = asc.read(verification_tab)
     detect = verify['Detection']
-    ID = verify['ID']
+    ID = verify['bin_ID']
     detection = np.where((detect==1))[0]
     ID_detect = ID[detection]
     print (ID_detect)
@@ -77,11 +77,11 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
 
     
     Temp          = TM['Temperature'].data
-    com_O_log     = TM['com_O_log'].data
-    O_s_ion       = TM['O_s_ion'].data
-    O_d_ion       = TM['O_d_ion'].data
-    log_O_s       = TM['log_O_s'].data
-    log_O_d       = TM['log_O_d'].data
+    com_O_log     = TM['12+log(O/H)'].data
+    O_s_ion       = TM['O+/H'].data
+    O_d_ion       = TM['O++/H'].data
+    log_O_s       = TM['log(O+/H)'].data
+    log_O_d       = TM['log(O++/H)'].data
       
     #################Starting Error Calculations#################################################
     line_names = ['OII_3727', 'HBETA', 'HDELTA', 'HGAMMA', 'OIII_4363', 'OIII_4958', 'OIII_5007']

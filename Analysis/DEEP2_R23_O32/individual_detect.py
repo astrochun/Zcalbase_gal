@@ -121,7 +121,7 @@ def individual_galaxy_table_stacking(fitspath,dataset, new_name):
 
 
 
-def individual_detection_MSC(fitspath, dataset, out_pdf, det3=True, graphs=False):
+def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=True, graphs=False):
     '''
     Purpose: import all the required files to run composite_indv_detect.main from Metallicity Stack Commons 
     Out: ascii file: individual_derived_properties.tbl
@@ -131,7 +131,8 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, det3=True, graphs=False
 
     indv_bin_file =  'individual_bin_info.tbl' #bin information for each galaxy
     outfile = fitspath + 'individual_derived_properties.tbl'
-    main(fitspath, dataset, composite_file, indv_em_line_file, indv_bin_file, outfile, det3=True)
+    #main(fitspath, dataset, composite_file, indv_em_line_file, indv_bin_file, outfile, det3=True)
+    main(fitspath, dataset, revised, det3= True)
 
     indv_derived = asc.read(outfile)
     if graphs == True:

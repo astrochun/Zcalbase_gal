@@ -339,12 +339,14 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     #Plots
     
     ###Getting the the upper/lower limits for the metallicity and temperatures###
-    metallicity_npz = np.load(fitspath_ini +'Error_propagation/metal_errors.npz')
+    #metallicity_npz = np.load(fitspath_ini +'Error_propagation/metal_errors.npz')
+    metallicity_npz = np.load(fitspath+'/metal_errors.npz')
     npz_comOlog = metallicity_npz['com_O_log_lowhigh_error']
     metal_error = np.transpose(npz_comOlog)
     print("metal_error:", metal_error)
 
-    npz_te_err = np.load(fitspath_ini + 'Error_propagation/Te_errors.npz')
+    #npz_te_err = np.load(fitspath_ini + 'Error_propagation/Te_errors.npz')
+    npz_te_err = np.load(fitspath+ '/Te_errors.npz')
     npz_te = npz_te_err['Te_lowhigh_error']
     Te_error = np.transpose(npz_te)
 

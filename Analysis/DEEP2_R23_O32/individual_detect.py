@@ -22,11 +22,10 @@ import scipy.integrate as integ
 import glob
 from datetime import date
 
-from . import general
+#from . import general
 
-#import Metallicity_Stack_Commons
-from Metallicity_Stack_Commons import
-#from Metallicity_Stack_Commons.analysis.composite_indv_detect import main
+import Metallicity_Stack_Commons
+
 
 a = 13205
 b = 0.92506

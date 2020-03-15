@@ -76,7 +76,7 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
     Hbeta_RMS     = combine_flux['HBETA_RMS'].data
 
     
-    Temp          = TM['Temperature'].data
+    Temp          = TM['T_e'].data
     com_O_log     = TM['12+log(O/H)'].data
     O_s_ion       = TM['O+/H'].data
     O_d_ion       = TM['O++/H'].data
@@ -129,7 +129,7 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
     Te_xpeaks = {}
     Te_lowhigh = {}
     #changed parameters for R_calculation --> got rid of 4959
-    R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363_pdf'], flux_propdist_dict['OIII_5007_pdf'], EBV, k_4363, k_5007)
+    R_propdist = R_temp_calcul.R_calculation(flux_propdist_dict['OIII_4363_pdf'], flux_propdist_dict['OIII_5007_pdf'], EBV)
 
     Te_propdist = R_temp_calcul.temp_calculation(R_propdist)
     err_te, xpeak_te = compute_onesig_pdf(Te_propdist, Temp, usepeak=True, silent=True, verbose = True)
@@ -144,16 +144,19 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
 
     #Edit TM_File to add temperature errors
     TM_new_name = TM_file.replace('.tbl','revised.tbl')
-    TM_tab['Temperature'][detection] = xpeak_te 
+    TM_tab['T_e'][detection] = xpeak_te 
     #err_tT = err_te.transpose()
     #c1 = Column(err_tT[0], name='Temperature_Low_Error')
     #c2 = Column(err_tT[1], name='Temperature_High_Error')
     #TM_tab.add_columns([c1, c2], indexes=[18,18])
     
     
-    O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metallicity_calculation(Te_propdist, two_beta, three_beta)
+    #O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist = R_temp_calcul.metallicity_calculation(Te_propdist, two_beta, three_beta)
+    #metallicity_propdist_dict = {'O_s_ion_pdf': O_s_ion_propdist, 'O_d_ion_pdf': O_d_ion_propdist , 'com_O_log_pdf': com_O_log_propdist, 'O_s_ion_log_pdf': O_s_ion_log_propdist , 'O_d_ion_log_pdf':  O_d_ion_log_propdist}
 
-    metallicity_propdist_dict = {'O_s_ion_pdf': O_s_ion_propdist, 'O_d_ion_pdf': O_d_ion_propdist , 'com_O_log_pdf': com_O_log_propdist, 'O_s_ion_log_pdf': O_s_ion_log_propdist , 'O_d_ion_log_pdf':  O_d_ion_log_propdist}
+    com_O_log_propdist, metal_dict = R_temp_calcul.metallicity_calculation(Te_propdist, two_beta, three_beta)
+    metallicity_propdist_dict = {'O_s_ion_pdf': metal_dict['O_s_ion'], 'O_d_ion_pdf': metal_dict['O_d_ion'] , 'com_O_log_pdf': com_O_log_propdist, 'O_s_ion_log_pdf': metal_dict['O_s_ion_log'], 'O_d_ion_log_pdf':  metal_dict['O_d_ion_log']}
+    
     
     metal_error = {}
     metal_xpeak = {}
@@ -164,10 +167,13 @@ def error_prop_chuncodes(path, flux_file, TM_file, verification_tab):
     metal_str = ['O_s_ion_pdf' , 'O_d_ion_pdf', 'com_O_log_pdf', 'O_s_ion_log_pdf', 'O_d_ion_log_pdf']
     metal_err = ['O_s_ion_lowhigh_error' , 'O_d_ion_lowhigh_error', 'com_O_log_lowhigh_error', 'O_s_ion_log_lowhigh_error', 'O_d_ion_log_lowhigh_error']
     xpeak_key = ['O_s_ion_xpeak','O_d_ion_xpeak', 'com_O_log_xpeak', 'O_s_ion_log_xpeak', 'O_d_ion_log_xpeak']
-    metallicity_names =[O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist]
+
+    #metallicity_names =[O_s_ion_propdist , O_d_ion_propdist, com_O_log_propdist, O_s_ion_log_propdist, O_d_ion_log_propdist]
+    metallicity_names= [metal_dict['O_s_ion'], metal_dict['O_d_ion'] ,  com_O_log_propdist, metal_dict['O_s_ion_log'], metal_dict['O_d_ion_log']]
     
     combined_metallicity = [O_s_ion , O_d_ion, com_O_log, log_O_s, log_O_d]
-    metal_names = ['O_s_ion' , 'O_d_ion', 'com_O_log', 'log_O_s', 'log_O_d']
+    #metal_names = ['O_s_ion' , 'O_d_ion', 'com_O_log', 'log_O_s', 'log_O_d']
+    metal_names = ['O+/H' , 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)']
     for ii in range(len(metallicity_names)):
         err_metal, xpeak_metal = compute_onesig_pdf(metallicity_names[ii], combined_metallicity[ii], usepeak=True, silent=True, verbose = True)
         

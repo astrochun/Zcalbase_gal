@@ -485,7 +485,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
 
 
-def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,logO32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
+def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
     dataset = 'n_Bins'
     ##R23 and O32 are going to be log values --> check to make sure that this doesn't affect the binning
     #One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins 
@@ -494,9 +494,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
 
     #One_dimensional binning for R23 
 
-    #log10(R23) = number we have R23 => R23 = 10^(logR23)
-    R23 = 10**(logR23)
-    O32 = 10**(logO32)
+    #R23 = 10**(logR23)
+    #O32 = 10**(logO32)
     sortR23 = np.argsort(R23)
     R23_sort0 = R23[sortR23]
 
@@ -676,7 +675,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, logR23,
     fig.clear()
 
     n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID')
-    tab2= Table([R23, O32, SNR3, Bin_number, individual_ID], names=n2)
+    tab2= Table([logR23, logO32, SNR3, Bin_number, individual_ID], names=n2)
     asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line') #used to be + dataset+'_2d_binning_datadet3.tbl
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')

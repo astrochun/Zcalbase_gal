@@ -132,7 +132,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
     indv_bin_file =  'individual_bin_info.tbl' #bin information for each galaxy
     outfile = fitspath + 'individual_derived_properties.tbl'
     #main(fitspath, dataset, composite_file, indv_em_line_file, indv_bin_file, outfile, det3=True)
-    main(fitspath, dataset, revised, det3= True)
+    main(fitspath, dataset, revised= False, det3= True)
 
     indv_derived = asc.read(outfile)
     if graphs == True:

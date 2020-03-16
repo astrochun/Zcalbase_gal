@@ -38,8 +38,8 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     OIII4959 = fitted_data['OIII_4958_Flux_Observed']
     OIII5007 = fitted_data['OIII_5007_Flux_Observed']
     H_BETA = fitted_data['HBETA_Flux_Observed']
-    binnum = fitted_data['N_Galaxies']
-    ID = fitted_data['ID']
+    binnum = fitted_data['N_stack']
+    ID = fitted_data['bin_ID']
     print 'binnum:', binnum, len(binnum)
     pdf_pages = PdfPages(line_plot)
     nrows = 4
@@ -54,9 +54,9 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
         R23_composite[ii]= R23_comp
         O32_composite[ii]= O32_comp
     
-    R23_raw = raw_data['xBar']
-    O32_raw = raw_data['yBar']
-    binnum_raw = raw_data['area']
+    R23_raw = raw_data['logR23_avg']
+    O32_raw = raw_data['logO32_avg']
+    binnum_raw = raw_data['N_stack']
 
     if dataset != 'Grid':
         for rr in range(len(binnum)):

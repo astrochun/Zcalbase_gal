@@ -76,6 +76,11 @@ k_3727  = k_dict['OII_3727']
 k_4959  = k_dict['OIII_4958']
 k_HBETA = k_dict['HBETA']
 
+#Constants
+a = 13205
+b = 0.92506
+c = 0.98062
+
 def limit_function(combine_flux_ascii):
     
     combine_fits= asc.read(combine_flux_ascii)
@@ -93,7 +98,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
     ###Combine_Flux_ascii table import 
     combine_fits= asc.read(combine_flux_ascii)
-    ID = combine_fits['ID'].data
+    ID = combine_fits['bin_ID'].data
 
 
     #####Verification Table Import#######
@@ -190,7 +195,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         com_O_log, metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 
         
-        n=  ('Source_ID', 'R23', 'O32', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Flux_4363','Observed_Flux_HBETA','Temperature', 'Detection','O_s_ion', 'O_d_ion', 'com_O_log','log_O_s', 'log_O_d' )
+        n=  ('ID', 'logR23', 'logO32', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Flux_4363','Observed_Flux_HBETA','Temperature', 'Detection','O_s_ion', 'O_d_ion', 'com_O_log','log_O_s', 'log_O_d' )
         
         tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, OIII4363, HBETA,
                       T_e, Detection, metal_dict['O_s_ion'], metal_dict['O_d_ion'], com_O_log, metal_dict['O_s_ion_log'],
@@ -226,7 +231,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         
         n=  ('Source_ID', 'Mass', 'LHbeta', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Observed_Flux_HBETA', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s', 'log_O_d')
         
-        tab0 = Table([Source_ID, Mass, LHbeta, OIII5007, OIII4959, HBETA, T_e,
+        tab0 = Table([ID, Mass, LHbeta, OIII5007, OIII4959, HBETA, T_e,
                       metal_dict['O_s_ion'], metal_dict['O_d_ion'], com_O_log, metal_dict['O_s_ion_log'],
                       metal_dict['O_d_ion_log']], names=n)
 
@@ -245,10 +250,10 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         Hgamma       = combine_fits['HGAMMA_Flux_Observed'].data
         HBETA        = combine_fits['HBETA_Flux_Observed'].data
         OII3727      = combine_fits['OII_3727_Flux_Observed'].data
-        R23_avg      = combine_fits['R_23_Average'].data
-        O32_avg      = combine_fits['O_32_Average'].data
-        N_Galaxy     = combine_fits['N_Galaxies'].data
-        ID           = combine_fits['ID'].data
+        R23_avg      = combine_fits['logR23_avg'].data
+        O32_avg      = combine_fits['logO32_avg'].data
+        N_Galaxy     = combine_fits['N_stack'].data
+        ID           = combine_fits['bin_ID'].data
 
         SN_Hgamma    = combine_fits['HGAMMA_S/N'].data
         SN_5007      = combine_fits['OIII_5007_S/N'].data
@@ -313,7 +318,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
 
 
-        n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')
+        n=  ('bin_ID', 'Detection', 'logR23_Composite', 'logO32_Composite', 'logR23_avg', 'logO32_avg', 'N_stack','OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N', 'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N', 'OII_3727_Flux_Observed', 'OII_3727_S/N', 'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')    #used to be 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')
 
 
          
@@ -323,31 +328,25 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
 
 
-        tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007,
-                      OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e,
-                      metal_dict['O_s_ion'], metal_dict['O_d_ion'], com_O_log, metal_dict['O_s_ion_log'],
-                      metal_dict['O_d_ion_log']], names=n)
-
-
-    
-        
-
-    
-
-    asc.write(tab0, out_ascii, format='fixed_width_two_line')
-
+        tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e,
+                      metal_dict['O+/H'], metal_dict['O++/H'], com_O_log, metal_dict['log(O+/H)'],
+                      metal_dict['log(O++/H)']], names=n)
+        asc.write(tab0, out_ascii, format='fixed_width_two_line')
+    print('table written')
     
     tab0.write(out_fits,format = 'fits', overwrite = True)
 
     #Plots
     
     ###Getting the the upper/lower limits for the metallicity and temperatures###
-    metallicity_npz = np.load(fitspath_ini +'Error_propagation/metal_errors.npz')
+    #metallicity_npz = np.load(fitspath_ini +'Error_propagation/metal_errors.npz')
+    metallicity_npz = np.load(fitspath+'/metal_errors.npz')
     npz_comOlog = metallicity_npz['com_O_log_lowhigh_error']
     metal_error = np.transpose(npz_comOlog)
     print("metal_error:", metal_error)
 
-    npz_te_err = np.load(fitspath_ini + 'Error_propagation/Te_errors.npz')
+    #npz_te_err = np.load(fitspath_ini + 'Error_propagation/Te_errors.npz')
+    npz_te_err = np.load(fitspath+ '/Te_errors.npz')
     npz_te = npz_te_err['Te_lowhigh_error']
     Te_error = np.transpose(npz_te)
 

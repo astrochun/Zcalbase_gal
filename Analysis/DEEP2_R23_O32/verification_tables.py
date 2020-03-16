@@ -76,6 +76,21 @@ def verification_master(fitspath_ini, dataset, combine_flux_ascii):
     asc.write(tab1, ver_tab, format='fixed_width_two_line')
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 ###Not Being Used/Notes
 ###Equivalent Width correction
 '''bottom side of the iceburg / continum 

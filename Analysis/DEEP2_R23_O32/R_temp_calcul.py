@@ -329,8 +329,8 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
 
         tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e,
-                      metal_dict['O_s_ion'], metal_dict['O_d_ion'], com_O_log, metal_dict['O_s_ion_log'],
-                      metal_dict['O_d_ion_log']], names=n)
+                      metal_dict['O+/H'], metal_dict['O++/H'], com_O_log, metal_dict['log(O+/H)'],
+                      metal_dict['log(O++/H)']], names=n)
         asc.write(tab0, out_ascii, format='fixed_width_two_line')
     print('table written')
     

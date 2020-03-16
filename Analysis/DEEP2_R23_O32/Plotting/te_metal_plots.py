@@ -27,25 +27,30 @@ def plotting_te_metal(fitspath, out_pdf):
     
     indv_measurements = fitspath + 'individual_derived_properties.tbl'
     composite_file = fitspath + 'bin_derived_properties.tbl'
+    indv_all_file = fitspath +'individual_bin_info.tbl'
 
     #Individual Measurements
     indv_derived = asc.read(indv_measurements)
     comp_derived = asc.read(composite_file)
+    indv_all = asc.read(indv_all_file)
     
     iID = indv_derived['ID']
     iTe = indv_derived['T_e']
     icom_log = indv_derived['12+log(O/H)']
-    ilogR23 = indv_derived['logR23']
-    ilogO32 = indv_derived['logO32']
+    ilogR23 = indv_all['logR23']
+    ilogO32 = indv_all['logO32']
+    print(ilogR23)
     
-    icom_nan = np.isnan(icom_log)
-    iidx = np.where((icom_nan ==False))[0]
+    #icom_nan = np.isnan(icom_log)
+    iidx = np.where((icom_log != 0.0))[0]
 
     iID_idv  = iID[iidx]
     iTe_idv  = iTe[iidx]
     icom_idv = icom_log[iidx]
-    iR23_idv = ilogR23[iidx]
-    iO32_idv = ilogO32[iidx]
+    iiR23_idv = ilogR23[iidx]
+    iiO32_idv = ilogO32[iidx]
+    iR23_idv = np.log10(iiR23_idv)
+    iO32_idv = np.log10(iiO32_idv)
     print("len:", len(iR23_idv))
     
     

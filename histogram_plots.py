@@ -75,6 +75,7 @@ from collections import OrderedDict
 from datetime import date
 
 from chun_codes import compute_onesig_pdf
+from Metallicity_Stack_Commons.column_names import temp_metal_names0, bin_names0
 
 
 def histogram(path, data_all,table_path, pdf_name,  verification_table, table_key='', sharex = False):
@@ -84,30 +85,30 @@ def histogram(path, data_all,table_path, pdf_name,  verification_table, table_ke
 
     #Importing verification table that is always used to get the values for just the detections 
     verify = asc.read(verification_table)
-    detect = verify['Detection']
-    ID = verify['ID']
+    detect = verify[bin_names0[2]]
+    ID = verify[bin_names0[0]]
     detection = np.where((detect==1))[0]
     ID_detect = ID[detection]
     print(ID_detect)
 
     #Importing calculated values from our stacked measures  
     #For plotting Temperature and Metallicity Histograms
-    if table_key == 'Temperature':
+    if table_key == 'T_e':
         #ID = tab1['ID']
         
-        calculated_com = tab1['com_O_log']
-        calculated_Te = tab1 ['Temperature']
-        calculated_single = tab1['O_s_ion']
-        calculated_double = tab1['O_d_ion']
-        calculated_logs = tab1['log_O_s']
-        calculated_logd = tab1['log_O_d']
+        calculated_com = tab1[temp_metal_names0[1]]
+        calculated_Te = tab1 [temp_metal_names0[0]]
+        calculated_single = tab1[temp_metal_names0[4]]
+        calculated_double = tab1[temp_metal_names0[5]]
+        calculated_logs = tab1[temp_metal_names0[2]]
+        calculated_logd = tab1[temp_metal_names0[3]]
         
 
         
        
             
     #For plotting Flux Ratio Histograms 
-    if table_key == 'ID':
+    if table_key == 'bin_ID':
         O5007 = tab1['OIII_5007_Flux_Observed']
         O4363 = tab1 ['OIII_4363_Flux_Observed']
         O4959 = tab1['OIII_4958_Flux_Observed']
@@ -264,7 +265,7 @@ def run_histogram_TM(path, table_path, dict_list, verification_table, sharex = F
 
     today = date.today()
     pdf_name = 'Te_M_histogram_plots_' + "%02i%02i" % (today.month, today.day)+'.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key = 'Temperature', sharex = sharex)
+    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key = 'T_e', sharex = sharex)
 
 
 
@@ -350,6 +351,6 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex = F
 
     today = date.today()
     pdf_name = 'Flux_Ratio histogram_plots_' + "%02i%02i" % (today.month, today.day)+'.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key = 'ID', sharex = sharex)
+    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key = 'bin_ID', sharex = sharex)
 
 

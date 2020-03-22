@@ -20,8 +20,6 @@ from Metallicity_Stack_Commons.fitting import gauss, double_gauss, oxy2_gauss
 from Metallicity_Stack_Commons.fitting import movingaverage_box1D, rms_func
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 
-RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
-
 '''
 Debugging Note:
    If 'x0' is infeasible error occurs, check the para_bound values to

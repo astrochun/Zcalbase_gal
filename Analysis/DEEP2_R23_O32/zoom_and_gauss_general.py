@@ -420,25 +420,26 @@ def zm_general(dataset, fitspath, stack2D, header, wave, lineflag, dispersion, y
         if line_type[ii] == 'Single':
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave,lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2,
+                            wave, lambda0[ii], lambda0, lineflag,
+                            y_correction=y_correction, line_type=line_type[ii],
+                            outpdf=outpdf, line_name=line_name[ii])
 
         #Balmer Line Fit  
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction=y_correction, line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2,
+                            wave, lambda0[ii], lambda0, lineflag,
+                            y_correction=y_correction, line_type=line_type[ii],
+                            outpdf=outpdf, line_name=line_name[ii])
 
          
         #Oxy2 Line Fit     
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2D, header, dispersion,  s,a,c,s1,a1,s2,a2, wave, lambda0[ii], lambda0, lineflag, y_correction='', line_type= line_type[ii], outpdf=outpdf, line_name=line_name[ii])
-
-            
-
-
-
-
-
-
+            zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2,
+                            wave, lambda0[ii], lambda0, lineflag,
+                            y_correction='', line_type=line_type[ii],
+                            outpdf=outpdf, line_name=line_name[ii])

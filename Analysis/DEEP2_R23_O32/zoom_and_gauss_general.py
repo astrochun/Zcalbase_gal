@@ -31,10 +31,10 @@ Debugging Note:
 def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr):
 
-    # New plots for lineflagging
+    # New plots for line flagging
 
     out_pdf = '%s/%s_lineflag_check_%s.pdf' % (fitspath, dataset, line_name0)
-    pdfpages2 = PdfPages(out_pdf)
+    pdf_pages2 = PdfPages(out_pdf)
 
     t_ax2 = ax_arr[row, col]
     t_ax2.plot(wave, y_norm, 'k', linewidth=0.4, label='Emission')
@@ -42,8 +42,8 @@ def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
     t_ax2.plot(wave, lineflag, 'g', linestyle='dashed', label='Lineflag')
 
     fig.set_size_inches(8, 8)
-    fig.savefig(pdfpages2, format='pdf')
-    pdfpages2.close()
+    fig.savefig(pdf_pages2, format='pdf')
+    pdf_pages2.close()
     
 
 def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, RMS, line_type0):

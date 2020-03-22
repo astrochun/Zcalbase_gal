@@ -210,7 +210,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
                                                y0, y_norm, x_idx, RMS_ang,
                                                line_type)
 
-        if y_correction == 'y_smooth'
+        if y_correction == 'y_smooth':
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave,x0, y0,
                                               y_smooth, x_idx, RMS_ang,
                                               line_type)

@@ -27,9 +27,11 @@ fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 
 def LAC_GPC_plots(fitspath, dataset,temp_tab):
-
+    
+    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+    
     temp_table= asc.read(temp_tab)
-    SN_4363 = temp_table['S/N_4363']
+    SN_4363 = temp_table['OIII_4363_S/N']
     det_4363 = np.where((SN_4363>=3))[0]
     nan_det_4363 = np.where((SN_4363<3))[0]
     print 'Begin Local analog Calibration'
@@ -53,12 +55,12 @@ def LAC_GPC_plots(fitspath, dataset,temp_tab):
     der_O32_MACT = np.log10(er_O32_MACT)
     der_OH_MACT = derived_MACT['OH'].data
     
-    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
     
-    O32_all = temp_table['O32_Composite']
-    R23_all = temp_table['R23_Composite']
-    com_O_log = temp_table['com_O_log']  #This is the 12+log(OH) value
-    ID = temp_table['ID']
+    
+    O32_all = temp_table['logO32_Composite']
+    R23_all = temp_table['logR23_Composite']
+    com_O_log = temp_table['12+log(O/H)']  #This is the 12+log(OH) value
+    ID = temp_table['bin_ID']
     #print O32_all
     
     det_O32 = O32_all[det_4363]
@@ -93,6 +95,13 @@ def LAC_GPC_plots(fitspath, dataset,temp_tab):
 
         local_analog_calibration.main(lR23, lO32, OH, out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
 
+    if dataset == 'n_Bins':
+        lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+
+        #local_analog_calibration.main(lR23, lO32, OH, out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
+        print('finished LAC plot') 
 
 
     
@@ -107,7 +116,9 @@ def LAC_GPC_plots(fitspath, dataset,temp_tab):
     else: 
         lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
         lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
+        print('lO32:', lO32)
         OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
 
+        
     green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['D','X','3','4'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], fit=False, silent=False, verbose=True)
     # marker=['.','*','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT']

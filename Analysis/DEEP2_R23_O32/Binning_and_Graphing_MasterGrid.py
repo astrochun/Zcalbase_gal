@@ -675,7 +675,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     fig.clear()
 
     n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID')
-    tab2= Table([logR23, logO32, SNR3, Bin_number, individual_ID], names=n2)
+    tab2= Table([R23, O32, SNR3, Bin_number, individual_ID], names=n2)
     asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line') #used to be + dataset+'_2d_binning_datadet3.tbl
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')

@@ -625,8 +625,28 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     R23_medians = R23_median.reshape(n_split*n_bins)
     R23_maxval = R23_max.reshape(n_split*n_bins)
     O32_maxval = O32_max.reshape(n_split*n_bins)
-    #print 'O32_values', O32_grid
-    #print 'R23_values', R23_grid 
+
+    R23_minall = np.zeros(len(R23))
+    O32_minall = np.zeros(len(R23))
+    R23_avgall = np.zeros(len(R23))
+    O32_avgall = np.zeros(len(R23))
+    R23_medall = np.zeros(len(R23))
+    O32_medall = np.zeros(len(R23))
+    R23_maxall = np.zeros(len(R23))
+    O32_maxall = np.zeros(len(R23))
+    for ii in range(len(R23_max_val)):
+        sorting_idx = np.where((n_bins_range[ii]==ii))[0]
+        print(sorting_idx)
+        R23_minall[sorting_idx] = R23_lowlimit[ii]
+        O32_minall[sorting_idx] = O32_lowlimit[ii]
+        R23_avgall[sorting_idx] = xBar[ii]
+        O32_avgall[sorting_idx] = yBar[ii]
+        R23_medall[sorting_idx] = R23_medians[ii]
+        O32_medall[sorting_idx] = O32_medians[ii]
+        R23_maxall[sorting_idx] = R23_maxval[ii]
+        O32_maxall[sorting_idx] = O32_maxval[ii] 
+        
+    
         
     #Plotting
     fig, ax = plt.subplots()
@@ -674,7 +694,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     
     fig.clear()
 
-    n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID')
+    n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID', 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','logR23_max','logO32_max')
     tab2= Table([R23, O32, SNR3, Bin_number, individual_ID], names=n2)
     asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line') #used to be + dataset+'_2d_binning_datadet3.tbl
 

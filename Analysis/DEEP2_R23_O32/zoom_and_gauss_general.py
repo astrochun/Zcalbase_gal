@@ -202,15 +202,15 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
         y_smooth = movingaverage_box1D(y_norm, 4, boundary='extend')
 
-        RMS_ang = rms_func(wave, dispersion, lineflag, working_wave, y0, scalefact, 0)
+        RMS_ang = rms_func(wave, dispersion, working_wave, y_norm, 0, lineflag)
 
         if y_correction == '':
             o1, med0, max0  = get_gaussian_fit(dataset, s2, working_wave, x0,
-                                               y0, y_norm, x_idx, RMS_ang,
+                                               y_norm, x_idx, RMS_ang,
                                                line_type)
 
         if y_correction == 'y_smooth':
-            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave,x0, y0,
+            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave,x0,
                                               y_smooth, x_idx, RMS_ang,
                                               line_type)
 
@@ -256,8 +256,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
 
             #Calculating RMS
-            RMS_tot, RMS_pix= rms_func(wave, dispersion, lineflag, working_wave,
-                                       y0, scalefact, o1[1])
+            RMS_tot, RMS_pix= rms_func(wave, dispersion,working_wave,y_norm,o1[1],lineflag)
 
             #Line Flag Checking Plots
             #line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2D, line_name,row,col,fig,ax_arr)
@@ -319,7 +318,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
             if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid' \
                     or dataset =='Double_Bin' or dataset =='n_Bins':
                 if line_type == 'Balmer': 
-                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], ID[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (RMS_tot, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f'% (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f'% (o1[2], o1[4], o1[5]) + '\n'
@@ -327,7 +326,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
                 if line_type == 'Single' or line_type =='Oxy2': 
-                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], asc_tab['ID'][rr], R_23_array[rr],O_32_array[rr])
+                    txt0  = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % (o1[0], ID[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
                     txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (RMS_tot, RMS_pix, N_gal_array[rr]) 
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f'% (o1[3], o1[1], max0, o1[2]) + '\n'
                     txt0 += 'F_G: %.3f F_S: %.3f' %(flux_g, flux_s) + '\n'
@@ -428,7 +427,7 @@ def zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correct
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2,
-                            wave, lambda0[ii], lambda0, lineflag,
+                            wave, lambda0[ii], lineflag, 
                             y_correction=y_correction, line_type=line_type[ii],
                             outpdf=outpdf, line_name=line_name[ii])
 
@@ -437,7 +436,7 @@ def zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correct
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2,
-                            wave, lambda0[ii], lambda0, lineflag,
+                            wave, lambda0[ii], lineflag,
                             y_correction=y_correction, line_type=line_type[ii],
                             outpdf=outpdf, line_name=line_name[ii])
 
@@ -447,6 +446,6 @@ def zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correct
             outpdf = fitspath+dataset+'_Zoomed_Gauss_'+line_name[ii]+'.pdf'
             print(outpdf)
             zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2,
-                            wave, lambda0[ii], lambda0, lineflag,
-                            y_correction='', line_type=line_type[ii],
+                            wave, lambda0[ii], lineflag,
+                            y_correction=y_correction, line_type=line_type[ii],
                             outpdf=outpdf, line_name=line_name[ii])

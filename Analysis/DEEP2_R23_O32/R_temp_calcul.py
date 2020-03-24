@@ -42,23 +42,11 @@ called independently from the run_function
 #Currently running: Grid
 import numpy as np
 import matplotlib.pyplot as plt
-#import pylab as pl
 from astropy.io import fits
 from astropy.io import ascii as asc
-from astropy.table import vstack, hstack
 from matplotlib.backends.backend_pdf import PdfPages
-from astropy.table import Table, Column
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-from os.path import exists
-import numpy.ma as ma
-from matplotlib.gridspec import GridSpec
-from pylab import subplots_adjust
-from astropy.convolution import Box1DKernel, convolve
-from scipy.optimize import curve_fit
-import scipy.integrate as integ
-from mpl_toolkits.mplot3d import Axes3D
-import sys
+from astropy.table import Table
+
 
 #For generalizing for several users
 from getpass import getuser
@@ -147,453 +135,97 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     der_Te_MACT = derived_MACT['Te'].data
     der_OH_MACT = derived_MACT['OH'].data
     ID_der_MACT = derived_MACT['ID'].data
-    
-
-
-    
-    
-    ###Calls for individual detections for R23_O32/Reagen project 
-    if 'two_beta' in combine_fits.keys():
-        print('Running Metallicity Calculation for Individual Spectra')
-        OIII5007 = combine_fits['OIII5007'].data
-        OIII4959 = combine_fits['OIII4959'].data
-        HBETA    = combine_fits['HBeta'].data
-        HGamma = combine_fits['HGAMMA'].data
-        SNR_HG = combine_fits['SNR_HG'].data
-        raw_OIII4363 = combine_fits['OIII4363'].data
-        SNR_4363 = combine_fits['SNR_4363'].data
-        R23_individual = combine_fits['Individual_R23'].data
-        O32_individual = combine_fits['Individual_O32'].data
-        Detection = combine_fits['Detection'].data
-
-        up_limit = (Hgamma/SN_Hgamma) *3
-        print('up_limit', up_limit)
-        
-        OIII4363 = np.zeros(len(raw_OIII4363))
-        indicate = np.zeros(len(raw_OIII4363))
-        for ii in range(len(OIII4363)):
-            print(SN_4363[ii])
-            if ver_detection[ii] == 1: 
-                OIII4363[ii]= raw_OIII4363[ii]
-                indicate[ii]= 1
-            if ver_detection[ii] == 0.5:
-                OIII4363= up_limit
-                indicate= 0.5
-            if ver_detection[ii] ==0: 
-                print('upper limit')
-                print('4363: ', up_limit[ii])
-                OIII4363[ii]= up_limit[ii]
-                indicate[ii]= 0
-            print(OIII4363)
-            print(indicate) 
-        
-        Two_Beta = combine_fits['two_beta'].data
-        Three_Beta = combine_fits['three_beta'].data
-        T_e = combine_fits['Temperature'].data
-        Source_ID = combine_fits['Source_ID'].data
-
-        com_O_log, metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
-
-        
-        n=  ('ID', 'logR23', 'logO32', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Flux_4363','Observed_Flux_HBETA','Temperature', 'Detection','O_s_ion', 'O_d_ion', 'com_O_log','log_O_s', 'log_O_d' )
-        
-        tab0 = Table([Source_ID, R23_individual, O32_individual, OIII5007, OIII4959, OIII4363, HBETA,
-                      T_e, Detection, metal_dict['O_s_ion'], metal_dict['O_d_ion'], com_O_log, metal_dict['O_s_ion_log'],
-                      metal_dict['O_d_ion_log']], names=n)
-
-
-
-
-
-
-
-
-    ####Calls for the individual detections for the MassLuminosity/Caroline project 
-    if 'Log10(Mass)' in combine_fits.keys():
-        print('Running Metallicity Calculation for Individual Spectra')
-        OIII5007 = combine_fits['OIII5007_Flux'].data
-        OIII4959 = combine_fits['OIII4959_Flux'].data
-        HBETA    = combine_fits['HBETA_Flux'].data
-        Mass = combine_fits['Log10(Mass)'].data
-        LHbeta = combine_fits['HBeta_Luminosity'].data
-        OII = combine_fits['OII_Flux'].data
-
-        #Two_Beta = combine_fits['two_beta'].data
-        #Three_Beta = combine_fits['three_beta'].data
-        T_e = combine_fits['Te'].data
-        Source_ID = combine_fits['OBJNO'].data
-        Two_Beta = OII/HBETA
-        Three_Beta = (OIII5007+OIII4959)/HBETA
-
-        
-        com_O_log, metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
-
-        
-        n=  ('Source_ID', 'Mass', 'LHbeta', 'Observed_Flux_5007', 'Observed_Flux_4959', 'Observed_Flux_HBETA', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s', 'log_O_d')
-        
-        tab0 = Table([ID, Mass, LHbeta, OIII5007, OIII4959, HBETA, T_e,
-                      metal_dict['O_s_ion'], metal_dict['O_d_ion'], com_O_log, metal_dict['O_s_ion_log'],
-                      metal_dict['O_d_ion_log']], names=n)
-
-
-
-
 
 
     ###Calls for the stacked measurements for R23_O32 project 
-    else:
-        print('Running R, Temperature, and Metallicity Calculations for Stacked Spectra')
-        #Ascii Table from FITTING 
-        OIII5007     = combine_fits['OIII_5007_Flux_Observed'].data
-        OIII4959     = combine_fits['OIII_4958_Flux_Observed'].data
-        raw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
-        Hgamma       = combine_fits['HGAMMA_Flux_Observed'].data
-        HBETA        = combine_fits['HBETA_Flux_Observed'].data
-        OII3727      = combine_fits['OII_3727_Flux_Observed'].data
-        R23_avg      = combine_fits['logR23_avg'].data
-        O32_avg      = combine_fits['logO32_avg'].data
-        N_Galaxy     = combine_fits['N_stack'].data
-        ID           = combine_fits['bin_ID'].data
 
-        SN_Hgamma    = combine_fits['HGAMMA_S/N'].data
-        SN_5007      = combine_fits['OIII_5007_S/N'].data
-        SN_4959      = combine_fits['OIII_4958_S/N'].data
-        SN_4363      = combine_fits['OIII_4363_S/N'].data
-        SN_HBETA     = combine_fits['HBETA_S/N'].data
-        SN_3727      = combine_fits['OII_3727_S/N'].data
+    print('Running R, Temperature, and Metallicity Calculations for Stacked Spectra')
+    #Ascii Table from FITTING
+    OIII5007     = combine_fits['OIII_5007_Flux_Observed'].data
+    OIII4959     = combine_fits['OIII_4958_Flux_Observed'].data
+    raw_OIII4363 = combine_fits['OIII_4363_Flux_Observed'].data
+    Hgamma       = combine_fits['HGAMMA_Flux_Observed'].data
+    HBETA        = combine_fits['HBETA_Flux_Observed'].data
+    OII3727      = combine_fits['OII_3727_Flux_Observed'].data
+    R23_avg      = combine_fits['R_23_Average'].data
+    O32_avg      = combine_fits['O_32_Average'].data
+    N_Galaxy     = combine_fits['N_Galaxies'].data
+    ID           = combine_fits['ID'].data
 
-        R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
-        O32_composite = np.log10((1.33*OIII5007)/OII3727)
+    SN_Hgamma    = combine_fits['HGAMMA_S/N'].data
+    SN_5007      = combine_fits['OIII_5007_S/N'].data
+    SN_4959      = combine_fits['OIII_4958_S/N'].data
+    SN_4363      = combine_fits['OIII_4363_S/N'].data
+    SN_HBETA     = combine_fits['HBETA_S/N'].data
+    SN_3727      = combine_fits['OII_3727_S/N'].data
 
-        print('R23_composite', R23_composite)
-        print('O32_composite', O32_composite)
+    R23_composite = np.log10((OII3727 + (1.33*OIII5007))/HBETA)
+    O32_composite = np.log10((1.33*OIII5007)/OII3727)
+
+    print('R23_composite', R23_composite)
+    print('O32_composite', O32_composite)
     
-        up_limit = (Hgamma/SN_Hgamma) *3
-        print('up_limit', up_limit)
-        
-        OIII4363 = np.zeros(len(raw_OIII4363))
-        indicate = np.zeros(len(raw_OIII4363))
+    up_limit = (Hgamma/SN_Hgamma) *3
+    print('up_limit', up_limit)
 
-        for ii in range(len(OIII4363)):
+    OIII4363 = np.zeros(len(raw_OIII4363))
+    indicate = np.zeros(len(raw_OIII4363))
+
+    for ii in range(len(OIII4363)):
             
-            if ver_detection[ii] == 1:
-                OIII4363[ii]= raw_OIII4363[ii]
-                indicate[ii]= 1 
-            if ver_detection[ii] == 0.5:
-                OIII4363[ii]= up_limit[ii] 
-                indicate[ii]= 0.5
-            if ver_detection[ii] ==0: 
-                OIII4363[ii]= up_limit[ii]
+        if ver_detection[ii] == 1:
+            OIII4363[ii]= raw_OIII4363[ii]
+            indicate[ii]= 1
+        if ver_detection[ii] == 0.5:
+            OIII4363[ii]= up_limit[ii]
+            indicate[ii]= 0.5
+        if ver_detection[ii] ==0:
+            OIII4363[ii]= up_limit[ii]
                 
         
 
-        #Line Ratios
-        O3727_HBETA = OII3727/HBETA
-        O5007_HBETA = OIII5007/HBETA
-        O4959_HBETA = OIII4959/HBETA
-        O4363_O5007 = OIII4363/OIII5007
-        O4363_O4959 = OIII4363/OIII4959
+    #Line Ratios
+    O3727_HBETA = OII3727/HBETA
+    O5007_HBETA = OIII5007/HBETA
+    O4959_HBETA = OIII4959/HBETA
+    O4363_O5007 = OIII4363/OIII5007
+    O4363_O4959 = OIII4363/OIII4959
     
-        O5007_O3727 = OIII5007/OII3727
-        O4959_O3727 = OIII4959/OII3727
+    O5007_O3727 = OIII5007/OII3727
+    O4959_O3727 = OIII4959/OII3727
         
-        #Attenuated Ratios
-        der_4363_5007  = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
-        der_4363_4959  = O4363_O4959 * 10**(0.4*EBV*(k_4363-k_4959))
-        der_3727_HBETA = O3727_HBETA * 10**(0.4*EBV*(k_3727-k_HBETA))
-        der_4959_HBETA = O4959_HBETA * 10**(0.4*EBV*(k_4959-k_HBETA))
-        der_5007_HBETA = O5007_HBETA * 10**(0.4*EBV*(k_5007-k_HBETA))
+    #Attenuated Ratios
+    der_4363_5007  = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
+    der_4363_4959  = O4363_O4959 * 10**(0.4*EBV*(k_4363-k_4959))
+    der_3727_HBETA = O3727_HBETA * 10**(0.4*EBV*(k_3727-k_HBETA))
+    der_4959_HBETA = O4959_HBETA * 10**(0.4*EBV*(k_4959-k_HBETA))
+    der_5007_HBETA = O5007_HBETA * 10**(0.4*EBV*(k_5007-k_HBETA))
 
-        if dustatt == False: 
-            Two_Beta = OII3727/HBETA
-            Three_Beta= (OIII5007* (1+1/3.1))/HBETA
-        else:
-            Two_Beta = der_3727_HBETA                    
-            Three_Beta= der_5007_HBETA*(1+1/3.1) 
+    if dustatt == False:
+        Two_Beta = OII3727/HBETA
+        Three_Beta= (OIII5007* (1+1/3.1))/HBETA
+    else:
+        Two_Beta = der_3727_HBETA
+        Three_Beta= der_5007_HBETA*(1+1/3.1)
     
-        #Raw Data
-        R_value= R_calculation(OIII4363, OIII5007, EBV)
-        T_e= temp_calculation(R_value)  
-        com_O_log, metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
+
+    #Raw Data
+    R_value= R_calculation(OIII4363, OIII5007, EBV)
+    T_e= temp_calculation(R_value)
+    O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 
 
 
-        n=  ('bin_ID', 'Detection', 'logR23_Composite', 'logO32_Composite', 'logR23_avg', 'logO32_avg', 'N_stack','OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N', 'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N', 'OII_3727_Flux_Observed', 'OII_3727_S/N', 'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')    #used to be 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')
+    n=  ('ID', 'Detection', 'R23_Composite', 'O32_Composite', 'R_23_Average', 'O_32_Average', 'N_Galaxies', 'Observed_Flux_5007', 'S/N_5007', 'Observed_Flux_4959', 'S/N_4959', 'Observed_Flux_4363', 'S/N_4363', 'Observed_Flux_HBETA', 'S/N_HBETA', 'Observed_Flux_3727', 'S/N_3727', 'Temperature', 'O_s_ion', 'O_d_ion', 'com_O_log', 'log_O_s','log_O_d')
 
+    '''c_add = Column(indicate, name='Detection')
+    combine_fits.add_columns(c_add) #index = 0 should add the detection column to the front of the combine_flux table'''
 
-         
-        '''c_add = Column(indicate, name='Detection')
-        combine_fits.add_columns(c_add) #index = 0 should add the detection column to the front of the combine_flux table'''
-        
+    tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, O_s_ion, O_d_ion, com_O_log, log_O_s, log_O_d], names=n)
+    asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
-
-
-        tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e,
-                      metal_dict['O+/H'], metal_dict['O++/H'], com_O_log, metal_dict['log(O+/H)'],
-                      metal_dict['log(O++/H)']], names=n)
-        asc.write(tab0, out_ascii, format='fixed_width_two_line')
-    print('table written')
     
     tab0.write(out_fits,format = 'fits', overwrite = True)
-
-    #Plots
-    
-    ###Getting the the upper/lower limits for the metallicity and temperatures###
-    #metallicity_npz = np.load(fitspath_ini +'Error_propagation/metal_errors.npz')
-    metallicity_npz = np.load(fitspath+'/metal_errors.npz')
-    npz_comOlog = metallicity_npz['com_O_log_lowhigh_error']
-    metal_error = np.transpose(npz_comOlog)
-    print("metal_error:", metal_error)
-
-    #npz_te_err = np.load(fitspath_ini + 'Error_propagation/Te_errors.npz')
-    npz_te_err = np.load(fitspath+ '/Te_errors.npz')
-    npz_te = npz_te_err['Te_lowhigh_error']
-    Te_error = np.transpose(npz_te)
-
-
-    ###Starting the plots 
-    pdf_pages = PdfPages(fitspath+pdf_name)
-    print(fitspath+pdf_name)
-    color_len = len(R23_composite)
-    
-    color_arr = plt.cm.get_cmap('rainbow')
-    
-    
-    ###Defining the logarithms of values
-    lTe = np.log10(T_e)
-    lder_Te = np.log10(der_Te)
-    lMACT_Te = np.log10(der_Te_MACT)
-    l_Te_err = np.log10(Te_error)
-
-
-
-    #################################Temperature vs R23_composite #################################
-    '''fig1, ax1 = plt.subplots()
-    ax1.scatter(T_e[ver_detect], R23_composite[ver_detect], marker = '.', s = 50, color = 'b')
-    #ax1.scatter(lTe[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
-    ax1.scatter(T_e[ver_rlimit], R23_composite[ver_rlimit], marker = '<', s = 35, color = 'b')
-    
-    ax1.errorbar(lTe[ver_detect], R23_composite[ver_detect], xerr = l_Te_err[:,:], ls = 'none')
-    for aa in range(len(ID)): ax1.annotate(ID[aa], (lTe[aa], R23_composite[aa]), fontsize = '6')
-
-    ax1.scatter(lder_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for bb in range(len(ID_der)): ax1.annotate(ID_der[bb], (lder_Te[bb], der_R23[bb]), fontsize ='2')
-
-    ax1.scatter(lMACT_Te, der_R23_MACT, s = 20, marker = 'P', color = 'r', edgecolors = 'None', alpha = 0.5)
-    for qq in range(len(ID_der_MACT)): ax1.annotate(ID_der_MACT[qq], (lMACT_Te[qq], der_R23_MACT[qq]), fontsize= '2')
-
-    ax1.set_xlabel('Log Temperature (K)')
-    ax1.set_ylabel('R_23')
-    ax1.set_title('Temperatures_vs_R23')
-    fig1.savefig(pdf_pages, format = "pdf")
-    '''
-    
-###########################################################################################
-##############################Temperature vs R23_composite With Limits#####################
-    fig5, ax5 = plt.subplots()
-    
-    ax5.scatter(T_e[ver_detect], R23_composite[ver_detect], marker = '.',s = 50, color = 'b')
-    #ax5.scatter(T_e[nan_detect], R23_composite[nan_detect], marker = '<', s = 25, color = 'b')
-    ax5.scatter(T_e[ver_rlimit], R23_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
-    
-    ax5.errorbar(T_e[ver_detect], R23_composite[ver_detect], xerr = Te_error[:,:], ls = 'none')
-    for xx in ver_detect:ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
-    for xx in ver_rlimit:ax5.annotate(ID[xx], (T_e[xx], R23_composite[xx]), fontsize = '6')
-
-    ax5.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for b in range(len(ID_der)): ax5.annotate(ID_der[b], (der_Te[b], der_R23[b]), fontsize = '2')
-
-    ax5.scatter(der_Te_MACT, der_R23_MACT, s =20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
-    for q in range(len(ID_der_MACT)): ax5.annotate(ID_der_MACT[q], (der_Te_MACT[q], der_R23_MACT[q]), fontsize= '2')
-
-    ax5.set_xlabel('Temperature (K)')
-    ax5.set_ylabel('R_23')
-    ax5.set_title('Temperatures_vs_R23 with Limits on Temperature')
-    ax5.set_xlim(5000,21500)
-    fig5.savefig(pdf_pages, format = "pdf")
-
-############################################################################################
-###########################Temperature vs O32_composite#####################################
-    '''fig2, ax2 = plt.subplots()
-    
-    ax2.scatter(T_e[ver_detect], O32_composite[ver_detect], marker = '.',s = 50, color = 'b')
-    #ax2.scatter(lTe[nan_detect], O32_composite[nan_detect], marker = '<',s = 25, color = 'b')
-    ax2.scatter(T_e[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
-    
-    ax2.errorbar(lTe[ver_detect], O32_composite[ver_detect], xerr = l_Te_err[:,:], ls = 'none')
-    for cc in range(len(ID)): ax2.annotate(ID[cc], (lTe[cc], O32_composite[cc]), fontsize = '6')
-
-    ax2.scatter(lder_Te, der_O32, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for ff in range(len(ID_der)):ax2.annotate(ID_der[ff], (lder_Te[ff], der_O32[ff]), fontsize = '2')
-
-    ax2.scatter(lMACT_Te, der_O32_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5,edgecolors = 'None')
-    for ss in range(len(ID_der_MACT)): ax2.annotate(ID_der_MACT[ss], (lMACT_Te[ss], der_O32_MACT[ss]), fontsize= '2')
-    
-    ax2.set_xlabel('Log Temperature (K)')
-    ax2.set_ylabel('O_32')
-    ax2.set_title('Temperatures_vs_O32')
-    fig2.savefig(pdf_pages, format = 'pdf')
-    '''
-
-###############################################################################################
-####################################Temperature vs O32_Composite with limits##################
-    #With Limits
-    fig6, ax6 = plt.subplots()
-    
-    ax6.scatter(T_e[ver_detect], O32_composite[ver_detect], marker = '.',s=50, color = 'b')
-    #ax6.scatter(T_e[nan_detect], O32_composite[nan_detect], marker = '<',s=25, color = 'b')
-    ax6.scatter(T_e[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s=35, color = 'b')
-    ax6.errorbar(T_e[ver_detect], O32_composite[ver_detect], xerr = Te_error[:,:], ls = 'none')
-    for c in ver_detect:ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
-    for c in ver_rlimit:ax6.annotate(ID[c], (T_e[c], O32_composite[c]), fontsize = '6')
-
-    ax6.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
-    for f in range(len(ID_der)):ax6.annotate(ID_der[f], (der_Te[f], der_O32[f]), fontsize = '2')
-
-    ax6.scatter(der_Te_MACT, der_O32_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors ='None')
-    for s in range(len(ID_der_MACT)):ax6.annotate(ID_der_MACT[s], (der_Te_MACT[s], der_O32_MACT[s]), fontsize= '2')
-    
-    ax6.set_xlabel('Temperature (K)')
-    ax6.set_ylabel('O_32')
-    ax6.set_title('Temperatures_vs_O32 with Limits on Temperature')
-    ax6.set_xlim(5000,21500)
-    fig6.savefig(pdf_pages, format = 'pdf')
-    
-
-################################################################################################
-#########################################R23_composite vs metallicity###########################
-    fig3, ax3 = plt.subplots()
-    
-    ax3.scatter(R23_composite[ver_detect], com_O_log[ver_detect], marker = '.', s = 50, color = 'b')
-    #ax3.scatter(R23_composite[nan_detect], com_O_log[nan_detect], marker = '^', s = 20, color = 'b')
-    ax3.scatter(R23_composite[ver_rlimit], com_O_log[ver_rlimit], marker = '^', s = 35, color = 'b')
-    
-    ax3.errorbar(R23_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,:], ls = 'none')
-    for zz in ver_detect:ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
-    for zz in ver_rlimit:ax3.annotate(ID[zz], (R23_composite[zz],com_O_log[zz]), fontsize = '6')
-    
-    ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
-    for gg in range(len(ID_der)): ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize = '2')
-    ax3.scatter(der_R23_MACT, der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors='None')
-    for g in range(len(ID_der_MACT)): ax3.annotate(ID_der_MACT[g], (der_R23_MACT[g], der_OH_MACT[g]), fontsize= '2')
-
-    ax3.set_xlabel('R23')
-    ax3.set_ylabel('12+log(O/H) Te')
-    ax3.set_title('R23 vs. Composite Metallicity')
-    fig3.savefig(pdf_pages, format = 'pdf')
-
-##################################################################################################
-########################################O32_composite vs Metallicity##############################
-    fig4, ax4 = plt.subplots()
-    
-    ax4.scatter(O32_composite[ver_detect], com_O_log[ver_detect], marker = '.',s =50, color = 'b')
-    #ax4.scatter(O32_composite[nan_detect], com_O_log[nan_detect], marker = '^',s =20, color = 'b')
-    ax4.scatter(O32_composite[ver_rlimit], com_O_log[ver_rlimit], marker = '^',s =35, color = 'b')
-    
-    ax4.errorbar(O32_composite[ver_detect], com_O_log[ver_detect], yerr = metal_error[:,:], ls = 'none')
-    for ww in ver_detect:ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
-    for ww in ver_rlimit:ax4.annotate(ID[ww], (O32_composite[ww], com_O_log[ww]), fontsize = '6')
-    
-    ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for hh in range(len(ID_der)): ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize = '2')
-
-    ax4.scatter(der_O32_MACT,der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
-    for h in range(len(ID_der_MACT)): ax4.annotate(ID_der_MACT[h], (der_O32_MACT[h], der_OH_MACT[h]), fontsize= '2')
-
-    ax4.set_xlabel('O32')
-    ax4.set_ylabel('12+log(O/H) Te')
-    ax4.set_title('O32 vs. Composite Metallicity')
-    
-    fig4.savefig(pdf_pages, format ='pdf')
-
-
-    
-
-    fig7, ax7 = plt.subplots()
-    x_value = np.log10(OIII4363/OIII5007)
-    y_value = np.log10(T_e)
-    z_value = np.log10(der_Te)
-    
-    
-    ax7.scatter(x_value[ver_detect], y_value[ver_detect], marker = 'o', s= 30,  color = 'b')
-    #ax7.scatter(x_value[nan_detect], y_value[nan_detect], marker = 'x', s= 30,  color = 'b')
-    ax7.scatter(x_value[ver_rlimit], y_value[ver_rlimit], marker = 'o', s= 30,  color = 'b')
-    for r in ver_detect: ax7.annotate(ID[r], (x_value[r], y_value[r]))
-    for r in ver_rlimit: ax7.annotate(ID[r], (x_value[r], y_value[r]))
-    xxx = np.arange(min(x_value),max(x_value), 1)
-    xx_value = np.zeros(len(xxx))
-    
-    t_E_value = np.zeros(len(xxx))
-    for xx in range(len(xxx)):
-        xx_value[xx] = xxx[xx]
-        T_e =  a*(-np.log10(xxx[xx])-b)**(-1*c)
-        t_E_value[xx] = T_e
-    ax7.plot(xx_value, t_E_value, 'k')
-    
-    ax7.set_xlabel('log(OIII4363/OIII5007)')
-    ax7.set_ylabel('log(T_e)')
-    ax7.set_title('log(OIII4363/OIII5007) vs log(T_e)')
-    fig7.savefig(pdf_pages, format = 'pdf')
-
-    pdf_pages.close()
-
-    
-'''
-    #3D plots
-    fig_3d= plt.figure(figsize=(10,8))
-    ax_3d = plt.axes(projection='3d')
-    ax_3d.set_xlabel('R_23')
-    ax_3d.set_ylabel('O_32')
-    ax_3d.set_zlabel('Temperature')
-    ax_3d.set_zlim(4000,26000)
-    ax_3d.scatter(R23_composite, O32_composite, T_e, marker='.', linewidths = None)
-    #plt.show()
-
-
-    #print 'indicate:', indicate 
-    #print 'mDect:', mDect
-    Te_marker = []
-    #print Te_marker
-    #print('!!!!!', len(OIII4363))
-    for oo in range(len(OIII4363)):
-        #print indicate[oo]
-        #print mDect[oo]
-        if indicate[oo]== 0 and mDect[oo]== 0: Marker = '<'
-        if indicate[oo]== 1 and mDect[oo]== 0: Marker = '<'
-        if indicate[oo]== 0 and mDect[oo]== 1: Marker = '.'
-        if indicate[oo]== 1 and mDect[oo]== 1: Marker = '.'
-        Te_marker.append(Marker)
-    #print Te_marker
-
-    M_marker = []
-    #print M_marker
-    for ww in range(len(OIII4363)):
-        #print indicate[ww]
-        #print mDect[ww]
-        if indicate[ww]== 0 and mDect[ww]== 0: Marker= '^'
-        if indicate[ww]== 1 and mDect[ww]== 0: Marker= '^'
-        if indicate[ww]== 0 and mDect[ww]== 1:  Marker = '.'
-        if indicate[ww]== 1 and mDect[ww]== 1:  Marker = '.'
-        M_marker.append(Marker)
-    #print M_marker
-
-
-
-
-
-
-
-
-
-    fig1.clear()
-    fig2.clear()
-    fig3.clear()
-    fig4.clear()
-    fig5.clear()
-    fig6.clear()
-    fig7.clear()
-    #fig_3d.clear()
-    '''
 
 
 def dust_attenuation(fitspath, combine_ascii):

@@ -25,7 +25,6 @@ from datetime import date
 #from . import general
 
 import Metallicity_Stack_Commons
-
 from Metallicity_Stack_Commons.analysis.composite_indv_detect import main
 
 

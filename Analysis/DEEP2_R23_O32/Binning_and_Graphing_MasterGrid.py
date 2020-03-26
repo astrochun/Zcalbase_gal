@@ -634,7 +634,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     O32_medall = np.zeros(len(R23))
     R23_maxall = np.zeros(len(R23))
     O32_maxall = np.zeros(len(R23))
-    for ii in range(len(R23_max_val)):
+    for ii in range(len(R23_maxval)):
         sorting_idx = np.where((n_bins_range[ii]==ii))[0]
         print(sorting_idx)
         R23_minall[sorting_idx] = R23_lowlimit[ii]

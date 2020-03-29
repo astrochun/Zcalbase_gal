@@ -423,6 +423,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         area[ii*2+1]= len(idx3)
 
         
+        
                 
         '''if ii== n_bins-2 or ii ==n_bins-1: 
             O32_grid[ii,0]=(np.median(O32[idx2]))/2
@@ -520,6 +521,14 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     area  = np.zeros(n_split*n_bins)
     Bin_number = np.zeros(len(data3), dtype = int) #Used to be N_bin
 
+    R23_minall = np.zeros(len(R23))
+    O32_minall = np.zeros(len(R23))
+    R23_avgall = np.zeros(len(R23))
+    O32_avgall = np.zeros(len(R23))
+    R23_medall = np.zeros(len(R23))
+    O32_medall = np.zeros(len(R23))
+    R23_maxall = np.zeros(len(R23))
+    O32_maxall = np.zeros(len(R23))
 
     
 
@@ -555,7 +564,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         O32_inbins = O32[R23_idx]          #O32 relative to the R23_index/ O32 sorted into the R23 bins
         O32_index = np.argsort(O32_inbins) #Sort the O32 in their bins so that we have their locations
         sortO32 = O32_inbins[O32_index]    #Take the O32 in each bin and organizes them based on the index in the previous line
-
+        
         
         
         # }
@@ -582,37 +591,62 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         startIdx = 0
         endIdx = subbin_arr[0]
         for jj in range(n_split):
-            # Let's grab all O32 values -> This could be the place where the problem is? 
+            # Let's grab all O32 values
             O32_values_perbin = sortO32[startIdx:endIdx]
+            print(O32_values_perbin)
             O32_inbins_idx = O32_index[startIdx:endIdx]
-            N_bin_idx = R23_idx[O32_inbins_idx]        #This index gives the positions of all the R23 values relative to the O32 values over the entire R23 bin
 
+            #This index gives the positions of all the R23 values relative 
+            #to the O32 values over the entire R23 bin
+            N_bin_idx = R23_idx[O32_inbins_idx]        
 
-            # Now let's start storing our data into variables to use later
-            #print(ii,jj, O32[O32_inbins_idx])
-            O32_minimum[ii,jj] = O32_values_perbin[0]   #O32[O32_inbins_idx[0]]             #These two values give the lowest O32 and R23 value set for each bin
-            R23_minimum[ii,jj] = R23_sort0[bin_start[ii]]
+            #Gives the bin number for each spectra
+            Bin_number[N_bin_idx] = (ii*n_split)+jj  
 
-            O32_median[ii,jj] = np.median(O32_values_perbin)      #These two give the median R23 and O32 value for each bin 
-            R23_median[ii,jj] = np.median(R23[N_bin_idx])
+            # Now let's start storting our data into variables to use later
 
-            O32_max[ii,jj]= np.max(O32[N_bin_idx])
-            R23_max[ii,jj]= np.max(R23[N_bin_idx])
+            #First two map minimum R23 and O32 measure to all individual spectra in bin 
+            #Second two values give the lowest O32 and R23 value set for each bin
+            R23_minall[N_bin_idx]= R23_sort0[bin_start[ii]]
+            O32_minall[N_bin_idx]= O32_values_perbin[0]
+            R23_minimum[ii,jj]   = R23_sort0[bin_start[ii]]
+            O32_minimum[ii,jj]   = O32_values_perbin[0]
+
+            #First two map median R23 and O32 measure to all individual spectra in bin 
+            #Second two give the median R23 and O32 value for each bin
+            R23_medall[N_bin_idx]= np.median(R23[N_bin_idx])
+            O32_medall[N_bin_idx]= np.median(O32_values_perbin)      
+            R23_median[ii,jj]    = np.median(R23[N_bin_idx])
+            O32_median[ii,jj]    = np.median(O32_values_perbin)     
+
+            #First two map maximum R23 and O32 measure to all individual spectra in bin 
+            #Second two give the maximum R23 and O32 value for each bin
+            R23_maxall[N_bin_idx]= np.max(R23[N_bin_idx])
+            O32_maxall[N_bin_idx]= np.max(O32[N_bin_idx])
+            R23_max[ii,jj]       = np.max(R23[N_bin_idx])
+            O32_max[ii,jj]       = np.max(O32[N_bin_idx])
             
-            #print('O32_median:', O32_median)
-            #print('R23_median:', R23_median)
-
-            Number_inbin[ii,jj]  += len(O32_values_perbin)                      #Gives the number of galaxies in each bin
-           
-            locator[ii,jj]   = N_bin_idx                                    #Gives the index (location numbers) for the spectra in each bin and is used later loop over and get the galaxies 
-        
-            Bin_number[N_bin_idx] = (ii*n_split)+jj                            #Gives the bin number for each spectra
-
-            xBar[(ii*n_split)+jj]= np.average(R23[N_bin_idx])   #Gives the average R23 value for each bin
             
-            yBar[(ii*n_split)+jj]= np.average(O32_values_perbin)  #Gives the average O32 value for each bin
+            #Gives the number of galaxies in each bin
+            Number_inbin[ii,jj]  += len(O32_values_perbin)                      
+
+            #Gives the index (location numbers) for the spectra in each bin
+            #and is used later loop over and get the galaxies 
+            locator[ii,jj]   = N_bin_idx                                    
+
+            #Maps average R23 measure to all individual spectra in bin 
+            R23_avgall[N_bin_idx]= np.average(R23[N_bin_idx])
+            #Gives the average R23 value for each bin
+            xBar[(ii*n_split)+jj]= np.average(R23[N_bin_idx])
             
-            area[(ii*n_split)+jj]= len(O32_values_perbin)                 #Gives the number of galaxies in each bin
+              
+            #Maps average O32 measure to all individual spectra in bin
+            O32_avgall[N_bin_idx]= np.average(O32_values_perbin)
+            #Gives the average O32 value for each bin
+            yBar[(ii*n_split)+jj]= np.average(O32_values_perbin)
+
+            #Gives the number of galaxies in each bin
+            area[(ii*n_split)+jj]= len(O32_values_perbin)                 
 
             # Now we can shift our window over for the next split like the counting index the Stacking code
             startIdx = endIdx
@@ -625,8 +659,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     R23_medians = R23_median.reshape(n_split*n_bins)
     R23_maxval = R23_max.reshape(n_split*n_bins)
     O32_maxval = O32_max.reshape(n_split*n_bins)
-    #print 'O32_values', O32_grid
-    #print 'R23_values', R23_grid 
+    
         
     #Plotting
     fig, ax = plt.subplots()
@@ -668,14 +701,20 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
 
-    n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg', 'logR23_median','logO32_median','logR23_max','logO32_max', 'N_stack')
-    tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,R23_medians, O32_medians, R23_maxval, O32_maxval, area], names = n1)
+    n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
+          'logR23_median','logO32_median','logR23_max','logO32_max', 'N_stack')
+    tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,
+                  R23_medians, O32_medians, R23_maxval, O32_maxval, area], names = n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
     
     fig.clear()
 
-    n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID')
-    tab2= Table([R23, O32, SNR3, Bin_number, individual_ID], names=n2)
+    n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID',
+        'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
+        'logR23_median','logO32_median','logR23_max','logO32_max')
+    tab2= Table([R23, O32, SNR3, Bin_number, individual_ID,
+                 R23_minall,O32_minall,R23_avgall,O32_avgall,
+                 R23_medall,O32_medall,R23_maxall, O32_maxall], names=n2)
     asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line') #used to be + dataset+'_2d_binning_datadet3.tbl
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')

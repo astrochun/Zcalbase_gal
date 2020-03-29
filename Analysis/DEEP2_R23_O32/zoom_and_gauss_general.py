@@ -202,7 +202,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
         y_smooth = movingaverage_box1D(y_norm, 4, boundary='extend')
 
-        RMS_ang = rms_func(wave, dispersion, working_wave, y_norm, 0, lineflag)
+        RMS_ang = rms_func(wave, dispersion, working_wave, y0, 0, lineflag)
 
         if y_correction == '':
             o1, med0, max0  = get_gaussian_fit(dataset, s2, working_wave, x0,
@@ -256,7 +256,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
 
             #Calculating RMS
-            RMS_tot, RMS_pix= rms_func(wave, dispersion,working_wave,y_norm,o1[1],lineflag)
+            RMS_tot, RMS_pix= rms_func(wave, dispersion,working_wave,y0,o1[1],lineflag)
 
             #Line Flag Checking Plots
             #line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2D, line_name,row,col,fig,ax_arr)
@@ -380,9 +380,11 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
     # out_fits = fitspath+'/'+dataset+'_Flux_gaussian_'+line_name+'.fits'
 
 
+    
     if line_type == 'Single':
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
              'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const')
+
         n = tuple([line_name + '_' + val for val in n])
         tab0 = Table([flux_g_array, flux_s_array, sigma_array, median_array,
                       norm_array,RMS_array, SN_array, xbar_array, sig1_array,
@@ -392,6 +394,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
     if line_type == 'Balmer' or line_type == 'Oxy2': 
          n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
               'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
+
          n = tuple([line_name + '_' + val for val in n])
          tab0 = Table([flux_g_array, flux_s_array, sigma_array, median_array,
                        norm_array, RMS_array, SN_array, xbar_array, sig1_array,
@@ -404,11 +407,18 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
              tab0.add_column(equ_add, 2)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
+
+    
     out_ascii_single = fitspath+'/'+dataset+'_Average_R23_O32_Values.tbl'
+
 
     n2= ('bin_ID','logR23_avg', 'logO32_avg', 'N_stack')
     tab1 = Table([ID, R_23_array, O_32_array, N_gal_array], names=n2)
     asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
+
+
+
+                           
 
     pdf_pages.close()
 

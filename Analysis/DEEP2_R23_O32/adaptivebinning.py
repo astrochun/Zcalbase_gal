@@ -29,7 +29,7 @@ from astropy.table import vstack
 from pprint import pprint
 
 
-import voronoi_2d_binning
+from .. import voronoi_2d_binning
 
 #fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/' 
 
@@ -76,7 +76,7 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
     # (binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale) #Can output any of these 
     # are all generated in *output*
 
-    print voronoi_2d_binning.__file__
+    print(voronoi_2d_binning.__file__)
     
     #print len(R23),len(O32)
     signal = np.repeat(1, len(det3))
@@ -101,7 +101,7 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
 
     dist0      = np.sqrt((lR23-avg_R23)**2 + (lO32-avg_O32)**2)
     currentBin = np.argmin(dist0)
-    print currentBin
+    print(currentBin)
 
     #sn_size is what you can change to change the singal/noise target hence the 14 and 10 labels
     #binNum, xNode, yNode, xBar, yBar, sn, nPixels, scale
@@ -109,8 +109,8 @@ def voronoi_binning_DEEP2(fitspath, sn_size, txt_file, asc_table1, asc_table2, R
     #print(test.shape)
     
     ID = np.arange(0,len(test[1]), 1, dtype = int)
-    print ID
-    print np.sum(test[6])
+    print(ID)
+    print(np.sum(test[6]))
     # Save to a text file the initial coordinates of each pixel together
     # with the corresponding bin number computed by this procedure.
     # binNum uniquely specifies the bins and for this reason it is the only

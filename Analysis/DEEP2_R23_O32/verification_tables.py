@@ -56,7 +56,7 @@ def verification_master(fitspath_ini, dataset, combine_flux_ascii):
         det_4363= np.where( (ID ==10) | (ID ==11) |(ID==14) | (ID ==15) | (ID ==20) | (ID==23) | (ID ==26))[0]
         rlimit = np.where( (ID ==5) | (ID ==7) |(ID==8) | (ID ==13) | (ID ==16) | (ID==17) | (ID ==19)| (ID ==22))[0]
     
-    print 'det_4363:', det_4363
+    print('det_4363:', det_4363)
     #5, 7, 8, 10, 11, 13, 14, 15, 16, 17, 19, 20, 22, 23,26
     #2,7, 8, 10, 14, 15, 20, 23, 26 
     
@@ -67,7 +67,7 @@ def verification_master(fitspath_ini, dataset, combine_flux_ascii):
     OIII_4363[rlimit] = up_limit[rlimit]
     nan_det = np.where((indicate ==0))[0]
     OIII_4363[nan_det] = up_limit[nan_det]
-    print 'indicate', indicate
+    print('indicate', indicate)
    
 
 

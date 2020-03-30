@@ -23,7 +23,8 @@ import scipy.integrate as integ
 import glob
 from datetime import date
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, line_ratio_plotting,calibration_plots, verification_tables, more_plots
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, calibration_plots, verification_tables
+from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 
@@ -60,7 +61,7 @@ def get_det3(fitspath, individual_detect=False):
 
     #Excluding Outliers 
     exclude_flag = exclude_outliers(objno)
-    print "exclude flag: ", np.where(exclude_flag == 1)
+    print("exclude flag: ", np.where(exclude_flag == 1))
 
     O2_ini = data0['OII_FLUX_MOD'].data
     O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data
@@ -83,7 +84,7 @@ def get_det3(fitspath, individual_detect=False):
     SNR4363_ini = data0['OIIIA_SNR'].data
 
     
-    print 'O2 len:', len(O2_ini)
+    print('O2 len:', len(O2_ini))
 
     #################################################################################
     #SNR code: This rules out major outliers by only using specified data
@@ -194,8 +195,8 @@ def gettime(org_name,fitspath_ini):
     if not exists(path0):
         os.mkdir(fitspath_ini+path0)
         fitspath= fitspath_ini+path0
-    else: print "Path already exists"
-    print fitspath
+    else: print("Path already exists")
+    print(fitspath)
     return fitspath
 
 def check_verification_table(fitspath_ini, dataset, combine_flux_ascii):
@@ -225,7 +226,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
     if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
-    print '# of Gal in Bin:', galinbin
+    print('# of Gal in Bin:', galinbin)
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
         outfile = fitspath +'single_grid_O32.npz'
@@ -242,7 +243,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         outfile1_npz = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'
         R23_bin = 0.25
         O32_bin = 0.25
-        binstr = 025
+        binstr = '025'
         
         Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, R23_bin, O32_bin)   
 
@@ -272,8 +273,8 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
                                                        adaptive)
 
 
-    print 'made npz, pdf files , testmastergrid(need to find if this is used anywhere)'
-    print 'finished Binning_and_Graphing_MasterGrid'
+    print('made npz, pdf files , testmastergrid(need to find if this is used anywhere)')
+    print('finished Binning_and_Graphing_MasterGrid')
 
     
 
@@ -297,10 +298,10 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #Option to Change: Masking the night sky emission lines 
     if dataset == 'Grid': 
         if mask == True:
-            Stack_name = 'Stacking_Masked_MasterGrid_bin'+str(binstr)+'.pdf'
+            Stack_name = 'Stacking_Masked_MasterGrid_bin'+binstr+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
         else:
-            Stack_name = 'Stacking_MasterGrid_bin'+str(binstr)+'.pdf'
+            Stack_name = 'Stacking_MasterGrid_bin'+binstr+'.pdf'
             Stackboth_MasterGrid.run_Stacking_Master(fitspath,Stack_name,grid_data_file)
     else:
         if mask == True:
@@ -311,14 +312,14 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
             Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data_file)
 
     #Outfile and pdf both use name
-    print 'finished with stacking,' + Stack_name + 'pdf and fits files created'
+    print('finished with stacking,' + Stack_name + 'pdf and fits files created')
 
 
 
     #Zoom_and_gauss_general
     Stack_name = Stack_name.replace('.pdf', '.fits')
     outfile_grid = fitspath + Stack_name
-    print outfile_grid
+    print(outfile_grid)
     stack2D, header = fits.getdata(outfile_grid, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     #Spect_1D = fits.getdata(outfile_grid)
@@ -344,7 +345,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     zoom_and_gauss_general.zm_general(dataset, fitspath,stack2D, wave, lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab = binning_avg_asc)
 
-    print 'finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created'
+    print('finished gaussian fitting:,' +fitspath+'_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
 
     #hstack_table
     #Option to change: name of new fits file created
@@ -379,7 +380,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
         
-    print 'combine_flux_table created'
+    print('combine_flux_table created')
 
         
             
@@ -513,7 +514,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     if dataset == 'Double_Bin': grid_data = np.load(outfile)
     if dataset == 'Double_Bin': voronoi_data = asc_table2
 
-    print '### outfile for datadet3: '+voronoi_data
+    print('### outfile for datadet3: '+voronoi_data)
         
     #Option to Change: Masking the night sky emission lines
     ######Check to make sure tables are going into right places#####
@@ -525,7 +526,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
         Stacking_voronoi.run_Stacking_Master(fitspath_ini, dataset, fitspath, voronoi_data, det3, Stack_name)
 
     #Outfile and pdf both use name
-    print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
+    print('finished with stacking,' + Stack_name + ' pdf and fits files created')
 
 
 
@@ -563,7 +564,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     a2= -2.0
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
-    print 'finished gaussian emission fitting pdf and tables created'
+    print('finished gaussian emission fitting pdf and tables created')
 
     #hstack_table
     #Option to change: name of new fits file created
@@ -575,7 +576,7 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     print(combine_flux_ascii)
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
 
-    print dataset+'_combine_flux_table created'
+    print(dataset+'_combine_flux_table created')
 
     ####### FIX THIS PLOTS ######line_ratio_plotting
     #I need to go back through and figure out what is the average and what is the composite
@@ -661,7 +662,7 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
 
     #Outfile and pdf both use name
-    print 'finished with stacking,' + Stack_name + ' pdf and fits files created'
+    print('finished with stacking,' + Stack_name + ' pdf and fits files created')
 
 
 
@@ -700,7 +701,7 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     a2 = -2.0
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
 
-    print 'finished gaussian emission fitting pdf and tables created'
+    print('finished gaussian emission fitting pdf and tables created')
 
     #hstack_table
     #Option to change: name of new fits file created
@@ -712,7 +713,7 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     print(combine_flux_ascii)
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
 
-    print dataset+'_combine_flux_table created'
+    print(dataset+'_combine_flux_table created')
 
     ####### FIX THIS PLOTS ######line_ratio_plotting
     #I need to go back through and figure out what is the average and what is the composite
@@ -853,7 +854,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten= 
         calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
 
 
-    print want, 'is done'
+    print(want, 'is done')
 
     
 

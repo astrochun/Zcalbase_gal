@@ -34,7 +34,7 @@ def LAC_GPC_plots(fitspath, dataset,temp_tab):
     SN_4363 = temp_table['OIII_4363_S/N']
     det_4363 = np.where((SN_4363>=3))[0]
     nan_det_4363 = np.where((SN_4363<3))[0]
-    print 'Begin Local analog Calibration'
+    print('Begin Local analog Calibration')
     
     ###Implimenting Local analog calibration###
     
@@ -70,7 +70,7 @@ def LAC_GPC_plots(fitspath, dataset,temp_tab):
     
     nandet_O32 = O32_all[nan_det_4363]
     nandet_R23 = R23_all[nan_det_4363]
-    print len(nandet_O32), len(nandet_R23)
+    print(len(nandet_O32), len(nandet_R23))
     nandet_OH  = com_O_log[nan_det_4363]
     nandet_ID  = ID[nan_det_4363]
 

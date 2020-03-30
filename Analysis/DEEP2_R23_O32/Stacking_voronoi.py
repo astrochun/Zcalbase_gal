@@ -22,7 +22,7 @@ from astropy.table import vstack, hstack
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32,5006.84]
 
-import general 
+from . import general 
 
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
@@ -38,8 +38,8 @@ def Master_Stacking(fitspath, dataset, voronoi_data, asc_table1, wave, image2D, 
     
     voronoi_data = asc.read(voronoi_data)
     asc_tab = asc.read(asc_table1)
-    print 'vornoni_data_file:', voronoi_data
-    print 'asc_tab:,', asc_tab
+    print('vornoni_data_file:', voronoi_data)
+    print('asc_tab:,', asc_tab)
     
     image2DM = np.nan_to_num(image2D) 
     
@@ -57,7 +57,7 @@ def Master_Stacking(fitspath, dataset, voronoi_data, asc_table1, wave, image2D, 
         stack_2d = fits.getdata(outfile)
         
     for rr in xrange(n_bins+1):  
-        print rr, stack_2d.shape
+        print(rr, stack_2d.shape)
         index= np.where(last_column== rr)[0]   
         subgrid= image2DM[index]
 
@@ -120,7 +120,7 @@ def Master_Stacking(fitspath, dataset, voronoi_data, asc_table1, wave, image2D, 
 
     #Writing fits file
     #if not exists(outfile):
-    print 'writing ', outfile
+    print('writing ', outfile)
     header['CTYPE1'] = 'LINEAR'
     header['CTYPE2'] = 'LINEAR'
     header['CRPIX1'] =  1.00000
@@ -138,7 +138,7 @@ def run_Stacking_Master_mask(fitspath_ini, dataset, fitspath,voronoi_data, det3,
    
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     image2D = image2DM[det3]
-    print len(image2D)
+    print(len(image2D))
     wavemaster = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     maskM = fits.getdata(fitspath_ini+'/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits')
     mask= maskM[det3]

@@ -28,7 +28,6 @@ import glob
 
 def h_stack(fitspath, table_files, asc_intro,new_name):
     table_files.sort()
-    print 'import'
     for ii in range(len(table_files)):
         asc_tab= asc.read(table_files[ii])
         if ii == 0: 
@@ -36,7 +35,7 @@ def h_stack(fitspath, table_files, asc_intro,new_name):
         else:
             hstacking = hstack([hstacking,asc_tab])
 
-        print type(hstacking)
+        print(type(hstacking))
     #Grid Fits Files
     #hstacking.write(new_name, format='fits')
     #Grid Ascii Files

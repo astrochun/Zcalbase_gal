@@ -66,8 +66,8 @@ def single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     
     #200 galaxies per bin
     n_bins = np.int(len(O32)/galinbin)
-    print n_bins
-    #print len(y_sort0)
+    print(n_bins)
+    #print(len(y_sort0))
 
     #Initializing Arrays for outfile later
     N_arr0 = np.zeros((1, n_bins))
@@ -135,7 +135,7 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     #200 galaxies per bin
     #n_bins_old = np.int(len(R23)/galinbin)
     n_bins = len(galinbin)
-    print n_bins
+    print(n_bins)
 
     #Initializing Arrays for outfile later
     #O32_grid    = np.zeros((n_bins,1))
@@ -157,9 +157,9 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
         if ii == n_bins-1:
             bin_end[ii] = len(R23_sort0)-1
         else:
-            print galinbin[ii]+bin_start[ii]
+            print(galinbin[ii]+bin_start[ii])
             bin_end[ii] = galinbin[ii]+bin_start[ii]-1   
-        print 'Bin Start:', bin_start[ii] , 'Bin end:', bin_end[ii]
+        print('Bin Start:', bin_start[ii] , 'Bin end:', bin_end[ii])
 
         idx_arr = np.where((R23>= R23_sort0[bin_start[ii]]) & (R23<= R23_sort0[bin_end[ii]]))[0]
         R23_grid[ii,0] = R23_sort0[bin_start[ii]]
@@ -245,7 +245,7 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
         for kk in range(len(O32_grid)):
             array= np.where((x < R23_grid[jj]+R23_bin) & (x >= R23_grid[jj]) &
                             (y < O32_grid[kk]+O32_bin) & (y >= O32_grid[kk]))[0]
-            print array
+            print(array)
             N_arr0[jj,kk]    += len(array)
             T_arr[jj,kk] = array
 
@@ -296,7 +296,7 @@ def making_Grid(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SN
 
 
 def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin, adaptive=False):
-    print fitspath
+    print(fitspath)
     #O2_det3, O3_det3, Hb_det3
     #One_dimensional binning for R23 followed by each bin being split in half one with high O32 and one with low O32
 
@@ -307,7 +307,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     sort0 = np.argsort(R23)
     R23_sort0 = R23[sort0]
 
-    print "Running :)"
+    print("Running :)")
     #200 galaxies per bin
     #
     #for oo in range(len(galinbin)):
@@ -315,7 +315,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     '''if adaptive == True: n_bins = len(galinbin)
     if adaptive == False: n_bins = np.int(len(R23)/galinbin)'''
     
-    print n_bins   
+    print(n_bins)  
     n_bins_range = np.arange(0,2*n_bins,1)
 
     #Initializing Arrays for outfile later if using Voronoi Stacking
@@ -350,7 +350,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     #galinbin = [100,150, 250, 300, 300, 200, 205, 102, 102]
     '''increase the number of galaxies as R23 increases'''
     #if len(galinbin) == n_bins:
-        #print 'Length of galinbin list equal to number of calculated bins'
+        #print('Length of galinbin list equal to number of calculated bins')
 
     print(galinbin)
     for ii in range(n_bins):
@@ -362,9 +362,9 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
         if ii == n_bins-1:
             bin_end_1[ii] = len(R23_sort0)-1
         else:
-            print galinbin[ii]+bin_start_1[ii]
+            print(galinbin[ii]+bin_start_1[ii])
             bin_end_1[ii] = galinbin[ii]+bin_start_1[ii]-1   
-        print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
+        print('Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii])
 
 
         '''bin_start_1[ii] = y_sort0[ii*galinbin]  #[ii]
@@ -372,7 +372,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
 
         #if ii == n_bins-1:  bin_end_1[ii] = np.max(R23_sort0)
-        #print 'Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii]
+        #print('Bin Start:', bin_start_1[ii] , 'Bin end:', bin_end_1[ii])
 
         idx1 = np.where((R23>= R23_sort0[bin_start_1[ii]]) & (R23<= R23_sort0[bin_end_1[ii]]))[0]
         #idx1 = np.where((R23>= bin_start_1) & (R23<= bin_end_1))[0]
@@ -433,8 +433,8 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
 
     O32_values   = O32_grid.reshape(2*n_bins) 
     R23_values = R23_grid.reshape(2*n_bins)
-    print 'O32_values', O32_values
-    print 'R23_values', R23_values 
+    print('O32_values', O32_values)
+    print('R23_values', R23_values)
         
     #Plotting
     fig, ax = plt.subplots()
@@ -457,7 +457,7 @@ def two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR
     pdf_pages.close()
 
    
-    print "Please work :)"
+    print("Please work :)")
     
     '''print 'bin:', len(n_bins_range)
     print 'R23:', len(R23_grid), R23_grid
@@ -552,7 +552,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         else:
             #print galinbin[ii]+bin_start_1[ii]
             bin_end[ii] = galinbin[ii]+bin_start[ii]-1   
-        print 'Bin Start:', bin_start[ii] , 'Bin end:', bin_end[ii]
+        print('Bin Start:', bin_start[ii] , 'Bin end:', bin_end[ii])
 
 
         

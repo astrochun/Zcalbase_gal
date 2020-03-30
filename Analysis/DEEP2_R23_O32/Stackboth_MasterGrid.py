@@ -39,7 +39,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3(fitspath, individual_detect=False)
 
 
-    grid_data = np.load(grid_data_file)  #This is the npz file 
+    grid_data = np.load(grid_data_file, allow_pickle=True)  #This is the npz file 
     R23_minimum = grid_data['R23_minimum'] #used to be R23_grid
     O32_minimum = grid_data['O32_minimum'] #Used to be O32_grid
     

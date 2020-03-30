@@ -190,7 +190,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
         y0 = stack2D[rr]
         y_norm = y0/scalefact
 
-        row = rr / nrows % ncols
+        row = rr // nrows % ncols
         col = rr % ncols
         if rr % (nrows*ncols) == 0:
             fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols, squeeze=False)

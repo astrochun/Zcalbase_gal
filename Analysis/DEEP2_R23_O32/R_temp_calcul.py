@@ -212,7 +212,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     #Raw Data
     R_value= R_calculation(OIII4363, OIII5007, EBV)
     T_e= temp_calculation(R_value)
-    com_O_log, metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
+    metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
 
 
     
@@ -221,7 +221,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     '''c_add = Column(indicate, name='Detection')
     combine_fits.add_columns(c_add) #index = 0 should add the detection column to the front of the combine_flux table'''
 
-    tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, metal_dict['O+/H'], metal_dict['O++/H'], com_O_log, metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n)
+    tab0 = Table([ID , indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy, OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA, OII3727, SN_3727, T_e, metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'], metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     

@@ -20,7 +20,7 @@ from matplotlib.gridspec import GridSpec
 from pylab import subplots_adjust
 from astropy.convolution import Box1DKernel, convolve
 
-import general
+from . import general
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 
@@ -39,13 +39,14 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3(fitspath, individual_detect=False)
 
 
-    grid_data = np.load(grid_data_file)  #This is the npz file 
+    grid_data = np.load(grid_data_file, allow_pickle=True)  #This is the npz file 
     R23_minimum = grid_data['R23_minimum'] #used to be R23_grid
     O32_minimum = grid_data['O32_minimum'] #Used to be O32_grid
     
+    
     image2DM = np.nan_to_num(image2D[det3]) #gets data
     
-    print 'Mask[det3]', mask[det3] #takes mask and limits it to just our data
+    print('Mask[det3]', mask[det3]) #takes mask and limits it to just our data
     if type(mask) != type(None):
         image2DM = np.ma.masked_array(image2DM, mask[det3])
         
@@ -71,7 +72,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     
     for rr in range(n_N):
         for oo in range(n_M):
-            print rr,oo
+            print(rr,oo)
             index= grid_data['locator'][rr,oo]
             #print rr, oo, 'index:', index, index.dtype
             #calculating the average and minimum values of R23 and O32
@@ -156,7 +157,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     pdf_pages.close()
 
     #Writing fits file
-    print 'writing ', outfile
+    print('writing ', outfile)
     header['CTYPE1'] = 'LINEAR'
     header['CTYPE2'] = 'LINEAR'
     header['CRPIX1'] =  1.00000

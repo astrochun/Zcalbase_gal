@@ -29,7 +29,7 @@ from astropy.io import fits
 
 jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 
-def O32_OH_fit((x, y), a, b, c, d, e):
+def O32_OH_fit(xy, a, b, c, d, e):
     '''
     Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
 
@@ -38,6 +38,10 @@ def O32_OH_fit((x, y), a, b, c, d, e):
      x : 12+log(O/H)
      y : log([OIII]/[OII])
     '''
+
+    x = xy[0]
+    y = xy[1]
+
     logR23 = a + b*x + c * x**2 - d * (e + x) * y
 
     return logR23
@@ -52,7 +56,7 @@ def jiang18(x, y):
      y : log([OIII]/[OII])
     '''
 
-    logR23 = O32_OH_fit((x, y), *jiang18_coeffs)
+    logR23 = O32_OH_fit(xy, *jiang18_coeffs)
 
     return logR23
 #enddef
@@ -236,7 +240,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             lR23_all = np.append(lR23_all, lR23[nn])
 
         opt, cov = curve_fit(O32_OH_fit, (OH_all, lO32_all), lR23_all, p0=p0)
-        print opt
+        print(opt)
 
     for nn in range(n_sample):
         if len(label) != 0:
@@ -449,7 +453,7 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
 
         OH_err   += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
         lR23_err += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
-        print OH_err
+        print(OH_err)
     #endif
 
     out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.pdf'

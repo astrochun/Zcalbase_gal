@@ -20,7 +20,7 @@ from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
 import scipy.integrate as integ
 
-import general
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 
 
 def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
@@ -28,10 +28,10 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     line_plot = fitspath +dataset+'_line_ratio_plots.pdf'
     
     #combine_flux_ascii = fitspath+dataset#+'_combined_flux_table.tbl'
-    print "### combine_flux_ascii : "+combine_flux_ascii 
+    print("### combine_flux_ascii : "+combine_flux_ascii)
     fitted_data = asc.read(combine_flux_ascii)
 
-    print "### asc_table1 : "+asc_table1
+    print("### asc_table1 : "+asc_table1)
     raw_data = asc.read(asc_table1)
     
     OII = fitted_data['OII_3727_Flux_Observed']
@@ -40,7 +40,7 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     H_BETA = fitted_data['HBETA_Flux_Observed']
     binnum = fitted_data['N_stack']
     ID = fitted_data['bin_ID']
-    print 'binnum:', binnum, len(binnum)
+    print('binnum:', binnum, len(binnum))
     pdf_pages = PdfPages(line_plot)
     nrows = 4
     ncols = 4
@@ -50,7 +50,7 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     for ii in range(len(binnum)):
         R23_comp = np.log10((OII[ii] + (1.33*OIII5007[ii]))/H_BETA[ii])
         O32_comp = np.log10((1.33*OIII5007[ii])/OII[ii])
-        print R23_comp, O32_comp
+        print(R23_comp, O32_comp)
         R23_composite[ii]= R23_comp
         O32_composite[ii]= O32_comp
     
@@ -61,10 +61,10 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     if dataset != 'Grid':
         for rr in range(len(binnum)):
             if binnum[rr] == binnum_raw[rr]:
-                print 'equal',binnum[rr], binnum_raw[rr]
+                print('equal',binnum[rr], binnum_raw[rr])
 
-    print 'R23_raw: as calculated by the grid or voronoi code', R23_raw, 'O32_raw: as calculated by the grid or voronoi code', O32_raw
-    print 'R23_composite: as calculated from observations', R23_composite, 'O32_composite: as calculated from observations', O32_composite 
+    print('R23_raw: as calculated by the grid or voronoi code', R23_raw, 'O32_raw: as calculated by the grid or voronoi code', O32_raw)
+    print('R23_composite: as calculated from observations', R23_composite, 'O32_composite: as calculated from observations', O32_composite)
     fig, ax_arr = plt.subplots()
     ax_arr.scatter(R23_raw,R23_composite, marker= 'o', facecolor= 'none', edgecolor ='b',label= 'R23 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)

@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from astropy.table import Table
 from astropy import log
 
-from green_peas_calibration import get_zcalbase_sample
+from .green_peas_calibration import get_zcalbase_sample
 
 def bian18_R23(OH):
     '''
@@ -106,14 +106,14 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
 
     # Grid of 12+log(O/H)
     if len(yra) == 0:
-        print len(yra)
-        print min(OH_min1)
+        print(len(yra))
+        print(min(OH_min1))
         OH_max = np.nanmax(OH_max1)
-        print OH_max
+        print(OH_max)
         OH_arr = np.arange(min(OH_min1),OH_max,0.25)
     else:
         OH_arr = np.arange(yra[0],yra[1],0.05)
-    print 'OH_arr:', OH_arr
+    print('OH_arr:', OH_arr)
     bian_R23 = bian18_R23(OH_arr)
 
     if len(ctype) == 0:

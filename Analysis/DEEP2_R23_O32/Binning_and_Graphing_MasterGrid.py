@@ -659,6 +659,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     R23_medians = R23_median.reshape(n_split*n_bins)
     R23_maxval = R23_max.reshape(n_split*n_bins)
     O32_maxval = O32_max.reshape(n_split*n_bins)
+
     
         
     #Plotting
@@ -698,14 +699,16 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()
 
-
+    
+    
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
 
     n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
           'logR23_median','logO32_median','logR23_max','logO32_max', 'N_stack')
-    tab1 = Table([n_bins_range, R23_lowlimit, O32_lowlimit,xBar, yBar,
-                  R23_medians, O32_medians, R23_maxval, O32_maxval, area], names = n1)
+    tab1 = Table([n_bins_range, np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
+                  np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval), area], names = n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
+    asc.write(tab1, '/User/reagenleimbach/Desktop/Honors_Thesis/bin_info.tex', format='latex')
     
     fig.clear()
 

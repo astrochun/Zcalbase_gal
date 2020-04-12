@@ -88,7 +88,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     combine_fits= asc.read(combine_flux_ascii)
     ID = combine_fits['bin_ID'].data
 
-
+    
     #####Verification Table Import#######
     #print('Using verification table' + verification_table)
     ver_tab = asc.read(verification_table)

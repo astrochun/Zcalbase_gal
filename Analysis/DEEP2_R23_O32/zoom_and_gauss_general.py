@@ -371,6 +371,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
             fig.set_size_inches(8,8)
             fig.savefig(pdf_pages, format='pdf')
+            fig.clear()
     # endfor
 
 

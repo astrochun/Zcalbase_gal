@@ -593,7 +593,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         for jj in range(n_split):
             # Let's grab all O32 values
             O32_values_perbin = sortO32[startIdx:endIdx]
-            print(O32_values_perbin)
+            
             O32_inbins_idx = O32_index[startIdx:endIdx]
 
             #This index gives the positions of all the R23 values relative 

@@ -28,16 +28,9 @@ import sys
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general
 
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
+
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0502/'
-#dataset = 'Double Bin'
-
-lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  
-
-line_type = ['Oxy2', 'Single','Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single']
-
-line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']  
-
 
 '''
 asc_table = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/Double_Bin_combined_flux_table.tbl'
@@ -64,11 +57,11 @@ def ew_plot_R23(fitspath, asc_table, temp_table, verif_table):
     temp_tab = asc.read(temp_table)
     ver_tab = asc.read(verif_table)
 
-    R23 = asc_tab['R_23_Average'].data
-    O32 = asc_tab['O_32_Average'].data
-    T_e = temp_tab['Temperature'].data
-    com_O = temp_tab['com_O_log'].data
-    ID = temp_tab['ID'].data
+    R23 = asc_tab['logR23_avg'].data
+    O32 = asc_tab['logO32_avg'].data
+    T_e = temp_tab['T_e'].data
+    com_O = temp_tab['12+log(O/H)'].data
+    ID = temp_tab['bin_ID'].data
     detect = ver_tab['Detection'].data
 
 
@@ -100,12 +93,13 @@ def ew_plot_O32(fitspath, asc_table, temp_table, verif_table):
     temp_tab = asc.read(temp_table)
     ver_tab = asc.read(verif_table)
 
-    R23 = asc_tab['R_23_Average'].data
-    O32 = asc_tab['O_32_Average'].data
-    T_e = temp_tab['Temperature'].data
-    com_O = temp_tab['com_O_log'].data
-    ID = temp_tab['ID'].data
+    R23 = asc_tab['logR23_avg'].data
+    O32 = asc_tab['logO32_avg'].data
+    T_e = temp_tab['T_e'].data
+    com_O = temp_tab['12+log(O/H)'].data
+    ID = temp_tab['bin_ID'].data
     detect = ver_tab['Detection'].data
+
 
     for oo in range(len(lambda0)):
         if line_type[oo] == 'Balmer':
@@ -132,11 +126,11 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     temp_tab = asc.read(temp_table)
     ver_tab = asc.read(verif_table)
 
-    R23 = asc_tab['R_23_Average'].data
-    O32 = asc_tab['O_32_Average'].data
-    T_e = temp_tab['Temperature'].data
-    com_O = temp_tab['com_O_log'].data
-    ID = temp_tab['ID'].data
+    R23 = asc_tab['logR23_avg'].data
+    O32 = asc_tab['logO32_avg'].data
+    T_e = temp_tab['T_e'].data
+    com_O = temp_tab['12+log(O/H)'].data
+    ID = temp_tab['bin_ID'].data
     detect = ver_tab['Detection'].data
 
     cm= plt.cm.get_cmap('Blues')
@@ -178,19 +172,20 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     
 
 
-def hist_for_bin(dataset,asc_table_det3):
-    #asc_table = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+def hist_for_bin(fitspath, dataset,asc_table_det3):
+    #asc_table = fitspath+ bin_info.tbl
     asc_tab = asc.read(asc_table_det3)
     name = dataset +'_histograms.pdf'
 
     pdf_pages = PdfPages(fitspath+name)
 
-    R23 = asc_tab['R23']
-    O32 = asc_tab['O32']
-    N_bin = asc_tab['N_bin']
-    
+    R23 = asc_tab['logR23_avg']
+    O32 = asc_tab['logO32_avg']
+    N_bin = asc_tab['N_stack']
 
-    for ii in range(np.max(N_bin)+1):
+    number_of_bins = np.int(np.max(N_bin))+1
+
+    for ii in range(number_of_bins):
         bin_idx = np.where((N_bin == ii))[0]
         fig, ax = plt.subplots()
         ax.hist(R23[bin_idx])
@@ -203,7 +198,7 @@ def hist_for_bin(dataset,asc_table_det3):
         
 
     pdf_pages2 = PdfPages(fitspath+'O32'+name)
-    for ii in range(np.max(N_bin)+1):
+    for ii in range(number_of_bins):
         bin_idx = np.where((N_bin == ii))[0]
         fig, ax = plt.subplots()
         ax.hist(O32[bin_idx])

@@ -708,7 +708,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     tab1 = Table([n_bins_range, np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
                   np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval), area], names = n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
-    asc.write(tab1, '/User/reagenleimbach/Desktop/Honors_Thesis/mostrecent_bin_info.tex', format='latex')
+    asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/mostrecent_bin_info.tex', format='latex')
     
     fig.clear()
 

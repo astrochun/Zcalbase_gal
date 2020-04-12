@@ -52,11 +52,11 @@ from astropy.table import Table
 from getpass import getuser
 from astropy import units as u
 
-from Metallicity_Stack_Commons.temp_metallicity_calc import \
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
     R_calculation, temp_calculation, metallicity_calculation
 
-from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
-from Metallicity_Stack_Commons import k_dict
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict
 
 k_4363  = k_dict['OIII_4363']
 k_5007  = k_dict['OIII_5007']

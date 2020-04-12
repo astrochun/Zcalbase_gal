@@ -33,8 +33,8 @@ from chun_codes import random_pdf, compute_onesig_pdf, intersect
 
 #fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
 
-from Metallicity_Stack_Commons import exclude_outliers, dir_date
-from Metallicity_Stack_Commons import lambda0, line_type, line_name
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
 
 #############Getting username##############
 

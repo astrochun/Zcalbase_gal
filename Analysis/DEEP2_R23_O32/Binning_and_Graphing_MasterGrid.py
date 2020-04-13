@@ -660,7 +660,9 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     R23_maxval = R23_max.reshape(n_split*n_bins)
     O32_maxval = O32_max.reshape(n_split*n_bins)
 
-    
+    ####Taking the log of all the R23 and O32 values
+     np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
+                  np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)
         
     #Plotting
     fig, ax = plt.subplots()

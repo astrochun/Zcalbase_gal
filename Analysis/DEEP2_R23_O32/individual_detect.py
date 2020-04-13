@@ -25,7 +25,7 @@ from datetime import date
 #from . import general
 
 import Metallicity_Stack_Commons
-from Metallicity_Stack_Commons.analysis.composite_indv_detect import main
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.composite_indv_detect import main
 
 
 a = 13205
@@ -136,7 +136,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
     #main(fitspath, dataset, composite_file, indv_em_line_file, indv_bin_file, outfile, det3=True)
     main(fitspath, dataset, revised= False, det3= True)
 
-    #indv_derived = asc.read(outfile)
+    indv_derived = asc.read(outfile)
     if graphs == True:
         ID = indv_derived['ID']
         Te = indv_derived['T_e']
@@ -183,6 +183,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
         fig3,ax3 = plt.subplots()
         ax3.scatter(R23_idv, com_idv)
         ax3.set_title(r'$R_{23}$ vs. $12+log(O/H)$')
+
         ax3.set_xlabel(r'log($R_{23}$)')
         ax3.set_ylabel('12+log(O/H)')
         fig3.savefig(pdf_pages, format ='pdf')

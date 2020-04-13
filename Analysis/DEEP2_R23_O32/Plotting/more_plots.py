@@ -80,6 +80,7 @@ def ew_plot_R23(fitspath, asc_table, temp_table, verif_table):
             ax.set_title('EW vs. R23   '+str(np.int(lambda0[oo])))
             fig.set_size_inches(8,8)
             fig.savefig(pdf_pages, format='pdf')
+            fig.clear()
     pdf_pages.close()
 
 
@@ -115,9 +116,19 @@ def ew_plot_O32(fitspath, asc_table, temp_table, verif_table):
             ax.set_title('EW vs. O32   '+str(np.int(lambda0[oo])))
             fig.set_size_inches(8,8)
             fig.savefig(pdf_pages, format='pdf')
+            fig.clear()
     pdf_pages.close()
 
 def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
+    ########
+    #Purpose:
+    #Input:
+    #      asc_table   -> combine_flux_ascii
+    #      temp_table  -> derived_properties
+    #      verif_table -> bin_validation_revised
+    ########
+
+
     name = fitspath +'R23_vs_O32_colormapping.pdf'
     pdf_pages = PdfPages(name)
 
@@ -135,25 +146,28 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
 
     cm= plt.cm.get_cmap('Blues')
     edge_det = np.where((detect ==1))[0]
+    edge_rlimit = np.where((detect ==0.5))[0]
     edge_nan = np.where((detect ==0))[0]
+
 
     fig1,ax1 = plt.subplots()
     p1= ax1.scatter(R23[edge_det], O32[edge_det], marker= 'o', c=T_e[edge_det], cmap=cm)    #edgecolors = edgecolor
-    ax1.scatter(R23[edge_nan], O32[edge_nan], marker= '^')   #, c=T_e, cmap=cm)
+    ax1.scatter(R23[edge_rlimit], O32[edge_rlimit], marker= '^', c =T_e[edge_rlimit], cmap=cm)   #, c=T_e, cmap=cm)
     cb = fig1.colorbar(p1)
     cb.set_label('Temperature')
-    for aa in range(len(ID)):
-        ax1.annotate(ID[aa], (R23[aa], O32[aa]), fontsize = '6')
+    for aa in range(len(edge_det)):
+        ax1.annotate(ID[edge_det][aa], (R23[edge_det][aa], O32[edge_det][aa]), fontsize = '6')
     ax1.set_xlabel('R23')
     ax1.set_ylabel('O32')
     ax1.set_title('R23 vs. O32 Colormap= Temperature')
     fig1.set_size_inches(8,8)
     fig1.savefig(pdf_pages, format='pdf')
+    fig1.clear()
 
     
     fig2,ax2 = plt.subplots()
     p2 = ax2.scatter(R23[edge_det], O32[edge_det], marker= 'o', c=com_O[edge_det])  #, cmap =cm)#edgecolors = edgecolor
-    ax2.scatter(R23[edge_nan], O32[edge_nan], marker= '^')   #, c=com_O, cmap =cm) 
+    ax2.scatter(R23[edge_rlimit], O32[edge_rlimit], marker= '^', c=com_O[edge_rlimit])   #, c=com_O, cmap =cm) 
     cb= fig2.colorbar(p2)
     cb.set_label('Metallicity')
     for bb in range(len(ID)):
@@ -163,6 +177,7 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     ax2.set_title('R23 vs. O32  Colormap=Metallicity')
     fig2.set_size_inches(8,8)
     fig2.savefig(pdf_pages, format='pdf')
+    fig2.clear()
 
 
 

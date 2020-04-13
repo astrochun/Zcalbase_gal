@@ -23,7 +23,7 @@ import scipy.integrate as integ
 import glob
 from datetime import date
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, calibration_plots, verification_tables
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, calibration_plots,individual_detect 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
@@ -211,7 +211,7 @@ def check_verification_table(fitspath_ini, dataset, combine_flux_ascii):
         return verification_table
 
 
-def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, dustatten = 'False', mask='None'):
+def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, dustatten = 'False', mask='None', want_idv_detect=True):
     #dataset options: Grid, O32_Grid, R23_Grid, n_Bins
 
     if dataset == 'O32_Grid': org_name = 'O32_Grid'
@@ -434,6 +434,15 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
 
 
+    ######Individual Detections#####
+    if want_idv_detect == True:
+        dataset_idv = ''
+        pdf_individual = 'individual_detection_only_graph.pdf'
+        individual_detect.individual_detection_MSC(fitspath, dataset_idv, pdf_individual, revised = False, det3=True, graphs= False) 
+        print("Ran Individual Detection from MSC")
+        idv_derived_prop = fitspath+'individual_derived_properties.tbl'
+    
+    
     
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
@@ -451,9 +460,9 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     
     more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, verification_table_rev)
     more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, verification_table_rev)
-    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
+    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_m_gascii, verification_table_rev)
     bin_info = fitspath+ 'bin_info.tbl'
-    more_plots.hist_for_bin(fitspath, dataset, bin_info)
+    #more_plots.hist_for_bin(fitspath, dataset, bin_info)
 
 
 

@@ -21,7 +21,7 @@ import scipy.integrate as integ
 import glob
 from datetime import date
 
-from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 
 def plotting_te_metal(fitspath, out_pdf):
     

@@ -267,16 +267,19 @@ def plotting_individual_for_stacking_image():
     RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave= header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-
+ 
+    txt0 = 'Intensity Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'
+    txt0 += 'Scale factor = 1e-17'
     scalefactor = 1e-17
     image2d = image2DM/scalefactor
     for ii in range(100,120):
         fig,ax = plt.subplots()
         plt.plot(wave, image2d[ii,:], linewidth = 0.5)
-        plt.xlabel('Wavelength')
-        plt.ylabel('Intensity Scale factor = 1e-17')
+        plt.xlabel('Wavelength (Angstroms '+ r'($\AA$)' +')')
+        plt.ylabel(txt0) #ergs per second per cm^2 per angstron
         ax.set_xlim(4100,4500)
-                 
+        ax.set_ylim(-2,2)
+        fig.set_size_inches(8,6)
         pdf_pages.savefig()
         fig.clear()
     pdf_pages.close()

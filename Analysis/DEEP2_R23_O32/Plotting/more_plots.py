@@ -268,14 +268,14 @@ def plotting_individual_for_stacking_image():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave= header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
  
-    txt0 = 'Intensity Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'
-    txt0 += 'Scale factor = 1e-17'
+    txt0 = 'Intensity ' + r'($10^{-17} {\rm erg} {\rm s}^{-1} {\rm cm}^{-2} \AA^{-1}$)'
+    # txt0 += 'Scale factor = 1e-17'
     scalefactor = 1e-17
     image2d = image2DM/scalefactor
     for ii in range(100,120):
         fig,ax = plt.subplots()
         plt.plot(wave, image2d[ii,:], linewidth = 0.5)
-        plt.xlabel('Wavelength (Angstroms '+ r'($\AA$)' +')')
+        plt.xlabel('Wavelength (Angstroms)')
         plt.ylabel(txt0) #ergs per second per cm^2 per angstron
         ax.set_xlim(4100,4500)
         ax.set_ylim(-2,2)

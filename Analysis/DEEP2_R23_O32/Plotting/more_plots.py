@@ -260,22 +260,30 @@ def dust_att_plot(combine_flux):
     #pdf_pages.close()
 
     
-def plotting_individual_for_stacking_image():
-    name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
-    pdf_pages = PdfPages(name)
-    
-    RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+def plotting_individual_for_stacking_image(stack_spectra=False):
+    if not stack_spectra:
+        name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
+        RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+        spec_range = range(100, 120)
+    else:
+        RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Stacking_Masked_MasterGrid_n_Bins.fits'
+        name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/composite_plots_data_viz.pdf'
+        spec_range = range(20)
+
     image2DM, header = fits.getdata(RestframeMaster, header=True)
-    wave= header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
- 
-    txt0 = 'Intensity Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA^{-1}$' + '\n'
-    txt0 += 'Scale factor = 1e-17'
+    wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+
+    pdf_pages = PdfPages(name)
+
+    txt0 = 'Intensity ' + r'($10^{-17} {\rm erg} {\rm s}^{-1} {\rm cm}^{-2} \AA^{-1}$)'
+    # txt0 += 'Scale factor = 1e-17'
+
     scalefactor = 1e-17
     image2d = image2DM/scalefactor
-    for ii in range(100,120):
+    for ii in spec_range:
         fig,ax = plt.subplots()
         plt.plot(wave, image2d[ii,:], linewidth = 0.5)
-        plt.xlabel('Wavelength (Angstroms '+ r'($\AA$)' +')')
+        plt.xlabel('Wavelength (Angstroms)')
         plt.ylabel(txt0) #ergs per second per cm^2 per angstron
         ax.set_xlim(4100,4500)
         ax.set_ylim(-2,2)

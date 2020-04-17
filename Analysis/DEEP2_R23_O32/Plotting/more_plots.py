@@ -268,7 +268,7 @@ def plotting_individual_for_stacking_image():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave= header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
  
-    txt0 = 'Intensity Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'
+    txt0 = 'Intensity Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA^{-1}$' + '\n'
     txt0 += 'Scale factor = 1e-17'
     scalefactor = 1e-17
     image2d = image2DM/scalefactor

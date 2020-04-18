@@ -275,7 +275,7 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
 
     pdf_pages = PdfPages(name)
 
-    txt0 = 'Intensity ' + r'($10^{-17} {\rm erg} {\rm s}^{-1} {\rm cm}^{-2} \AA^{-1}$)'
+    txt0 = 'Intensity ' + r'($10^{-17}~{\rm erg}~{\rm s}^{-1}~{\rm cm}^{-2}~\AA^{-1}$)'
     # txt0 += 'Scale factor = 1e-17'
 
     scalefactor = 1e-17
@@ -287,9 +287,10 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
         plt.ylabel(txt0) #ergs per second per cm^2 per angstron
         ax.set_xlim(4250,4450)
         ax.set_ylim(0,1)
-        ax.axvline(x=4363.21, linewidth= 0.1, color= 'k', linestyle = '--')
+        ax.axvline(x=4363.21, linewidth= 0.5, color= 'r', linestyle = ':')
         fig.set_size_inches(6,6)
         pdf_pages.savefig()
+        plt.subplots_adjust(left=0.1, right=0.97, bottom=0.1, top=0.97)
         fig.clear()
     pdf_pages.close()
 

@@ -287,7 +287,9 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
         plt.ylabel(txt0) #ergs per second per cm^2 per angstron
         ax.set_xlim(4250,4450)
         ax.set_ylim(0,1)
-        ax.axvline(x=4363.21, linewidth= 0.5, color= 'r', linestyle = ':')
+        ax.axvline(x=4363.21, linewidth=1.0, color= 'r', linestyle = ':')
+        ax.text(4363.21, 1.0, r'[{\sc O iii}]$\lambda$4363',
+                    va='top', ha='center', rotation=90)
         fig.set_size_inches(6,6)
         pdf_pages.savefig()
         plt.subplots_adjust(left=0.1, right=0.97, bottom=0.1, top=0.97)

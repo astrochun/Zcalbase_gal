@@ -288,7 +288,7 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
         ax.set_xlim(4250,4450)
         ax.set_ylim(0,1)
         ax.axvline(x=4363.21, linewidth=1.0, color= 'r', linestyle = ':')
-        ax.text(4363.21, 1.0, r'$[\textsc{O iii}]\lambda4363$',
+        ax.text(4363.21, 1.0, r'$[OIII]\lambda4363$',
                     va='top', ha='center', rotation=90)
         fig.set_size_inches(6,6)
         pdf_pages.savefig()

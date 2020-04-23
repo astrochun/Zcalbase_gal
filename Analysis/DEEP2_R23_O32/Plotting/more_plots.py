@@ -265,10 +265,16 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
         name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
         RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
         spec_range = range(100, 120)
+        y_lim = (-2,2)
+        y_text = 1.95
+        left = 0.13
     else:
         RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
         name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/composite_plots_data_viz.pdf'
-        spec_range = range(26)
+        spec_range = range(27)
+        y_lim = (0,1)
+        y_text = 0.95
+        left = 0.1
 
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
@@ -286,11 +292,13 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
         plt.xlabel('Wavelength (Angstroms)')
         plt.ylabel(txt0) #ergs per second per cm^2 per angstron
         ax.set_xlim(4250,4450)
-        ax.set_ylim(0,1)
+        ax.set_ylim(y_lim)
         ax.axvline(x=4363.21, linewidth=1.0, color= 'r', linestyle = ':')
-        ax.text(4363.21, 0.95, r'[OIII]$\lambda$4363', va='top', ha='center', rotation=90)
+        ax.axvline(x=4340.544, linewidth=1.0, color= 'r', linestyle = ':')
+        ax.text(4363.21, y_text, r'[OIII]$\lambda$4363', va='top', ha='center', rotation=90)
+        ax.text(4340.544, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
         fig.set_size_inches(6,6)
-        plt.subplots_adjust(left=0.1, right=0.97, bottom=0.1, top=0.97)
+        plt.subplots_adjust(left=left, right=0.97, bottom=0.1, top=0.97)
         pdf_pages.savefig()
         fig.clear()
     pdf_pages.close()

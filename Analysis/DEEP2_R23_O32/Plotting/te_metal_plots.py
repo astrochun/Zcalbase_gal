@@ -91,7 +91,7 @@ def plotting_te_metal(fitspath, out_pdf):
 
 
 
-
+    
 
 
 
@@ -107,7 +107,8 @@ def plotting_te_metal(fitspath, out_pdf):
     fig.clear()
 ##################################################################################################
     fig1,ax1 = plt.subplots()
-    ax1.scatter(iTe_idv, iR23_idv,  marker = '.', s = 35, color = 'g')
+    
+    #ax1.scatter(iTe_idv, iR23_idv,  marker = '.', s = 35, color = 'g')
     #ax1.set_title(r'$R_{23}$ vs. $T_e$')
     #ax1.set_xlabel(r'log($R_{23}$)')
     #ax1.set_ylabel('T_e')
@@ -137,7 +138,7 @@ def plotting_te_metal(fitspath, out_pdf):
 ##################################################################################################
 
     fig2,ax2 = plt.subplots()
-    ax2.scatter(iTe_idv,iO32_idv,  marker = '.', s = 35, color = 'g')
+    #ax2.scatter(iTe_idv,iO32_idv,  marker = '.', s = 35, color = 'g')
 
 
 
@@ -160,7 +161,7 @@ def plotting_te_metal(fitspath, out_pdf):
     fig2.clear()
 ##################################################################################################
     fig3,ax3 = plt.subplots()
-    ax3.scatter(iR23_idv, icom_idv,  marker = '.', s = 35, color = 'g')
+    #ax3.scatter(iR23_idv, icom_idv,  marker = '.', s = 35, color = 'g')
     ax3.scatter(R23_composite[ver_detect], metal_composite[ver_detect], marker = '.', s = 50, color = 'b')
     ax3.scatter(R23_composite[ver_rlimit], metal_composite[ver_rlimit], marker = '^', s = 35, color = 'b')
     for zz in ver_detect:ax3.annotate(ID_composite[zz], (R23_composite[zz],metal_composite[zz]), fontsize = '6')
@@ -170,7 +171,8 @@ def plotting_te_metal(fitspath, out_pdf):
     for gg in range(len(ID_der)): ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize = '2')
     ax3.scatter(der_R23_MACT, der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors='None')
     for g in range(len(ID_der_MACT)): ax3.annotate(ID_der_MACT[g], (der_R23_MACT[g], der_OH_MACT[g]), fontsize= '2')
-
+    ax3.set_xlim(0.5,1.1)
+    ax3.set_ylim(6.75,9.25)
     ax3.set_xlabel(r'$R_{23}$')
     ax3.set_ylabel('12+log(O/H)')
     ax3.set_title(r'$R_{23}$ vs. Composite Metallicity')
@@ -181,7 +183,7 @@ def plotting_te_metal(fitspath, out_pdf):
     fig3.clear()
 ##################################################################################################
     fig4,ax4 = plt.subplots()
-    ax4.scatter(iO32_idv, icom_idv,  marker = '.', s = 35, color = 'g')
+    #ax4.scatter(iO32_idv, icom_idv,  marker = '.', s = 35, color = 'g')
     ax4.scatter(O32_composite[ver_detect], metal_composite[ver_detect], marker = '.',s =50, color = 'b')
     ax4.scatter(O32_composite[ver_rlimit], metal_composite[ver_rlimit], marker = '^',s =35, color = 'b')
 
@@ -193,7 +195,7 @@ def plotting_te_metal(fitspath, out_pdf):
 
     ax4.scatter(der_O32_MACT,der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
     for h in range(len(ID_der_MACT)): ax4.annotate(ID_der_MACT[h], (der_O32_MACT[h], der_OH_MACT[h]), fontsize= '2')
-
+    
     ax4.set_xlabel(r'$O_{32}$')
     ax4.set_ylabel('12+log(O/H)')
     ax4.set_title(r'$O_{32}$ vs. Composite Metallicity')

@@ -148,7 +148,8 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
-         marker=[], label=[], dR23_range=[-0.3,0.3], fit=False, silent=False, verbose=True):
+         marker=[], edgecolors = [], alpha = [], label=[], dR23_range=[-0.3,0.3], fit=False,
+         silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -179,6 +180,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     '''
 
     if silent == False: log.info('### Begin main : '+systime())
+
 
     fig, ax = plt.subplots()
 
@@ -226,6 +228,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
     #Plotting
     ctype = ['red','magenta','green','cyan','blue','black']
+    xytext_location = ([5,2], [5,2], [5,2], [5,2], [5,2], [5,2])
 
     if len(marker) == 0:
         marker = ['o'] * n_sample
@@ -244,10 +247,12 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
     for nn in range(n_sample):
         if len(label) != 0:
-            x1 = xra[0] + 0.025*(xra[1]-xra[0])
-            y1 = yra[1] - (nn*0.035 + 0.05)*(yra[1]-yra[0])
-            x2 = xra[0] + 0.035*(xra[1]-xra[0])
-            y2 = yra[1] - (nn*0.035 + 0.0525)*(yra[1]-yra[0])
+            x1 = xra[0] + 0.28*(xra[1]-xra[0])
+            y1 = yra[1] - (nn*0.035 + 0.1)*(yra[1]-yra[0])
+            x2 = xra[0] + 0.3*(xra[1]-xra[0])
+            y2 = yra[1] - (nn*0.035 + 0.1)*(yra[1]-yra[0])
+            print("x1, x2, y1, y2 " , x1, x2, y1, y2)
+            #x1 = 
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
             ax.plot([x1],[y1], marker=marker[nn], color='black')
 
@@ -263,7 +268,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                                                                        len(idx_all))
             if len(idx) > 0:
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
-                           alpha=0.5, label=ii_label)
+                           alpha=alpha[nn], label=ii_label, edgecolors =edgecolors[nn])
+                
 
             if len(OH_err) != 0:
                 ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=OH_err[nn][:,idx],
@@ -280,25 +286,27 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                 if fit == False:
                     opt = jiang18_coeffs
 
+                
                 mod_logR23 = O32_OH_fit((x_arr, lO32_avg), *opt)
                 ax.annotate('%.2f' % lO32_avg, [mod_logR23[-1], x_arr[-1]],
+                            xytext= xytext_location[ii], textcoords= 'offset points',
                             color=ctype[ii], xycoords='data', ha='center',
-                            va='bottom', fontsize=8)
-
+                            va='bottom', fontsize=8)  #
                 ax.plot(mod_logR23, x_arr, color=ctype[ii], linestyle='dashed')
         #endfor
     #endfor
 
     if len(xra) != 0: ax.set_xlim(xra)
     if len(yra) != 0: ax.set_ylim(yra)
-
+    #ax.set_xlim(0.5,1.1)
+    #ax.set_ylim(6.75, np.max(x_arr)+0.1)
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})$')
     leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
-    plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.97)
+    plt.subplots_adjust(left=0.1, right=0.97, bottom=0.1, top=0.97)
     fig.savefig(out_pdf)
 
     # Plot differences between model and data

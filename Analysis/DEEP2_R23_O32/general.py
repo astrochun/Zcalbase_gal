@@ -31,7 +31,7 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf, intersect
 
-#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
+
 
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
@@ -442,10 +442,10 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         print("Ran Individual Detection from MSC")
         idv_derived_prop = fitspath+'individual_derived_properties.tbl'
     
-    
+
     
     ###Calibration Plots###
-    calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
+    calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii, verification_table_rev, include_limits = False)
     
    
 

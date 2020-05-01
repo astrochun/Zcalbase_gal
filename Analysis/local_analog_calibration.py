@@ -140,7 +140,10 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
                            ecolor=ctype[nn], capsize=0, alpha=0.5,
                            fmt=None, label=None)
 
-    ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
+    ax[0].plot(bian_R23, OH_arr, 'k--')
+
+    avail_idx = np.where((OH_arr >= 7.80) & (OH_arr <=8.4))[0]
+    ax[0].plot(bian_R23[avail_idx], OH_arr[avail_idx], 'k-', label='Bian+(2018)')
 
     if len(R23_xra) != 0: ax[0].set_xlim(R23_xra)
     if len(yra) != 0: ax[0].set_ylim(yra)

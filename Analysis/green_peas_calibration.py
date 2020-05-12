@@ -129,7 +129,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     an_txt  = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
-    ax.annotate(an_txt, [0.155,0.015], xycoords='axes fraction', va='bottom', ha='right',
+    ax.annotate(an_txt, [0.2,0.015], xycoords='axes fraction', va='bottom', ha='right',
                 fontsize=10)
 
     if len(OH_range)   != 0: ax.set_xlim(OH_range)
@@ -138,11 +138,11 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm J18}$')
     ax.minorticks_on()
-    leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
-    for lh in leg.legendHandles:
-        lh.set_alpha(0.5)
+    #leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
+    #for lh in leg.legendHandles:
+        #lh.set_alpha(0.5)
 
-    plt.subplots_adjust(left=0.12, right=0.97, bottom=0.08, top=0.97)
+    plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
 
     fig.savefig(out_diff_pdf)
 #enddef
@@ -228,7 +228,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
     #Plotting
     ctype = ['red','magenta','green','cyan','blue','black']
-    xytext_location = ([5,2], [5,2], [5,2], [5,2], [5,2], [5,2])
+    xytext_location = ([5,2], [5,2], [0,2], [3,2], [7,2], [5,2])
 
     if len(marker) == 0:
         marker = ['o'] * n_sample
@@ -253,7 +253,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             y2 = yra[1] - (nn*0.035 + 0.1)*(yra[1]-yra[0])
             print("x1, x2, y1, y2 " , x1, x2, y1, y2)
             #x1 = 
-            ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
+            ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left') # 
             ax.plot([x1],[y1], marker=marker[nn], color='black')
 
         for ii in range(n_bins):
@@ -267,6 +267,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                 ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
                                                                        len(idx_all))
             if len(idx) > 0:
+                 
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=alpha[nn], label=ii_label, edgecolors =edgecolors[nn])
                 
@@ -291,28 +292,29 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                 ax.annotate('%.2f' % lO32_avg, [mod_logR23[-1], x_arr[-1]],
                             xytext= xytext_location[ii], textcoords= 'offset points',
                             color=ctype[ii], xycoords='data', ha='center',
-                            va='bottom', fontsize=8)  #
+                            va='bottom', fontsize=8)  # 
                 ax.plot(mod_logR23, x_arr, color=ctype[ii], linestyle='dashed')
         #endfor
     #endfor
 
-    if len(xra) != 0: ax.set_xlim(xra)
-    if len(yra) != 0: ax.set_ylim(yra)
-    #ax.set_xlim(0.5,1.1)
-    #ax.set_ylim(6.75, np.max(x_arr)+0.1)
+    #if len(xra) != 0: ax.set_xlim(xra)
+    #if len(yra) != 0: ax.set_ylim(yra)
+    ax.set_xlim(0.5,1.1)
+    ax.set_ylim(6.75, np.max(x_arr)+0.1)
     ax.set_xlabel(r'$\log(R_{23})$')
-    ax.set_ylabel(r'$12+\log({\rm O/H})$')
+    ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
     plt.subplots_adjust(left=0.1, right=0.97, bottom=0.1, top=0.97)
     fig.savefig(out_pdf)
-
+    
     # Plot differences between model and data
     if fit == False:
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
-        plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
+        plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
+                         bin_end, n_bins=n_bins,
                          lR23_err=lR23_err, OH_err=OH_err, OH_range=yra,
                          dR23_range=dR23_range, marker=marker, label=label)
         if silent == False: log.info('### End main : '+systime())

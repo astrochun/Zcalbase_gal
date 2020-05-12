@@ -228,6 +228,11 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     tab0.write(out_fits,format = 'fits', overwrite = True)
 
 
+    n1=  ('bin_ID','Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA', 'O+/H', 'O++/H','12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
+    variable_formats=  {'bin_ID': '%i','Detection': '%.1f','R value':'%.3f', 'Electron Temperature': '%.3f', 'O2/HBETA': '%.3f', 'O3/HBETA':'%.3f', 'O+/H': '{:.3e}', 'O++/H': '{:.3e}','12+log(O/H)': '%.3f', 'log(O+/H)': '%.3f', 'log(O++/H)': '%.3f'}
+    tab1 = Table([ID, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'], metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
+    asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex', format='latex', formats= variable_formats)
+
 def dust_attenuation(fitspath, combine_ascii):
     line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
     

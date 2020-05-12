@@ -227,7 +227,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     
 
     if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
-    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
+    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2799 
     print('# of Gal in Bin:', galinbin)
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
@@ -281,7 +281,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     
 
 
-
+    
     #Stackboth_MasterGrid
     #Option to Change: Bin size  
     outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'

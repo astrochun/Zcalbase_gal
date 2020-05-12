@@ -93,40 +93,65 @@ def LAC_GPC_plots():           #fitspath, dataset,temp_tab,verification_table):
     bin_ID = individual['bin_ID']
 
 
-    pea_out_pdf1 = fitspath+ '/'+dataset+'_GPC_valid.pdf'
+    pea_out_pdf1 = fitspath+ '/'+dataset+'_AGPC_valid.pdf'
     pea_out_pdf2 = fitspath+ '/'+dataset+'_GPC_limits.pdf'
     pea_out_pdf3 = fitspath+ '/'+dataset+'_GPC_zcalbase_all.pdf'
-    '''
+    out_pdf_LAC = fitspath+ '/'+ dataset+'ALAC_plot.pdf'
+    
+    label = ['Detection','Robust Limits','DEEP2', 'MACT']
+    marker = ['D',r'$\uparrow$','3','4']
+    
+    rlR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
+    rlO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
+    rOH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+
+    green_peas_calibration.main(rlR23,rlO32, rOH, pea_out_pdf2, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=marker, edgecolors= ['face','face', 'none', 'none'], alpha = [0.5, 0.5, 0.5, 0.5], label=label, fit=False, silent=False, verbose=True)
+    # marker=['.','*','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT']
+
+    
+    lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
+    lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
+    OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+    
+    local_analog_calibration.main(lR23, lO32, OH, out_pdf_LAC, yra=[7.0,9.0], ctype=['b','g','r','m'], label=label, marker= marker, silent=False, verbose=True)
+    print('finished LAC plot') 
+
+
     lR23 = [det_R23,der_R23,der_R23_MACT]
-    print('lR23' , lR23)
+    lO32 = [det_O32,der_O32,der_O32_MACT]
+    OH   = [det_OH, der_OH, der_OH_MACT]
+    
+    #green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf1, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['D','3','4'], edgecolors= ['face','face', 'none'], alpha = [0.5, 0.5, 0.5], label=['Detection','DEEP2', 'MACT'], fit=False, silent=False, verbose=True)
+
+
+
+
+
+
+
+
+'''
+    lR23 = [det_R23,der_R23,der_R23_MACT]
     
     lO32 = [det_O32,der_O32,der_O32_MACT]
-    print('lO32' , lO32)
     
     OH   = [det_OH, der_OH, der_OH_MACT]
     
     green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf1, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['D','3','4'], edgecolors= ['face','face', 'none'], label=['Detection','DEEP2', 'MACT'], fit=False, silent=False, verbose=True)
     # marker=['.','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT']
-    print('Done with detections.')'''
+    print('Done with detections.')
 
-    rlR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
-    rlO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
-    rOH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
-
-    green_peas_calibration.main(rlR23,rlO32, rOH, pea_out_pdf2, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['D','X','3','4'], edgecolors= ['face','face', 'none', 'none'], alpha = [0.5, 0.5, 0.5, 0.5], label=['Detection','Robust Limits','DEEP2', 'MACT', 'Zcalbase_gal'], fit=False, silent=False, verbose=True)
-    # marker=['.','*','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT']
     
     rlR23 = [det_R23,nandet_R23, logR23]
     rlO32 = [det_O32,nandet_O32, logO32]
     rOH   = [det_OH,nandet_OH, com_log] 
 
-    green_peas_calibration.main(rlR23,rlO32, rOH, pea_out_pdf3, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['D','X', '.'],edgecolors= ['face','face', 'none'], alpha = [1, 1, 0.2], label=['Detection','Robust Limits', 'Zcalbase_gal'], fit=False, silent=False, verbose=True)
+    #green_peas_calibration.main(rlR23,rlO32, rOH, pea_out_pdf3, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['D','X', '.'],edgecolors= ['face','face', 'none'], alpha = [1, 1, 0.2], label=['Detection','Robust Limits', 'Zcalbase_gal'], fit=False, silent=False, verbose=True)
     
 
 
 
-
-    '''
+        
     if dataset == 'R23_Grid':
         lR23 = [det_R23,der_R23,der_R23_MACT]
         lO32 = [det_O32,der_O32,der_O32_MACT]

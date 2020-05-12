@@ -316,8 +316,7 @@ def Jiang_comparison():
     an_txt  = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
-    ax.annotate(an_txt, [0.2,0.015], xycoords='axes fraction', va='bottom', ha='right',
-                fontsize=10)
+    #ax.annotate(an_txt, [0.2,0.015], xycoords='axes fraction', va='bottom', ha='right',fontsize=10)
     
     fig.savefig(pdf_pages, format ='pdf')
 
@@ -426,33 +425,41 @@ def Bian_comparison():
     AO_comparison = np.zeros(len(metal_det))
     for ii in range(len(metal_det)):
         jR23_det[ii] = 138.0430 - 54.8284*metal_det[ii] + 7.2954*metal_det[ii]*metal_det[ii] - 0.32293*metal_det[ii]*metal_det[ii]*metal_det[ii]
-        A_comparison[ii] = np.abs(jR23_det[ii] - lR23[ii])
+        A_comparison[ii] = (jR23_det[ii] - lR23[ii])
         jO32_det[ii] = (-1/0.59)*(metal_det[ii]-8.54)
-        AO_comparison[ii] =  np.abs(jO32_det[ii] - lO32[ii])
+        AO_comparison[ii] =  (jO32_det[ii] - lO32[ii])
     #for aa in range(len(metal_rl)):
         #jR23_rl[aa] = a +b*metal_rl[aa]+c*(metal_rl[aa]*metal_rl[aa]) - d*(e+metal_rl[aa])*+rlO32[aa]
 
 
     for bb in range(len(bR23_DEEP)):
         bR23_DEEP[bb] = 138.0430 - 54.8284* der_OH[bb] + 7.2954* der_OH[bb]* der_OH[bb] - 0.32293* der_OH[bb]* der_OH[bb]* der_OH[bb]
-        B_comparison[bb] = np.abs(bR23_DEEP[bb] - der_R23[bb])
+        B_comparison[bb] = (bR23_DEEP[bb] - der_R23[bb])
         bO32_DEEP[bb] = (-1/0.59)*(der_OH[bb]-8.54)
-        BO_comparison[bb] = np.abs(bO32_DEEP[bb] - der_O32[bb])
+        BO_comparison[bb] = (bO32_DEEP[bb] - der_O32[bb])
     for aa in range(len(bR23_MACT)):
        
         bR23_MACT[aa] = 138.0430 - 54.8284* der_OH_MACT[aa] + 7.2954* der_OH_MACT[aa]* der_OH_MACT[aa] - 0.32293* der_OH_MACT[aa]* der_OH_MACT[aa]* der_OH_MACT[aa]
-        C_comparison[aa] = np.abs(bR23_MACT[aa] - der_R23_MACT[aa])
+        C_comparison[aa] = (bR23_MACT[aa] - der_R23_MACT[aa])
         bO32_MACT[aa] = (-1/0.59)*(der_OH_MACT[aa]-8.54)
-        CO_comparison[aa] = np.abs(bR23_MACT[aa] - der_O32_MACT[aa])
+        CO_comparison[aa] = (bO32_MACT[aa] - der_O32_MACT[aa])
 
 
     arr_sum = np.concatenate((A_comparison, B_comparison, C_comparison), axis= None)
     med0 = np.median(arr_sum)
     avg0 = np.average(arr_sum)
     sig0 = np.std(arr_sum)
-    print(arr_sum)
+
+    print('DEEP2 x: ', der_R23)
+    print('DEEP2 y: ', bR23_DEEP)
+    print('MACT x:', der_R23_MACT)
+    print('MACT y:' ,bR23_MACT)
+    print('concatenate array: ', arr_sum)
     print('med: ', med0, 'avg: ', avg0, 'sig: ', sig0)
 
+    n = ('DEEP2 x','DEEP2 y')
+    np.savez('xandy.npz', DEEPx = der_R23, DEEPy = bR23_DEEP, MACTx =  der_R23_MACT, MACTy=bR23_MACT)
+    n2 = ('MACT x','MACT y')
 
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker = 'D', color = 'b', alpha = 0.75, label = 'Detections')

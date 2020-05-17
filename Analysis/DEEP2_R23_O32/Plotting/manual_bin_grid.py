@@ -50,10 +50,13 @@ def graph_bins(bin_info, individual_info, pdf_file):
         #plt.axvline(x = lR23_min[jj], linewidth= 0.3, color= 'k')
         
         x_value = [xmin,xmax]
-        y_value = [lO32_min[aa], lO32_min[aa]]
         y_average = [lO32_avg[aa],lO32_avg[aa]]
-        #plt.plot(x_value,y_value, linewidth= 0.3, color= 'b')
-        plt.plot(x_value, y_average, linewidth= 0.75, color= 'k')
+
+        y_value = [lO32_min[aa], lO32_max[aa]]
+        x_average = [lR23_avg[aa], lR23_avg[aa]]
+        
+        plt.plot(x_average,y_value, '--',linewidth= 0.75, color= 'k')
+        plt.plot(x_value, y_average, '--',linewidth= 0.75, color= 'k')
 
 
         #for cc in range(3):

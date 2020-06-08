@@ -81,7 +81,7 @@ def limit_function(combine_flux_ascii):
     #print 'up_temp', up_temp
     return up_temp
     
-def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):
+def run_function(fitspath, EBV, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):
     print(combine_flux_ascii)
 
     ###Combine_Flux_ascii table import 
@@ -102,7 +102,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
 
     #Dust Attenuation Values Call
     ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    if dustatt ==False:
+    '''if dustatt ==False:
         
         EBV = np.zeros(len(ID))
     if dustatt ==True:
@@ -110,7 +110,7 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
         print('Using attenuated dust values')
         atten_val = asc.read(dust_ascii)
 
-        EBV = atten_val['E(B-V)']
+        EBV = atten_val['E(B-V)']'''
 
     #Fits Table Calls
     ###DEEP2 and MACT Data#####
@@ -225,7 +225,11 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     
-    tab0.write(out_fits,format = 'fits', overwrite = True)
+    #tab0.write(out_fits,format = 'fits', overwrite = True)
+
+
+    ####Dust Attenuation####
+    
 
 
 def dust_attenuation(fitspath, combine_ascii):

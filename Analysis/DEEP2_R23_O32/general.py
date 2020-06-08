@@ -33,8 +33,9 @@ from chun_codes import random_pdf, compute_onesig_pdf, intersect
 
 #fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, line_type, line_name
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.plotting import balmer
+
 
 #############Getting username##############
 
@@ -350,6 +351,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #hstack_table
     #Option to change: name of new fits file created
 
+    intro = fitspath + '/' + dataset + '_Average_R23_O32_Values.tbl' 
+    asc_intro = asc.read(intro)
+    table_files = glob.glob(fitspath +'/' + dataset + '_flux_gaussian_*.tbl') 
+    combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
+    combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
+
+    '''
     if dataset == 'Grid':
         intro = fitspath + 'Grid_Average_R23_O32_Values.tbl' 
         asc_intro = asc.read(intro)
@@ -377,7 +385,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         table_files = glob.glob(fitspath +'/n_Bins_flux_gaussian_*.tbl') 
         combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
         combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-
+    '''
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
         
     print('combine_flux_table created')
@@ -388,10 +396,12 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #I need to go back through and figure out what is the average and what is the composite
     #line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
 
-       
+    temp_m_gascii = fitspath+ '/'+ dataset +'_temperatures_metalicity.tbl'
+    temp_m_gfits = fitspath+ '/'+ dataset +'_temperatures_metalicity.fits'
+    temp_m_gpdf_name = dataset+'_Temp_Composite_Metallicity.pdf'
 
     #R_temp_calcul
-    if dataset == 'Grid':
+    '''if dataset == 'Grid':
         combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
         temp_m_gascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
         temp_m_gfits = fitspath+ '/Grid_temperatures_metalicity.fits'
@@ -421,9 +431,16 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         temp_m_gfits = fitspath+ 'n_Bins_temperatures_metalicity.fits'
         temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
         dust_ascii_name = fitspath + 'dust_attentuation_values.tbl'
-    
-        if dustatten == False: R_temp_calcul.run_function(fitspath, dataset, verification_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
-        if dustatten == True: R_temp_calcul.run_function(fitspath, dataset, verficiation_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii
+   ''' 
+    if dustatten == False:
+        R_temp_calcul.run_function(fitspath, dataset, verification_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
+
+    if dustatten == True:
+        balmer.HbHgHd_fits(fitspath, outfile_grid, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+
+
+    '''
+    R_temp_calcul.run_function(fitspath, dataset, verficiation_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii
 
     ###Calibration Plots###
     calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
@@ -445,7 +462,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
     more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, verification_table)
     more_plots.hist_for_bin(dataset, asc_table2)
-
+    '''
 
 
 

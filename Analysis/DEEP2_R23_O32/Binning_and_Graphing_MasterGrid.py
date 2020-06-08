@@ -503,7 +503,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
     n_bins = len(galinbin)
     
-    print(n_bins, 'n_split',n_split)
+    #print(n_bins, 'n_split',n_split)
     n_bins_range = np.arange(0,n_split*n_bins,1)
 
 
@@ -536,10 +536,10 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     bin_start = np.zeros(n_bins, dtype=np.int)
     bin_end   = np.zeros(n_bins, dtype=np.int)
 
-    print("bin start:", bin_start)
-    print("bin end:" , bin_end)
+    #print("bin start:", bin_start)
+    #print("bin end:" , bin_end)
     
-    print("galinbin:", galinbin)
+    #print("galinbin:", galinbin)
     
     for ii in range(n_bins):
         print('ii: ', ii) 
@@ -593,7 +593,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         for jj in range(n_split):
             # Let's grab all O32 values
             O32_values_perbin = sortO32[startIdx:endIdx]
-            print(O32_values_perbin)
+            #print(O32_values_perbin)
             O32_inbins_idx = O32_index[startIdx:endIdx]
 
             #This index gives the positions of all the R23 values relative 

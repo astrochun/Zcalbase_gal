@@ -56,7 +56,9 @@ from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.temp_metallici
     R_calculation, temp_calculation, metallicity_calculation
 
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict, filename_dict
+
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 
 k_4363  = k_dict['OIII_4363']
 k_5007  = k_dict['OIII_5007']
@@ -80,8 +82,24 @@ def limit_function(combine_flux_ascii):
 
     #print 'up_temp', up_temp
     return up_temp
+
+#def run_function(fitspath, EBV, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False)
+
+def run_function(fitspath, dataset, verification_table, dustatt= False):
+    combine_flux_ascii= fitspath + filename_dict['bin_fit']
+    temp_metal_ascii = fitspath+ '/'+filename_dict['bin_derived_prop']
+    temp_metal_revised = fitspath+ filename_dict['bin_derived_prop_rev']
+    temp_m_gfits = fitspath+ '/'+ name_dict['temp_fits_file']
+    temp_m_gpdf_name = dataset+name_dict['temp_metallicity_pdf']
     
-def run_function(fitspath, EBV, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):
+    if dustatt = False:
+        EBV = np.zeros(len(insert))
+
+    if dustatt:
+        non_atten_value_table = asc.read(temp_metal_ascii)
+        EBV = non_atten_value_table['EBV_HgHb']
+
+        ####Fix name at bottom
     print(combine_flux_ascii)
 
     ###Combine_Flux_ascii table import 

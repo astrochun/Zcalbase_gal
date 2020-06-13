@@ -39,6 +39,34 @@ from Metallicity_Stack_Commons.Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis import attenuation
 
 
+
+
+##########Dictionary of pdf and other files specific to the Zcalbase_gal project###########
+name_dict = dict()
+
+name_dict['gridnpz']  = 'grid.npz'
+name_dict['gridpdf']  = 'grid.pdf'
+name_dict['Stackname']= 'Stacking_Masked_MasterGrid_.pdf'
+name_dict['Stackname_nomask'] = 'Stacking_MasterGrid_.pdf'
+name_dict['Average_Bin_Value'] = '_Average_R23_O32_Values.tbl'
+name_dict['bin_fit_fits']='bin_emission_line_fit.fits'
+name_dict['temp_fits_file']='_temperatures_metalicity.fits'
+name_dict['temp_metallicity_pdf']='_Temp_Composite_Metallicity.pdf'
+
+outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
+    outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
+    outsingle_O32 = fitspath +'single_grid_O32.npz'
+    outsingle_R23 = fitspath +'single_grid_R23.npz'
+    outdouble_bin = fitspath +'nsplit_grid.npz'
+    if dataset =='Grid' : grid_data_file = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'     ##np.load(outfile025)   ###This will have to be changed if we start doing the 01 analysis again (but we haven't worked on that analysis in a year) 
+    if dataset == 'O32_Grid': grid_data_file = fitspath +'single_grid_O32.npz'      # = np.load(outsingle_O32)
+    if dataset == 'R23_Grid': grid_data_file = fitspath +'single_grid_R23.npz'      # = np.load(outsingle_R23)
+    #else: grid_data = np.load(outfile01)
+    #if dataset == 'Double_Bin': grid_data_file = fitspath +'double_grid.npz'
+
+
+
+
 #############Getting username##############
 
 import getpass
@@ -230,36 +258,31 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
     if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
     print('# of Gal in Bin:', galinbin)
+
+    Bin_pdf_pages = fitspath +dataset+ name_dict['gridpdf']
+    Bin_outfile = fitspath +dataset+name_dict['gridnpz']
+    
+    
     if dataset =='O32_Grid': 
-        pdf_pages = fitspath +'single_grid_O32.pdf'
-        outfile = fitspath +'single_grid_O32.npz'
-        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)    
+        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, Bin_pdf_pages, Bin_outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)    
 
     if dataset =='R23_Grid':
-        pdf_pages = fitspath +'single_grid_R23.pdf'
-        outfile = fitspath +'single_grid_R23.npz'
-        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)    
+        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, Bin_pdf_pages, Bin_outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)    
 
 
     if dataset =='Grid': 
-        pdf_pages_hex = PdfPages(fitspath+'R23_O32_bin025_scatter_and_hexbin_MasterGrid.pdf')
-        outfile1_npz = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'
         R23_bin = 0.25
         O32_bin = 0.25
-        binstr = '025'
-        
-        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, pdf_pages_hex,outfile1_npz,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, R23_bin, O32_bin)   
+        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, Bin_pdf_pages,Bin_outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, R23_bin, O32_bin)   
 
 
 
     if dataset == 'n_Bins':
         pdf_pages = fitspath +'n_Bins_grid.pdf'
         grid_data_file = fitspath +'n_Bins_grid.npz'
-        asc_table1 = fitspath+ '/bin_info.tbl'
-        asc_table2 = fitspath+ 'individual_bin_info.tbl'                   #used to be 'n_Bins_2d_binning_datadet3.tbl'
         Binning_and_Graphing_MasterGrid.n_times_binned(fitspath,
-                                                       pdf_pages,
-                                                       grid_data_file,
+                                                       Bin_pdf_pages,
+                                                       Bin_outfile,
                                                        n_split,
                                                        individual_ID,
                                                        R23,
@@ -285,34 +308,23 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     #Stackboth_MasterGrid
     #Option to Change: Bin size  
-    outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
-    outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
-    outsingle_O32 = fitspath +'single_grid_O32.npz'
-    outsingle_R23 = fitspath +'single_grid_R23.npz'
-    outdouble_bin = fitspath +'nsplit_grid.npz'
-    if dataset =='Grid' : grid_data_file = fitspath + 'Arrays_R23O32bin025MasterGrid.npz'     ##np.load(outfile025)   ###This will have to be changed if we start doing the 01 analysis again (but we haven't worked on that analysis in a year) 
-    if dataset == 'O32_Grid': grid_data_file = fitspath +'single_grid_O32.npz'      # = np.load(outsingle_O32)
-    if dataset == 'R23_Grid': grid_data_file = fitspath +'single_grid_R23.npz'      # = np.load(outsingle_R23)
-    #else: grid_data = np.load(outfile01)
-    #if dataset == 'Double_Bin': grid_data_file = fitspath +'double_grid.npz'
+    
 
-        
-        
     #Option to Change: Masking the night sky emission lines 
     if dataset == 'Grid': 
         if mask == True:
-            Stack_name = 'Stacking_Masked_MasterGrid_bin'+binstr+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
+            Stack_name = dataset+ name_dict['Stackname']
+            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,Bin_outfile)
         else:
-            Stack_name = 'Stacking_MasterGrid_bin'+binstr+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath,Stack_name,grid_data_file)
+            Stack_name = dataset+name_dict['Stackname_nomask']
+            Stackboth_MasterGrid.run_Stacking_Master(fitspath,Stack_name,Bin_outfile)
     else:
         if mask == True:
-            Stack_name = 'Stacking_Masked_MasterGrid_'+dataset+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
+            Stack_name = dataset+ name_dict['Stackname']
+            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,Bin_outfile)
         else:
-            Stack_name = 'Stacking_MasterGrid__'+dataset+'.pdf'
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,grid_data_file)
+            Stack_name = dataset+name_dict['Stackname_nomask']
+            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name,Bin_outfile)
 
     #Outfile and pdf both use name
     print('finished with stacking,' + Stack_name + 'pdf and fits files created')
@@ -320,15 +332,16 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
 
     #Zoom_and_gauss_general
-    Stack_name = Stack_name.replace('.pdf', '.fits')
-    outfile_grid = fitspath + Stack_name
+    
+    outfile_grid = fitspath + filename_dict['comp_spec']
     print(outfile_grid)
     stack2D, header = fits.getdata(outfile_grid, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
     #Spect_1D = fits.getdata(outfile_grid)
     dispersion = header['CDELT1']
-    binning_avg_asc = fitspath+'/bin_info.tbl'
-    
+    binning_avg_asc = fitspath+ filename_dict['bin_info']  
+
+    indv_bin_info = fitspath+ filename_dict['indv_bin_info']  #used to be 'n_Bins_2d_binning_datadet3.tbl'
     
     lineflag = np.zeros(len(wave))
     for ii in lambda0:   
@@ -353,11 +366,11 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #hstack_table
     #Option to change: name of new fits file created
 
-    intro = fitspath + '/' + dataset + '_Average_R23_O32_Values.tbl' 
+    intro = fitspath + '/' + dataset + name_dict['Average_Bin_Value']
     asc_intro = asc.read(intro)
     table_files = glob.glob(fitspath +'/' + dataset + '_flux_gaussian_*.tbl') 
-    combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
-    combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
+    combine_flux_table = fitspath + name_dict['bin_fit_fits']
+    combine_flux_ascii = fitspath + filename_dict['bin_fit']
 
     '''
     if dataset == 'Grid':
@@ -398,9 +411,9 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #I need to go back through and figure out what is the average and what is the composite
     #line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
 
-    temp_m_gascii = fitspath+ '/'+filename_dict['bin_derived_prop']
-    temp_m_gfits = fitspath+ '/'+'_temperatures_metalicity.fits'
-    temp_m_gpdf_name = dataset+'_Temp_Composite_Metallicity.pdf'
+    #temp_m_gascii = fitspath+ '/'+filename_dict['bin_derived_prop']
+    #temp_m_gfits = fitspath+ '/'+ name_dict['temp_fits_file']
+    #temp_m_gpdf_name = dataset+name_dict['temp_metallicity_pdf']
 
     
     '''if dataset == 'Grid':
@@ -442,16 +455,26 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     verification_table_revised = fitspath + filename_dict['bin_valid_rev']
     
     #R_temp_calcul
-    if dustatten == False:
-        EBV_zeros = np.zeros(len(galinbin*n_split))
-        R_temp_calcul.run_function(fitspath, EBV_zeros, dataset, verification_table_revised, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)    
+
+    R_temp_calcul.run_function(fitspath, dataset,verification_table_revised, dustatt= False)
+
+    if dustatten == True :
+        balmer.HbHgHd_fits(fitspath, outfile_grid, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+
+        attenuation.EBV_table_update(fitspath, use_revised= False)
+
+        #non_atten_value_table = asc.read(temp_m_gascii)
+        #EBV_HgHb = non_atten_value_table['EBV_HgHb']
+        #temp_tab_revised = fitspath+ filename_dict['bin_derived_prop_rev']
+        R_temp_calcul.run_function(fitspath, dataset, verfication_table_revised, dustatt= True)
 
 
+'''
+#R_temp_calcul
 
-        
-    if dustatten == True:
-        EBV_zeros = np.zeros(len(galinbin*n_split))
+    R_temp_calcul.run_function(fitspath, EBV_zeros, dataset, verification_table_revised, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)
 
+    if dustatten == True :
         balmer.HbHgHd_fits(fitspath, outfile_grid, out_pdf_prefix='HbHgHd_fits', use_revised=False)
 
         R_temp_calcul.run_function(fitspath, EBV_zeros, dataset, verification_table_revised, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False) 
@@ -461,7 +484,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         non_atten_value_table = asc.read(temp_m_gascii)
         EBV_HgHb = non_atten_value_table['EBV_HgHb']
         temp_tab_revised = fitspath+ filename_dict['bin_derived_prop_rev']
-        R_temp_calcul.run_function(fitspath, EBV_HgHb, dataset, verfication_table_revised, temp_tab_revised , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   
+        R_temp_calcul.run_function(fitspath, EBV_HgHb, dataset, verfication_table_revised, temp_tab_revised , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)
+'''
+
+
+
+
+  
 
 
     '''

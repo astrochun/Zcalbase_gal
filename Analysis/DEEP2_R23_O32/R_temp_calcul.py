@@ -106,7 +106,7 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     if dustatt:
         non_atten_value_table = asc.read(temp_metal_ascii)
         EBV = non_atten_value_table['EBV_HgHb']
-        out_ascii = fitspath+ filename_dict['bin_derived_prop_rev']
+        out_ascii = fitspath+ 'bin_derived_properties.dust.tbl'  #filename_dict['bin_derived_prop_rev']
 
         
     #####Verification Table Import#######
@@ -120,17 +120,6 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     detect_ID = ID[ver_detect]
     rlimit_ID = ID[ver_rlimit]
 
-    #Dust Attenuation Values Call
-    ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    '''if dustatt ==False:
-        
-        EBV = np.zeros(len(ID))
-    if dustatt ==True:
-        dust_attenuation(fitspath, combine_flux_ascii)
-        print('Using attenuated dust values')
-        atten_val = asc.read(dust_ascii)
-
-        EBV = atten_val['E(B-V)']'''
 
     #Fits Table Calls
     ###DEEP2 and MACT Data#####

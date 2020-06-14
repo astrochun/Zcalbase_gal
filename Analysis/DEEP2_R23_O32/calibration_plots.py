@@ -21,7 +21,7 @@ import scipy.integrate as integ
 import glob
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
@@ -35,6 +35,7 @@ def LAC_GPC_plots(fitspath, dataset,revised= False, individual = False):
         verification = asc.read(fitspath + filename_dict['bin_valid_rev'])
         pea_out_pdf = fitspath+ '/'+dataset+'_GPC.revised.pdf'
         LAC_out_pdf = fitspath+ '/'+dataset+'_LAC.revised.pdf'
+
     else:
         temp_table= asc.read(fitspath  +  filename_dict['bin_derived_prop'])
         verification = asc.read(fitspath + filename_dict['bin_valid'])
@@ -141,6 +142,16 @@ def LAC_GPC_plots(fitspath, dataset,revised= False, individual = False):
         lO32 = [det_O32,rlimit_O32,der_O32,der_O32_MACT]
         OH   = [det_OH,rlimit_OH, der_OH, der_OH_MACT]
 
-        
-    green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, fit=False, silent=False, verbose=True)
-    # marker=['.','*','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT']
+    error_npz_file = fitspath + npz_filename_dict['der_prop_errors']
+    if exists(error_npz):
+        print('Error npz found  ', error_npz, ': Adding error bars to plot' )
+        error_npz = np.load(error_npz_file)
+        metal_err = error_npz['12+log(O/H)']#log values
+        green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, lR23_err = [], OH_err = [],  xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, fit=False, silent=False, verbose=True)
+
+    else:
+        print('No error npz found')
+        green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, fit=False, silent=False, verbose=True)
+    
+
+   

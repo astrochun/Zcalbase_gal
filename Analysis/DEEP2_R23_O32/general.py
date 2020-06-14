@@ -52,7 +52,7 @@ from chun_codes import random_pdf, compute_onesig_pdf, intersect
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, line_type, line_name, valid_table
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons.plotting import balmer
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect, error_prop
 
 
 
@@ -261,10 +261,11 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     print("length R23: ", len(R23))
     
-    
 
-    if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
-    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
+    #Each bin will be split in half
+    #Must sum to 2799 for Zcalbase_gal Analysis
+    if adaptive == False: galinbin = [400,400,400,400,400,400,409] 
+    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] 
     print('# of Gal in Bin:', galinbin)
 
     Bin_pdf_pages = fitspath +dataset+ name_dict['gridpdf']
@@ -410,7 +411,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         #EBV_HgHb = non_atten_value_table['EBV_HgHb']
         #temp_tab_revised = fitspath+ filename_dict['bin_derived_prop_rev']
         R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt= True)
-
+        
 
     #####Check Dust Attenuation#####
     temp = fitspath + filename_dict['bin_derived_prop']
@@ -425,6 +426,9 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     print('Metallicity' , metallicity)
     print('##################################################################')
     print('Dust Attenuated Metallicity', metallicity_r)
+
+    ####Error Propagation#####
+    error_prop.fluxes_derived_prop(fitspath, binned_data = True)
 
     
     ####Individual Detections#####

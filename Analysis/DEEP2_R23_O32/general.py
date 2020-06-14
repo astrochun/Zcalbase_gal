@@ -23,22 +23,6 @@ import scipy.integrate as integ
 import glob
 from datetime import date
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, calibration_plots, verification_tables
-from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting
-
-from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
-
-#Imports Error propagation codes from chun_codes
-from chun_codes import random_pdf, compute_onesig_pdf, intersect
-
-#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
-
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, line_type, line_name, valid_table
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.plotting import balmer
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis import attenuation
-
-
 
 
 ##########Dictionary of pdf and other files specific to the Zcalbase_gal project###########
@@ -53,7 +37,29 @@ name_dict['bin_fit_fits']='bin_emission_line_fit.fits'
 name_dict['temp_fits_file']='_temperatures_metalicity.fits'
 name_dict['temp_metallicity_pdf']='_Temp_Composite_Metallicity.pdf'
 
-outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
+
+
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, calibration_plots, verification_tables
+from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting, te_metal_plots
+
+from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
+
+#Imports Error propagation codes from chun_codes
+from chun_codes import random_pdf, compute_onesig_pdf, intersect
+
+#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
+
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, line_type, line_name, valid_table
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.plotting import balmer
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect
+
+
+
+
+
+
+'''outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
     outfile025 = fitspath + 'Arrays_R23O32bin025MasterGrid.npz' #this file has the average R23 and O32 values for grid method
     outsingle_O32 = fitspath +'single_grid_O32.npz'
     outsingle_R23 = fitspath +'single_grid_R23.npz'
@@ -62,7 +68,7 @@ outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
     if dataset == 'O32_Grid': grid_data_file = fitspath +'single_grid_O32.npz'      # = np.load(outsingle_O32)
     if dataset == 'R23_Grid': grid_data_file = fitspath +'single_grid_R23.npz'      # = np.load(outsingle_R23)
     #else: grid_data = np.load(outfile01)
-    #if dataset == 'Double_Bin': grid_data_file = fitspath +'double_grid.npz'
+    #if dataset == 'Double_Bin': grid_data_file = fitspath +'double_grid.npz'''
 
 
 
@@ -100,6 +106,7 @@ def get_det3(fitspath, individual_detect=False):
     O5007_ini = data0['OIIIR_FLUX_MOD'].data
     Hgamma_ini = data0['HG_FLUX_MOD'].data
     O4363_ini = data0['OIIIA_FLUX_MOD'].data
+    Hdelta_ini = data0['HD_FLUX_MOD'].data
     
     Hb_ini = data0['HB_FLUX_MOD'].data
     R23_ini = (O2_ini+O3_ini)/Hb_ini
@@ -134,6 +141,7 @@ def get_det3(fitspath, individual_detect=False):
     O2  = O2_ini[det3]
     O3  = O3_ini[det3]
     Hgamma = Hgamma_ini[det3]
+    Hdelta = Hdelta_ini[det3]
     O4363 = O4363_ini[det3]
     O4959 = O4959_ini[det3]
     O5007 = O5007_ini[det3]
@@ -146,10 +154,10 @@ def get_det3(fitspath, individual_detect=False):
 
     
 
-    n2= ('ID','logR23','logO32','OII_3727_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian',
-         'OIII_4363_Flux_Gaussian','OIII_4959_Flux_Gaussian','OIII_5007_Flux_Gaussian',
+    n2= ('ID','logR23','logO32','OII_3727_Flux_Gaussian','O3_Flux_Gaussian','HGAMMA_Flux_Gaussian','HDELTA_Flux_Gaussian',
+         'OIII_4363_Flux_Gaussian','OIII_4958_Flux_Gaussian','OIII_5007_Flux_Gaussian',
          'HBETA_Flux_Gaussian', 'O2_S/N', 'O3_S/N', 'RH_S/N', 'HGAMMA_S/N', 'O4363_S/N')
-    tab1 = Table([individual_names, lR23, lO32, O2, O3, Hgamma, O4363, O4959, O5007,
+    tab1 = Table([individual_names, lR23, lO32, O2, O3, Hgamma, Hdelta, O4363, O4959, O5007,
                   Hb, SNR2, SNR3, SNRH, SNRHG,SNR4363], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
@@ -372,35 +380,6 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     combine_flux_table = fitspath + name_dict['bin_fit_fits']
     combine_flux_ascii = fitspath + filename_dict['bin_fit']
 
-    '''
-    if dataset == 'Grid':
-        intro = fitspath + 'Grid_Average_R23_O32_Values.tbl' 
-        asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath +'/Grid_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-
-    if dataset == 'O32_Grid':
-        intro = fitspath + 'O32_Grid_Average_R23_O32_Values.tbl' 
-        asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath +'/O32_Grid_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-
-    if dataset == 'R23_Grid':
-        intro = fitspath + 'R23_Grid_Average_R23_O32_Values.tbl' 
-        asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath +'/R23_Grid_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-
-    if dataset == 'n_Bins':
-        intro = fitspath + 'n_Bins_Average_R23_O32_Values.tbl' 
-        asc_intro = asc.read(intro)
-        table_files = glob.glob(fitspath +'/n_Bins_flux_gaussian_*.tbl') 
-        combine_flux_table = fitspath + 'bin_emission_line_fit.fits'
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-    '''
     hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
         
     print('combine_flux_table created')
@@ -411,42 +390,6 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #I need to go back through and figure out what is the average and what is the composite
     #line_ratio_plotting.Plotting_Data1(fitspath,dataset,combine_flux_ascii, binning_avg_asc)
 
-    #temp_m_gascii = fitspath+ '/'+filename_dict['bin_derived_prop']
-    #temp_m_gfits = fitspath+ '/'+ name_dict['temp_fits_file']
-    #temp_m_gpdf_name = dataset+name_dict['temp_metallicity_pdf']
-
-    
-    '''if dataset == 'Grid':
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-        temp_m_gascii = fitspath+ '/Grid_temperatures_metalicity.tbl'
-        temp_m_gfits = fitspath+ '/Grid_temperatures_metalicity.fits'
-        temp_m_gpdf_name = 'Grid_Temp_Composite_Metallicity.pdf'
-        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
-    if dataset == 'O32_Grid':
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-        temp_m_gascii = fitspath+ '/O32_Grid_temperatures_metalicity.tbl'
-        temp_m_gfits = fitspath+ '/O32_Grid_temperatures_metalicity.fits'
-        temp_m_gpdf_name = 'O32_Grid_Temp_Composite_Metallicity.pdf'
-        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
-
-    if dataset == 'R23_Grid':
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-        temp_m_gascii = fitspath+ '/R23_Grid_temperatures_metalicity.tbl'
-        temp_m_gfits = fitspath+ '/R23_Grid_temperatures_metalicity.fits'
-        temp_m_gpdf_name = 'R23_Grid_Temp_Composite_Metallicity.pdf'
-        R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
-
-    verification_table = check_verification_table(fitspath_ini, dataset, combine_flux_ascii)
-    print('verification table path : ', verification_table)
-
-
-    if dataset == 'n_Bins':
-        combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
-        temp_m_gascii = fitspath+ 'bin_derived_properties.tbl'
-        temp_m_gfits = fitspath+ 'n_Bins_temperatures_metalicity.fits'
-        temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
-        dust_ascii_name = fitspath + 'dust_attentuation_values.tbl'
-    '''
     #Verification Table 
     valid_table.make_validation_table(fitspath)
     verification_table = fitspath + filename_dict['bin_valid']
@@ -459,16 +402,45 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     R_temp_calcul.run_function(fitspath, dataset,verification_table_revised, dustatt= False)
 
     if dustatten == True :
-        balmer.HbHgHd_fits(fitspath, outfile_grid, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False) # outfile_grid,
 
         attenuation.EBV_table_update(fitspath, use_revised= False)
 
         #non_atten_value_table = asc.read(temp_m_gascii)
         #EBV_HgHb = non_atten_value_table['EBV_HgHb']
         #temp_tab_revised = fitspath+ filename_dict['bin_derived_prop_rev']
-        R_temp_calcul.run_function(fitspath, dataset, verfication_table_revised, dustatt= True)
+        R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt= True)
 
 
+    #####Check Dust Attenuation#####
+    temp = fitspath + filename_dict['bin_derived_prop']
+    temp_revised = fitspath +filename_dict['bin_derived_prop_rev']
+
+    ttab = asc.read(temp)
+    trtab = asc.read(temp_revised)
+    
+    metallicity = ttab['12+log(O/H)'].data
+    metallicity_r = trtab['12+log(O/H)'].data
+
+    print('Metallicity' , metallicity)
+    print('##################################################################')
+    print('Dust Attenuated Metallicity', metallicity_r)
+
+    
+    ####Individual Detections#####
+    #composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)
+    #print('Individual Detections Complete')
+
+    ###Te_metal Plots####
+    
+    #te_metal_plots.plotting_te_metal(fitspath, revised=False)
+    #te_metal_plots.plotting_te_metal(fitspath,  revised=True)
+
+
+    ###Calibration Plots###
+    calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
+    calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= True)
+    
 '''
 #R_temp_calcul
 
@@ -485,21 +457,10 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         EBV_HgHb = non_atten_value_table['EBV_HgHb']
         temp_tab_revised = fitspath+ filename_dict['bin_derived_prop_rev']
         R_temp_calcul.run_function(fitspath, EBV_HgHb, dataset, verfication_table_revised, temp_tab_revised , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)
-'''
 
-
-
-
-  
-
-
-    '''
-    ###Calibration Plots###
-    calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
     
-    ###Verification Tables###
-    #ver_tab = fitspath+'/'+dataset+'_verification.tbl'
-    #verification_tables.verification(fitspath, dataset, temp_m_gascii, combine_flux_ascii, ver_tab)
+    
+    
 
 
     ###Making More Plots###

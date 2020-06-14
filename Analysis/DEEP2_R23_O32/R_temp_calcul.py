@@ -14,11 +14,6 @@
 Input variables: 
 fitspath
 dataset
-out_ascii          -> name of the output ascii table that file produces
-out_fits           -> name of the output fits table that file produces
-pdf_name           -> name of the pdf file with the graphs that the function will produce
-combine_flux_ascii -> ascii table with all the emission lines 
-dust_ascii         -> name of ascii table with dust attenuation values 
 dustatt            -> True/False input; if True dust attenuation values are used for calculations; automatic = false 
 
 
@@ -29,7 +24,7 @@ verification tables   --> need to work on making these tables; need to put the v
 dust attenuation      --> called in function by True or False, but need to pass the table into the function
 Called DEEP2 and MACT Data
 Depending on which combine_fits table is passed in --> run individual or stacked spectra and makes a table
-Plots (currently commented out)
+
 '''
 # dust_attenuation(combine_ascii)
 # call_cardelli(lam0)
@@ -56,9 +51,11 @@ from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.temp_metallici
     R_calculation, temp_calculation, metallicity_calculation
 
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict, filename_dict
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
+#from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
+from Zcalbase_gal.Analysis.DEEP2_R23_O32.general import name_dict
 
 k_4363  = k_dict['OIII_4363']
 k_5007  = k_dict['OIII_5007']
@@ -92,21 +89,26 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     temp_m_gfits = fitspath+ '/'+ name_dict['temp_fits_file']
     temp_m_gpdf_name = dataset+name_dict['temp_metallicity_pdf']
     
-    if dustatt = False:
-        EBV = np.zeros(len(insert))
+   
 
-    if dustatt:
-        non_atten_value_table = asc.read(temp_metal_ascii)
-        EBV = non_atten_value_table['EBV_HgHb']
-
-        ####Fix name at bottom
+    ####Fix name at bottom
     print(combine_flux_ascii)
 
     ###Combine_Flux_ascii table import 
     combine_fits= asc.read(combine_flux_ascii)
     ID = combine_fits['bin_ID'].data
 
+    ##Dust Attenuation
+    if dustatt == False:
+        EBV = np.zeros(len(ID))
+        out_ascii = fitspath+ '/'+filename_dict['bin_derived_prop']
+        
+    if dustatt:
+        non_atten_value_table = asc.read(temp_metal_ascii)
+        EBV = non_atten_value_table['EBV_HgHb']
+        out_ascii = fitspath+ filename_dict['bin_derived_prop_rev']
 
+        
     #####Verification Table Import#######
     #print('Using verification table' + verification_table)
     ver_tab = asc.read(verification_table)

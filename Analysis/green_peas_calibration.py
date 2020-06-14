@@ -134,7 +134,8 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
 
     if len(OH_range)   != 0: ax.set_xlim(OH_range)
     if len(dR23_range) != 0: ax.set_ylim(dR23_range)
-
+    
+    
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm J18}$')
     ax.minorticks_on()

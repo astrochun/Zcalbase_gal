@@ -21,19 +21,30 @@ import scipy.integrate as integ
 import glob
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
 
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 
 
-def LAC_GPC_plots(fitspath, dataset,temp_tab):
+def LAC_GPC_plots(fitspath, dataset,revised= False, individual = False):
     
-    out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
     
-    temp_table= asc.read(temp_tab)
+    if revised:
+        temp_table= asc.read(fitspath+ filename_dict['bin_derived_prop_rev'])
+        verification = asc.read(fitspath + filename_dict['bin_valid_rev'])
+        pea_out_pdf = fitspath+ '/'+dataset+'_GPC.revised.pdf'
+        LAC_out_pdf = fitspath+ '/'+dataset+'_LAC.revised.pdf'
+    else:
+        temp_table= asc.read(fitspath  +  filename_dict['bin_derived_prop'])
+        verification = asc.read(fitspath + filename_dict['bin_valid'])
+        pea_out_pdf = fitspath+ '/'+dataset+'_GPC.pdf'
+        LAC_out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+    
     SN_4363 = temp_table['OIII_4363_S/N']
-    det_4363 = np.where((SN_4363>=3))[0]
-    nan_det_4363 = np.where((SN_4363<3))[0]
+    detect = verification['Detection']
+    det_4363 = np.where((detect == 1))[0]
+    rlimit = np.where((detect == 0.5))[0]
     print('Begin Local analog Calibration')
     
     ###Implimenting Local analog calibration###
@@ -68,57 +79,68 @@ def LAC_GPC_plots(fitspath, dataset,temp_tab):
     det_OH  = com_O_log[det_4363]
     det_ID  = ID[det_4363]
     
-    nandet_O32 = O32_all[nan_det_4363]
-    nandet_R23 = R23_all[nan_det_4363]
-    print(len(nandet_O32), len(nandet_R23))
-    nandet_OH  = com_O_log[nan_det_4363]
-    nandet_ID  = ID[nan_det_4363]
+    rlimit_O32 = O32_all[rlimit]
+    rlimit_R23 = R23_all[rlimit]
+    rlimit_OH  = com_O_log[rlimit]
+    rlimit_ID  = ID[rlimit]
 
+    if individual: 
+        #Individual Detections from Zcalbase_gal Analysis
+        individual_ascii = fitspath + filename_dict['indv_derived_prop']
+        #'/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/individual_derived_properties.tbl' 
+        individual = asc.read(individual_ascii)
+        logR23 = individual['logR23']
+        logO32 = individual['logO32']
+        com_log = individual['12+log(O/H)']
+        bin_ID = individual['bin_ID']
+
+    
+
+    label = ['Detection','Robust Limits','DEEP2', 'MACT']
+    marker = ['D',r'$\uparrow$','3','4']
     
     if dataset == 'R23_Grid':
         lR23 = [det_R23,der_R23,der_R23_MACT]
         lO32 = [det_O32,der_O32,der_O32_MACT]
         OH   = [det_OH, der_OH, der_OH_MACT]
-        local_analog_calibration.main(lR23, lO32, OH, out_pdf, ctype=['b','r','m'], label=['Detection','DEEP2', 'MACT'], silent=False, verbose=True)
+        local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, ctype=['b','r','m'], label=label, silent=False, verbose=True)
         
     if dataset == 'O32_Grid' or dataset == 'Grid':    
-        lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
-        lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
-        OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
-        local_analog_calibration.main(lR23, lO32, OH, out_pdf, ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], silent=False, verbose=True)
+        lR23 = [det_R23,rlimit_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,rlimit_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH,rlimit_OH, der_OH, der_OH_MACT]
+        local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], silent=False, verbose=True)
     # ID=[det_ID,nandet_ID]
 
     if dataset == 'Voronoi10' or dataset == 'Voronoi14' or dataset == 'Voronoi20' or dataset =='Double_Bin':
-        lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
-        lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
-        OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23,rlimit_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,rlimit_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH,rlimit_OH, der_OH, der_OH_MACT]
 
-        local_analog_calibration.main(lR23, lO32, OH, out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
+        local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
 
     if dataset == 'n_Bins':
-        lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
-        lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
-        OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23,rlimit_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,rlimit_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH,rlimit_OH, der_OH, der_OH_MACT]
 
-        #local_analog_calibration.main(lR23, lO32, OH, out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
+        local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0,9.0], ctype=['b','g','r','m'], label=['Detection','Non-Dectection','DEEP2','MACT'], silent=False, verbose=True)
         print('finished LAC plot') 
 
 
     
     ###Green Pea Calibration###
-    pea_out_pdf = fitspath+ '/'+dataset+'_GPC.pdf'
 
     if dataset == 'R23_Grid':
-        lR23 = [det_R23,der_R23,der_R23_MACT]                    #[det_R23,nandet_R23,der_R23,der_R23_MACT]
-        lO32 = [det_O32,der_O32,der_O32_MACT]                    #[det_O32,nandet_O32,der_O32,der_O32_MACT]
-        OH   = [det_OH, der_OH, der_OH_MACT]                    #[det_OH,nandet_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23,der_R23,der_R23_MACT]            #[det_R23,nandet_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,der_O32,der_O32_MACT]            #[det_O32,nandet_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH, der_OH, der_OH_MACT]             #[det_OH,nandet_OH, der_OH, der_OH_MACT]
 
     else: 
-        lR23 = [det_R23,nandet_R23,der_R23,der_R23_MACT]
-        lO32 = [det_O32,nandet_O32,der_O32,der_O32_MACT]
-        print('lO32:', lO32)
-        OH   = [det_OH,nandet_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23,rlimit_R23,der_R23,der_R23_MACT]
+        lO32 = [det_O32,rlimit_O32,der_O32,der_O32_MACT]
+        OH   = [det_OH,rlimit_OH, der_OH, der_OH_MACT]
 
         
-    green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['D','X','3','4'], label=['Detection','Non-Dectection','DEEP2', 'MACT'], fit=False, silent=False, verbose=True)
+    green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, fit=False, silent=False, verbose=True)
     # marker=['.','*','^','o'], label=['Detection','Non-Dectection','DEEP2', 'MACT']

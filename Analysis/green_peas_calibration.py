@@ -62,7 +62,7 @@ def jiang18(x, y):
 #enddef
 
 def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=4,
-                     lR23_err=[], OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[]):
+                     lR23_err=[], OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[], IDs=[]):
     '''
     Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
     '''
@@ -80,6 +80,14 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     diff0 = []
     for nn in range(n_sample):
         jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
+        print('jiang_R23', jiang_R23)
+
+        if nn == 0:
+            print('len ',len(jiang_R23))
+            if IDs:
+                for jj in range(len(jiang_R23)):
+                    id_diff = lR23[0][jj]-jiang_R23[jj]
+                    ax.annotate(IDs[0][jj], (OH[0][jj], id_diff), fontsize = '6')
 
         # Label in upper left the points
         if len(label) != 0:
@@ -103,6 +111,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
 
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - jiang_R23[idx]
+                #print('i_diff ', i_diff, len(i_diff))
                 ax.scatter(OH[nn][idx], i_diff, color=ctype[ii], marker=marker[nn],
                            edgecolor='none', alpha=0.5, label=ii_label)
 
@@ -143,13 +152,21 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
+    '''if IDs: 
+        for yy in range(len(IDs)):
+            id_a = IDs[yy]
+            for aa in range(len(id_a)):
+                print(id_a[aa], R23_a[aa])
+                ax.annotate(id_a[aa], (OH_a[aa], y_diff[aa]), fontsize = '6')'''
+                
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.08, top=0.97)
 
     fig.savefig(out_diff_pdf)
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
-         marker=[], label=[], dR23_range=[-0.3,0.3], fit=False, silent=False, verbose=True):
+         marker=[], label=[], dR23_range=[-0.3,0.3], IDs=[], include_Rlimit = True, fit=False,
+         silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -265,6 +282,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             if len(idx) > 0:
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=0.5, label=ii_label)
+               
 
             if len(OH_err) != 0:
                 ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=OH_err[nn][:,idx],
@@ -299,15 +317,41 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
+
+    ###This puts the IDs on all the given IDs entered into the R23 and OH arrays
+    if IDs: 
+        for yy in range(len(IDs)):
+            id_a = IDs[yy]
+            R23_a = lR23[yy]
+            OH_a = OH[yy]
+            for aa in range(len(id_a)):
+                ax.annotate(id_a[aa], (R23_a[aa], OH_a[aa]), fontsize = '6')
+                
     plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.97)
     fig.savefig(out_pdf)
+
+    #Because we do not want to include the Robust limits into the statistical calculations
+    #in plot_differences, this options allows to redefine lR23, lO32, OH
+    if include_Rlimit:
+        nR23 = [lR23[0], lR23[2], lR23[3]]
+        nO32 = [lO32[0], lO32[2], lO32[3]]
+        nOH  = [OH[0], OH[2], OH[3]]
+        nIDs = [IDs[0]]
+        print('Using redefined values')
+        label = ['Detection','DEEP2', 'MACT']
+        marker = ['D','3','4']
+    else:
+        nR23 = lR23
+        nO32 = lO32
+        nOH  = OH
+        nIDs = IDs
 
     # Plot differences between model and data
     if fit == False:
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
-        plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
+        plot_differences(nR23, nO32, nOH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
                          lR23_err=lR23_err, OH_err=OH_err, OH_range=yra,
-                         dR23_range=dR23_range, marker=marker, label=label)
+                         dR23_range=dR23_range, marker=marker, label=label, IDs= nIDs)
         if silent == False: log.info('### End main : '+systime())
 #enddef
 

@@ -52,7 +52,7 @@ def bian18_O32(O32):
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''],
+         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''], marker=[],
          silent=False, verbose=True):
 
     '''
@@ -123,7 +123,7 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
 
     for nn in range(n_sample):
         ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], edgecolor='none',
-                      marker='o', alpha=0.5, label=label[nn])
+                      marker=marker[nn], alpha=0.5, label=label[nn])
         if len(ID) != 0:
             for ii in range(len(lR23[nn])):
                 ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],
@@ -140,19 +140,26 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
                            ecolor=ctype[nn], capsize=0, alpha=0.5,
                            fmt=None, label=None)
 
-    ax[0].plot(bian_R23, OH_arr, 'k--', label='Bian+(2018)')
+    ax[0].plot(bian_R23, OH_arr, 'k--')
+
+    avail_idx = np.where((OH_arr >= 7.80) & (OH_arr <=8.4))[0]
+    ax[0].plot(bian_R23[avail_idx], OH_arr[avail_idx], 'k-', label='Bian+(2018)')
 
     if len(R23_xra) != 0: ax[0].set_xlim(R23_xra)
     if len(yra) != 0: ax[0].set_ylim(yra)
 
     ax[0].set_xlabel(r'$\log(R_{23})$')
-    ax[0].set_ylabel(r'$12+\log({\rm O/H})$')
+    ax[0].set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
+
+
+    #ax[0].set_xlabel(r'$\log(R_{23})$')
+    #ax[0].set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
 
     ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
     for nn in range(n_sample):
         ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], edgecolor='none',
-                      marker='o', alpha=0.5)
+                      marker=marker[nn], alpha=0.5)
         if len(ID) != 0:
             for ii in range(len(lO32[nn])):
                 ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],

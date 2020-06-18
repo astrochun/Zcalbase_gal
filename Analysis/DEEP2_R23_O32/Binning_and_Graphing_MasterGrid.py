@@ -593,7 +593,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         for jj in range(n_split):
             # Let's grab all O32 values
             O32_values_perbin = sortO32[startIdx:endIdx]
-            print(O32_values_perbin)
+            
             O32_inbins_idx = O32_index[startIdx:endIdx]
 
             #This index gives the positions of all the R23 values relative 
@@ -660,7 +660,9 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     R23_maxval = R23_max.reshape(n_split*n_bins)
     O32_maxval = O32_max.reshape(n_split*n_bins)
 
-    
+    ####Taking the log of all the R23 and O32 values
+    ###np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
+    ###np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)
         
     #Plotting
     fig, ax = plt.subplots()
@@ -697,18 +699,73 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
         #plt.xlim(-0.3, 1)
     fig.savefig(pdf_pages, format ='pdf')
+
+
+
+    fig, ax = plt.subplots()
+    finite0 = np.where((np.isfinite(R23)) & (np.isfinite(O32)))[0]
+    x1 = R23[finite0]
+    y1 = O32[finite0]
+    x = np.log10(x1)
+    y = np.log10(y1)
+    vlines = np.log10(R23_lowlimit)
+    hlines = np.log10(O32_lowlimit)
+    ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
+    ax.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for DEEP2')
+    ax.set_xlabel(r'log($R_{23}$)')
+    ax.set_ylabel(r'log($O_{32}$)')
+
+    for aa in range(len(vlines)-1):
+        if aa < (len(vlines)-1):
+            x = np.linspace(vlines[aa],vlines[aa+1])
+        else: x = np.linespace(
+    ax.fill_between()
+
+    for jj in range(len(O32_lowlimit)):
+        xmin = vlines[jj]
+        if jj <= (len(O32_lowlimit)-n_split-1): xmax = vlines[jj+n_split]
+        else: xmax = np.log10(max(R23))
+        #print "jj, xmin, xmax, hlines[jj], vlines[jj]", jj, xmin, xmax, hlines[jj], vlines[jj]
+        plt.axvline(x = vlines[jj], linewidth= 0.3, color= 'k')
+        
+        x_value = [xmin,xmax]
+        y_value = [hlines[jj], hlines[jj]]
+        y_average = [yBar[jj],yBar[jj]]
+        plt.plot(x_value,y_value, linewidth= 0.3, color= 'b')
+        plt.plot(x_value, y_average, linewidth= 0.3, color= 'g')
+
+
+
+        #plt.xlim(-0.3, 1)
+    fig.savefig(pdf_pages, format ='pdf')
+
+
+
+
+
+
+
+
+
+
+
+    
     pdf_pages.close()
 
     
     
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
 
-    n1 = ('bin_ID' , 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
-          'logR23_median','logO32_median','logR23_max','logO32_max', 'N_stack')
-    tab1 = Table([n_bins_range, np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
-                  np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval), area], names = n1)
+    n1 = ('bin_ID' , 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
+          'logR23_median','logO32_median','logR23_max','logO32_max')
+    tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
+                  np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)], names = n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
-    asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/mostrecent_bin_info.tex', format='latex')
+
+
+    variable_formats = {'bin_ID':' %i ', 'N_stack': '%i', 'logR23_min': '%.2f', 'logO32_min':  '%.2f', 'logR23_avg':  '%.2f',
+                        'logO32_avg':  '%.2f','logR23_median':  '%.2f','logO32_median':  '%.2f','logR23_max':  '%.2f','logO32_max':  '%.2f'}
+    asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/mostrecent_bin_info.tex', format='latex', formats= variable_formats)
     
     fig.clear()
 

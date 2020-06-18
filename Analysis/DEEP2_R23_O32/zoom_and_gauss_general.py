@@ -18,7 +18,7 @@ from chun_codes import random_pdf
 
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_name, line_type
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_name, line_type    
 
 '''
 Debugging Note:
@@ -26,7 +26,7 @@ Debugging Note:
    make sure the expected values are within the range set up upper and
    lower limits.
 '''
-
+lambda_graph   = [3726.18, 3728.91, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]
 
 def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr):
@@ -312,8 +312,11 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
             t_ax.plot(x0[x_sigsnip_2],resid, 'r', linestyle='dashed', linewidth=0.2,
                       label= 'Residuals')
-            t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth=0.1, label='Lineflag')
+            #t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth=0.1, label='Lineflag')
             t_ax.set_xlim(x1+50,x2-50)
+
+            if line_name == 'OIII_4363':
+                t_ax.set_ylim(0,1)
             
             if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid' \
                     or dataset =='Double_Bin' or dataset =='n_Bins':
@@ -351,12 +354,14 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
             
-            t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',
-                          fontsize= '5')
-            for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.1, color= 'k', linestyle = '--')
+            #t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
+            for x in  lambda_graph: t_ax.axvline(x=x, linewidth= 0.15, color= 'k', linestyle = '--')
 
+            txt1 = 'Intensity' #Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'
+            #txt1 += 'Scale factor = 1e-17'
+            
             if col == 0:
-                t_ax.set_ylabel('Spect_1D')
+                t_ax.set_ylabel(txt1)
             else: t_ax.set_yticklabels([])  # sets y-tick labels
 
             if row != nrows-1 and rr != stack2D.shape[0]-1:
@@ -371,6 +376,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
             fig.set_size_inches(8,8)
             fig.savefig(pdf_pages, format='pdf')
+            fig.clear()
     # endfor
 
 

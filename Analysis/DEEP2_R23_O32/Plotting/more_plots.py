@@ -28,16 +28,9 @@ import sys
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general
 
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
+
 fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0502/'
-#dataset = 'Double Bin'
-
-lambda0 =[3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]  
-
-line_type = ['Oxy2', 'Single','Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single']
-
-line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']  
-
 
 '''
 asc_table = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Double_Bin_0206/Double_Bin_combined_flux_table.tbl'
@@ -64,11 +57,11 @@ def ew_plot_R23(fitspath, asc_table, temp_table, verif_table):
     temp_tab = asc.read(temp_table)
     ver_tab = asc.read(verif_table)
 
-    R23 = asc_tab['R_23_Average'].data
-    O32 = asc_tab['O_32_Average'].data
-    T_e = temp_tab['Temperature'].data
-    com_O = temp_tab['com_O_log'].data
-    ID = temp_tab['ID'].data
+    R23 = asc_tab['logR23_avg'].data
+    O32 = asc_tab['logO32_avg'].data
+    T_e = temp_tab['T_e'].data
+    com_O = temp_tab['12+log(O/H)'].data
+    ID = temp_tab['bin_ID'].data
     detect = ver_tab['Detection'].data
 
 
@@ -87,6 +80,7 @@ def ew_plot_R23(fitspath, asc_table, temp_table, verif_table):
             ax.set_title('EW vs. R23   '+str(np.int(lambda0[oo])))
             fig.set_size_inches(8,8)
             fig.savefig(pdf_pages, format='pdf')
+            fig.clear()
     pdf_pages.close()
 
 
@@ -100,12 +94,13 @@ def ew_plot_O32(fitspath, asc_table, temp_table, verif_table):
     temp_tab = asc.read(temp_table)
     ver_tab = asc.read(verif_table)
 
-    R23 = asc_tab['R_23_Average'].data
-    O32 = asc_tab['O_32_Average'].data
-    T_e = temp_tab['Temperature'].data
-    com_O = temp_tab['com_O_log'].data
-    ID = temp_tab['ID'].data
+    R23 = asc_tab['logR23_avg'].data
+    O32 = asc_tab['logO32_avg'].data
+    T_e = temp_tab['T_e'].data
+    com_O = temp_tab['12+log(O/H)'].data
+    ID = temp_tab['bin_ID'].data
     detect = ver_tab['Detection'].data
+
 
     for oo in range(len(lambda0)):
         if line_type[oo] == 'Balmer':
@@ -121,9 +116,19 @@ def ew_plot_O32(fitspath, asc_table, temp_table, verif_table):
             ax.set_title('EW vs. O32   '+str(np.int(lambda0[oo])))
             fig.set_size_inches(8,8)
             fig.savefig(pdf_pages, format='pdf')
+            fig.clear()
     pdf_pages.close()
 
 def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
+    ########
+    #Purpose:
+    #Input:
+    #      asc_table   -> combine_flux_ascii
+    #      temp_table  -> derived_properties
+    #      verif_table -> bin_validation_revised
+    ########
+
+
     name = fitspath +'R23_vs_O32_colormapping.pdf'
     pdf_pages = PdfPages(name)
 
@@ -132,34 +137,37 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     temp_tab = asc.read(temp_table)
     ver_tab = asc.read(verif_table)
 
-    R23 = asc_tab['R_23_Average'].data
-    O32 = asc_tab['O_32_Average'].data
-    T_e = temp_tab['Temperature'].data
-    com_O = temp_tab['com_O_log'].data
-    ID = temp_tab['ID'].data
+    R23 = asc_tab['logR23_avg'].data
+    O32 = asc_tab['logO32_avg'].data
+    T_e = temp_tab['T_e'].data
+    com_O = temp_tab['12+log(O/H)'].data
+    ID = temp_tab['bin_ID'].data
     detect = ver_tab['Detection'].data
 
     cm= plt.cm.get_cmap('Blues')
     edge_det = np.where((detect ==1))[0]
+    edge_rlimit = np.where((detect ==0.5))[0]
     edge_nan = np.where((detect ==0))[0]
+
 
     fig1,ax1 = plt.subplots()
     p1= ax1.scatter(R23[edge_det], O32[edge_det], marker= 'o', c=T_e[edge_det], cmap=cm)    #edgecolors = edgecolor
-    ax1.scatter(R23[edge_nan], O32[edge_nan], marker= '^')   #, c=T_e, cmap=cm)
+    ax1.scatter(R23[edge_rlimit], O32[edge_rlimit], marker= '^', c =T_e[edge_rlimit], cmap=cm)   #, c=T_e, cmap=cm)
     cb = fig1.colorbar(p1)
     cb.set_label('Temperature')
-    for aa in range(len(ID)):
-        ax1.annotate(ID[aa], (R23[aa], O32[aa]), fontsize = '6')
+    for aa in range(len(edge_det)):
+        ax1.annotate(ID[edge_det][aa], (R23[edge_det][aa], O32[edge_det][aa]), fontsize = '6')
     ax1.set_xlabel('R23')
     ax1.set_ylabel('O32')
     ax1.set_title('R23 vs. O32 Colormap= Temperature')
     fig1.set_size_inches(8,8)
     fig1.savefig(pdf_pages, format='pdf')
+    fig1.clear()
 
     
     fig2,ax2 = plt.subplots()
     p2 = ax2.scatter(R23[edge_det], O32[edge_det], marker= 'o', c=com_O[edge_det])  #, cmap =cm)#edgecolors = edgecolor
-    ax2.scatter(R23[edge_nan], O32[edge_nan], marker= '^')   #, c=com_O, cmap =cm) 
+    ax2.scatter(R23[edge_rlimit], O32[edge_rlimit], marker= '^', c=com_O[edge_rlimit])   #, c=com_O, cmap =cm) 
     cb= fig2.colorbar(p2)
     cb.set_label('Metallicity')
     for bb in range(len(ID)):
@@ -169,6 +177,7 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     ax2.set_title('R23 vs. O32  Colormap=Metallicity')
     fig2.set_size_inches(8,8)
     fig2.savefig(pdf_pages, format='pdf')
+    fig2.clear()
 
 
 
@@ -178,19 +187,20 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     
 
 
-def hist_for_bin(dataset,asc_table_det3):
-    #asc_table = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
+def hist_for_bin(fitspath, dataset,asc_table_det3):
+    #asc_table = fitspath+ bin_info.tbl
     asc_tab = asc.read(asc_table_det3)
     name = dataset +'_histograms.pdf'
 
     pdf_pages = PdfPages(fitspath+name)
 
-    R23 = asc_tab['R23']
-    O32 = asc_tab['O32']
-    N_bin = asc_tab['N_bin']
-    
+    R23 = asc_tab['logR23_avg']
+    O32 = asc_tab['logO32_avg']
+    N_bin = asc_tab['N_stack']
 
-    for ii in range(np.max(N_bin)+1):
+    number_of_bins = np.int(np.max(N_bin))+1
+
+    for ii in range(number_of_bins):
         bin_idx = np.where((N_bin == ii))[0]
         fig, ax = plt.subplots()
         ax.hist(R23[bin_idx])
@@ -203,7 +213,7 @@ def hist_for_bin(dataset,asc_table_det3):
         
 
     pdf_pages2 = PdfPages(fitspath+'O32'+name)
-    for ii in range(np.max(N_bin)+1):
+    for ii in range(number_of_bins):
         bin_idx = np.where((N_bin == ii))[0]
         fig, ax = plt.subplots()
         ax.hist(O32[bin_idx])
@@ -250,23 +260,45 @@ def dust_att_plot(combine_flux):
     #pdf_pages.close()
 
     
-def plotting_individual_for_stacking_image():
-    name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
-    pdf_pages = PdfPages(name)
-    
-    RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+def plotting_individual_for_stacking_image(stack_spectra=False):
+    if not stack_spectra:
+        name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
+        RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+        spec_range = range(100, 120)
+        y_lim = (-2,2)
+        y_text = 1.95
+        left = 0.13
+    else:
+        RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
+        name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/composite_plots_data_viz.pdf'
+        spec_range = range(27)
+        y_lim = (0,1)
+        y_text = 0.95
+        left = 0.1
+
     image2DM, header = fits.getdata(RestframeMaster, header=True)
-    wave= header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+    wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+
+    pdf_pages = PdfPages(name)
+
+    txt0 = 'Intensity ' + r'($10^{-17}~{\rm erg}~{\rm s}^{-1}~{\rm cm}^{-2}~\AA^{-1}$)'
+    # txt0 += 'Scale factor = 1e-17'
 
     scalefactor = 1e-17
     image2d = image2DM/scalefactor
-    for ii in range(100,120):
+    for ii in spec_range:
         fig,ax = plt.subplots()
         plt.plot(wave, image2d[ii,:], linewidth = 0.5)
-        plt.xlabel('Wavelength')
-        plt.ylabel('Intensity Scale factor = 1e-17')
-        ax.set_xlim(4100,4500)
-                 
+        plt.xlabel('Wavelength (Angstroms)')
+        plt.ylabel(txt0) #ergs per second per cm^2 per angstron
+        ax.set_xlim(4250,4450)
+        ax.set_ylim(y_lim)
+        ax.axvline(x=4363.21, linewidth=1.0, color= 'r', linestyle = ':')
+        ax.axvline(x=4340.544, linewidth=1.0, color= 'r', linestyle = ':')
+        ax.text(4363.21, y_text, r'[OIII]$\lambda$4363', va='top', ha='center', rotation=90)
+        ax.text(4340.544, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
+        fig.set_size_inches(6,6)
+        plt.subplots_adjust(left=left, right=0.97, bottom=0.1, top=0.97)
         pdf_pages.savefig()
         fig.clear()
     pdf_pages.close()

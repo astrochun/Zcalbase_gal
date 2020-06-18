@@ -23,7 +23,7 @@ import scipy.integrate as integ
 import glob
 from datetime import date
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, calibration_plots, verification_tables
+from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, R_temp_calcul, calibration_plots,individual_detect 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
@@ -31,10 +31,12 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 #Imports Error propagation codes from chun_codes
 from chun_codes import random_pdf, compute_onesig_pdf, intersect
 
-#fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/n_split/'
+
 
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons import valid_table
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
 
 #############Getting username##############
 
@@ -209,7 +211,7 @@ def check_verification_table(fitspath_ini, dataset, combine_flux_ascii):
         return verification_table
 
 
-def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, dustatten = 'False', mask='None'):
+def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, dustatten = 'False', mask='None', want_idv_detect=True):
     #dataset options: Grid, O32_Grid, R23_Grid, n_Bins
 
     if dataset == 'O32_Grid': org_name = 'O32_Grid'
@@ -225,7 +227,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     
 
     if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
-    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2800 
+    if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2799 
     print('# of Gal in Bin:', galinbin)
     if dataset =='O32_Grid': 
         pdf_pages = fitspath +'single_grid_O32.pdf'
@@ -279,7 +281,7 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     
 
 
-
+    
     #Stackboth_MasterGrid
     #Option to Change: Bin size  
     outfile01 = fitspath+ 'Arrays_R23O32bin01MasterGrid.npz'
@@ -412,8 +414,13 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
     verification_table = check_verification_table(fitspath_ini, dataset, combine_flux_ascii)
-    print('verification table path : ', verification_table)
+    #print('verification table path : ', verification_table)
 
+    ####Validation Table#####
+    valid_table.make_validation_table(fitspath)
+    valid_table.compare_to_by_eye(fitspath,dataset)
+    verification_table = fitspath +filename_dict['bin_valid']
+    verification_table_rev = fitspath +filename_dict['bin_valid_rev']
 
     if dataset == 'n_Bins':
         combine_flux_ascii = fitspath + 'bin_emission_line_fit.tbl'
@@ -422,15 +429,25 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         temp_m_gpdf_name = 'n_Bins_Temp_Composite_Metallicity.pdf'
         dust_ascii_name = fitspath + 'dust_attentuation_values.tbl'
     
-        if dustatten == False: R_temp_calcul.run_function(fitspath, dataset, verification_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
-        if dustatten == True: R_temp_calcul.run_function(fitspath, dataset, verficiation_table, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii
+        if dustatten == False: R_temp_calcul.run_function(fitspath, dataset, verification_table_rev, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)   #dust_ascii need to add back in 
+        if dustatten == True: R_temp_calcul.run_function(fitspath, dataset, verficiation_table_rev, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)   #need to add back in dust_ascii
 
-    ###Calibration Plots###
-    calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
+
+
+    ######Individual Detections#####
+    if want_idv_detect == True:
+        dataset_idv = ''
+        pdf_individual = 'individual_detection_only_graph.pdf'
+        individual_detect.individual_detection_MSC(fitspath, dataset_idv, pdf_individual, revised = False, det3=True, graphs= False) 
+        print("Ran Individual Detection from MSC")
+        idv_derived_prop = fitspath+'individual_derived_properties.tbl'
     
-    ###Verification Tables###
-    #ver_tab = fitspath+'/'+dataset+'_verification.tbl'
-    #verification_tables.verification(fitspath, dataset, temp_m_gascii, combine_flux_ascii, ver_tab)
+
+    
+    ###Calibration Plots###
+    calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii, verification_table_rev, include_limits = False)
+    
+   
 
 
     ###Making More Plots###
@@ -438,13 +455,14 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     #temp_table = temp_met_ascii
     #asc_table_det3 = asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
     
-    temp_m_gascii = fitspath+ 'n_Bins_temperatures_metalicity.tbl'
+    temp_m_gascii = fitspath+ 'bin_derived_properties.tbl'
     
     
-    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
-    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
-    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, verification_table)
-    more_plots.hist_for_bin(dataset, asc_table2)
+    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, verification_table_rev)
+    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, verification_table_rev)
+    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_m_gascii, verification_table_rev)
+    bin_info = fitspath+ 'bin_info.tbl'
+    #more_plots.hist_for_bin(fitspath, dataset, bin_info)
 
 
 

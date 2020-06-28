@@ -83,7 +83,6 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
         print('jiang_R23', jiang_R23)
 
         if nn == 0:
-            print('len ',len(jiang_R23))
             if IDs:
                 for jj in range(len(jiang_R23)):
                     id_diff = lR23[0][jj]-jiang_R23[jj]
@@ -117,13 +116,17 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
 
                 diff0 += list(lR23[nn][idx] - jiang_R23[idx])
 
-                if len(OH_err) != 0:
-                    ax.errorbar(OH[nn][idx], i_diff, xerr=OH_err[nn][:,idx], mfc='none',
-                                ecolor=ctype[ii], capsize=0, alpha=0.25, fmt=None, label=None)
+                ###Added if statement so that only data points on the OH_err[0] place will be plotted
+                if nn == 0: 
+                    if len(OH_err) != 0:
+                        ax.errorbar(OH[nn][idx], i_diff, xerr=np.transpose(OH_err[nn][idx]),
+                                    mfc='none', ecolor=ctype[ii], capsize=0, alpha=0.25,
+                                    fmt='None', label=None, ls = 'none')
 
-                if len(lR23_err) != 0:
-                    ax.errorbar(OH[nn][idx], i_diff, yerr=lR23_err[nn][:,idx], mfc='none',
-                                ecolor=ctype[ii], capsize=0, alpha=0.25, fmt=None, label=None)
+                    if len(lR23_err) != 0:
+                        ax.errorbar(OH[nn][idx], i_diff, yerr=np.transpose(lR23_err[nn][idx]),
+                                    mfc='none', ecolor=ctype[ii], capsize=0, alpha=0.25,
+                                    fmt='None', label=None, ls = 'none')
 
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
@@ -151,13 +154,6 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
-
-    '''if IDs: 
-        for yy in range(len(IDs)):
-            id_a = IDs[yy]
-            for aa in range(len(id_a)):
-                print(id_a[aa], R23_a[aa])
-                ax.annotate(id_a[aa], (OH_a[aa], y_diff[aa]), fontsize = '6')'''
                 
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.08, top=0.97)
 
@@ -194,6 +190,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     Notes
     -----
     Created by Chun Ly, 23 November 2018
+    Editted by Reagen Leimbach, 18 June 2020 to add IDs to the plots
     '''
 
     if silent == False: log.info('### Begin main : '+systime())
@@ -201,6 +198,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     fig, ax = plt.subplots()
 
     n_sample = len(lR23)
+    
 
     min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
     OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
@@ -273,7 +271,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             y_ii_min = bin_start[ii] #bin_y_min + ii * dy
             y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
-
+            
             ii_label = ''
             if nn == 0: #n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
@@ -282,17 +280,20 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             if len(idx) > 0:
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=0.5, label=ii_label)
-               
 
-            if len(OH_err) != 0:
-                ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=OH_err[nn][:,idx],
-                            mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
-                            fmt=None, label=None)
+                ###Pushed Error bars under idx requirement
+                ###Added if statement so that only data points on the OH_err[0] place will be plotted
+                if nn == 0: 
+                    if len(OH_err) != 0:
+                        print('OH_err: ' , OH_err[nn][idx])
+                        ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=np.transpose(OH_err[nn][idx]),
+                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
+                                    fmt='', label=None, ls = 'none')
 
-            if len(lR23_err) != 0:
-                ax.errorbar(lR23[nn][idx], OH[nn][idx], xerr=lR23_err[nn][:,idx],
-                            mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
-                            fmt=None, label=None)
+                    if len(lR23_err) != 0:
+                        ax.errorbar(lR23[nn][idx], OH[nn][idx], xerr=np.transpose(lR23_err[nn][idx]),
+                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,fmt=None,
+                                    label=None, ls = 'none')
 
             if nn == 0: #n_sample-1:
                 lO32_avg = np.average(lO32_all[idx_all])

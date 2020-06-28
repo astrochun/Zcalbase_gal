@@ -143,16 +143,18 @@ def LAC_GPC_plots(fitspath, dataset,revised= False, individual = False, include_
         OH   = [det_OH,rlimit_OH, der_OH, der_OH_MACT]
         IDs  = [det_ID, rlimit_ID]
 
-    error_npz_file = fitspath + npz_filename_dict['der_prop_errors']
-    if exists(error_npz_file):
-        print('Error npz found  ', error_npz, ': Adding error bars to plot' )
-        error_npz = np.load(error_npz_file)
-        metal_err = error_npz['12+log(O/H)']#log values
-        green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, lR23_err = [], OH_err = [],  xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, IDs=IDs, include_Rlimit = True, fit=False, silent=False, verbose=True)
-
-    else:
-        print('No error npz found')
-        green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, IDs = IDs, include_Rlimit = True, fit=False, silent=False, verbose=True)
+        error_npz_file = fitspath + npz_filename_dict['der_prop_errors']
+        if exists(error_npz_file):
+            print('Error npz found  ', error_npz_file, ': Adding error bars to plot' )
+            error_npz = np.load(error_npz_file)
+            metal_err = error_npz['12+log(O/H)_lowhigh_error'] #log values
+            #print('Metallicity Errors: ', metal_err)
+            #print('R23 Detection' , det_R23)
+            green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, lR23_err = [], OH_err = [metal_err],  xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, IDs=IDs, include_Rlimit = True, fit=False, silent=False, verbose=True)
+            
+        else:
+            print('No error npz found')
+            green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5,1.1], yra=[6.5,9.10], marker=marker, label=label, IDs = IDs, include_Rlimit = True, fit=False, silent=False, verbose=True)
     
 
     

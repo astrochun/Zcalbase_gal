@@ -83,6 +83,7 @@ def limit_function(combine_flux_ascii):
 #def run_function(fitspath, EBV, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False)
 
 def run_function(fitspath, dataset, verification_table, dustatt= False):
+
     combine_flux_ascii= fitspath + filename_dict['bin_fit']
     temp_metal_ascii = fitspath+ '/'+filename_dict['bin_derived_prop']
     temp_metal_revised = fitspath+ filename_dict['bin_derived_prop_rev']
@@ -106,7 +107,7 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     if dustatt:
         non_atten_value_table = asc.read(temp_metal_ascii)
         EBV = non_atten_value_table['EBV_HgHb']
-        out_ascii = fitspath+ 'bin_derived_properties.dust.tbl'  #filename_dict['bin_derived_prop_rev']
+        out_ascii = fitspath+ filename_dict['bin_derived_prop_rev_dust']  #filename_dict['bin_derived_prop_rev']
 
         
     #####Verification Table Import#######

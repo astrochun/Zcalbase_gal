@@ -399,7 +399,8 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
     verification_table_revised = fitspath + filename_dict['bin_valid_rev']
     
     #R_temp_calcul
-
+    #Not going to run the R_temp_calcul.run_function for the 'bin_valid' table because these values
+    #are proven to be incomplete. The bin_valid_rev table is different. 
     R_temp_calcul.run_function(fitspath, dataset,verification_table_revised, dustatt= False)
 
     if dustatten == True :
@@ -412,10 +413,10 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
         #temp_tab_revised = fitspath+ filename_dict['bin_derived_prop_rev']
         R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt= True)
         
-
+    '''
     #####Check Dust Attenuation#####
     temp = fitspath + filename_dict['bin_derived_prop']
-    temp_revised = fitspath +filename_dict['bin_derived_prop_rev']
+    temp_revised = fitspath +filename_dict['bin_derived_prop_dustcorr']
 
     ttab = asc.read(temp)
     trtab = asc.read(temp_revised)
@@ -425,10 +426,10 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
     print('Metallicity' , metallicity)
     print('##################################################################')
-    print('Dust Attenuated Metallicity', metallicity_r)
+    print('Dust Attenuated Metallicity', metallicity_r)'''
 
     ####Error Propagation#####
-    error_prop.fluxes_derived_prop(fitspath, binned_data = True)
+    error_prop.fluxes_derived_prop(fitspath, binned_data = True, revised = True)
 
     
     ####Individual Detections#####
@@ -442,30 +443,10 @@ def run_grid_R23_O32_analysis(dataset,y_correction, n_split, adaptive = False, d
 
 
     ###Calibration Plots###
-    calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
+    #calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
     calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= True)
     
 '''
-#R_temp_calcul
-
-    R_temp_calcul.run_function(fitspath, EBV_zeros, dataset, verification_table_revised, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False)
-
-    if dustatten == True :
-        balmer.HbHgHd_fits(fitspath, outfile_grid, out_pdf_prefix='HbHgHd_fits', use_revised=False)
-
-        R_temp_calcul.run_function(fitspath, EBV_zeros, dataset, verification_table_revised, temp_m_gascii , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii='', dustatt= False) 
-
-        attenuation.EBV_table_update(fitspath, use_revised= False)
-
-        non_atten_value_table = asc.read(temp_m_gascii)
-        EBV_HgHb = non_atten_value_table['EBV_HgHb']
-        temp_tab_revised = fitspath+ filename_dict['bin_derived_prop_rev']
-        R_temp_calcul.run_function(fitspath, EBV_HgHb, dataset, verfication_table_revised, temp_tab_revised , temp_m_gfits, temp_m_gpdf_name, combine_flux_ascii, dust_ascii_name, dustatt= True)
-
-    
-    
-    
-
 
     ###Making More Plots###
     #asc_table = combine_flux_ascii

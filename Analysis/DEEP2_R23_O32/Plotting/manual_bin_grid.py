@@ -70,7 +70,7 @@ def graph_bins(bin_info, individual_info, pdf_file):
         else:
             ymax = lO32_max[-1]
         print('ymin, ymax = ', lO32_min[aa], ymax)
-        ax.fill_between(xx, lO32_min[aa], ymax, alpha =0.35)
+        ax.fill_between(xx, lO32_min[aa], ymax, alpha = 0.35)
         count+=1
     print(count)
     
@@ -81,7 +81,7 @@ def graph_bins(bin_info, individual_info, pdf_file):
     #y = np.log10(y1)
     #vlines = np.log10(R23_lowlimit)
     #hlines = np.log10(O32_lowlimit)
-    ax.scatter(x1,y1,0.75, facecolor='r', edgecolor='face', marker='*',alpha=1)
+    ax.scatter(x1,y1,0.75, facecolor='b', edgecolor='face', marker='*',alpha=1)
     ax.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for Manual Binning')
     ax.set_xlabel(r'log($R_{23}$)')
     ax.set_ylabel(r'log($O_{32}$)')

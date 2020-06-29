@@ -696,7 +696,6 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         plt.plot(x_value, y_average, linewidth= 0.3, color= 'g')
 
 
-
         #plt.xlim(-0.3, 1)
     fig.savefig(pdf_pages, format ='pdf')
 

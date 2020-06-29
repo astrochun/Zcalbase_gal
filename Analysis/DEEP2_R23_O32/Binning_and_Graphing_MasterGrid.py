@@ -701,7 +701,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     fig.savefig(pdf_pages, format ='pdf')
 
 
-
+    '''
     fig, ax = plt.subplots()
     finite0 = np.where((np.isfinite(R23)) & (np.isfinite(O32)))[0]
     x1 = R23[finite0]
@@ -737,7 +737,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
 
         #plt.xlim(-0.3, 1)
-    fig.savefig(pdf_pages, format ='pdf')
+    fig.savefig(pdf_pages, format ='pdf')'''
 
 
 
@@ -755,19 +755,20 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     
     
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
-
-    n1 = ('bin_ID' , 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
+    
+    n1 = ('bin_ID' ,'N_stack','logR23_min','logO32_min','logR23_avg','logO32_avg',
           'logR23_median','logO32_median','logR23_max','logO32_max')
-    tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
-                  np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)], names = n1)
+    tab1 = Table([n_bins_range,area,np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar),
+                  np.log10(yBar),np.log10(R23_medians),np.log10(O32_medians),np.log10(R23_maxval),
+                  np.log10(O32_maxval)], names = n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
+    
 
-
-    variable_formats = {'bin_ID':' %i ', 'N_stack': '%i', 'logR23_min': '%.2f', 'logO32_min':  '%.2f', 'logR23_avg':  '%.2f',
+    '''variable_formats = {'bin_ID':' %i ', 'N_stack': '%i', 'logR23_min': '%.2f', 'logO32_min':  '%.2f', 'logR23_avg':  '%.2f',
                         'logO32_avg':  '%.2f','logR23_median':  '%.2f','logO32_median':  '%.2f','logR23_max':  '%.2f','logO32_max':  '%.2f'}
     asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/mostrecent_bin_info.tex', format='latex', formats= variable_formats)
     
-    fig.clear()
+    fig.clear()'''
 
     n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID',
         'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',

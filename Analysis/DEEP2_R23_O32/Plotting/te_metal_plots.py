@@ -1,36 +1,41 @@
 #Graphs the temperature, metallicities, R23 and O32 and errors for the individual and composite spectra by importing pre-existing tables and dictionaries
 
 
+###Keywords:
+#           fitspath -> path to where files come and are saved to
+#           revised  -> refers to if using the bin_derived_prop_revised temperature
+#                       and metallicity measurements which right now implement dust attenuation
+
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from astropy.io import ascii as asc
-from astropy.table import vstack, hstack
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-import os
-from os.path import exists
-import numpy.ma as ma
-from matplotlib.gridspec import GridSpec
-from pylab import subplots_adjust
-from astropy.convolution import Box1DKernel, convolve
 from scipy.optimize import curve_fit
 import scipy.integrate as integ
 import glob
-from datetime import date
 
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
 
-def plotting_te_metal(fitspath, out_pdf):
+def plotting_te_metal(fitspath, revised=False):
     
-    indv_measurements = fitspath + 'individual_derived_properties.tbl'
-    composite_file = fitspath + 'bin_derived_properties.tbl'
-    indv_all_file = fitspath +'individual_bin_info.tbl'
+    #indv_measurements = fitspath + filename_dict['indv_derived_prop']
+    indv_all_file = fitspath + filename_dict['indv_bin_info']
 
+    if revised:
+        composite_file = fitspath + filename_dict['bin_derived_prop_rev']
+        out_pdf = fitspath + 'temperature_metallicity_revised.pdf'
+    else:
+        composite_file = fitspath + filename_dict['bin_derived_prop']
+        out_pdf = fitspath + 'temperature_metallicity_plots.pdf'
+
+    
     #Individual Measurements
-    indv_derived = asc.read(indv_measurements)
+    #indv_derived = asc.read(indv_measurements)
     comp_derived = asc.read(composite_file)
     indv_all = asc.read(indv_all_file)
     
@@ -96,7 +101,7 @@ def plotting_te_metal(fitspath, out_pdf):
 
 
     
-    pdf_pages = PdfPages(fitspath+out_pdf)
+    pdf_pages = PdfPages(out_pdf)
 
     fig, ax = plt.subplots()
     ax.scatter(iR23_idv, iO32_idv, marker = '.', s = 35, color = 'g')

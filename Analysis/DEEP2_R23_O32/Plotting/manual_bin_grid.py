@@ -73,7 +73,6 @@ def graph_bins(bin_info, individual_info, pdf_file):
         ax.fill_between(xx, lO32_min[aa], ymax, alpha = 0.35)
         count+=1
     print(count)
-
     
     finite0 = np.where((np.isfinite(lR23)) & (np.isfinite(lO32)))[0]
     x1 = lR23[finite0]

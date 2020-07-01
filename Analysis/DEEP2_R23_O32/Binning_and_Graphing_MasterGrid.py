@@ -15,9 +15,39 @@ from astropy.table import Table
 
 def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O32,
                    O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive=False):
-    # R23 and O32 are going to be log values --> check to make sure that this doesn't affect the binning
+    # R23 and O32 are going to be log values
     # One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins
     # increase the number of galaxies as R23 increases
+    '''
+    Purpose:
+
+    Usage:
+
+    Parameters
+
+    fitspath
+    pdf_pages
+    outfile
+    n_split
+    individual_ID
+    R23
+    O32
+    O2
+    O3
+    Hb
+    SNR2
+    SNR3
+    SNRH
+    det3
+    data3
+    galinbin
+    adaptive
+
+    Returns
+
+    Outputs
+
+    '''
     pdf_pages = PdfPages(pdf_pages)
     # One_dimensional binning for R23
     sortR23 = np.argsort(R23)

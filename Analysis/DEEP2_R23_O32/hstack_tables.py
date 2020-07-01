@@ -10,6 +10,21 @@ from astropy.table import hstack
 
 
 def h_stack(fitspath, table_files, asc_intro, new_name):
+    '''
+    Purpose
+
+    Parameters
+
+    fitspath
+    table_files
+    asc_intro
+    new_name
+
+    Returns
+
+    Outputs
+
+    '''
     table_files.sort()
     for ii in range(len(table_files)):
         asc_tab = asc.read(table_files[ii])

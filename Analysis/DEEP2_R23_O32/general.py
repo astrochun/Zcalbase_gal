@@ -140,6 +140,24 @@ def gettime(org_name,fitspath_ini):
 
 
 def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, dustatten='False', mask='None'):
+    '''
+    Purpose
+
+    Parameters
+
+    dataset
+    y_correction
+    n_split
+    adaptive
+    dustatten
+    mask
+
+    Returns
+
+    Outputs
+
+    '''
+
     # dataset options: Grid, O32_Grid, R23_Grid, n_Bins
 
     '''if dataset == 'O32_Grid': org_name = 'O32_Grid'

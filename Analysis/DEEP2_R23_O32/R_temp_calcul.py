@@ -64,7 +64,21 @@ def limit_function(combine_flux_ascii):
 
 
 def run_function(fitspath, dataset, verification_table, dustatt=False):
+    '''
+    Purpose
 
+    Parameters
+
+    fitspath
+    dataset
+    verification_table
+    dustatt
+
+    Returns
+
+    Outputs
+
+    '''
     combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
     temp_metal_ascii = join(fitspath, filename_dict['bin_derived_prop'])
     temp_metal_revised = join(fitspath, filename_dict['bin_derived_prop_rev'])

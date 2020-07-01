@@ -44,7 +44,25 @@ def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
 
 
 def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, RMS, line_type0):
+    '''
+    Purpose
 
+    Parameters
+
+    dataset
+    s2
+    working_wave
+    x0
+    y_norm
+    x_idx
+    RMS
+    line_type0
+
+    Returns
+
+    Outputs
+
+    '''
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
     sigma = np.repeat(RMS, len(x0))
@@ -140,7 +158,30 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
                     working_wave, lineflag,  y_correction='', line_type='',
                     outpdf='', line_name=''):
+    '''
+    Purpose
 
+    Parameters
+
+    dataset
+    fitspath
+    tab
+    stack2D
+    dispersion
+    s2
+    wave
+    working_wave
+    lineflag
+    y_correction
+    line_type
+    outpdf
+    line_name
+
+    Returns
+
+    Outputs
+
+    '''
     asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
     nrows = 4

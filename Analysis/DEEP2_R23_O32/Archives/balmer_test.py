@@ -2,13 +2,9 @@
 
 
 import numpy as np
-import matplotlib.pyplot as plt
-#import pylab as pl
 from astropy.io import fits
-from astropy.io import ascii as asc
 
 import zoom_and_gauss_general
-
 
 fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/balmer_test/'
 

@@ -13,8 +13,11 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 
 
+# def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O32,
+                   # O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive=False):
+
 def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O32,
-                   O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive=False):
+                   SNR3, data3, galinbin):
     # R23 and O32 are going to be log values
     # One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins
     # increase the number of galaxies as R23 increases
@@ -32,16 +35,10 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     individual_ID
     R23
     O32
-    O2
-    O3
-    Hb
-    SNR2
     SNR3
     SNRH
-    det3
     data3
     galinbin
-    adaptive
 
     Returns
 
@@ -58,7 +55,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     n_bins_range = np.arange(0, n_split*n_bins, 1)
 
     # Initializing Arrays for Grid stacking
-    Number_inbin = np.zeros((n_bins, n_split))   # Used to be N_arr0
+    number_inbin = np.zeros((n_bins, n_split))   # Used to be N_arr0
     locator = np.zeros((n_bins, n_split), dtype=object) # Used to be T_arr
     O32_minimum = np.zeros((n_bins, n_split))    # Used to be O32_grid
     R23_minimum = np.zeros((n_bins, n_split))      # Used to be R23_grid
@@ -69,7 +66,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     xBar = np.zeros(n_split * n_bins)
     yBar = np.zeros(n_split * n_bins)
     area = np.zeros(n_split * n_bins)
-    Bin_number = np.zeros(len(data3), dtype=int) # Used to be N_bin
+    bin_number = np.zeros(len(data3), dtype=int) # Used to be N_bin
 
     R23_minall = np.zeros(len(R23))
     O32_minall = np.zeros(len(R23))
@@ -134,7 +131,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
             N_bin_idx = R23_idx[O32_inbins_idx]        
 
             # Gives the bin number for each spectra
-            Bin_number[N_bin_idx] = (ii * n_split) + jj
+            bin_number[N_bin_idx] = (ii * n_split) + jj
 
             # Now let's start sorting our data into variables to use later
 
@@ -160,7 +157,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
             O32_max[ii, jj] = np.max(O32[N_bin_idx])
 
             # Gives the number of galaxies in each bin
-            Number_inbin[ii, jj] += len(O32_values_perbin)
+            number_inbin[ii, jj] += len(O32_values_perbin)
 
             # Gives the index (location numbers) for the spectra in each bin
             # and is used later loop over and get the galaxies
@@ -260,7 +257,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     pdf_pages.close()
 
 
-    np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
+    np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=number_inbin)
     
     n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
           'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
@@ -281,7 +278,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID',
         'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
         'logR23_median','logO32_median','logR23_max','logO32_max')
-    tab2 = Table([R23, O32, SNR3, Bin_number, individual_ID,
+    tab2 = Table([R23, O32, SNR3, bin_number, individual_ID,
                  R23_minall,O32_minall,R23_avgall,O32_avgall,
                  R23_medall,O32_medall,R23_maxall, O32_maxall], names=n2)
     asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line') # used to be + dataset+'_2d_binning_datadet3.tbl

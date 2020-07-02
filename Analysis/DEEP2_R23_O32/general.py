@@ -2,19 +2,7 @@
 # This weekend combine the grid and voronoi if statements, voronoi20, log plots for met
 # EW values:equival width
 
-# Dictionary of pdf and other files specific to the Zcalbase_gal project
-name_dict = dict()
-
-name_dict['gridnpz'] = 'grid.npz'
-name_dict['gridpdf'] = 'grid.pdf'
-name_dict['Stackname'] = 'Stacking_Masked_MasterGrid_.pdf'
-name_dict['Stackname_nomask'] = 'Stacking_MasterGrid_.pdf'
-name_dict['Average_Bin_Value'] = '_Average_R23_O32_Values.tbl'
-name_dict['bin_fit_fits'] = 'bin_emission_line_fit.fits'
-name_dict['temp_fits_file'] = '_temperatures_metalicity.fits'
-name_dict['temp_metallicity_pdf'] = '_Temp_Composite_Metallicity.pdf'
-
-
+from . import name_dict
 import numpy as np
 from astropy.io import fits
 from astropy.io import ascii as asc
@@ -24,7 +12,6 @@ import os
 from os.path import exists, join
 import glob
 from datetime import date
-
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, \
     zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, \
@@ -128,13 +115,14 @@ def get_det3(fitspath, fitspath_ini):
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3
 
 
-def gettime(org_name,fitspath_ini):
+def gettime(org_name, fitspath_ini):
     today = date.today()
-    path0 = org_name+'_' + "%02i%02i" % (today.month, today.day)+'/'
+    path0 = org_name+'_' + "%02i%02i" % (today.month, today.day) + '/'
     if not exists(path0):
-        os.mkdir(fitspath_ini+path0)
-        fitspath= fitspath_ini+path0
-    else: print("Path already exists")
+        os.mkdir(fitspath_ini + path0)
+        fitspath = fitspath_ini+path0
+    else:
+        print("Path already exists")
     print(fitspath)
     return fitspath
 
@@ -182,28 +170,27 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
         galinbin = [400, 400, 400, 400, 400, 400, 409]
     print('# of Gal in Bin:', galinbin)
 
-    Bin_pdf_pages = join(fitspath, dataset, name_dict['gridpdf'])
-    Bin_outfile = join(fitspath, dataset, name_dict['gridnpz'])
+    bin_pdf_pages = join(fitspath, dataset, name_dict['gridpdf'])
+    bin_outfile = join(fitspath, dataset, name_dict['gridnpz'])
     
     if dataset == 'O32_Grid':
-        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, Bin_pdf_pages, Bin_outfile,
+        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, bin_pdf_pages, bin_outfile,
                                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
                                                         galinbin, adaptive)
     if dataset == 'R23_Grid':
-        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, Bin_pdf_pages, Bin_outfile,
+        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, bin_pdf_pages, bin_outfile,
                                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3,
                                                         data3, galinbin)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
-        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, Bin_pdf_pages, Bin_outfile,
+        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
                                                     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
                                                     R23_bin, O32_bin)
 
     if dataset == 'n_Bins':
-        Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, Bin_pdf_pages, Bin_outfile, n_split, individual_ID,
-                                                       R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3,
-                                                       data3, galinbin, adaptive)
+        Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
+                                                       R23, O32, SNR3, data3, galinbin)
 
     print('made npz, pdf files , testmastergrid (need to find if this is used anywhere)')
     print('finished Binning_and_Graphing_MasterGrid')
@@ -213,31 +200,31 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # Option to Change: Masking the night sky emission lines
     if dataset == 'Grid': 
         if mask:
-            Stack_name = dataset + name_dict['Stackname']
+            stack_name = dataset + name_dict['Stackname']
             Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
-                                                          dataset, Stack_name, Bin_outfile)
+                                                          dataset, stack_name, bin_outfile)
         else:
-            Stack_name = dataset + name_dict['Stackname_nomask']
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name, Bin_outfile)
+            stack_name = dataset + name_dict['Stackname_nomask']
+            Stackboth_MasterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
     else:
         if mask:
-            Stack_name = dataset + name_dict['Stackname']
+            stack_name = dataset + name_dict['Stackname']
             Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
-                                                          dataset, Stack_name, Bin_outfile)
+                                                          dataset, stack_name, bin_outfile)
         else:
-            Stack_name = dataset + name_dict['Stackname_nomask']
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath, Stack_name, Bin_outfile)
+            stack_name = dataset + name_dict['Stackname_nomask']
+            Stackboth_MasterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
 
     # Outfile and pdf both use name
-    print('finished with stacking,' + Stack_name + 'pdf and fits files created')
+    print('finished with stacking,' + stack_name + 'pdf and fits files created')
 
     # Zoom_and_gauss_general
-    outfile_grid = fitspath + filename_dict['comp_spec']
+    outfile_grid = join(fitspath, filename_dict['comp_spec'])
     print(outfile_grid)
     stack2D, header = fits.getdata(outfile_grid, header=True)
-    wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
+    wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']
-    binning_avg_asc = fitspath + filename_dict['bin_info']
+    binning_avg_asc = join(fitspath, filename_dict['bin_info'])
 
     indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])  # used to be 'n_Bins_2d_binning_datadet3.tbl'
     
@@ -286,12 +273,12 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # R_temp_calcul
     # Not going to run the R_temp_calcul.run_function for the 'bin_valid' table because these values
     # are proven to be incomplete. The bin_valid_rev table is different.
-    R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt= False)
+    R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
 
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         attenuation.EBV_table_update(fitspath, use_revised= False)
-        R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt= True)
+        R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
         
     '''
     # Check Dust Attenuation
@@ -323,7 +310,8 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # Calibration Plots
     # calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
     calibration_plots.LAC_GPC_plots(fitspath, dataset, revised=True)
-    
+
+
 '''
 
     ###Making More Plots###
@@ -380,7 +368,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
 
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   
-            idx = np.where(np.absolute(wave - ii)<=5)[0]
+            idx = np.where(np.absolute(wave - ii) <= 5)[0]
             if len(idx) > 0:
                 lineflag[idx] = 1
 

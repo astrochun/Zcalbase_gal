@@ -86,7 +86,7 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
 
     # Combine_Flux_ascii table import
     combine_fits = asc.read(combine_flux_ascii)
-    ID = combine_fits['bin_ID'].data
+    id = combine_fits['bin_ID'].data
 
     # Dust Attenuation
     if dustatt:
@@ -94,7 +94,7 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
         EBV = non_atten_value_table['EBV_HgHb']
         out_ascii = join(fitspath, filename_dict['bin_derived_prop_rev_dust'])  # filename_dict['bin_derived_prop_rev']
     else:
-        EBV = np.zeros(len(ID))
+        EBV = np.zeros(len(id))
         out_ascii = join(fitspath, filename_dict['bin_derived_prop'])
 
     # Verification Table Import
@@ -139,7 +139,7 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
     R23_avg = combine_fits['logR23_avg'].data
     O32_avg = combine_fits['logO32_avg'].data
     N_Galaxy = combine_fits['N_stack'].data
-    ID = combine_fits['bin_ID'].data
+    id = combine_fits['bin_ID'].data
 
     SN_Hgamma = combine_fits['HGAMMA_S/N'].data
     SN_5007 = combine_fits['OIII_5007_S/N'].data
@@ -203,7 +203,7 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
          'OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N',
          'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N',
          'OII_3727_Flux_Observed', 'OII_3727_S/N', 'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
-    tab0 = Table([ID, indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy,
+    tab0 = Table([id, indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy,
                   OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA,
                   OII3727, SN_3727, T_e, metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'],
                   metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n)
@@ -216,7 +216,7 @@ This will be used when continuing writing on the paper
     variable_formats=  {'bin_ID': '%i','Detection': '%.1f','R value':'%.3f', 'Electron Temperature': '%.3f', 
     'O2/HBETA': '%.3f', 'O3/HBETA':'%.3f', 'O+/H': '{:.3e}', 'O++/H': '{:.3e}','12+log(O/H)': '%.3f', 
     'log(O+/H)': '%.3f', 'log(O++/H)': '%.3f'}
-    tab1 = Table([ID, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'],
+    tab1 = Table([id, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'],
                   metal_dict['12+log(O/H)'],metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
     asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex', 
               format='latex', formats= variable_formats)

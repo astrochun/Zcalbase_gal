@@ -28,21 +28,20 @@ fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 def LAC_GPC_plots(fitspath, dataset,revised= False, individual = False, include_Rlimit = True):
     
     if revised:
-        temp_table= asc.read(fitspath+ filename_dict['bin_derived_prop_rev'])
+        temp_table = asc.read(fitspath + filename_dict['bin_derived_prop_rev'])
         verification = asc.read(fitspath + filename_dict['bin_valid_rev'])
-        pea_out_pdf = fitspath+ '/'+dataset+'_GPC.revised.pdf'
-        LAC_out_pdf = fitspath+ '/'+dataset+'_LAC.revised.pdf'
-
+        pea_out_pdf = fitspath + dataset+'_GPC.revised.pdf'
+        LAC_out_pdf = fitspath+ dataset+'_LAC.revised.pdf'
     else:
-        temp_table= asc.read(fitspath  +  filename_dict['bin_derived_prop'])
+        temp_table = asc.read(fitspath + filename_dict['bin_derived_prop'])
         verification = asc.read(fitspath + filename_dict['bin_valid'])
-        pea_out_pdf = fitspath+ '/'+dataset+'_GPC.pdf'
-        LAC_out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+        pea_out_pdf = fitspath + dataset+'_GPC.pdf'
+        LAC_out_pdf = fitspath + dataset+'_LAC.pdf'
     
     SN_4363 = temp_table['OIII_4363_S/N']
     detect = verification['Detection']
-    det_4363 = np.where((detect == 1))[0]
-    rlimit = np.where((detect == 0.5))[0]
+    det_4363 = np.where(detect == 1)[0]
+    rlimit = np.where(detect == 0.5)[0]
     print('Begin Local analog Calibration')
     
     ###Implimenting Local analog calibration###
@@ -210,4 +209,3 @@ def individual_GPC(individual_ascii, validation_table):
     green_peas_calibration.main(lR23,lO32, OH, pea_out_pdf_ind, n_bins=6, xra=[0.3,1.15], yra=[6.5,9.10], marker=['3'], label=['Individual Detection'], fit=False, silent=False, verbose=True)
 
     
-

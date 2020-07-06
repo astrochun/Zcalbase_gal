@@ -503,7 +503,6 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
     n_bins = len(galinbin)
     
-    #print(n_bins, 'n_split',n_split)
     n_bins_range = np.arange(0,n_split*n_bins,1)
 
 
@@ -536,10 +535,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     bin_start = np.zeros(n_bins, dtype=np.int)
     bin_end   = np.zeros(n_bins, dtype=np.int)
 
-    #print("bin start:", bin_start)
-    #print("bin end:" , bin_end)
     
-    #print("galinbin:", galinbin)
     
     for ii in range(n_bins):
         print('ii: ', ii) 
@@ -659,9 +655,9 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
     R23_maxval = R23_max.reshape(n_split*n_bins)
     O32_maxval = O32_max.reshape(n_split*n_bins)
 
-    ####Taking the log of all the R23 and O32 values
-    ###np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar), np.log10(yBar),
-    ###np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)
+    # Taking the log of all the R23 and O32 values
+    # np.log10(R23_lowlimit), np.log10(O32_lowlimit), np.log10(xBar),  np.log10(yBar),
+    # np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)
         
     #Plotting
     fig, ax = plt.subplots()
@@ -692,11 +688,10 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         y_value = [hlines[jj], hlines[jj]]
         y_average = [yBar[jj],yBar[jj]]
         plt.plot(x_value,y_value, linewidth= 0.3, color= 'b')
-        plt.plot(x_value, y_average, linewidth= 0.3, color= 'g')
-
+        plt.plot(x_value, y_average, linewidth=0.3, color='g')
 
         #plt.xlim(-0.3, 1)
-    fig.savefig(pdf_pages, format ='pdf')
+    fig.savefig(pdf_pages, format='pdf')
 
 
     '''
@@ -737,39 +732,21 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
         #plt.xlim(-0.3, 1)
     fig.savefig(pdf_pages, format ='pdf')'''
 
-
-
-
-
-
-
-
-
-
-
     
     pdf_pages.close()
 
-    
-    
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
     
     n1 = ('bin_ID' ,'N_stack','logR23_min','logO32_min','logR23_avg','logO32_avg',
           'logR23_median','logO32_median','logR23_max','logO32_max')
     tab1 = Table([n_bins_range,area,np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar),
                   np.log10(yBar),np.log10(R23_medians),np.log10(O32_medians),np.log10(R23_maxval),
-                  np.log10(O32_maxval)], names = n1)
+                  np.log10(O32_maxval)], names=n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
     
 
-    '''variable_formats = {'bin_ID':' %i ', 'N_stack': '%i', 'logR23_min': '%.2f', 'logO32_min':  '%.2f', 'logR23_avg':  '%.2f',
-                        'logO32_avg':  '%.2f','logR23_median':  '%.2f','logO32_median':  '%.2f','logR23_max':  '%.2f','logO32_max':  '%.2f'}
-    asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/mostrecent_bin_info.tex', format='latex', formats= variable_formats)
-    
-    fig.clear()'''
-
-    n2=('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID','ID',
-        'logR23_min', 'logO32_min', 'logR23_avg','logO32_avg',
+    n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID',
+              'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
         'logR23_median','logO32_median','logR23_max','logO32_max')
     tab2= Table([R23, O32, SNR3, Bin_number, individual_ID,
                  R23_minall,O32_minall,R23_avgall,O32_avgall,

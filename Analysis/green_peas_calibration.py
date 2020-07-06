@@ -86,7 +86,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
             if IDs:
                 for jj in range(len(jiang_R23)):
                     id_diff = lR23[0][jj]-jiang_R23[jj]
-                    ax.annotate(IDs[0][jj], (OH[0][jj], id_diff), fontsize = '6')
+                    ax.annotate(IDs[0][jj], (OH[0][jj], id_diff), fontsize='6')
 
         # Label in upper left the points
         if len(label) != 0:
@@ -155,7 +155,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
-                
+
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
 
     fig.savefig(out_diff_pdf)
@@ -191,7 +191,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     Notes
     -----
     Created by Chun Ly, 23 November 2018
-    Editted by Reagen Leimbach, 18 June 2020 to add IDs to the plots
+    Edited by Reagen Leimbach, 18 June 2020 to add IDs to the plots
     '''
 
     if silent == False: log.info('### Begin main : '+systime())
@@ -268,7 +268,6 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             x2 = xra[0] + 0.3*(xra[1]-xra[0])
             y2 = yra[1] - (nn*0.035 + 0.1)*(yra[1]-yra[0])
             print("x1, x2, y1, y2 " , x1, x2, y1, y2)
-            #x1 = 
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left') # 
             ax.plot([x1],[y1], marker=marker[nn], color='black')
 

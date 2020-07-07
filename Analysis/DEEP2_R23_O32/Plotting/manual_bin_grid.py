@@ -1,30 +1,34 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.io import fits
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
-path0 = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0514_old'
-bin_info = join(path0, 'bin_info.tbl')
-individual_info = join(path0, 'individual_properties.tbl')
-pdf_file = join(path0, 'manual_binning_shading.pdf'
+from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
 
-n_split = 3
 
-def graph_bins(bin_info, individual_info, pdf_file):
+def graph_bins(fitspath, n_split, bin_info, individual_info, pdf_file):
     """
     Purpose: This function takes inputed grid parameters and graphs them on the log(R23)--log(O32) plane 
-    Inputs: 
+    Inputs:
+           n_split    -> from general.py input used for calculating bins
            ascii_file -> file with the minimum, maximum, and average R23 and O32 value
            pdf_file   -> name of pdf file made by code
-    Outputs: 
+
+    Returns:
            none
+    Outputs:
+        pdf_file with the saved figure (possible naming convention 'manual_binning_shading.pdf'
 
     Currently works for manual binning with an n_split (see general function) of 3. More updates would
     need to be made for a different n_split to correct indexing through arrays. 
     """
+
+    bin_info = join(fitspath, filename_dict['bin_info'])
+    individual_info = join(fitspath, filename_dict['individual_prop'])
+    pdf_file = join(fitspath, 'manual_binning_shading.pdf')
     pdf_pages = PdfPages(pdf_file)
+
     tab = asc.read(bin_info)
     idv_tab = asc.read(individual_info)
 

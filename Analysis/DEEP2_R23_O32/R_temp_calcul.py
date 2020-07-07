@@ -41,6 +41,7 @@ from astropy.io import fits
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
+from os.path import join
 
 
 #For generalizing for several users
@@ -84,11 +85,11 @@ def limit_function(combine_flux_ascii):
 
 def run_function(fitspath, dataset, verification_table, dustatt= False):
 
-    combine_flux_ascii= fitspath + filename_dict['bin_fit']
-    temp_metal_ascii = fitspath+ '/'+filename_dict['bin_derived_prop']
-    temp_metal_revised = fitspath+ filename_dict['bin_derived_prop_rev']
-    temp_m_gfits = fitspath+ '/'+ name_dict['temp_fits_file']
-    temp_m_gpdf_name = dataset+name_dict['temp_metallicity_pdf']
+    combine_flux_ascii= join(fitspath, filename_dict['bin_fit'])
+    temp_metal_ascii = join(fitspath, filename_dict['bin_derived_prop'])
+    temp_metal_revised = join(fitspath, filename_dict['bin_derived_prop_rev'])
+    temp_m_gfits = join(fitspath,name_dict['temp_fits_file'])
+    temp_m_gpdf_name = join(dataset,name_dict['temp_metallicity_pdf'])
     
    
 
@@ -102,11 +103,11 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     # Dust Attenuation
     if not dustatt:
         EBV = np.zeros(len(ID))
-        out_ascii = fitspath+ '/'+filename_dict['bin_derived_prop']
+        out_ascii = join(fitspath,filename_dict['bin_derived_prop'])
     else:
         non_atten_value_table = asc.read(temp_metal_ascii)
         EBV = non_atten_value_table['EBV_HgHb']
-        out_ascii = fitspath+ filename_dict['bin_derived_prop_rev_dust']
+        out_ascii = join(fitspath, filename_dict['bin_derived_prop_rev_dust'])
 
     #####Verification Table Import#######
     #print('Using verification table' + verification_table)

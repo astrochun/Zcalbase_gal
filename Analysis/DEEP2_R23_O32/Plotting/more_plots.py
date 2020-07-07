@@ -120,13 +120,13 @@ def ew_plot_O32(fitspath, asc_table, temp_table, verif_table):
     pdf_pages.close()
 
 def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
-    ########
-    #Purpose:
-    #Input:
-    #      asc_table   -> combine_flux_ascii
-    #      temp_table  -> derived_properties
-    #      verif_table -> bin_validation_revised
-    ########
+    """
+    Purpose:
+    Input:
+         asc_table   -> combine_flux_ascii
+         temp_table  -> derived_properties
+         verif_table -> bin_validation_revised
+    """
 
 
     name = fitspath +'R23_vs_O32_colormapping.pdf'
@@ -262,13 +262,13 @@ def dust_att_plot(combine_flux):
 def plotting_individual_for_stacking_image(stack_spectra=False):
     if not stack_spectra:
         name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
-        RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+        RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
         spec_range = range(100, 120)
         y_lim = (-2, 2)
         y_text = 1.95
         left = 0.13
     else:
-        RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
+        RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
         name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/composite_plots_data_viz.pdf'
         spec_range = range(27)
         y_lim = (0, 1)

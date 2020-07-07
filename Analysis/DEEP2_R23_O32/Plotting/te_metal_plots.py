@@ -1,11 +1,11 @@
 #Graphs the temperature, metallicities, R23 and O32 and errors for the individual and composite spectra by importing pre-existing tables and dictionaries
 
-
-###Keywords:
-#           fitspath -> path to where files come and are saved to
-#           revised  -> refers to if using the bin_derived_prop_revised temperature
-#                       and metallicity measurements which right now implement dust attenuation
-
+"""
+Keywords:
+        fitspath -> path to where files come and are saved to
+         revised  -> refers to if using the bin_derived_prop_revised temperature
+                     and metallicity measurements which right now implement dust attenuation
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -94,12 +94,6 @@ def plotting_te_metal(fitspath, revised=False):
     nan_detect = np.where((ver_detection == 0))[0]
 
 
-
-    
-
-
-
-    
     pdf_pages = PdfPages(out_pdf)
 
     fig, ax = plt.subplots()
@@ -127,9 +121,6 @@ def plotting_te_metal(fitspath, revised=False):
     ax1.set_ylabel(r'$R_{23}$')
     ax1.set_title(r'Temperatures vs $R_{23}$ Temperature')
 
-
-
-
     fig1.savefig(pdf_pages, format ='pdf')
     fig1.clear()
 
@@ -137,8 +128,6 @@ def plotting_te_metal(fitspath, revised=False):
 ##################################################################################################
 
     fig2,ax2 = plt.subplots()
-
-
 
     ax2.scatter(T_e_composite[ver_detect], O32_composite[ver_detect], marker = '.',s=50, color = 'b')
     ax2.scatter(T_e_composite[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s=35, color = 'b')
@@ -176,8 +165,6 @@ def plotting_te_metal(fitspath, revised=False):
     ax3.set_ylabel('12+log(O/H)')
     ax3.set_title(r'$R_{23}$ vs. Composite Metallicity')
 
-
-    
     fig3.savefig(pdf_pages, format ='pdf')
     fig3.clear()
 ##################################################################################################
@@ -336,12 +323,16 @@ def dm_Jiang_comparison():
     pdf_pages.close()
 
     
-def Bian_comparison():
-    #log(R23) = a +bx+cx^2 - d(e+x)y
-    #x = 12+log(O/H)
-    #y = log(O32)
-    
-    fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/'
+def Bian_comparison(fitspath):
+    """
+
+    Returns
+    -------
+
+    log(R23) = a +bx+cx^2 - d(e+x)y
+    x = 12+log(O/H)
+    y = log(O32)
+    """
     validation = asc.read(fitspath + 'bin_validation.revised.tbl')
     temp_tab = asc.read(fitspath + 'bin_derived_properties.tbl')
 
@@ -365,9 +356,6 @@ def Bian_comparison():
 
     
     metal_det = zmetal[detect]
-
-
-
 
     derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
     derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
@@ -518,9 +506,6 @@ def dm_Bian_comparison():
     
     fig.savefig(pdf_pages, format ='pdf')
 
-    
-    
-    
     pdf_pages.close()
 
     '''

@@ -16,13 +16,13 @@ from .green_peas_calibration import get_zcalbase_sample
 
 
 def bian18_R23(OH):
-    '''
+    """
     Function to return log(R23) given metallicity
 
     Parameters
     ----------
      OH : 12+log(O/H)
-    '''
+    """
 
     R23_coeff = [-0.32293, 7.2954, -54.8284, 138.0430]
     R23_p = np.poly1d(R23_coeff)
@@ -32,13 +32,13 @@ def bian18_R23(OH):
 
 
 def bian18_O32(O32):
-    '''
+    """
     Function to return metallicity given log(O32)
 
     Parameters
     ----------
      O32 : log([OIII]/[OII])
-    '''
+    """
 
     OH = 8.54 - 0.59 * O32
 
@@ -48,9 +48,9 @@ def bian18_O32(O32):
 
 def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
          OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''], marker=[],
-         silent=False, verbose=True):
+         silent=False):
 
-    '''
+    """
     Main function to plot dataset against Bian+ (2018) calibration
 
     Parameters
@@ -67,18 +67,16 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     silent : boolean
       Turns off stdout messages. Default: False
 
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
-
     Returns
     -------
 
     Notes
     -----
     Created by Chun Ly, 29 November 2018
-    '''
+    """
 
-    if silent == False: log.info('### Begin main : '+systime())
+    if not silent:
+        log.info('### Begin main : '+systime())
 
     fig, ax = plt.subplots(ncols=2)
 
@@ -175,12 +173,17 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     fig.set_size_inches(10, 5)
     fig.savefig(out_pdf, format='pdf')
 
-    if silent == False: log.info('### End main : '+systime())
+    if not silent:
+        log.info('### End main : '+systime())
 # enddef
 
 
 def get_measurements(data):
+    """
+    Used in get_DEEP2 and get_MACT to pull data and return it to
+    DEEP2_OIII4363 and MACT_OIII4363
 
+    """
     lR23 = np.log10(data['R23'].data)
     lO32 = np.log10(data['O32'].data)
     OH = data['OH'].data
@@ -200,6 +203,9 @@ def get_measurements(data):
 
 
 def get_DEEP2(path0):
+    """
+    Called by DEEP2_OIII4363 and returns data to main function
+    """
     infile = path0 + 'DEEP2_R23_O32_derived.tbl'
 
     log.info('### Reading : '+infile)
@@ -213,6 +219,9 @@ def get_DEEP2(path0):
 
 
 def get_MACT(path0):
+    """
+    Called by MACT_OIII4363 and returns data to main function
+    """
     infile = path0 + 'MACT_R23_O32_derived.tbl'
 
     log.info('### Reading : '+infile)
@@ -226,6 +235,9 @@ def get_MACT(path0):
 
 
 def DEEP2_OIII4363():
+    """
+    Run function for DEEP2 dataset for hardcoded path (line 241) 
+    """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
     data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_DEEP2(path0)
@@ -241,7 +253,9 @@ def DEEP2_OIII4363():
 
 
 def MACT_OIII4363():
-
+    """
+    Run function for MACT dataset for hardcoded path (line 257) 
+    """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
     data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_MACT(path0)
@@ -257,7 +271,9 @@ def MACT_OIII4363():
 
 
 def DEEP2_MACT_OIII4363():
-
+    """
+    Run function for DEEP2 and MACT (combined) dataset for hardcoded path (line 277) 
+    """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
     # DEEP2
@@ -296,13 +312,15 @@ def DEEP2_MACT_OIII4363():
 
 
 def Zcalbase():
-
+    """
+    Run function for Zcalbase_gal dataset for hardcoded path (line 316) 
+    """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
     ref_name0 = ['Berg2012', 'Kennicutt2003', 'Izotov1994', 'Thuan1995',
                  'Izotov1997', 'Guseva2009', 'Izotov2012', 'SDSS']
     dir0 = ['', '', 'BCGs', 'BCGs', 'Pilyugin2012/Izotov1997',
-                 'Pilyugin2012/Guseva2009', 'Pilyugin2012/Izotov2012', '']
+            'Pilyugin2012/Guseva2009', 'Pilyugin2012/Izotov2012', '']
 
     lR23_all = []
     lO32_all = []

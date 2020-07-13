@@ -36,6 +36,20 @@ if username == 'fill in':
 
 
 def get_det3(fitspath, fitspath_ini):
+    """
+    Purpose
+    ----------
+    Function is called to collect data for binning from DEEP2 data files
+    Parameters
+    ----------
+    fitspath -> path to the location of files saved for each run
+    fitspath_ini -> path to the location of entire project
+
+    Returns
+    -------
+    Data for run
+    Creates "individual_properties.tbl"
+    """
     for ii in range(1, 5):
         file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
         data = Table(fits.getdata(file1))
@@ -109,13 +123,28 @@ def get_det3(fitspath, fitspath_ini):
                   Hb, SNR2, SNR3, SNRH, SNRHG, SNR4363], names=n2)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
-    asc.write(tab1, fitspath+'individual_properties.tbl', format='fixed_width_two_line')  # used to be get_det3_table.tbl
+    # used to be get_det3_table.tbl
+    asc.write(tab1, fitspath+'individual_properties.tbl', format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3
 
 
 def gettime(org_name, fitspath_ini):
+    """
+    Purpose
+    ----------
+    Function is used to create directory for the run and checks to make sure previous runs are not erased
+
+    Parameters
+    ----------
+    org_name -> Keyword for type of binning used in run
+    fitspath_ini-> path to the location of entire project
+
+    Returns
+    -------
+    fitspath
+    """
     today = date.today()
     path0 = org_name+'_' + "%02i%02i" % (today.month, today.day) + '/'
     if not exists(path0):
@@ -128,25 +157,21 @@ def gettime(org_name, fitspath_ini):
 
 
 def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, dustatten='False', mask='None'):
-    '''
+    """
     Purpose
+    ----------
+    Function runs the entire analysis
 
     Parameters
+    ----------
+    dataset -> keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
+    y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
+    n_split -> determined how many times the R23 bins are split when using manual binning
+    adaptive -> determines if the R23 bins have equal or different number of spectra in them in binning method
+    dustatten -> determines if dust attenuation corrections are applied
+    mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
 
-    dataset
-    y_correction
-    n_split
-    adaptive
-    dustatten
-    mask
-
-    Returns
-
-    Outputs
-
-    '''
-
-    # dataset options: Grid, O32_Grid, R23_Grid, n_Bins
+    """
 
     '''if dataset == 'O32_Grid': org_name = 'O32_Grid'
     if dataset == 'R23_Grid': org_name = 'R23_Grid'
@@ -335,7 +360,22 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
 # This will ease the reproduction process
 # CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
 def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=False):
-    # Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
+    """
+    Purpose
+    ----------
+    To run individual codes to test changes or edits plots
+
+    Parameters
+    ----------
+    fitspath -> path to the location of files saved for each run
+    want -> keyword to determine what part of the process needs to be run
+         -> Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
+    adaptive  -> determines if the R23 bins have equal or different number of spectra in them in binning method
+    y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
+    dustatten -> determines if dust attenuation corrections are applied
+
+    """
+
     dataset = 'n_Bins'
 
     if want == 'binning_and_graphing':

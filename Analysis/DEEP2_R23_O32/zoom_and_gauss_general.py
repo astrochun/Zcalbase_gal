@@ -2,6 +2,11 @@
 """
 PERFORMS THE GAUSSIAN FITTING ON ALL EMISSIONS LINES
 CALLED EVERY TIME THE GENERAL FUNCTIONS ARE RUN
+
+Debugging Note:
+   If 'x0' is infeasible error occurs, check the para_bound values to
+   make sure the expected values are within the range set up upper and
+   lower limits.
 """
 
 
@@ -17,18 +22,18 @@ from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_name, line_type    
 
-'''
-Debugging Note:
-   If 'x0' is infeasible error occurs, check the para_bound values to
-   make sure the expected values are within the range set up upper and
-   lower limits.
-'''
 lambda_graph = [3726.18, 3728.91, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]
 
 
 def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr):
+    """
+    Purpose
+    ----------
+    Plots a zoomed in plot of emission lines to check visually if the emission lines are excluded in the line flag
+    Call is currently commented out
 
+    """
     # New plots for line flagging
     out_pdf = '%s/%s_lineflag_check_%s.pdf' % (fitspath, dataset, line_name0)
     pdf_pages2 = PdfPages(out_pdf)
@@ -44,25 +49,16 @@ def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
 
 
 def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms, line_type0):
-    '''
+    """
     Purpose
+    ----------
+    Calculates the gaussian to fit each emission line using curve_fit
 
-    Parameters
-
-    dataset
-    s2
-    working_wave
-    x0
-    y_norm
-    x_idx
-    rms
-    line_type0
-
-    Returns
-
-    Outputs
-
-    '''
+    Debugging Note:
+    If 'x0' is infeasible error occurs, check the para_bound values to
+    make sure the expected values are within the range set up upper and
+    lower limits.
+    """
     med0 = np.median(y_norm[x_idx])
     max0 = np.max(y_norm[x_idx]) - med0
     sigma = np.repeat(rms, len(x0))
@@ -158,30 +154,18 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
                     working_wave, lineflag,  y_correction='', line_type='',
                     outpdf='', line_name=''):
-    '''
+    """
     Purpose
+    ----------
+    Main function that is called by run function (zm_general). Gets the data, fits a gaussian curve
+    to each emission line, plots emission lines for each bin, and saves off .tbl files with curve information.
 
-    Parameters
+    Debugging Note:
+    If 'x0' is infeasible error occurs, check the para_bound values to
+    make sure the expected values are within the range set up upper and
+    lower limits.
+    """
 
-    dataset
-    fitspath
-    tab
-    stack2d
-    dispersion
-    s2
-    wave
-    working_wave
-    lineflag
-    y_correction
-    line_type
-    outpdf
-    line_name
-
-    Returns
-
-    Outputs
-
-    '''
     asc_tab = asc.read(tab)
     pdf_pages = PdfPages(outpdf)
     nrows = 4
@@ -440,7 +424,11 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
     fig.clear()
 
 def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction,s,a,c,s1,a1,s2,a2,tab):
-
+    """
+    Purpose
+    ----------
+    Run function for gaussian fitting step
+    """
     for ii in range(len(lambda0)):
         # Single Gaussian Fit
         if line_type[ii] == 'Single':

@@ -19,8 +19,8 @@ from scipy.optimize import curve_fit
 import scipy.integrate as integ
 import glob
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 def plotting_te_metal(fitspath, revised=False):
     

@@ -21,7 +21,7 @@ from pylab import subplots_adjust
 from astropy.convolution import Box1DKernel, convolve
 
 from . import general
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 

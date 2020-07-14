@@ -16,9 +16,9 @@ from scipy.optimize import curve_fit
 # Import error propagation codes from chun_codes
 from chun_codes import random_pdf
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_name, line_type    
+from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
+from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
+from Metallicity_Stack_Commons import lambda0, line_name, line_type
 
 '''
 Debugging Note:

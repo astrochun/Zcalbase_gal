@@ -22,7 +22,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
+from Metallicity_Stack_Commons import lambda0, line_type, line_name
 
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 

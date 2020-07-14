@@ -20,7 +20,7 @@ import scipy.integrate as integ
 import glob
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
+from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 

@@ -48,12 +48,12 @@ from os.path import join
 from getpass import getuser
 from astropy import units as u
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
+from Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
     R_calculation, temp_calculation, metallicity_calculation
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons import k_dict
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 #from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 from Zcalbase_gal.Analysis.DEEP2_R23_O32.general import name_dict

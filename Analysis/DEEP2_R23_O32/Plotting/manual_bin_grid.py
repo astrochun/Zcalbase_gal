@@ -4,7 +4,7 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 
 def graph_bins(fitspath, n_split, bin_info, individual_info, pdf_file):

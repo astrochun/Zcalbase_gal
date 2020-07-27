@@ -153,7 +153,7 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
     pdf_pages.close()
         
 
-    pdf_pages2 = PdfPages(join(fitspath, 'O32', dataset, '_histograms.pdf')
+    pdf_pages2 = PdfPages(join(fitspath, dataset, '_O32_histograms.pdf')
     for ii in range(number_of_bins):
         bin_idx = np.where(N_bin == ii)[0]
         fig, ax = plt.subplots()

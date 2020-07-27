@@ -14,11 +14,6 @@
 Input variables: 
 fitspath
 dataset
-out_ascii          -> name of the output ascii table that file produces
-out_fits           -> name of the output fits table that file produces
-pdf_name           -> name of the pdf file with the graphs that the function will produce
-combine_flux_ascii -> ascii table with all the emission lines 
-dust_ascii         -> name of ascii table with dust attenuation values 
 dustatt            -> True/False input; if True dust attenuation values are used for calculations; automatic = false 
 
 
@@ -29,7 +24,7 @@ verification tables   --> need to work on making these tables; need to put the v
 dust attenuation      --> called in function by True or False, but need to pass the table into the function
 Called DEEP2 and MACT Data
 Depending on which combine_fits table is passed in --> run individual or stacked spectra and makes a table
-Plots (currently commented out)
+
 '''
 # dust_attenuation(combine_ascii)
 # call_cardelli(lam0)
@@ -46,17 +41,22 @@ from astropy.io import fits
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
+from os.path import join
 
 
 #For generalizing for several users
 from getpass import getuser
 from astropy import units as u
 
-from Metallicity_Stack_Commons.temp_metallicity_calc import \
+from Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
     R_calculation, temp_calculation, metallicity_calculation
 
 from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 from Metallicity_Stack_Commons import k_dict
+from Metallicity_Stack_Commons.column_names import filename_dict
+
+#from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
+from Zcalbase_gal.Analysis.DEEP2_R23_O32.general import name_dict
 
 k_4363  = k_dict['OIII_4363']
 k_5007  = k_dict['OIII_5007']
@@ -80,14 +80,33 @@ def limit_function(combine_flux_ascii):
 
     #print 'up_temp', up_temp
     return up_temp
+
+
+def run_function(fitspath, dataset, verification_table, dustatt= False):
+
+    combine_flux_ascii= join(fitspath, filename_dict['bin_fit'])
+    temp_metal_ascii = join(fitspath, filename_dict['bin_derived_prop'])
+    temp_metal_revised = join(fitspath, filename_dict['bin_derived_prop_rev'])
+    temp_m_gfits = join(fitspath,name_dict['temp_fits_file'])
+    temp_m_gpdf_name = join(dataset,name_dict['temp_metallicity_pdf'])
     
-def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False):
+   
+
+    ####Fix name at bottom
     print(combine_flux_ascii)
 
     ###Combine_Flux_ascii table import 
     combine_fits= asc.read(combine_flux_ascii)
     ID = combine_fits['bin_ID'].data
 
+    # Dust Attenuation
+    if not dustatt:
+        EBV = np.zeros(len(ID))
+        out_ascii = join(fitspath,filename_dict['bin_derived_prop'])
+    else:
+        non_atten_value_table = asc.read(temp_metal_ascii)
+        EBV = non_atten_value_table['EBV_HgHb']
+        out_ascii = join(fitspath, filename_dict['bin_derived_prop_rev_dust'])
 
     #####Verification Table Import#######
     #print('Using verification table' + verification_table)
@@ -100,17 +119,6 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     detect_ID = ID[ver_detect]
     rlimit_ID = ID[ver_rlimit]
 
-    #Dust Attenuation Values Call
-    ###Every time I change the binning method I need to go back and recalculate the dust attentuation##
-    if dustatt ==False:
-        
-        EBV = np.zeros(len(ID))
-    if dustatt ==True:
-        dust_attenuation(fitspath, combine_flux_ascii)
-        print('Using attenuated dust values')
-        atten_val = asc.read(dust_ascii)
-
-        EBV = atten_val['E(B-V)']
 
     #Fits Table Calls
     ###DEEP2 and MACT Data#####
@@ -225,8 +233,22 @@ def run_function(fitspath, dataset, verification_table, out_ascii='', out_fits='
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     
-    tab0.write(out_fits,format = 'fits', overwrite = True)
+    #tab0.write(out_fits,format = 'fits', overwrite = True)
 
+
+    ####Dust Attenuation####
+    
+
+
+    n1 = ('bin_ID', 'Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA', 'O+/H', 'O++/H',
+          '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
+    variable_formats = {'bin_ID': '%i', 'Detection': '%.1f', 'R value':'%.3f', 'Electron Temperature': '%.3f',
+                        'O2/HBETA': '%.3f', 'O3/HBETA':'%.3f', 'O+/H': '{:.3e}', 'O++/H': '{:.3e}',
+                        '12+log(O/H)': '%.3f', 'log(O+/H)': '%.3f', 'log(O++/H)': '%.3f'}
+    tab1 = Table([ID, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'],
+                  metal_dict['12+log(O/H)'], metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
+    outfile = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex'
+    asc.write(tab1, outfile, format='latex', formats=variable_formats)
 
 def dust_attenuation(fitspath, combine_ascii):
     line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
@@ -310,6 +332,5 @@ def dust_vs_nondust_table(fitspath, dust_metal_table, nondust_metal_table, dust_
     n_dust = ('ID','R23_Composite','O32_Composite', 'Non-Dust Attenuated Metallicities','Dust Attenuated Metallicities','Temperature')
     tab_dust = Table([ID, R23_composite, O32_composite, nondust_metal, dust_metal, Temperature], names =n_dust)
     asc.write(tab_dust, dust_vs_nondust_table, format = 'fixed_width_two_line')
-
 
 

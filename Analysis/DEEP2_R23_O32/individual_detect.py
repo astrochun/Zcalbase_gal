@@ -46,7 +46,7 @@ def run_ind_detection(fitspath, dataset, average_value_ascii):
     N_gal_tab = asc.read(average_value_ascii)  #fitspath+dataset+'_Average_R23_O32_Values.tbl'
     ID = N_gal_tab['bin_ID']
     for aa in range(len(ID)):
-        print ID[aa]
+        print(ID[aa])
         ind_detection(fitspath,dataset,ID[aa])
     new_name = fitspath+'Individual_ratio_temperature.tbl'
     individual_galaxy_table_stacking(fitspath,dataset, new_name)
@@ -114,7 +114,7 @@ def individual_galaxy_table_stacking(fitspath,dataset, new_name):
 
     for ii in range(len(table_files)):
         asc_tab = asc.read(table_files[ii])
-        print asc_tab[0]
+        print(asc_tab[0])
         if ii == 0: vstacking = asc_tab
         else: vstacking = vstack([vstacking,asc_tab])
     asc.write(vstacking,new_name, format='fixed_width_two_line', overwrite = True)
@@ -183,6 +183,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
         fig3,ax3 = plt.subplots()
         ax3.scatter(R23_idv, com_idv)
         ax3.set_title(r'$R_{23}$ vs. $12+log(O/H)$')
+
         ax3.set_xlabel(r'log($R_{23}$)')
         ax3.set_ylabel('12+log(O/H)')
         fig3.savefig(pdf_pages, format ='pdf')

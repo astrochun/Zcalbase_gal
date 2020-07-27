@@ -16,8 +16,8 @@ from scipy.optimize import curve_fit
 # Import error propagation codes from chun_codes
 from chun_codes import random_pdf
 
-from Metallicity_Stack_Commons.fitting import gauss, double_gauss, oxy2_gauss
-from Metallicity_Stack_Commons.fitting import movingaverage_box1D, rms_func
+from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
+from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 
 '''
@@ -169,7 +169,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
     flux_g_array = np.zeros(stack2D.shape[0])
     flux_s_array = np.zeros(stack2D.shape[0])
     flux_neg_array = np.zeros(stack2D.shape[0])
-    sigma_array = np.zeros(stack2D.shape[0])
+    sigma1_array = np.zeros(stack2D.shape[0])
     median_array = np.zeros(stack2D.shape[0])
     norm_array = np.zeros(stack2D.shape[0])
     RMS_array = np.zeros(stack2D.shape[0])
@@ -263,14 +263,48 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
             #Filling In Arrays
             # print flux_g, type(flux_g)
-            flux_g_array[rr] = flux_g
-            flux_s_array[rr] = flux_s
-            sigma_array[rr]= o1[1]
-            median_array[rr] = o1[3]
+            #flux_g_array[rr] = flux_g
+            #flux_s_array[rr] = flux_s
+            #sigma_array[rr]= o1[1]
+            #median_array[rr] = o1[3]
             norm_array[rr] = max0
             RMS_array[rr] = RMS_tot
             SN_array[rr] = (flux_s/RMS_tot)
             if line_type == 'Balmer': flux_neg_array[rr] = flux_neg
+
+
+            # Filling in Balmer Arrays
+            '''if line_type == "Single":
+                xbar_array[rr] = o1[0]
+                sig1_array[rr] = o1[1]
+                pos_amp_array[rr]= o1[2]
+                const_array[rr] = o1[3]
+                 
+            if line_type == 'Balmer' or line_type == 'Oxy2':
+                xbar_array[rr] = o1[0]
+                sig1_array[rr] = o1[1]
+                pos_amp_array[rr]= o1[2]
+                const_array[rr] = o1[3]
+                sig2_array[rr] = o1[4]
+                neg_amp_array[rr] = o1[5]'''
+
+
+
+            #Filling In Arrays
+            flux_g_array[rr] = flux_g
+            flux_s_array[rr] = flux_s
+            xbar_array[rr] = o1[0]   #referred to as Center as well
+            sigma1_array[rr]= o1[1]
+            pos_amp_array[rr]= o1[2]
+            median_array[rr] = o1[3]
+            norm_array[rr] = max0
+            RMS_array[rr] = RMS_tot
+            SN_array[rr] = (flux_s/RMS_tot)
+
+            if line_type == 'Balmer' or line_type == 'Oxy2':
+                sig2_array[rr] = o1[4]
+                neg_amp_array[rr] = o1[5]
+           
 
             N_gal_array[rr] = asc_tab['N_stack'][rr]
             R_23_array[rr] = asc_tab['logR23_avg'][rr]
@@ -287,21 +321,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
             
 
 
-            # Filling in Balmer Arrays
-            if line_type == "Single":
-                xbar_array[rr] = o1[0]
-                sig1_array[rr] = o1[1]
-                pos_amp_array[rr]= o1[2]
-                const_array[rr] = o1[3]
-                 
-            if line_type == 'Balmer' or line_type == 'Oxy2':
-                xbar_array[rr] = o1[0]
-                sig1_array[rr] = o1[1]
-                pos_amp_array[rr]= o1[2]
-                const_array[rr] = o1[3]
-                sig2_array[rr] = o1[4]
-                neg_amp_array[rr] = o1[5]
-
+            
             # Plotting
             if y_correction == 'y_smooth':
                 emis = t_ax.plot(wave, y_smooth,'k', linewidth=0.3, label= 'Emission')
@@ -312,8 +332,11 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
             t_ax.plot(x0[x_sigsnip_2],resid, 'r', linestyle='dashed', linewidth=0.2,
                       label= 'Residuals')
-            t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth=0.1, label='Lineflag')
+            #t_ax.plot(wave,lineflag,'g', linestyle='dashed', linewidth=0.1, label='Lineflag')
             t_ax.set_xlim(x1+50,x2-50)
+
+            if line_name == 'OIII_4363':
+                t_ax.set_ylim(0,1)
             
             if dataset == 'Grid' or dataset=='O32_Grid' or dataset =='R23_Grid' \
                     or dataset =='Double_Bin' or dataset =='n_Bins':
@@ -351,12 +374,14 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
                     txt0 += 'S/N: %.3f' %(SN_array[rr])
 
             
-            t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',
-                          fontsize= '5')
-            for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.1, color= 'k', linestyle = '--')
+            #t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
+            for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.15, color= 'k', linestyle = '--')
 
+            txt1 = 'Intensity' #Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'
+            #txt1 += 'Scale factor = 1e-17'
+            
             if col == 0:
-                t_ax.set_ylabel('Spect_1D')
+                t_ax.set_ylabel(txt1)
             else: t_ax.set_yticklabels([])  # sets y-tick labels
 
             if row != nrows-1 and rr != stack2D.shape[0]-1:
@@ -371,6 +396,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
             fig.set_size_inches(8,8)
             fig.savefig(pdf_pages, format='pdf')
+            fig.clear()
     # endfor
 
 
@@ -382,29 +408,32 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
     
     if line_type == 'Single':
+        
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
-             'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const')
+             'S/N', 'Center', 'Pos_Amp')
 
         n = tuple([line_name + '_' + val for val in n])
-        tab0 = Table([flux_g_array, flux_s_array, sigma_array, median_array,
-                      norm_array,RMS_array, SN_array, xbar_array, sig1_array,
-                      pos_amp_array, const_array], names=n)
+        tab0 = Table([flux_g_array, flux_s_array,sigma1_array,median_array,norm_array,
+                      RMS_array,SN_array,xbar_array,pos_amp_array], names=n)
         asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     if line_type == 'Balmer' or line_type == 'Oxy2': 
-         n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
-              'S/N', 'X_bar', 'Pos_Sig', 'Pos_Amp', 'Const', 'Neg_Sig', 'Neg_Amp')
 
-         n = tuple([line_name + '_' + val for val in n])
-         tab0 = Table([flux_g_array, flux_s_array, sigma_array, median_array,
-                       norm_array, RMS_array, SN_array, xbar_array, sig1_array,
-                       pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)
+        n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
+              'S/N', 'Center', 'Pos_Amp', 'Abs_Sigma', 'Abs_Norm')
+        n = tuple([line_name + '_' + val for val in n])
 
-         if line_type == 'Balmer':
-             print('Adding an Equ_Width Column')
-             names = 'EW_'+str(np.int(working_wave))+'_abs'
-             equ_add = Column(name=names, data=flux_neg_array)
-             tab0.add_column(equ_add, 2)
+        #Same (Pos_Sig and Sigma), (const_array and median_array)
+        
+        tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,
+                       norm_array, RMS_array, SN_array, xbar_array,
+                       pos_amp_array,  sig2_array, neg_amp_array], names=n)
+
+        if line_type == 'Balmer':
+            print('Adding an Equ_Width Column')
+            names = 'EW_'+str(np.int(working_wave))+'_abs'
+            equ_add = Column(name=names, data=flux_neg_array)
+            tab0.add_column(equ_add, 2)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
 

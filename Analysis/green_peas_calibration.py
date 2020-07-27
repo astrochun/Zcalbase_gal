@@ -62,7 +62,7 @@ def jiang18(x, y):
 #enddef
 
 def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=4,
-                     lR23_err=[], OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[]):
+                     lR23_err=[], OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[], IDs=[]):
     '''
     Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
     '''
@@ -80,6 +80,13 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     diff0 = []
     for nn in range(n_sample):
         jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
+        print('jiang_R23', jiang_R23)
+
+        if nn == 0:
+            if IDs:
+                for jj in range(len(jiang_R23)):
+                    id_diff = lR23[0][jj]-jiang_R23[jj]
+                    ax.annotate(IDs[0][jj], (OH[0][jj], id_diff), fontsize='6')
 
         # Label in upper left the points
         if len(label) != 0:
@@ -103,18 +110,23 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
 
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - jiang_R23[idx]
+                #print('i_diff ', i_diff, len(i_diff))
                 ax.scatter(OH[nn][idx], i_diff, color=ctype[ii], marker=marker[nn],
                            edgecolor='none', alpha=0.5, label=ii_label)
 
                 diff0 += list(lR23[nn][idx] - jiang_R23[idx])
 
-                if len(OH_err) != 0:
-                    ax.errorbar(OH[nn][idx], i_diff, xerr=OH_err[nn][:,idx], mfc='none',
-                                ecolor=ctype[ii], capsize=0, alpha=0.25, fmt=None, label=None)
+                ###Added if statement so that only data points on the OH_err[0] place will be plotted
+                if nn == 0: 
+                    if len(OH_err) != 0:
+                        ax.errorbar(OH[nn][idx], i_diff, xerr=np.transpose(OH_err[nn][idx]),
+                                    mfc='none', ecolor=ctype[ii], capsize=0, alpha=0.25,
+                                    fmt='None', label=None, ls = 'none')
 
-                if len(lR23_err) != 0:
-                    ax.errorbar(OH[nn][idx], i_diff, yerr=lR23_err[nn][:,idx], mfc='none',
-                                ecolor=ctype[ii], capsize=0, alpha=0.25, fmt=None, label=None)
+                    if len(lR23_err) != 0:
+                        ax.errorbar(OH[nn][idx], i_diff, yerr=np.transpose(lR23_err[nn][idx]),
+                                    mfc='none', ecolor=ctype[ii], capsize=0, alpha=0.25,
+                                    fmt='None', label=None, ls = 'none')
 
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
@@ -129,26 +141,29 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     an_txt  = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
-    ax.annotate(an_txt, [0.155,0.015], xycoords='axes fraction', va='bottom', ha='right',
+    ax.annotate(an_txt, [0.2,0.015], xycoords='axes fraction', va='bottom', ha='right',
                 fontsize=10)
 
     if len(OH_range)   != 0: ax.set_xlim(OH_range)
     if len(dR23_range) != 0: ax.set_ylim(dR23_range)
-
+    
+    
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
-    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm J18}$')
+    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm GPC}$')
     ax.minorticks_on()
+
     leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
-    plt.subplots_adjust(left=0.12, right=0.97, bottom=0.08, top=0.97)
+    plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
 
     fig.savefig(out_diff_pdf)
 #enddef
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
-         marker=[], label=[], dR23_range=[-0.3,0.3], fit=False, silent=False, verbose=True):
+         marker=[],edgecolors = [], alpha = [], label=[], dR23_range=[-0.3,0.3],
+         IDs=[], include_Rlimit = True, fit=False, silent=False, verbose=True):
 
     '''
     Main function to plot dataset against Jiang+ (2018) calibration
@@ -176,13 +191,16 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     Notes
     -----
     Created by Chun Ly, 23 November 2018
+    Edited by Reagen Leimbach, 18 June 2020 to add IDs to the plots
     '''
 
     if silent == False: log.info('### Begin main : '+systime())
 
+
     fig, ax = plt.subplots()
 
     n_sample = len(lR23)
+    
 
     min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
     OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
@@ -226,6 +244,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
     #Plotting
     ctype = ['red','magenta','green','cyan','blue','black']
+    xytext_location = ([5,2], [5,2], [0,2], [3,2], [7,2], [5,2])
 
     if len(marker) == 0:
         marker = ['o'] * n_sample
@@ -244,69 +263,106 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
     for nn in range(n_sample):
         if len(label) != 0:
-            x1 = xra[0] + 0.025*(xra[1]-xra[0])
-            y1 = yra[1] - (nn*0.035 + 0.05)*(yra[1]-yra[0])
-            x2 = xra[0] + 0.035*(xra[1]-xra[0])
-            y2 = yra[1] - (nn*0.035 + 0.0525)*(yra[1]-yra[0])
-            ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
+            x1 = xra[0] + 0.28*(xra[1]-xra[0])
+            y1 = yra[1] - (nn*0.035 + 0.1)*(yra[1]-yra[0])
+            x2 = xra[0] + 0.3*(xra[1]-xra[0])
+            y2 = yra[1] - (nn*0.035 + 0.1)*(yra[1]-yra[0])
+            print("x1, x2, y1, y2 " , x1, x2, y1, y2)
+            ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left') # 
             ax.plot([x1],[y1], marker=marker[nn], color='black')
 
         for ii in range(n_bins):
             y_ii_min = bin_start[ii] #bin_y_min + ii * dy
             y_ii_max = bin_end[ii]   #y_min + (ii+1) * dy
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
-
+            
             ii_label = ''
             if nn == 0: #n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
                 ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
                                                                        len(idx_all))
             if len(idx) > 0:
+                 
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
-                           alpha=0.5, label=ii_label)
+                           alpha=alpha[nn], label=ii_label, edgecolors =edgecolors[nn])
+                
 
-            if len(OH_err) != 0:
-                ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=OH_err[nn][:,idx],
-                            mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
-                            fmt=None, label=None)
+                ###Pushed Error bars under idx requirement
+                ###Added if statement so that only data points on the OH_err[0] place will be plotted
+                if nn == 0: 
+                    if len(OH_err) != 0:
+                        print('OH_err: ' , OH_err[nn][idx])
+                        ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=np.transpose(OH_err[nn][idx]),
+                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
+                                    fmt='', label=None, ls = 'none')
 
-            if len(lR23_err) != 0:
-                ax.errorbar(lR23[nn][idx], OH[nn][idx], xerr=lR23_err[nn][:,idx],
-                            mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
-                            fmt=None, label=None)
+                    if len(lR23_err) != 0:
+                        ax.errorbar(lR23[nn][idx], OH[nn][idx], xerr=np.transpose(lR23_err[nn][idx]),
+                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,fmt=None,
+                                    label=None, ls = 'none')
 
             if nn == 0: #n_sample-1:
                 lO32_avg = np.average(lO32_all[idx_all])
                 if fit == False:
                     opt = jiang18_coeffs
 
+                
                 mod_logR23 = O32_OH_fit((x_arr, lO32_avg), *opt)
                 ax.annotate('%.2f' % lO32_avg, [mod_logR23[-1], x_arr[-1]],
+                            xytext= xytext_location[ii], textcoords= 'offset points',
                             color=ctype[ii], xycoords='data', ha='center',
-                            va='bottom', fontsize=8)
-
+                            va='bottom', fontsize=8)  # 
                 ax.plot(mod_logR23, x_arr, color=ctype[ii], linestyle='dashed')
         #endfor
     #endfor
 
-    if len(xra) != 0: ax.set_xlim(xra)
-    if len(yra) != 0: ax.set_ylim(yra)
-
+    #if len(xra) != 0: ax.set_xlim(xra)
+    #if len(yra) != 0: ax.set_ylim(yra)
+    ax.set_xlim(0.5,1.1)
+    ax.set_ylim(6.75, np.max(x_arr)+0.1)
     ax.set_xlabel(r'$\log(R_{23})$')
-    ax.set_ylabel(r'$12+\log({\rm O/H})$')
+    ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
+
+
+    ###This puts the IDs on all the given IDs entered into the R23 and OH arrays
+    if IDs: 
+        for yy in range(len(IDs)):
+            id_a = IDs[yy]
+            R23_a = lR23[yy]
+            OH_a = OH[yy]
+            for aa in range(len(id_a)):
+                ax.annotate(id_a[aa], (R23_a[aa], OH_a[aa]), fontsize = '6')
+                
     plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.97)
     fig.savefig(out_pdf)
+
+    #Because we do not want to include the Robust limits into the statistical calculations
+    #in plot_differences, this options allows to redefine lR23, lO32, OH
+    if include_Rlimit:
+        nR23 = [lR23[0], lR23[2], lR23[3]]
+        nO32 = [lO32[0], lO32[2], lO32[3]]
+        nOH  = [OH[0], OH[2], OH[3]]
+        nIDs = [IDs[0]]
+        print('Using redefined values')
+        label = ['Detection','DEEP2', 'MACT']
+        marker = ['D','3','4']
+    else:
+        nR23 = lR23
+        nO32 = lO32
+        nOH  = OH
+        nIDs = IDs
 
     # Plot differences between model and data
     if fit == False:
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
-        plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=n_bins,
-                         lR23_err=lR23_err, OH_err=OH_err, OH_range=yra,
-                         dR23_range=dR23_range, marker=marker, label=label)
+        plot_differences(nR23, nO32, nOH, lO32_all, out_diff_pdf, bin_start, bin_end,
+                         n_bins=n_bins, lR23_err=lR23_err, OH_err=OH_err,
+                         OH_range=yra, dR23_range=dR23_range, marker=marker,
+                         label=label, IDs= nIDs)
         if silent == False: log.info('### End main : '+systime())
 #enddef
 

@@ -21,6 +21,7 @@ from pylab import subplots_adjust
 from astropy.convolution import Box1DKernel, convolve
 
 from . import general
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46, 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 
@@ -50,7 +51,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     if type(mask) != type(None):
         image2DM = np.ma.masked_array(image2DM, mask[det3])
         
-    outfile = name.replace('.pdf', '.fits')  #fits file name and initialization 
+    outfile =  fitspath + filename_dict['comp_spec']
     if not exists(outfile):
         stack_2d = np.zeros((len(R23_minimum)*len(O32_minimum), len(wave)), dtype=np.float64)
     else:
@@ -164,7 +165,7 @@ def Master_Stacking(fitspath,dataset, wave, grid_data_file, image2D, name, heade
     header['CDELT2'] =  1.00000
     header['CRPIX2'] =  1.00000
 
-    fits.writeto(fitspath+outfile, stack_2d[0:count], header, overwrite= True)
+    fits.writeto(outfile, stack_2d[0:count], header, overwrite= True)
 
     #Writing Ascii Tables and Fits Tables
     out_ascii = fitspath+'/bin_info.tbl'                        #used to be 'binning_averages.tbl'

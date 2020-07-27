@@ -240,9 +240,13 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     
 
 
-    n1 = ('bin_ID', 'Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
-    variable_formats = {'bin_ID': '%i', 'Detection': '%.1f', 'R value':'%.3f', 'Electron Temperature': '%.3f', 'O2/HBETA': '%.3f', 'O3/HBETA':'%.3f', 'O+/H': '{:.3e}', 'O++/H': '{:.3e}','12+log(O/H)': '%.3f', 'log(O+/H)': '%.3f', 'log(O++/H)': '%.3f'}
-    tab1 = Table([ID, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'], metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
+    n1 = ('bin_ID', 'Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA', 'O+/H', 'O++/H',
+          '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
+    variable_formats = {'bin_ID': '%i', 'Detection': '%.1f', 'R value':'%.3f', 'Electron Temperature': '%.3f',
+                        'O2/HBETA': '%.3f', 'O3/HBETA':'%.3f', 'O+/H': '{:.3e}', 'O++/H': '{:.3e}',
+                        '12+log(O/H)': '%.3f', 'log(O+/H)': '%.3f', 'log(O++/H)': '%.3f'}
+    tab1 = Table([ID, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'],
+                  metal_dict['12+log(O/H)'], metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
     outfile = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex'
     asc.write(tab1, outfile, format='latex', formats=variable_formats)
 

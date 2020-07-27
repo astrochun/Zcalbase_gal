@@ -15,6 +15,16 @@ from matplotlib.backends.backend_pdf import PdfPages
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
 
+a = -24.135
+b = 6.1532
+c = -0.37866
+d = -0.147
+e = -7.071
+
+
+def jiang_calibration(metal_det, lO32)
+    return a + b * metal_det + c * (metal_det * metal_det) - d * (e + metal_det) * lO32
+
 
 def plotting_te_metal(fitspath, revised=False):
     
@@ -255,13 +265,6 @@ def Jiang_comparison():
     der_R23_MACT = np.log10(er_R23_MACT)
     der_O32_MACT = np.log10(er_O32_MACT)
     der_OH_MACT = derived_MACT['OH'].data
-    
-    
-    a = -24.135
-    b = 6.1532
-    c = -0.37866
-    d = -0.147
-    e = -7.071
 
     jR23_det = np.zeros(len(metal_det))
     A_comparison = np.zeros(len(metal_det))

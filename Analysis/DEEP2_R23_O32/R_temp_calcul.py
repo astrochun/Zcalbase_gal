@@ -41,18 +41,19 @@ from astropy.io import fits
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
+from os.path import join
 
 
 #For generalizing for several users
 from getpass import getuser
 from astropy import units as u
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
+from Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
     R_calculation, temp_calculation, metallicity_calculation
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons import k_dict
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 #from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 from Zcalbase_gal.Analysis.DEEP2_R23_O32.general import name_dict
@@ -80,15 +81,14 @@ def limit_function(combine_flux_ascii):
     #print 'up_temp', up_temp
     return up_temp
 
-#def run_function(fitspath, EBV, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False)
 
 def run_function(fitspath, dataset, verification_table, dustatt= False):
 
-    combine_flux_ascii= fitspath + filename_dict['bin_fit']
-    temp_metal_ascii = fitspath+ '/'+filename_dict['bin_derived_prop']
-    temp_metal_revised = fitspath+ filename_dict['bin_derived_prop_rev']
-    temp_m_gfits = fitspath+ '/'+ name_dict['temp_fits_file']
-    temp_m_gpdf_name = dataset+name_dict['temp_metallicity_pdf']
+    combine_flux_ascii= join(fitspath, filename_dict['bin_fit'])
+    temp_metal_ascii = join(fitspath, filename_dict['bin_derived_prop'])
+    temp_metal_revised = join(fitspath, filename_dict['bin_derived_prop_rev'])
+    temp_m_gfits = join(fitspath,name_dict['temp_fits_file'])
+    temp_m_gpdf_name = join(dataset,name_dict['temp_metallicity_pdf'])
     
    
 
@@ -99,15 +99,14 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     combine_fits= asc.read(combine_flux_ascii)
     ID = combine_fits['bin_ID'].data
 
-    ##Dust Attenuation
-    if dustatt == False:
+    # Dust Attenuation
+    if not dustatt:
         EBV = np.zeros(len(ID))
-        out_ascii = fitspath+ '/'+filename_dict['bin_derived_prop']
-        
-    if dustatt:
+        out_ascii = join(fitspath,filename_dict['bin_derived_prop'])
+    else:
         non_atten_value_table = asc.read(temp_metal_ascii)
         EBV = non_atten_value_table['EBV_HgHb']
-        out_ascii = fitspath+ filename_dict['bin_derived_prop_rev_dust']  #filename_dict['bin_derived_prop_rev']
+        out_ascii = join(fitspath, filename_dict['bin_derived_prop_rev_dust'])
 
     #####Verification Table Import#######
     #print('Using verification table' + verification_table)
@@ -241,10 +240,15 @@ def run_function(fitspath, dataset, verification_table, dustatt= False):
     
 
 
-    n1=  ('bin_ID','Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA', 'O+/H', 'O++/H','12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
-    variable_formats=  {'bin_ID': '%i','Detection': '%.1f','R value':'%.3f', 'Electron Temperature': '%.3f', 'O2/HBETA': '%.3f', 'O3/HBETA':'%.3f', 'O+/H': '{:.3e}', 'O++/H': '{:.3e}','12+log(O/H)': '%.3f', 'log(O+/H)': '%.3f', 'log(O++/H)': '%.3f'}
-    tab1 = Table([ID, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'], metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
-    asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex', format='latex', formats= variable_formats)
+    n1 = ('bin_ID', 'Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA', 'O+/H', 'O++/H',
+          '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
+    variable_formats = {'bin_ID': '%i', 'Detection': '%.1f', 'R value':'%.3f', 'Electron Temperature': '%.3f',
+                        'O2/HBETA': '%.3f', 'O3/HBETA':'%.3f', 'O+/H': '{:.3e}', 'O++/H': '{:.3e}',
+                        '12+log(O/H)': '%.3f', 'log(O+/H)': '%.3f', 'log(O++/H)': '%.3f'}
+    tab1 = Table([ID, indicate, R_value, Two_Beta, Three_Beta,  T_e, metal_dict['O+/H'], metal_dict['O++/H'],
+                  metal_dict['12+log(O/H)'], metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
+    outfile = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex'
+    asc.write(tab1, outfile, format='latex', formats=variable_formats)
 
 def dust_attenuation(fitspath, combine_ascii):
     line_name = ['OII_3727','NeIII','HeI','3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
@@ -328,6 +332,5 @@ def dust_vs_nondust_table(fitspath, dust_metal_table, nondust_metal_table, dust_
     n_dust = ('ID','R23_Composite','O32_Composite', 'Non-Dust Attenuated Metallicities','Dust Attenuated Metallicities','Temperature')
     tab_dust = Table([ID, R23_composite, O32_composite, nondust_metal, dust_metal, Temperature], names =n_dust)
     asc.write(tab_dust, dust_vs_nondust_table, format = 'fixed_width_two_line')
-
 
 

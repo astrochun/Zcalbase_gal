@@ -16,9 +16,9 @@ from scipy.optimize import curve_fit
 # Import error propagation codes from chun_codes
 from chun_codes import random_pdf
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_name, line_type    
+from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
+from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
+from Metallicity_Stack_Commons import lambda0, line_name, line_type
 
 '''
 Debugging Note:
@@ -26,7 +26,7 @@ Debugging Note:
    make sure the expected values are within the range set up upper and
    lower limits.
 '''
-lambda_graph   = [3726.18, 3728.91, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]
+
 
 def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr):
@@ -375,7 +375,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
             
             #t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
-            for x in  lambda_graph: t_ax.axvline(x=x, linewidth= 0.15, color= 'k', linestyle = '--')
+            for x in  lambda0: t_ax.axvline(x=x, linewidth= 0.15, color= 'k', linestyle = '--')
 
             txt1 = 'Intensity' #Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'
             #txt1 += 'Scale factor = 1e-17'
@@ -408,9 +408,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
     
     if line_type == 'Single':
-        '''n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
-             'S/N', 'Center', 'Pos_Sig', 'Pos_Amp', 'Const')'''
-
+        
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
              'S/N', 'Center', 'Pos_Amp')
 
@@ -421,9 +419,6 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
 
     if line_type == 'Balmer' or line_type == 'Oxy2': 
 
-        #n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
-              #'S/N', 'Center', 'Pos_Sig', 'Pos_Amp', 'Const', 'Abs_Sigma', 'Abs_Norm')
-
         n=  ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
               'S/N', 'Center', 'Pos_Amp', 'Abs_Sigma', 'Abs_Norm')
         n = tuple([line_name + '_' + val for val in n])
@@ -433,11 +428,6 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2D, dispersion, s2, wave,
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,
                        norm_array, RMS_array, SN_array, xbar_array,
                        pos_amp_array,  sig2_array, neg_amp_array], names=n)
-
-       
-        '''tab0 = Table([flux_g_array, flux_s_array, sigma_array, median_array,
-                       norm_array, RMS_array, SN_array, xbar_array, sig1_array,
-                       pos_amp_array, const_array, sig2_array, neg_amp_array], names=n)'''
 
         if line_type == 'Balmer':
             print('Adding an Equ_Width Column')

@@ -81,7 +81,6 @@ def limit_function(combine_flux_ascii):
     #print 'up_temp', up_temp
     return up_temp
 
-#def run_function(fitspath, EBV, dataset, verification_table, out_ascii='', out_fits='', pdf_name='',  combine_flux_ascii='', dust_ascii='', dustatt= False)
 
 def run_function(fitspath, dataset, verification_table, dustatt= False):
 

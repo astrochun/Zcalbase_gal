@@ -695,20 +695,20 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23,O32
 
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=Number_inbin)
     
-    n1 = ('bin_ID' ,'N_stack','logR23_min','logO32_min','logR23_avg','logO32_avg',
-          'logR23_median','logO32_median','logR23_max','logO32_max')
-    tab1 = Table([n_bins_range,area,np.log10(R23_lowlimit), np.log10(O32_lowlimit),np.log10(xBar),
-                  np.log10(yBar),np.log10(R23_medians),np.log10(O32_medians),np.log10(R23_maxval),
+    n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
+          'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
+    tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit), np.log10(O32_lowlimit), np.log10(xBar),
+                  np.log10(yBar), np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval),
                   np.log10(O32_maxval)], names=n1)
     asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')   #used to be called +dataset+'_binning_averages.tbl
     
 
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID',
               'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
-        'logR23_median','logO32_median','logR23_max','logO32_max')
+        'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
     tab2= Table([R23, O32, SNR3, Bin_number, individual_ID,
-                 R23_minall,O32_minall,R23_avgall,O32_avgall,
-                 R23_medall,O32_medall,R23_maxall, O32_maxall], names=n2)
+                 R23_minall, O32_minall, R23_avgall, O32_avgall,
+                 R23_medall, O32_medall, R23_maxall, O32_maxall], names=n2)
     asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line') #used to be + dataset+'_2d_binning_datadet3.tbl
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')

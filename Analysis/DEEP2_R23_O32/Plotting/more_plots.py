@@ -28,8 +28,7 @@ fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 
 def ew_plot_R23(fitspath, asc_table):
-    name = join(fitspath, 'equivalent_vs_R23_plots.pdf')
-    pdf_pages = PdfPages(name)
+    pdf_pages = PdfPages(join(fitspath, 'equivalent_vs_R23_plots.pdf'))
 
     asc_tab = asc.read(asc_table)
     R23 = asc_tab['logR23_avg'].data
@@ -50,8 +49,7 @@ def ew_plot_R23(fitspath, asc_table):
 
 
 def ew_plot_O32(fitspath, asc_table):
-    name = join(fitspath,'equivalent_vs_O32_plots.pdf')
-    pdf_pages = PdfPages(name)
+    pdf_pages = PdfPages(join(fitspath,'equivalent_vs_O32_plots.pdf'))
 
     asc_tab = asc.read(asc_table)
     O32 = asc_tab['logO32_avg'].data
@@ -73,15 +71,18 @@ def ew_plot_O32(fitspath, asc_table):
 
 def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     """
-    Purpose:
-    Input:
-         asc_table   -> combine_flux_ascii
-         temp_table  -> derived_properties
-         verif_table -> bin_validation_revised
+    Purpose
+    ----------
+    Plotting function for R23 and O32 color mapping plots
+
+    Parameters
+    ----------
+    asc_table   -> combine_flux_ascii
+    temp_table  -> derived_properties
+    verif_table -> bin_validation_revised
     """
 
-    name = join(fitspath, 'R23_vs_O32_colormapping.pdf')
-    pdf_pages = PdfPages(name)
+    pdf_pages = PdfPages(join(fitspath, 'R23_vs_O32_colormapping.pdf'))
 
     asc_tab = asc.read(asc_table)
     temp_tab = asc.read(temp_table)
@@ -131,15 +132,14 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
 
 def hist_for_bin(fitspath, dataset, asc_table_det3):
     asc_tab = asc.read(asc_table_det3)
-    name = join(dataset, '_histograms.pdf')
 
-    pdf_pages = PdfPages(join(fitspath, name))
+    pdf_pages = PdfPages(join(fitspath, dataset, '_histograms.pdf')
 
     R23 = asc_tab['logR23_avg'].data
     O32 = asc_tab['logO32_avg'].data
-    N_bin = asc_tab['N_stack'].data
+    N_bin = asc_tab['bin_ID'].data
 
-    number_of_bins = np.int(np.max(N_bin)) + 1
+    number_of_bins = np.max(N_bin) + 1
 
     for ii in range(number_of_bins):
         bin_idx = np.where(N_bin == ii)[0]
@@ -153,7 +153,7 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
     pdf_pages.close()
         
 
-    pdf_pages2 = PdfPages(fitspath+'O32'+name)
+    pdf_pages2 = PdfPages(join(fitspath, 'O32', dataset, '_histograms.pdf')
     for ii in range(number_of_bins):
         bin_idx = np.where(N_bin == ii)[0]
         fig, ax = plt.subplots()
@@ -167,7 +167,7 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
 
 
 def dust_att_plot(fitspath, combine_flux):
-    pdf_pages = PdfPages(fitspath + 'dust_attenuation_plots.pdf')
+    pdf_pages = PdfPages(join(fitspath, 'dust_attenuation_plots.pdf'))
     com_asc = asc.read(combine_flux)
     H_gamma_obs = com_asc['Hgamma_Flux_Observed']
     H_beta_obs = com_asc['OIII_4958_Flux_Observed']
@@ -194,17 +194,17 @@ def dust_att_plot(fitspath, combine_flux):
     pdf_pages.close()
 
     
-def plotting_individual_for_stacking_image(stack_spectra=False):
+def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spectra=False):
     if not stack_spectra:
-        name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
-        RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+        # name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
+        # RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
         spec_range = range(100, 120)
         y_lim = (-2, 2)
         y_text = 1.95
         left = 0.13
     else:
-        RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
-        name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/composite_plots_data_viz.pdf'
+        # RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
+        # name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/composite_plots_data_viz.pdf'
         spec_range = range(27)
         y_lim = (0, 1)
         y_text = 0.95
@@ -213,7 +213,7 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
 
-    pdf_pages = PdfPages(name)
+    pdf_pages = PdfPages(pdf_name)
 
     txt0 = r'Intensity ($10^{-17}~{\rm erg}~{\rm s}^{-1}~{\rm cm}^{-2}~\AA^{-1}$)'
 
@@ -227,7 +227,7 @@ def plotting_individual_for_stacking_image(stack_spectra=False):
         ax.set_xlim(4250, 4450)
         ax.set_ylim(y_lim)
         ax.axvline(x=4363.21, linewidth=1.0, color='r', linestyle=':')
-        ax.axvline(x=4340.544, linewidth=1.0, color='r', linestyle=':')
+        ax.axvline(x=4340.46, linewidth=1.0, color='r', linestyle=':')
         ax.text(4363.21, y_text, r'[OIII]$\lambda$4363', va='top', ha='center', rotation=90)
         ax.text(4340.544, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
         fig.set_size_inches(6, 6)

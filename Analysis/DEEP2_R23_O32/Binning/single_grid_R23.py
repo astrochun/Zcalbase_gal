@@ -1,90 +1,61 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.io import fits
-from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
-from astropy.table import Table
-from astropy.table import vstack
 
 
+def single_grid_R23(fitspath, pdf_pages, outfile, R23, O32, galinbin):
+    """
+    This file holds the function to bin data for one dimensional binning along R23
+    Not used in current analysis
 
-
-#############################################################################
-#This file holds the function to bin data for one dimensional binning along R23 
-#Not used in current analysis
-#
-#Inputs:
-#fitspath  -> path where files are called from and saved to
-#pdf_pages -> name of outputted pdf file
-#outfile   -> name of the npz file produced by the function 
-#galinbin  -> array of numbers that specifies how many spectra go in each bin
-#adaptive  -> if True, the number of galaxies in each bin can vary 
-#Other variables -> emission file values of spectra that come from the get_det3 function 
-#############################################################################
-
-
-
-def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive='False'):
-    
+    Inputs:
+    fitspath  -> path where files are called from and saved to
+    pdf_pages -> name of outputted pdf file
+    outfile   -> name of the npz file produced by the function
+    galinbin  -> array of numbers that specifies how many spectra go in each bin
+    adaptive  -> if True, the number of galaxies in each bin can vary
+    Other variables -> emission file values of spectra that come from the get_det3 function
+    """
     pdf_pages = PdfPages(pdf_pages)
 
-    #One_dimensional binning for R23 
+    # One_dimensional binning for R23
 
     sort0 = np.argsort(R23)
     R23_sort0 = R23[sort0]
 
-    
-    #200 galaxies per bin
-    #n_bins_old = np.int(len(R23)/galinbin)
+    # 200 galaxies per bin
     n_bins = len(galinbin)
     print n_bins
 
-    #Initializing Arrays for outfile later
-    #O32_grid    = np.zeros((n_bins,1))
-    R23_grid  = np.zeros((n_bins,1))
-    N_arr0 = np.zeros((n_bins,1))
-    T_arr  = np.zeros((n_bins,1), dtype = object)
-    
+    # Initializing Arrays for outfile later
+    R23_grid = np.zeros((n_bins, 1))
+    N_arr0 = np.zeros((n_bins, 1))
+    T_arr = np.zeros((n_bins, 1), dtype=object)
 
-    #Bin starts and stops initializing
-    bin_start = np.zeros(n_bins, dtype =np.int)
-    bin_end   = np.zeros(n_bins, dtype =np.int)
+    # Bin starts and stops initializing
+    bin_start = np.zeros(n_bins, dtype=np.int)
+    bin_end = np.zeros(n_bins, dtype=np.int)
 
     for ii in range(n_bins):
         if ii == 0:
             bin_start[ii] = 0
         else:
-            bin_start[ii]= bin_end[ii-1]+1
+            bin_start[ii] = bin_end[ii-1]+1
         if ii == n_bins-1:
             bin_end[ii] = len(R23_sort0)-1
         else:
             print galinbin[ii]+bin_start[ii]
             bin_end[ii] = galinbin[ii]+bin_start[ii]-1   
-        print 'Bin Start:', bin_start[ii] , 'Bin end:', bin_end[ii]
+        print 'Bin Start:', bin_start[ii], 'Bin end:', bin_end[ii]
 
-        idx_arr = np.where((R23>= R23_sort0[bin_start[ii]]) & (R23<= R23_sort0[bin_end[ii]]))[0]
-        R23_grid[ii,0] = R23_sort0[bin_start[ii]]
-        N_arr0[ii,0] += len(idx_arr)
-        T_arr[ii,0]   = idx_arr
-        print('Start:', R23_grid[ii])   ###This could be incorrect so I need to check this again###
-    '''
-    #Sets the bins with R23_sorting
-    for ii in range(n_bins):
-        bin_start[ii] = y_sort0[ii*galinbin]
-        bin_end[ii]   = y_sort0[(ii+1)*galinbin-1]
-        if ii == (n_bins-1):  bin_end[ii] = np.max(y_sort0)-1
-        print bin_start[ii] , bin_end[ii]'''
+        idx_arr = np.where((R23 >= R23_sort0[bin_start[ii]]) & (R23 <= R23_sort0[bin_end[ii]]))[0]
+        R23_grid[ii, 0] = R23_sort0[bin_start[ii]]
+        N_arr0[ii, 0] += len(idx_arr)
+        T_arr[ii, 0] = idx_arr
+        print('Start:', R23_grid[ii])   # This could be incorrect so I need to check this again###
 
-    #Set bins with indexing
-    
-
-    #Organizes data into bins
-
-        
-    #print N_arr0
-
-    #Plotting
+    # Plotting
     fig, ax = plt.subplots()
     x = R23
     y = O32
@@ -95,13 +66,15 @@ def single_grid_R23(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3
     y = np.log10(y1)
     hlines = np.log10(bin_start)
     hlines_end = np.log10(bin_end)
-    ax.scatter(x,y,1.5, facecolor='r', edgecolor='face', marker='*',alpha=1)
+    ax.scatter(x, y, 1.5, facecolor='r', edgecolor='face', marker='*', alpha=1)
     ax.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for DEEP2')
     ax.set_xlabel(r'log($R_{23}$)')
     ax.set_ylabel(r'log($O_{32}$)')
-    for pp in range(len(bin_start)): plt.axvline(x = hlines[pp], linewidth= 0.3, color= 'k')
-    for ll in range(len(bin_end)): plt.axvline(x =hlines_end[ll], linewidth= 0.3, color= 'g')
-    fig.savefig(pdf_pages, format ='pdf')
+    for pp in range(len(bin_start)):
+        plt.axvline(x=hlines[pp], linewidth=0.3, color='k')
+    for ll in range(len(bin_end)):
+        plt.axvline(x=hlines_end[ll], linewidth=0.3, color='g')
+    fig.savefig(pdf_pages, format='pdf')
     pdf_pages.close()
 
     O32_grid = [np.min(O32)]

@@ -6,7 +6,7 @@ from os.path import exists
 
 
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
+from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
@@ -30,21 +30,20 @@ def LAC_GPC_plots(fitspath, dataset,revised= False, individual = False, include_
 
     '''
     if revised:
-        temp_table= asc.read(fitspath+ filename_dict['bin_derived_prop_rev'])
+        temp_table = asc.read(fitspath + filename_dict['bin_derived_prop_rev'])
         verification = asc.read(fitspath + filename_dict['bin_valid_rev'])
-        pea_out_pdf = fitspath+ '/'+dataset+'_GPC.revised.pdf'
-        LAC_out_pdf = fitspath+ '/'+dataset+'_LAC.revised.pdf'
-
+        pea_out_pdf = fitspath + dataset+'_GPC.revised.pdf'
+        LAC_out_pdf = fitspath+ dataset+'_LAC.revised.pdf'
     else:
-        temp_table= asc.read(fitspath  +  filename_dict['bin_derived_prop'])
+        temp_table = asc.read(fitspath + filename_dict['bin_derived_prop'])
         verification = asc.read(fitspath + filename_dict['bin_valid'])
-        pea_out_pdf = fitspath+ '/'+dataset+'_GPC.pdf'
-        LAC_out_pdf = fitspath+ '/'+dataset+'_LAC.pdf'
+        pea_out_pdf = fitspath + dataset+'_GPC.pdf'
+        LAC_out_pdf = fitspath + dataset+'_LAC.pdf'
     
     SN_4363 = temp_table['OIII_4363_S/N']
     detect = verification['Detection']
-    det_4363 = np.where((detect == 1))[0]
-    rlimit = np.where((detect == 0.5))[0]
+    det_4363 = np.where(detect == 1)[0]
+    rlimit = np.where(detect == 0.5)[0]
     print('Begin Local analog Calibration')
     
     # Implimenting Local analog calibration###
@@ -197,4 +196,3 @@ def individual_GPC(individual_ascii, validation_table):
                                 marker=['3'], label=['Individual Detection'], fit=False, silent=False, verbose=True)
 
     
-

@@ -30,12 +30,12 @@ from astropy.io import ascii as asc
 from astropy.table import Table
 from os.path import join
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
+from Metallicity_Stack_Commons.analysis.temp_metallicity_calc import \
     R_calculation, temp_calculation, metallicity_calculation
 
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import k_dict
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
+from Metallicity_Stack_Commons import k_dict
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32.general import name_dict
 
@@ -68,13 +68,13 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
     Purpose
 
     Parameters
-
     fitspath
     dataset
     verification_table
     dustatt
 
     Returns
+
 
     Outputs
 
@@ -209,6 +209,7 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
                   metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
+
 '''
 This will be used when continuing writing on the paper
     n1=  ('bin_ID', 'Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA',
@@ -221,4 +222,3 @@ This will be used when continuing writing on the paper
     asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex', 
               format='latex', formats= variable_formats)
 '''
-

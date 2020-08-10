@@ -13,15 +13,17 @@ from os.path import exists, join
 import glob
 from datetime import date
 
+
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, \
     zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, \
     R_temp_calcul, calibration_plots, verification_tables
 from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting, te_metal_plot
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
+from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
     line_type, line_name, valid_table, get_user
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.column_names import filename_dict
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.plotting import balmer
-from Metallicity_Stack_Commons.Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect, error_prop
+from Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons.plotting import balmer
+from Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect, error_prop
+
 
 '''
 #############Getting username##############

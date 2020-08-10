@@ -146,7 +146,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
-                
+
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
 
     fig.savefig(out_diff_pdf)
@@ -182,9 +182,10 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     Notes
     -----
     Created by Chun Ly, 23 November 2018
+
     Editted by Reagen Leimbach, 18 June 2020 to add IDs to the plots
     """
-
+    
     if not silent: 
         log.info('### Begin main : '+systime())
 

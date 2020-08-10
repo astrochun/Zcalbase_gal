@@ -19,11 +19,13 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
+from os.path import join
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general
 from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_type, line_name
 
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+
 
 def ew_plot_R23(fitspath, asc_table):
     pdf_pages = PdfPages(join(fitspath, 'equivalent_vs_R23_plots.pdf'))
@@ -46,7 +48,7 @@ def ew_plot_R23(fitspath, asc_table):
 
 
 def ew_plot_O32(fitspath, asc_table):
-    pdf_pages = PdfPages(join(fitspath,'equivalent_vs_O32_plots.pdf'))
+    pdf_pages = PdfPages(join(fitspath, 'equivalent_vs_O32_plots.pdf'))
     asc_tab = asc.read(asc_table)
     O32 = asc_tab['logO32_avg'].data
     for oo in range(len(lambda0)):
@@ -89,7 +91,7 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     ID = temp_tab['bin_ID'].data
     detect = ver_tab['Detection'].data
 
-    cm= plt.cm.get_cmap('Blues')
+    cm = plt.cm.get_cmap('Blues')
     edge_det = np.where(detect == 1)[0]
     edge_rlimit = np.where(detect == 0.5)[0]
 
@@ -144,7 +146,6 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
 
     pdf_pages.close()
 
-
     pdf_pages2 = PdfPages(join(fitspath + 'O32_histogram.pdf'))
     for ii in range(number_of_bins):
         bin_idx = np.where(N_bin == ii)[0]
@@ -158,7 +159,6 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
     pdf_pages2.close()
 
 
-                         
 def dust_att_plot(fitspath, combine_flux):
     pdf_pages = PdfPages(join(fitspath, 'dust_attenuation_plots.pdf'))
     com_asc = asc.read(combine_flux)
@@ -196,7 +196,8 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
         y_text = 1.95
         left = 0.13
     else:
-        # RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
+        # RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/
+        #                   R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
         # name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/composite_plots_data_viz.pdf'
         spec_range = range(27)
         y_lim = (0, 1)
@@ -249,13 +250,13 @@ def plotting_gaussian_curves():
     a2 = -2.0
     c = 0.0
 
-    doublecurve = zoom_and_gauss_general.double_gauss(x,xbar,s1,a1,c,s2,a2)
+    doublecurve = zoom_and_gauss_general.double_gauss(x, xbar, s1, a1, c, s2, a2)
 
-    positive = zoom_and_gauss_general.gauss(x,xbar,s1,a1,doublecurve[0])
-    negative = zoom_and_gauss_general.gauss(x,xbar,s2,a2,c)
+    positive = zoom_and_gauss_general.gauss(x, xbar, s1, a1, doublecurve[0])
+    negative = zoom_and_gauss_general.gauss(x, xbar, s2, a2, c)
                          
     # Oxygen Two Line
-    x = np.arange(1,100)
+    x = np.arange(1, 100)
     xbar = 40.0
     s1 = 8.0
     a1 = 20.0
@@ -263,7 +264,7 @@ def plotting_gaussian_curves():
     a2 = 30.0
     c = 0.0
 
-    oxycurve = oxy2_gauss(x,xbar,s1,a1,c,s2,a2)
+    oxycurve = oxy2_gauss(x, xbar, s1, a1, c, s2, a2)
             
     xbar3 = 40.0
     xbar4 = 63.5
@@ -273,8 +274,8 @@ def plotting_gaussian_curves():
     s4 = 8.0
     a4 = 30.0
 
-    positive1 = zoom_and_gauss_general.gauss(x,xbar3,s3,a3,oxycurve[0])
-    positive2 = zoom_and_gauss_general.gauss(x,xbar4,s4,a4,oxycurve[0])
+    positive1 = zoom_and_gauss_general.gauss(x, xbar3, s3, a3, oxycurve[0])
+    positive2 = zoom_and_gauss_general.gauss(x, xbar4, s4, a4, oxycurve[0])
 
     ax1.plot(x, singlecurve)
     ax2.plot(x, doublecurve)

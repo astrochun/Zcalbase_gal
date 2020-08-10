@@ -1,6 +1,6 @@
 # Creates histograms of data inputted in dictionaries
 # Currently set up to plot tempature and metallicity error propagation
-'''
+"""
 
 ##############Functions#######################
 # histogram(path, data_all, table_path, pdf_name, xpeak_key, table_key='')
@@ -54,7 +54,7 @@ dict_list       -> list of dictionaries whose data we want to plot in a histogra
 verification_table -> table created independently of this code that tells us whether or not each bin is a detection
 
 Outputs: pdf file of all the histograms
-'''
+"""
 
 
 import numpy as np
@@ -79,13 +79,12 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
     ID = verify[bin_names0[0]]
     detection = np.where((detect == 1))[0]
     ID_detect = ID[detection]
-    print(ID_detect)
 
     # Importing calculated values from our stacked measures
     # For plotting Temperature and Metallicity Histograms
     if table_key == 'T_e':
         calculated_com = tab1[temp_metal_names0[1]]
-        calculated_Te = tab1 [temp_metal_names0[0]]
+        calculated_Te = tab1[temp_metal_names0[0]]
         calculated_single = tab1[temp_metal_names0[4]]
         calculated_double = tab1[temp_metal_names0[5]]
         calculated_logs = tab1[temp_metal_names0[2]]
@@ -94,7 +93,7 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
     # For plotting Flux Ratio Histograms
     if table_key == 'bin_ID':
         O5007 = tab1['OIII_5007_Flux_Observed']
-        O4363 = tab1 ['OIII_4363_Flux_Observed']
+        O4363 = tab1['OIII_4363_Flux_Observed']
         O4959 = tab1['OIII_4958_Flux_Observed']
         HBETA = tab1['HBETA_Flux_Observed']
         O3727 = tab1['OII_3727_Flux_Observed']
@@ -125,8 +124,8 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
         data_xpeak = data_all[xpeak_name]
         data_errors = data_all[error_name]
 
-        data_lowerror = data_errors[:,0]
-        data_higherror= data_errors[:,1]
+        data_lowerror = data_errors[:, 0]
+        data_higherror = data_errors[:, 1]
 
         # This is defining a quick fix for passing in several wanted histograms
         if hist_name == 'Te_pdf':
@@ -179,7 +178,7 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
             ax = ax_arr[row, col]
             print(row, col)
 
-            non_inf = np.where(np.isfinite(data_hist[aa])==True)[0]
+            non_inf = np.where(np.isfinite(data_hist[aa]) == True)[0]
             min_val = np.nanmin(data_hist[aa][non_inf])
             max_val = np.nanmax(data_hist[aa][non_inf])
 
@@ -188,7 +187,7 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
 
             bin_arr = np.linspace(min_val, max_val)
             
-            title ='Bin: ',ID_detect[aa]
+            title = 'Bin: ', ID_detect[aa]
             ax.hist(data_hist[aa][non_inf], bins=bin_arr)
             ax.axvline(x=data_xpeak[aa], color='r', label='compute_one_sig_xpeak', linewidth=0.5)
             ax.axvline(x=calculated_value[aa], color='m', label='stacked metallicities', linewidth=0.5)
@@ -206,14 +205,15 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
             if aa % (nrows * ncols) == 0:
                 ax.legend(title=hist_name, fontsize=3)
                 # if row == 3: plt.xlabel(pdf_list[ii])
-        fig.savefig(pdf_pages, format ='pdf')
+        fig.savefig(pdf_pages, format='pdf')
         
     pdf_pages.close()
 
 # Calling Functions
 
 # Temperature and Metallicity Dictionary List for Reagen
-# dict_list = [Te_pdf_dict,Te_xpeak_dict, metallicity_pdf_dict, metallicity_xpeak_dict, Te_error_dict, metallicity_error_dict]
+# dict_list = [Te_pdf_dict,Te_xpeak_dict, metallicity_pdf_dict,
+# metallicity_xpeak_dict, Te_error_dict, metallicity_error_dict]
 
 # Temperature and Metallicity Dictionary List for Caroline
 # dict_list = [Te_propdist_dict, Te_xpeaks, metal_errors, metal_xpeaks, metallicity_pdf, Te_errors]
@@ -256,19 +256,16 @@ def run_histogram_FR(path, table_path, dict_list, verification_table, sharex=Fal
     table1 = asc.read(table_path)
     tab1 = table1[detection]
     O5007 = tab1['OIII_5007_Flux_Observed']
-    O4363 = tab1 ['OIII_4363_Flux_Observed']
+    O4363 = tab1['OIII_4363_Flux_Observed']
     O4959 = tab1['OIII_4958_Flux_Observed']
     HBETA = tab1['HBETA_Flux_Observed']
     O3727 = tab1['OII_3727_Flux_Observed']
 
     O3727_HBETA = O3727/HBETA
     O5007_HBETA = O5007/HBETA
-    O4959_HBETA = O4959/HBETA
     O4363_O5007 = O4363/O5007
-    O4363_O4959 = O4363/O4959
     
     O5007_O3727 = O5007/O3727
-    O4959_O3727 = O4959/O3727
 
     O5007_O4958 = O5007/O4959
     R23_combine = (O3727_HBETA + O5007_HBETA * (1 + 1/3.1))

@@ -12,11 +12,11 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 def all_spectra(): 
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data = general.get_det3()
 
-    x= np.log10(R23)
-    y= np.log10(O32)
-    fig,ax = plt.subplots()
-    ax.scatter(x,SNR3, 1.5)
-    ax.scatter(y,SNR3, 1.5)
+    x = np.log10(R23)
+    y = np.log10(O32)
+    fig, ax = plt.subplots()
+    ax.scatter(x, SNR3, 1.5)
+    ax.scatter(y, SNR3, 1.5)
     plt.show()
 
 
@@ -29,12 +29,11 @@ def SN_each_bin_firstdraft(fitspath, name, asc_tab):
     pdfpages = PdfPages(fitspath + name)
     ascii_tab = asc.read(asc_tab)
     R23_ini= ascii_tab['R23']
-    O32_ini = ascii_tab['O32']
     SN_5007 = ascii_tab['SN_5007']
     N_bin = ascii_tab['N_bin']
 
     # for ii in range(len(N_bin)):
-        # g1 =  np.where((N_bin == ii) & (N_bin ==(ii+1)))[0]
+    #      g1 =  np.where((N_bin == ii) & (N_bin ==(ii+1)))[0]
 
     g1 = np.where((N_bin == 0) |(N_bin == 1))[0]
     g2 = np.where((N_bin == 2) | (N_bin == 3))[0]
@@ -67,7 +66,6 @@ def SN_each_bin_firstdraft(fitspath, name, asc_tab):
     fig9, ax9 = plt.subplots()
 
     R23 = np.log10(R23_ini)
-    O32 = np.log10(O32_ini)
     # SN_5007 = np.log10(SN_5007_ini)
     
     ax1.scatter(R23[g1], SN_5007[g1], 1.5, color='r', label='High Ionization')
@@ -182,7 +180,7 @@ def SN_each_bin(fitspath, name, asc_tab):
 
     pdfpages = PdfPages(fitspath + name)
     ascii_tab = asc.read(asc_tab)
-    R23_ini= ascii_tab['R23']
+    R23_ini = ascii_tab['R23']
     O32_ini = ascii_tab['O32']
     SN_5007 = ascii_tab['SN_5007']
     Bin_number = ascii_tab['Bin_number']
@@ -225,7 +223,7 @@ def SN_each_bin(fitspath, name, asc_tab):
         fig1.savefig(pdfpages, format='pdf')
         fig1.clear()
 
-    n = ('Bin', 'SN_5007 Minimum','SN_5007 Maximum', 'Average', 'Median')
+    n = ('Bin', 'SN_5007 Minimum', 'SN_5007 Maximum', 'Average', 'Median')
     tab = Table([Bin, all_min, all_max, all_average, all_median], names=n)
     asc.write(tab, fitspath + '/SN_5007_values.tbl', format='fixed_width_two_line')
     pdfpages.close()

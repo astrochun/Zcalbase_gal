@@ -12,12 +12,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
+from os.path import join
 
 from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 jiang_coeff = [-24.135, 6.1532, -0.37866, -0.147, -7.071]
-
 
 a = -24.135
 b = 6.1532
@@ -26,7 +26,7 @@ d = -0.147
 e = -7.071
 
 
-def jiang_calibration(metal_det, lO32)
+def jiang_calibration(metal_det, lO32):
     return a + b * metal_det + c * (metal_det * metal_det) - d * (e + metal_det) * lO32
 
 
@@ -98,7 +98,6 @@ def plotting_te_metal(fitspath, revised=False):
 
     ver_detect = np.where((ver_detection ==1))[0]
     ver_rlimit = np.where((ver_detection ==0.5))[0]
-    nan_detect = np.where((ver_detection == 0))[0]
 
     pdf_pages = PdfPages(out_pdf)
 
@@ -212,7 +211,7 @@ def plotting_te_metal(fitspath, revised=False):
     pdf_pages.close()
         
 
-def Jiang_comparison(fitspath,a,b,c,d,e):
+def Jiang_comparison(fitspath, a, b, c, d, e):
     """
     log(R23) = a +bx+cx^2 - d(e+x)y
     x = 12+log(O/H)

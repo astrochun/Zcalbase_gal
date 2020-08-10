@@ -277,7 +277,7 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # hstack_table
     # Option to change: name of new fits file created
 
-    intro = join(fitspath, dataset, name_dict['Average_Bin_Value'])
+    intro = join(fitspath, dataset + name_dict['Average_Bin_Value'])
     asc_intro = asc.read(intro)
     table_files = glob.glob(fitspath + '/' + dataset + '_flux_gaussian_*.tbl')
     combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
@@ -332,7 +332,7 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
 
     # Te_metal Plots
     # te_metal_plots.plotting_te_metal(fitspath, revised=False)
-    # te_metal_plots.plotting_te_metal(fitspath,  revised=True)
+    # te_metal_plots.plotting_te_metal(fitspath,   revised=True)
 
     # Calibration Plots
     # calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)

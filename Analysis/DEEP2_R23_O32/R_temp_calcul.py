@@ -1,30 +1,7 @@
 # THIS CODE IS RUN IN THE GENERAL FUNCTION
-
 # Calculates the R value, electron temperature, and metallicity from the flux table
 # produced by the zoom_and_gauss_general functions
 
-
-# Functions
-# R_calculation(OIII4363, OIII5007, OIII4959, EBV, k_4363, k_5007)
-# temp_calculation(R)
-# metallicity_calculation(T_e, TWO_BETA, THREE_BETA)
-# limit_function(combine_flux_ascii)
-
-'''
-Input variables: 
-fitspath
-dataset
-dustatt            -> True/False input; if True dust attenuation values are used for calculations; automatic = false 
-
-Calling order: 
-verification tables   --> need to work on making these tables; need to put the verification table into the call
-dust attenuation      --> called in function by True or False, but need to pass the table into the function
-Called DEEP2 and MACT Data
-Depending on which combine_fits table is passed in --> run individual or stacked spectra and makes a table
-
-'''
-
-# Currently running: Grid
 import numpy as np
 from astropy.io import ascii as asc
 from astropy.table import Table
@@ -64,21 +41,20 @@ def limit_function(combine_flux_ascii):
 
 
 def run_function(fitspath, dataset, verification_table, dustatt=False):
-    '''
-    Purpose
-
-    Parameters
+    """
+    Input variables:
     fitspath
     dataset
-    verification_table
-    dustatt
+    dustatt            -> True/False input; if True dust attenuation values are used for calculations; automatic = false
 
-    Returns
+    Calling order:
+    verification tables   --> need to work on making these tables; need to put the verification table into the call
+    dust attenuation      --> called in function by True or False, but need to pass the table into the function
+    Called DEEP2 and MACT Data
+    Depending on which combine_fits table is passed in --> run individual or stacked spectra and makes a table
 
 
-    Outputs
-
-    '''
+    """
     combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
     temp_metal_ascii = join(fitspath, filename_dict['bin_derived_prop'])
     temp_metal_revised = join(fitspath, filename_dict['bin_derived_prop_rev'])
@@ -176,9 +152,6 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
     O4959_HBETA = OIII4959/HBETA
     O4363_O5007 = OIII4363/OIII5007
     O4363_O4959 = OIII4363/OIII4959
-    
-    O5007_O3727 = OIII5007/OII3727
-    O4959_O3727 = OIII4959/OII3727
         
     # Attenuated Ratios
     der_4363_5007 = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
@@ -210,7 +183,7 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
 
-'''
+"""
 This will be used when continuing writing on the paper
     n1=  ('bin_ID', 'Detection', 'R value', 'Electron Temperature', 'O2/HBETA', 'O3/HBETA',
      'O+/H', 'O++/H','12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
@@ -221,4 +194,4 @@ This will be used when continuing writing on the paper
                   metal_dict['12+log(O/H)'],metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n1)
     asc.write(tab1, '/Users/reagenleimbach/Desktop/Zcalbase_gal/Honors_Thesis/metallicity_table.tex', 
               format='latex', formats= variable_formats)
-'''
+"""

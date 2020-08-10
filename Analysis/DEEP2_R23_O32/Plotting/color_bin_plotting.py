@@ -48,7 +48,6 @@ def color_for_bin():
     plt.clf()
     plt.subplot(211)
     rnd = np.argsort(np.random.random(xnode.size))  # Randomize bin colors
-    #_display_pixels(x, y, rnd[classe], pixelsize)
     # plt.plot(xnode, ynode, '+w', scalex=False, scaley=False) # do not rescale after imshow()
     # plt.xlabel('R (arcsec)')
     # plt.ylabel('R (arcsec)')
@@ -73,8 +72,7 @@ def R23vsO32_plot():
 
     # logR23 = asc_table['log(R23)']
     # logO32 = asc_table['log(O32)']
-    com_O_log= temp_table['com_O_log']
-    temp = temp_table['Temperature']
+    com_O_log = temp_table['com_O_log']
     R23_com = temp_table['R23_Composite']
     O32_com = temp_table['O32_Composite']
     n_gal = temp_table['N_Galaxies']
@@ -103,7 +101,7 @@ def R23vsO32_plot():
     ax1.set_xlabel(r'log($R_{23}$)')
     ax1.set_ylabel(r'log($O_{32}$)')
 
-    #fig1.set_size_inches(8,8)
+    # fig1.set_size_inches(8,8)
 
     pdf_pages.savefig()
     pdf_pages.close()

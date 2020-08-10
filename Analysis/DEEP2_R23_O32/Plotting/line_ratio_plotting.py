@@ -17,15 +17,12 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     print("### asc_table1 : "+asc_table1)
     raw_data = asc.read(asc_table1)
     OII = fitted_data['OII_3727_Flux_Observed']
-    OIII4959 = fitted_data['OIII_4958_Flux_Observed']
     OIII5007 = fitted_data['OIII_5007_Flux_Observed']
     H_BETA = fitted_data['HBETA_Flux_Observed']
     binnum = fitted_data['N_stack']
     ID = fitted_data['bin_ID']
     print('binnum:', binnum, len(binnum))
     pdf_pages = PdfPages(line_plot)
-    nrows = 4
-    ncols = 4
 
     R23_composite = np.zeros(binnum.shape[0])
     O32_composite = np.zeros(binnum.shape[0]) 
@@ -46,7 +43,8 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
                 print('equal', binnum[rr], binnum_raw[rr])
 
     fig, ax_arr = plt.subplots()
-    ax_arr.scatter(R23_raw, R23_composite, marker='o', facecolor='none', edgecolor='b', label='R23 Ratio: Vornoi Raw vs. Composite')
+    ax_arr.scatter(R23_raw, R23_composite, marker='o', facecolor='none', edgecolor='b',
+                   label='R23 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset + ' Raw vs. Composite for R23')
     for rr in range(len(ID)):
@@ -58,7 +56,8 @@ def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
     fig.savefig(pdf_pages, format='pdf')
 
     fig, ax_arr = plt.subplots()
-    ax_arr.scatter(O32_raw, O32_composite, marker='o', facecolor='none', edgecolor='b', label='O32 Ratio: Vornoi Raw vs. Composite')
+    ax_arr.scatter(O32_raw, O32_composite, marker='o', facecolor='none', edgecolor='b',
+                   label='O32 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset + 'Raw vs. Composite for O32')
     for oo in range(len(ID)):

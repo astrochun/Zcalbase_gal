@@ -1,9 +1,15 @@
 
-# THIS FUNCTION DOES THE STACKING FOR THE ALL BINNING METHODS EXCEPT VORNOI
+"""
+THIS FUNCTION DOES THE STACKING FOR THE ALL BINNING METHODS EXCEPT VORNOI
 
-# In this file, I define the stacking code in a function that runs over the master grid
-# Creates a pdf and a fits file
-# fits file for this code is given the name of the PDF file
+In this file, I define the stacking code in a function that runs over the master grid
+Creates a pdf and a fits file
+fits file for this code is given the name of the PDF file
+
+Emission lines in spectrum (not all being used currently in study) See MSC for subset
+[3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46,
+4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -18,10 +24,8 @@ from matplotlib.gridspec import GridSpec
 from astropy.convolution import Box1DKernel, convolve
 
 from . import general
+from Metallicity_Stack_Commons import lambda0
 from Metallicity_Stack_Commons.column_names import filename_dict
-
-xcoor = [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46,
-         4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 
 RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits' 
 
@@ -143,7 +147,7 @@ def Master_Stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
                 str0 = 'R23=%.1f O32=%.1f N=%i' % (R23_minimum[rr, oo], O32_minimum[rr oo], len(index))
                 ax2.annotate(str0, (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', weight='bold')
                
-                for x in xcoor: ax2.axvline(x=x, linewidth= 0.3, color= 'k')
+                for x in lambda0: ax2.axvline(x=x, linewidth= 0.3, color= 'k')
 
                 fig.set_size_inches(8, 11)
 
@@ -158,7 +162,7 @@ def Master_Stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
                 axins.set_ylim([y1, y2])
                 axins.minorticks_on()
                     
-                for x in xcoor: axins.axvline(x=x, linewidth= 0.3, color='r')
+                for x in lambda0: axins.axvline(x=x, linewidth= 0.3, color='r')
 
                 mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="k", ls='dashed', lw=0.5)
 

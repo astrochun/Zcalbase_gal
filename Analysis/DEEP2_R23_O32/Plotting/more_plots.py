@@ -28,6 +28,10 @@ fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 
 def ew_plot_R23(fitspath, asc_table):
+    """
+    Purpose
+    Plots equivalent width verse R23 and saves to a pdf file.
+    """
     pdf_pages = PdfPages(join(fitspath, 'equivalent_vs_R23_plots.pdf'))
 
     asc_tab = asc.read(asc_table)
@@ -48,6 +52,10 @@ def ew_plot_R23(fitspath, asc_table):
 
 
 def ew_plot_O32(fitspath, asc_table):
+    """
+    Purpose
+    Plots equivalent width verse O32 and saves to a pdf file.
+    """
     pdf_pages = PdfPages(join(fitspath, 'equivalent_vs_O32_plots.pdf'))
     asc_tab = asc.read(asc_table)
     O32 = asc_tab['logO32_avg'].data
@@ -126,9 +134,14 @@ def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
     
     
 def hist_for_bin(fitspath, dataset, asc_table_det3):
+    """
+    Purpose
+    Produces a pdf file with plots of histograms to check the distribution
+    of individual galaxies in bins based on R23 and O32
+    """
     asc_tab = asc.read(asc_table_det3)
 
-    pdf_pages = PdfPages(join(fitspath, dataset, '_histograms.pdf'))
+    pdf_pages = PdfPages(join(fitspath, dataset + '_histograms.pdf'))
 
     R23 = asc_tab['logR23_avg'].data
     O32 = asc_tab['logO32_avg'].data
@@ -160,6 +173,11 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
 
 
 def dust_att_plot(fitspath, combine_flux):
+    """
+    Purpose
+    Produces pdf file of plots comparing the average of HGAMMA/HBETA of each bin to R23 and O32
+    Preliminary plots for dust attenuation work
+    """
     pdf_pages = PdfPages(join(fitspath, 'dust_attenuation_plots.pdf'))
     com_asc = asc.read(combine_flux)
     H_gamma_obs = com_asc['Hgamma_Flux_Observed']
@@ -188,6 +206,12 @@ def dust_att_plot(fitspath, combine_flux):
                          
     
 def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spectra=False):
+    """
+    Purpose
+    Produces pdf file of spectra plots for either the binned data or individual data.
+    Names commented out to refer to in future for what files are required.
+    Responsible for the plots for Stacking Spectra Figure (from thesis)
+    """
     if not stack_spectra:
         # name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
         # RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
@@ -232,6 +256,10 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
 
 
 def plotting_gaussian_curves():
+    """
+    Purpose
+    Plots the single, double, and oxygen gaussian curves used to fit the binned spectra.
+    """
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
     x = np.arange(1, 100)
     xbar = 50.0
@@ -304,5 +332,9 @@ def plotting_gaussian_curves():
 
 
 def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
+    """
+    Purpose
+    Calculates the gaussian curve used to fit the OII emission.
+    """
     con1 = 72.0/45.0
     return a1 * np.exp(-(x - xbar)**2/(2 * s1**2)) + c + a2 * np.exp(-(x - (xbar * con1))**2/(2 * s2**2))

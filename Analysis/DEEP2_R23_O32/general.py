@@ -16,7 +16,7 @@ from datetime import date
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, \
     zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, \
-    R_temp_calcul, calibration_plots, verification_tables
+    R_temp_calcul, calibration_plots, verification_tables, name_dict
 from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting, te_metal_plot
 from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
     line_type, line_name, valid_table, get_user

@@ -10,15 +10,15 @@ from os.path import join
 
 def making_Grid(fitspath, pdf_pages, outfile, R23, O32, det3, R23_bin, O32_bin):
     """
-    This file holds the function to bin data for one dimensional binning along R23
+    This file holds the function to bin data in a bin of fixed size entered as an input
     Not used in current analysis
 
     Inputs:
     fitspath  -> path where files are called from and saved to
     pdf_pages -> name of outputted pdf file
     outfile   -> name of the npz file produced by the function
-    galinbin  -> array of numbers that specifies how many spectra go in each bin
-    adaptive  -> if True, the number of galaxies in each bin can vary
+    R23_bin   -> set size of the bin in the R23 direction
+    O32_bin   -> set size of the bin in the O32 direction
     Other variables -> emission file values of spectra that come from the get_det3 function
     """
     fig1, ax1 = plt.subplots() 

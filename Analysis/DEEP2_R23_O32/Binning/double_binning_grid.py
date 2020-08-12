@@ -8,7 +8,17 @@ from astropy.table import Table
 
 def two_times_binned(fitspath, pdf_pages, outfile, R23, O32, SNR3, data3, galinbin):
     """
-    #One_dimensional binning for R23 followed by each bin being split in half one with high O32 and one with low O32
+    One_dimensional binning for R23 followed by each bin being split in half
+    one with high O32 and one with low O32
+
+    Followed by plotting the spectra in their R23-O32 bins for visual
+
+    Inputs:
+    fitspath  -> path where files are called from and saved to
+    pdf_pages -> name of outputted pdf file
+    outfile   -> name of the npz file produced by the function
+    galinbin  -> array of numbers that specifies how many spectra go in each bin
+    Other variables -> emission file values of spectra that come from the get_det3 function
     """
     pdf_pages = PdfPages(pdf_pages)
 

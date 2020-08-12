@@ -6,9 +6,10 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 
 
-def n_times_binned(fitspath, dataset, pdf_pages, outfile, n_split, R23, O32, SNR3, data3,galinbin):
+def n_times_binned(fitspath, dataset, pdf_pages, outfile, n_split, R23, O32, SNR3, data3, galinbin):
     """
-    This file holds the function to bin data for one dimensional binning along R23
+    This file holds the function to bin data adaptively based on the entered number of galaxies for each bin.
+    First, it bins in the R23 direction and then in the O32 direction
     Used in current analysis
 
     Inputs:
@@ -17,7 +18,6 @@ def n_times_binned(fitspath, dataset, pdf_pages, outfile, n_split, R23, O32, SNR
     pdf_pages -> name of outputted pdf file
     outfile   -> name of the npz file produced by the function
     galinbin  -> array of numbers that specifies how many spectra go in each bin
-    adaptive  -> if True, the number of galaxies in each bin can vary
     Other variables -> emission file values of spectra that come from the get_det3 function
     """
     # One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins

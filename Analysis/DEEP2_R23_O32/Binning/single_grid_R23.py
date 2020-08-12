@@ -14,7 +14,6 @@ def single_grid_R23(fitspath, pdf_pages, outfile, R23, O32, galinbin):
     pdf_pages -> name of outputted pdf file
     outfile   -> name of the npz file produced by the function
     galinbin  -> array of numbers that specifies how many spectra go in each bin
-    adaptive  -> if True, the number of galaxies in each bin can vary
     Other variables -> emission file values of spectra that come from the get_det3 function
     """
     pdf_pages = PdfPages(pdf_pages)

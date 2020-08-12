@@ -197,9 +197,9 @@ def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, du
         galinbin = [400, 400, 400, 400, 400, 400, 409]
     print('# of Gal in Bin:', galinbin)
 
-    bin_pdf_pages = join(fitspath, dataset, name_dict['gridpdf'])
-    bin_outfile = join(fitspath, dataset, name_dict['gridnpz'])
-    
+    bin_pdf_pages = join(fitspath, dataset + name_dict['gridpdf'])
+    bin_outfile = join(fitspath, dataset + name_dict['gridnpz'])
+
     if dataset == 'O32_Grid':
         Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, bin_pdf_pages, bin_outfile,
                                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,

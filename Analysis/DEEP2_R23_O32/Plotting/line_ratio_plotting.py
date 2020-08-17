@@ -6,16 +6,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
+from os.path import join
 
 
-def Plotting_Data1(fitspath, dataset, combine_flux_ascii, asc_table1):
-    
-    line_plot = fitspath + dataset +'_line_ratio_plots.pdf'
+def Plotting_Data1(fitspath, dataset, combine_flux_ascii, bin_info):
+    """
+    Purpose
+    Plots measurements to check to make sure that data follows a one-to-one line
+
+    Parameters
+    fitspath -> path where files are called from and saved to
+    dataset  -> keyword used to define binning method
+    combine_flux_ascii -> table of data calculated for emission line
+    bin_info -> table of averages calculated in binning code
+
+    """
+    line_plot = join(fitspath, dataset +'_line_ratio_plots.pdf')
     print("### combine_flux_ascii : " + combine_flux_ascii)
     fitted_data = asc.read(combine_flux_ascii)
 
-    print("### asc_table1 : "+asc_table1)
-    raw_data = asc.read(asc_table1)
+    print("### asc_table1 : "+bin_info)
+    raw_data = asc.read(bin_info)
     OII = fitted_data['OII_3727_Flux_Observed']
     OIII5007 = fitted_data['OIII_5007_Flux_Observed']
     H_BETA = fitted_data['HBETA_Flux_Observed']

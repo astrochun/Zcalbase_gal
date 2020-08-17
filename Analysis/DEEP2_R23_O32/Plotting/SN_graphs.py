@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
-
-fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+from os.path import join
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 
+fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
-def all_spectra(): 
+def all_spectra():
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data = general.get_det3()
 
     x = np.log10(R23)
@@ -21,19 +21,22 @@ def all_spectra():
 
 
 # For each Bin first draft
-def SN_each_bin_firstdraft(fitspath, name, asc_tab):
-    # fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/'
-    # name = 'SN_each_bin.pdf'
-    # acs_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Double_Bin_2d_binning_datadet3.tbl'
+def SN_each_bin_firstdraft(fitspath, name, individual_properties):
+    """
+    Purpose
+    Creates plots that compare R23 of each spectra to the SN_5007 for each bin
+    First draft of the code. It needs to be refactored before if it is integrated into general run.
 
-    pdfpages = PdfPages(fitspath + name)
-    ascii_tab = asc.read(asc_tab)
-    R23_ini= ascii_tab['R23']
+    Parameters
+    fitspath -> path where files are called from and saved to
+    name     -> name of the file produced (ie name = 'SN_each_bin.pdf')
+    individual_properties -> table of all the spectra
+    """
+    pdfpages = PdfPages(join(fitspath, name))
+    ascii_tab = asc.read(individual_properties)
+    R23_ini= ascii_tab['logR23']
     SN_5007 = ascii_tab['SN_5007']
-    N_bin = ascii_tab['N_bin']
-
-    # for ii in range(len(N_bin)):
-    #      g1 =  np.where((N_bin == ii) & (N_bin ==(ii+1)))[0]
+    N_bin = ascii_tab['bin_ID']
 
     g1 = np.where((N_bin == 0) |(N_bin == 1))[0]
     g2 = np.where((N_bin == 2) | (N_bin == 3))[0]
@@ -172,27 +175,35 @@ def SN_each_bin_firstdraft(fitspath, name, asc_tab):
     pdfpages.close()
 
 
-def SN_each_bin(fitspath, name, asc_tab):
+def SN_each_bin(fitspath, name, individual_properties):
     # average, median, min, and max S/N
     # fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/'
     # name = 'SN_each_bin.pdf'
     # acs_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Double_Bin_2d_binning_datadet3.tbl'
+    """
+    Purpose
+    Creates plots of R23 and SN_5007 for each bin and produced a table with that information
 
-    pdfpages = PdfPages(fitspath + name)
-    ascii_tab = asc.read(asc_tab)
-    R23_ini = ascii_tab['R23']
-    O32_ini = ascii_tab['O32']
+    Parameters
+    fitspath -> path where files are called from and saved to
+    name     -> name of the file produced (ie name = 'SN_each_bin.pdf')
+    individual_properties -> table of all the spectra
+    """
+    pdfpages = PdfPages(join(fitspath, name))
+    ascii_tab = asc.read(individual_properties)
+    R23_ini = ascii_tab['logR23']
+    O32_ini = ascii_tab['logO32']
     SN_5007 = ascii_tab['SN_5007']
-    Bin_number = ascii_tab['Bin_number']
+    Bin_number = ascii_tab['bin_ID']
 
     R23 = np.log10(R23_ini)
     O32 = np.log10(O32_ini)
 
-    Bin = range(0, 27, 1)
-    all_average = np.zeros(len(Bin))
-    all_median = np.zeros(len(Bin))
-    all_min = np.zeros(len(Bin))
-    all_max = np.zeros(len(Bin))
+    bins = range(0, 27, 1)
+    all_average = np.zeros(len(bins))
+    all_median = np.zeros(len(bins))
+    all_min = np.zeros(len(bins))
+    all_max = np.zeros(len(bins))
     
     for ii in range(0, 27, 1):
         fig1, ax1 = plt.subplots()
@@ -224,14 +235,22 @@ def SN_each_bin(fitspath, name, asc_tab):
         fig1.clear()
 
     n = ('Bin', 'SN_5007 Minimum', 'SN_5007 Maximum', 'Average', 'Median')
-    tab = Table([Bin, all_min, all_max, all_average, all_median], names=n)
+    tab = Table([bins, all_min, all_max, all_average, all_median], names=n)
     asc.write(tab, fitspath + '/SN_5007_values.tbl', format='fixed_width_two_line')
     pdfpages.close()
     
 
-def SN_5007_stats_plot(fitspath=''):
+def SN_5007_stats_plot(fitspath, name, out_pdf):
+    """
+    Purpose
+    Plots O32 vs SN_5007
 
-    infile = fitspath+'/SN_5007_values.tbl'
+    Parameters
+    fitspath -> path where files are called from and saved to
+    name -> '/SN_5007_values.tbl'
+    out_pdf -> 'SN_5007_stats_plots.pdf'
+    """
+    infile = join(fitspath, name)
 
     tab = asc.read(infile)
 
@@ -250,5 +269,4 @@ def SN_5007_stats_plot(fitspath=''):
         t_ax.scatter(tab['Bin'][O32_idx1], tab[colname][O32_idx1], color='g', marker='.')
         t_ax.scatter(tab['Bin'][O32_idx2], tab[colname][O32_idx2], color='b', marker='.')
 
-    out_pdf = fitspath + 'SN_5007_stats_plots.pdf'
-    fig.savefig(out_pdf)
+    fig.savefig(join(fitspath, out_pdf))

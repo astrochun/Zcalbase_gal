@@ -1,4 +1,3 @@
-# This code generates a pdf file with all the balmer plots for a given bin
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,29 +6,28 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from chun_codes.cardelli import *
 
-
-fitspath_ini='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-# fitspath='/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/'
-# dataset = 'Double Bin'
-
-lambda0 = [3726.16, 3868.74, 3888.65, 3967.51, 4101.73, 4340.46, 4363.21, 4861.32, 4958.91, 5006.84]
-
-line_type = ['Oxy2', 'Single','Single', 'Single', 'Balmer', 'Balmer', 'Single', 'Balmer','Single', 'Single']
-
-line_name = ['OII_3727', 'NeIII', 'HeI', '3967', 'HDELTA', 'Hgamma', 'OIII_4363', 'HBETA', 'OIII_4958','OIII_5007']
-
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general as zm
-# scalefact= zm.zoom_gauss_plot.scalefact
 scalefact = 1e-17
 
 
-def balmer_graphs(fitspath, nrow, ncol, Stack_name, combine_flux_tab, out_pdf):
+def balmer_graphs(fitspath, nrows, ncols, Stack_name, combine_flux_tab, out_pdf):
+    """
+    Purpose
+    This code generates a pdf file with all the balmer plots for a given bin
+    to check that everything is correct
 
-    # Stack_name= '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Stacking_Masked_MasterGrid_singleDouble_Bin.fits'
- 
+    Parameters
+    fitspath -> path where files are called from and saved to
+    nrows    -> number of rows in the pdf_file
+    ncols    -> number of columns in the pdf_file
+    Stack_name -> name of the file that is produced by the stacking code
+                  that contains information about the stacks
+    combine_flux_tab -> table that holds the information of the guassian curves from zoom_and_gauss_general
+    out_pdf  -> name of the outputted pdf file
+                (ie. out_pdf = fitspath + '/AllBalmer_line_fitting.pdf')
+    """
     stack2D, header = fits.getdata(Stack_name, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-    dispersion = header['CDELT1']
 
     combine_asc = asc.read(combine_flux_tab)
 
@@ -56,11 +54,8 @@ def balmer_graphs(fitspath, nrow, ncol, Stack_name, combine_flux_tab, out_pdf):
     D_sn = combine_asc['HDELTA_Neg_Sig']
     D_an = combine_asc['HDELTA_Neg_Amp']
 
-    # out_pdf = fitspath + '/AllBalmer_line_fitting.pdf'
     # Still need to incoorporate various working waves and importing xo, ynorm
     pdfpages = PdfPages(out_pdf)
-    nrows = 3
-    ncols = 3
 
     for ii in range(len(ID)):
    
@@ -171,35 +166,3 @@ def balmer_graphs(fitspath, nrow, ncol, Stack_name, combine_flux_tab, out_pdf):
             fig.savefig(pdfpages, format='pdf')
 
     pdfpages.close()
-
-
-'''
-    # H_Beta_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/HBETA_Balmer_fitting_values.tbl'
-    H_Beta = asc.read(HBETA_table)
-    # H_Gamma_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/Hgamma_Balmer_fitting_values.tbl'
-    H_Gamma = asc.read(HGAMMA_table)
-    # H_Delta_tab = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_att_200/HDELTA_Balmer_fitting_values.tbl'
-    H_Delta = asc.read(HDELTA_table)
-
-    ID = H_Beta['ID']
-
-    B_xbar = H_Beta['X_bar']
-    B_sp = H_Beta['Pos_Sig']
-    B_ap = H_Beta['Pos_Amp']
-    B_con = H_Beta['Const']
-    B_sn = H_Beta['Neg_Sig']
-    B_an = H_Beta['Neg_Amp']
-
-    G_xbar = H_Gamma['X_bar']
-    G_sp = H_Gamma['Pos_Sig']
-    G_ap = H_Gamma['Pos_Amp']
-    G_con = H_Gamma['Const']
-    G_sn = H_Gamma['Neg_Sig']
-    G_an = H_Gamma['Neg_Amp']
-
-    D_xbar = H_Delta['X_bar']
-    D_sp = H_Delta['Pos_Sig']
-    D_ap = H_Delta['Pos_Amp']
-    D_con = H_Delta['Const']
-    D_sn = H_Delta['Neg_Sig']
-    D_an = H_Delta['Neg_Amp']'''

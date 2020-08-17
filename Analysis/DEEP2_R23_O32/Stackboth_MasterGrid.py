@@ -27,7 +27,7 @@ from . import general
 from Metallicity_Stack_Commons import lambda0
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-RestframeMaster = r'/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits' 
+RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
 
 def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):

@@ -1,61 +1,5 @@
 # Creates histograms of data inputted in dictionaries
 # Currently set up to plot tempature and metallicity error propagation
-"""
-
-##############Functions#######################
-# histogram(path, data_all, table_path, pdf_name, xpeak_key, table_key='')
-Input variables: 
-path            -> location of where the outputted pdf_file will be saved
-data_all        -> big dictionary of all the error propagation data that will be put into 
-                   histogram plot; created in run_histogram_TM
-table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal 
-                   functions; can also be the combine_flux_table created by 
-                   zoom_and_gauss_general
-pdf_name        -> name of the outputted pdf file
-table_key       -> name of one of the columns of the table inputted by table_path
-                   used to call the binned data
-
-Output: pdf file with all the histograms plotted  
-
-# run_histogram_TM(path,table_path, dict_list,xpeak_key): 
-Input variables: 
-path            -> name of where you are working and location of where the 
-                   outputted pdf_file will be saved
-table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal 
-                   functions; can also be the combine_flux_table created by 
-                   zoom_and_gauss_general
-dict_list       -> list of dictionaries whose data we want to plot in a histogram
-
-#Example :
-    #         dict_list = [Te_pdf_dict,Te_xpeak_dict,
-    #                     metallicity_pdf_dict, metallicity_xpeak_dict]
-    #         xpeak_key = ['Te_xpeak','O_s_ion_xpeak',
-    #                     'O_d_ion_xpeak', 'com_O_log_xpeak']
-
-
-Calling order: call run_histogram to combine all dictionaries into one large dictionary
-that gets passed into histogram and from there is plotted
-
-
-
-#run_histogram_FR(path, table_path, dict_list, verification_table, sharex = False)
-
-#Notes: This function takes the flux_pdf distributions computed in error_prop and calculates the flux ratios.
-Then it calls compute_onesig_pdf from chun_codes for the flux ratios.
-Finally it create the compute dictionary of ratios, xpeaks, and low/high limits and passes it all into histogram
-
-Input Variables 
-path            -> name of where you are working and location of where the 
-                   outputted pdf_file will be saved
-table_path      -> location of the flux_ratio table outputted by the R_temp_cal 
-                   functions; can also be the combine_flux_table created by 
-                   zoom_and_gauss_general
-dict_list       -> list of dictionaries whose data we want to plot in a histogram
-verification_table -> table created independently of this code that tells us whether or not each bin is a detection
-
-Outputs: pdf file of all the histograms
-"""
-
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -63,14 +7,31 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from collections import OrderedDict
 from datetime import date
+from os.path import join
 
 from chun_codes import compute_onesig_pdf
 from Metallicity_Stack_Commons.column_names import temp_metal_names0, bin_names0
 
 
 def histogram(path, data_all, table_path, pdf_name,  verification_table, table_key='', sharex=False):
-    
-    pdf_pages = PdfPages(path+pdf_name)
+    """
+    Purpose
+    Plots histograms for inputted values
+
+    Parameters
+    path            -> location of where the outputted pdf_file will be saved
+    data_all        -> big dictionary of all the error propagation data that will be put into
+                        histogram plot; created in run_histogram_TM
+    table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal
+                        functions; can also be the combine_flux_table created by
+                        zoom_and_gauss_general
+    pdf_name        -> name of the outputted pdf file
+    table_key       -> name of one of the columns of the table inputted by table_path
+                        used to call the binned data
+
+    Output: pdf file with all the histograms plotted
+    """
+    pdf_pages = PdfPages(join(path, pdf_name))
     tab1 = asc.read(table_path)
 
     # Importing verification table that is always used to get the values for just the detections
@@ -209,24 +170,28 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
         
     pdf_pages.close()
 
-# Calling Functions
-
-# Temperature and Metallicity Dictionary List for Reagen
-# dict_list = [Te_pdf_dict,Te_xpeak_dict, metallicity_pdf_dict,
-# metallicity_xpeak_dict, Te_error_dict, metallicity_error_dict]
-
-# Temperature and Metallicity Dictionary List for Caroline
-# dict_list = [Te_propdist_dict, Te_xpeaks, metal_errors, metal_xpeaks, metallicity_pdf, Te_errors]
-
-
-# Flux Dictionary List for Reagen
-# dict_list = [flux_pdf_dict]
-    
-# Flux Dictionary List for Caroline
-# dict_list = [flux_propdist, flux_errors, flux_xpeak]
 
 def run_histogram_TM(path, table_path, dict_list, verification_table, sharex=False):
+    """
+    Purpose
+    Call run_histogram to combine all dictionaries into one large dictionary
+    that gets passed into histogram and from there is plotted
 
+    Input variables
+    path            -> name of where you are working and location of where the
+                        outputted pdf_file will be saved
+    table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal
+                        functions; can also be the combine_flux_table created by
+                        zoom_and_gauss_general
+    dict_list       -> list of dictionaries whose data we want to plot in a histogram
+
+    Example :
+             dict_list = [Te_pdf_dict,Te_xpeak_dict,
+                         metallicity_pdf_dict, metallicity_xpeak_dict]
+             xpeak_key = ['Te_xpeak','O_s_ion_xpeak',
+                         'O_d_ion_xpeak', 'com_O_log_xpeak']
+
+    """
     if path[-1] != "/":
         path += "/"
     histo_dict = OrderedDict()     # will have all the data and xpeaks for all histograms wanted
@@ -239,13 +204,23 @@ def run_histogram_TM(path, table_path, dict_list, verification_table, sharex=Fal
     histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key='T_e', sharex=sharex)
 
 
-# This call will create histograms for the flux ratios
-# We need this second call because the flux dictionaries have to be changed into ratios
-
-# This call calculates the flux ratios from the combine_flux_ascii table and random_pdf (of each line),
-# gets the one_sig_pdf measurements for the ratios, and saves all in dictionary before
-
 def run_histogram_FR(path, table_path, dict_list, verification_table, sharex=False):
+    """
+    Purpose
+    This function takes the flux_pdf distributions computed in error_prop and calculates the flux ratios.
+    Then it calls compute_onesig_pdf from chun_codes for the flux ratios.
+    Finally it create the compute dictionary of ratios, xpeaks, and low/high limits and passes it all into histogram
+
+    Input Variables
+    path            -> name of where you are working and location of where the
+                        outputted pdf_file will be saved
+    table_path      -> location of the flux_ratio table outputted by the R_temp_cal
+                        functions; can also be the combine_flux_table created by
+                        zoom_and_gauss_general
+    dict_list       -> list of dictionaries whose data we want to plot in a histogram
+    verification_table -> table created independently of this code that tells us whether or not each bin is a detection
+
+    """
     if path[-1] != "/":
         path += "/"
 

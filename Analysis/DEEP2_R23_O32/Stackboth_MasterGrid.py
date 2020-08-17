@@ -39,22 +39,17 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
 def Master_Stacking(fitspath, dataset, wave, grid_data_file, image2D, name, header, mask= None):
     """
     Purpose
+    Function stacks all spectra in a given bin and produces tables of properties of that bin
 
     Parameters
-
-    fitspath
-    dataset
-    wave
-    grid_data_file
-    image2D
-    name
-    header
-    mask
-
-    Returns
-
-    Outputs
-
+    fitspath -> save location of the current run
+    dataset -> keyword used to define binning method
+    wave -> spectrum of each galaxy
+    grid_data_file -> npz file that holds the information from the binning process
+    image2D -> spectra data
+    name -> name of the outputted pdf file with graphs
+    header -> header of the data file
+    mask -> optional input used to mask the night sky lines if inputted (default: None)
     """
     pdf_pages = PdfPages(fitspath+name) # open pdf document
 
@@ -200,7 +195,11 @@ def Master_Stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
     fig.clear()
 
 
-def run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini, dataset, name, grid_data_file):
+def run_Stacking_Master_mask(fitspath, fitspath_ini, dataset, name, grid_data_file):
+    """
+    Purpose
+    Run function for above function if mask used
+    """
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     maskM = fits.getdata(fitspath_ini + '/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits')
@@ -208,7 +207,11 @@ def run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini, dataset, name,
 
 
 def run_Stacking_Master(fitspath, name,grid_data_file):
+    """
+    Purpose
+    Run function for above function if mask not used
+    """
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
-    Master_Stacking(fitspath, wavemaster, grid_data_file, image2DM, name, header)
+    Master_Stacking(fitspath, dataset, wavemaster, grid_data_file, image2DM, name, header, mask=None)
     

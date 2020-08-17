@@ -8,6 +8,7 @@ from astropy.table import Table
 from scipy.optimize import curve_fit
 from os.path import join
 
+from Metallicity_Stack_Commons.analysis.fitting import gauss
 import general
 
 fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
@@ -20,11 +21,6 @@ data1 = asc.read(spectral)
 # Voronoi Outputs: R_23 and O_32 values for all galaxies with a column specifying bins
 outfilevoronoi = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Mar21_voronoi_2d_binning_output.txt'
 voronoi = np.genfromtxt(outfilevoronoi)
-
-
-def gauss(x, xbar, s, a, c):
-   
-    return a*np.exp(-(x-xbar)**2/s**2) + c
 
 
 fluxes = [1e-17, 1e-16, 3e-17, 5e-16]

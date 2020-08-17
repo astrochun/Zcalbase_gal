@@ -29,7 +29,14 @@ c = 0.98062
 
 
 def limit_function(combine_flux_ascii):
-    
+    """
+    Purpose
+    Function used to calculate limit of OIII_4363 emission line if no detection
+    August 2020: Function no longer used in this file and moved to verification table
+
+    Parameters
+    combine_flux_ascii -> table with all the data from emission lines
+    """
     combine_fits = asc.read(combine_flux_ascii)
 
     Hgamma = combine_fits['HGAMMA_Flux_Observed'].data
@@ -42,17 +49,19 @@ def limit_function(combine_flux_ascii):
 
 def run_function(fitspath, dataset, verification_table, dustatt=False):
     """
+    Purpose:
+    Organize data to calculate R, temperature, and metallicity using MSC and save data into ascii tables
     Input variables:
-    fitspath
-    dataset
-    dustatt            -> True/False input; if True dust attenuation values are used for calculations; automatic = false
+    fitspath -> location of where the outputted pdf_file will be saved
+    dataset  -> keyword used to define binning method
+    verification_table -> table used to finalize if bin has detection or not
+    dustatt  -> True/False input; if True dust attenuation values are used for calculations; automatic = false
 
     Calling order:
     verification tables   --> need to work on making these tables; need to put the verification table into the call
     dust attenuation      --> called in function by True or False, but need to pass the table into the function
     Called DEEP2 and MACT Data
     Depending on which combine_fits table is passed in --> run individual or stacked spectra and makes a table
-
 
     """
     combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])

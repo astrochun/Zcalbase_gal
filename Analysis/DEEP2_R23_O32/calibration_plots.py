@@ -7,10 +7,8 @@ from os.path import exists, join
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
-fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
-
-def LAC_GPC_plots(fitspath, dataset, revised=False, individual=False):
+def LAC_GPC_plots(fitspath, fitspath_ini, dataset, revised=False, individual=False):
     """
     Purpose
     Call function for calculating and plotting data points based with the green_pea_calibration
@@ -18,6 +16,7 @@ def LAC_GPC_plots(fitspath, dataset, revised=False, individual=False):
 
     Parameters
     fitspath -> save location of the current run
+    fitspath_ini -> '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
     dataset  -> indicates the type of binning being used
     revised  -> indicates that revised verification table is being used
     individual -> used if individual detections from Zcalbase_gal are used

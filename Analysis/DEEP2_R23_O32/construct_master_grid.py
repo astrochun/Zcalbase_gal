@@ -5,26 +5,22 @@ construct_master_grid
 Construct the DEEP2 rest-frame master grid
 """
 
-import sys, os
-
 from chun_codes import systime
 
-from os.path import exists
 from astropy.io import fits
-
 import numpy as np
-
 import glob
-
 from astropy import log
 
-def main(silent=False, verbose=True):
 
-    '''
+def main(path0, silent=False, verbose=True):
+    """
     Combine 1-D DEEP2 spectra and de-redshift to rest-frame wavelength
 
     Parameters
     ----------
+    path0:
+      path to data (ie '/Users/cly/data/DEEP2/DR4/')
 
     silent : boolean
       Turns off stdout messages. Default: False
@@ -38,11 +34,12 @@ def main(silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 18 February 2018
-    '''
+    Editted by Reagen Leimbach August 2020
+    """
     
-    if silent == False: log.info('### Begin main : '+systime())
+    if silent is False:
+        log.info('### Begin main : '+systime())
 
-    path0    = '/Users/cly/data/DEEP2/DR4/'
     files_2D = glob.glob(path0 + 'DEEP2_2D_Field?.f3.fits')
 
     cat_files = glob.glob(path0 + 'f_current/DEEP2_Field?_all_line_fit.fits')
@@ -53,7 +50,7 @@ def main(silent=False, verbose=True):
     cdelt1 = np.zeros(n_fields)
     naxis1 = np.zeros(n_fields)
 
-    zspec  = np.array([], dtype=np.float32)
+    zspec = np.array([], dtype=np.float32)
     cdelt0 = np.array([], dtype=np.float32)
     x0_min = np.zeros(n_fields)
     x0_max = np.zeros(n_fields)
@@ -71,12 +68,12 @@ def main(silent=False, verbose=True):
         cdelt0 = np.append(cdelt0, cdelt1[ii]/(1+zspec))
         x0_min[ii] = np.min(cdata.LMIN0)
         x0_max[ii] = np.max(cdata.LMAX0)
-    #endfor
+    # endfor
 
     avg_cdelt = np.average(cdelt0)
     log.info('## avg_cdelt : %.3f' % avg_cdelt)
 
-    n_pixel = np.ceil(((max(x0_max)-np.min(x0_min)))/avg_cdelt)
+    n_pixel = np.ceil((max(x0_max)-np.min(x0_min))/avg_cdelt)
     log.info('## n_pixel : %i' % n_pixel)
 
     crval0 = np.min(x0_min)
@@ -85,6 +82,6 @@ def main(silent=False, verbose=True):
     x0 = crval0 + avg_cdelt * np.arange(n_pixel)
     print np.min(x0), np.max(x0)
            
-    if silent == False: log.info('### End main : '+systime())
-#enddef
-
+    if silent is False:
+        log.info('### End main : '+systime())
+# enddef

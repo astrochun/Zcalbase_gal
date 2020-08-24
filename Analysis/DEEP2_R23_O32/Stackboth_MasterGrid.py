@@ -36,7 +36,7 @@ def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
     return smooth
 
 
-def Master_Stacking(fitspath, dataset, wave, grid_data_file, image2D, name, header, mask= None):
+def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, header, mask= None):
     """
     Purpose
     Function stacks all spectra in a given bin and produces tables of properties of that bin
@@ -142,7 +142,8 @@ def Master_Stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
                 str0 = 'R23=%.1f O32=%.1f N=%i' % (R23_minimum[rr, oo], O32_minimum[rr oo], len(index))
                 ax2.annotate(str0, (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', weight='bold')
                
-                for x in lambda0: ax2.axvline(x=x, linewidth= 0.3, color= 'k')
+                for x in lambda0:
+                    ax2.axvline(x=x, linewidth= 0.3, color= 'k')
 
                 fig.set_size_inches(8, 11)
 
@@ -157,7 +158,8 @@ def Master_Stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
                 axins.set_ylim([y1, y2])
                 axins.minorticks_on()
                     
-                for x in lambda0: axins.axvline(x=x, linewidth= 0.3, color='r')
+                for x in lambda0:
+                    axins.axvline(x=x, linewidth= 0.3, color='r')
 
                 mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="k", ls='dashed', lw=0.5)
 

@@ -34,10 +34,10 @@ def main(path0, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 18 February 2018
-    Editted by Reagen Leimbach August 2020
+    Edited by Reagen Leimbach August 2020
     """
     
-    if silent is False:
+    if not silent:
         log.info('### Begin main : '+systime())
 
     files_2D = glob.glob(path0 + 'DEEP2_2D_Field?.f3.fits')
@@ -82,6 +82,6 @@ def main(path0, silent=False, verbose=True):
     x0 = crval0 + avg_cdelt * np.arange(n_pixel)
     print np.min(x0), np.max(x0)
            
-    if silent is False:
+    if not silent:
         log.info('### End main : '+systime())
 # enddef

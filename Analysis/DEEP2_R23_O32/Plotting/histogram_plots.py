@@ -171,7 +171,7 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
     pdf_pages.close()
 
 
-def run_histogram_TM(path, table_path, dict_list, verification_table, sharex=False):
+def run_histogram_tm(path, table_path, dict_list, verification_table, sharex=False):
     """
     Purpose
     Call run_histogram to combine all dictionaries into one large dictionary
@@ -204,7 +204,7 @@ def run_histogram_TM(path, table_path, dict_list, verification_table, sharex=Fal
     histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key='T_e', sharex=sharex)
 
 
-def run_histogram_FR(path, table_path, dict_list, verification_table, sharex=False):
+def run_histogram_fr(path, table_path, dict_list, verification_table, sharex=False):
     """
     Purpose
     This function takes the flux_pdf distributions computed in error_prop and calculates the flux ratios.

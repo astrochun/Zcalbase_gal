@@ -30,7 +30,7 @@ from Metallicity_Stack_Commons.column_names import filename_dict
 RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
 
-def movingaverage_box1D(values, width, boundary='fill', fill_value=0.0):
+def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
     box_kernel = Box1DKernel(width)
     smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
     return smooth
@@ -197,7 +197,7 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
     fig.clear()
 
 
-def run_Stacking_Master_mask(fitspath, fitspath_ini, dataset, name, grid_data_file):
+def run_stacking_master_mask(fitspath, fitspath_ini, dataset, name, grid_data_file):
     """
     Purpose
     Run function for above function if mask used
@@ -208,7 +208,7 @@ def run_Stacking_Master_mask(fitspath, fitspath_ini, dataset, name, grid_data_fi
     Master_Stacking(fitspath, dataset, wavemaster, grid_data_file, image2DM, name, header, mask=maskM)
 
 
-def run_Stacking_Master(fitspath, name,grid_data_file):
+def run_stacking_master(fitspath, name,grid_data_file):
     """
     Purpose
     Run function for above function if mask not used

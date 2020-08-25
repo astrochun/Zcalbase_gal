@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-def single_grid_O32(fitspath, pdf_pages, outfile, R23, O32, galinbin):
+def single_grid_o32(fitspath, pdf_pages, outfile, R23, O32, galinbin):
     """
     This file holds the function to bin data for one dimensional binning along O32
     Not used in current analysis

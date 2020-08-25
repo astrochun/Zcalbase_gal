@@ -49,7 +49,7 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     pdf_pages.close()
 
 
-def R23vsO32_plot(fitspath, bin_info, temp_tab, pdf_name):
+def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name):
     """
     Purpose
     Plotting R23 vs O32 with a color map for metallicity and then for temperature

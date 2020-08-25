@@ -311,7 +311,7 @@ def DEEP2_MACT_OIII4363():
 # enddef
 
 
-def Zcalbase():
+def zcalbase():
     """
     Run function for Zcalbase_gal dataset for hardcoded path (line 316) 
     """

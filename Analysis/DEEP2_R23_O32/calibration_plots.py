@@ -8,7 +8,7 @@ from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibrati
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 
-def LAC_GPC_plots(fitspath, fitspath_ini, dataset, revised=False, individual=False):
+def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=False):
     """
     Purpose
     Call function for calculating and plotting data points based with the green_pea_calibration
@@ -146,7 +146,7 @@ def LAC_GPC_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
                                     fit=False, silent=False, verbose=True)
 
 
-def individual_GPC(individual_ascii, validation_table):
+def individual_gpc(individual_ascii, validation_table):
     """
     This function is currently repetitive of the function above for the individual detection cases.
     However, I am going to keep it here in the case that we want to plot the individual detections against

@@ -9,7 +9,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
 
-def Plotting_Data1(fitspath, dataset, combine_flux_ascii, bin_info):
+def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     """
     Purpose
     Plots measurements to check to make sure that data follows a one-to-one line

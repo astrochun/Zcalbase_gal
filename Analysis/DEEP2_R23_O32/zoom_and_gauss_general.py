@@ -365,7 +365,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
                     txt0 += 'S/N: %.3f' % (SN_array[rr])
 
             
-            #t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
+            # t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
 
             for x in lambda_graph:
                 t_ax.axvline(x=x, linewidth=0.15, color='k', linestyle='--')

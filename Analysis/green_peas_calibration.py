@@ -542,7 +542,7 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
              xra=[0.45, 1.15], yra=yra, marker=['*', 'o'], label=label, fit=True)
 
 
-def Zcalbase():
+def zcalbase():
     """
     Run function for Zcalbase_gal dataset for hardcoded path (line 548)
     """

@@ -27,7 +27,7 @@ from Metallicity_Stack_Commons.Metallicity_Stack_Commons import lambda0, line_ty
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 
-def R23_vs_O32_color(fitspath, asc_table, temp_table, verif_table):
+def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     """
     Purpose
     ----------
@@ -125,39 +125,6 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
 
     pdf_pages2.close()
 
-
-def dust_att_plot(fitspath, combine_flux):
-    """
-    Purpose
-    Produces pdf file of plots comparing the average of HGAMMA/HBETA of each bin to R23 and O32
-    Preliminary plots for dust attenuation work
-    """
-    pdf_pages = PdfPages(join(fitspath, 'dust_attenuation_plots.pdf'))
-    com_asc = asc.read(combine_flux)
-    H_gamma_obs = com_asc['Hgamma_Flux_Observed']
-    H_beta_obs = com_asc['OIII_4958_Flux_Observed']
-    R23 = com_asc['R_23_Average']
-    O32 = com_asc['O_32_Average']
-
-    Gambet = H_gamma_obs/H_beta_obs
-
-    fig, ax = plt.subplots()
-    ax.scatter(Gambet, O32, marker='.')
-    ax.set_xlabel('H_gamma/H_beta')
-    ax.set_ylabel('O32')
-    ax.set_title('H_gamma/H_beta vs. O32')
-    fig.set_size_inches(8, 8)
-    fig.savefig(pdf_pages, format='pdf')
-
-    fig, ax = plt.subplots()
-    ax.scatter(Gambet, R23, marker='.')
-    ax.set_xlabel('H_gamma/H_beta')
-    ax.set_ylabel('R23')
-    ax.set_title('H_gamma/H_beta vs. R23')
-    fig.set_size_inches(8, 8)
-    fig.savefig(pdf_pages, format='pdf')
-    pdf_pages.close()
-                         
     
 def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spectra=False):
     """

@@ -82,3 +82,35 @@ def dust_vs_nondust_table(fitspath, dust_metal_table, nondust_metal_table, dust_
     tab_dust = Table([ID, R23_composite, O32_composite, nondust_metal, dust_metal, Temperature], names =n_dust)
     asc.write(tab_dust, dust_vs_nondust_table, format = 'fixed_width_two_line')
 
+
+def dust_att_plot(fitspath, combine_flux):
+    """
+    Purpose
+    Produces pdf file of plots comparing the average of HGAMMA/HBETA of each bin to R23 and O32
+    Preliminary plots for dust attenuation work
+    """
+    pdf_pages = PdfPages(join(fitspath, 'dust_attenuation_plots.pdf'))
+    com_asc = asc.read(combine_flux)
+    H_gamma_obs = com_asc['Hgamma_Flux_Observed']
+    H_beta_obs = com_asc['OIII_4958_Flux_Observed']
+    R23 = com_asc['R_23_Average']
+    O32 = com_asc['O_32_Average']
+
+    Gambet = H_gamma_obs / H_beta_obs
+
+    fig, ax = plt.subplots()
+    ax.scatter(Gambet, O32, marker='.')
+    ax.set_xlabel('H_gamma/H_beta')
+    ax.set_ylabel('O32')
+    ax.set_title('H_gamma/H_beta vs. O32')
+    fig.set_size_inches(8, 8)
+    fig.savefig(pdf_pages, format='pdf')
+
+    fig, ax = plt.subplots()
+    ax.scatter(Gambet, R23, marker='.')
+    ax.set_xlabel('H_gamma/H_beta')
+    ax.set_ylabel('R23')
+    ax.set_title('H_gamma/H_beta vs. R23')
+    fig.set_size_inches(8, 8)
+    fig.savefig(pdf_pages, format='pdf')
+    pdf_pages.close()

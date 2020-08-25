@@ -8,7 +8,7 @@ from astropy.table import Table
 from os.path import join
 
 
-def making_Grid(fitspath, pdf_pages, outfile, R23, O32, det3, R23_bin, O32_bin):
+def making_grid(fitspath, pdf_pages, outfile, R23, O32, det3, R23_bin, O32_bin):
     """
     This file holds the function to bin data in a bin of fixed size entered as an input
     Not used in current analysis

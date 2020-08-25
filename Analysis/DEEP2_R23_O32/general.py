@@ -158,7 +158,7 @@ def gettime(org_name, fitspath_ini):
     return fitspath
 
 
-def run_grid_R23_O32_analysis(dataset, y_correction, n_split, adaptive=False, dustatten='False', mask='None'):
+def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, dustatten='False', mask='None'):
     """
     Purpose
     ----------

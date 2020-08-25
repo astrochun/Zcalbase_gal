@@ -4,8 +4,6 @@ PLOTTING RESULTS FROM ANALYSIS
 Some were written before MSC and are now in MSC
 
 Functions:
--Equivalent Width for R23
--Equivalent Width for O32
 -R23 vs O32 Color Map
 -Histogram plots for each bin
 -Dust attenuation plots (old version before implementing MSC)
@@ -30,11 +28,10 @@ fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     """
     Purpose
-    ----------
     Plotting function for R23 and O32 color mapping plots
 
     Parameters
-    ----------
+    fitspath -> path where files are called from and saved to
     asc_table   -> combine_flux_ascii
     temp_table  -> derived_properties
     verif_table -> bin_validation_revised
@@ -92,6 +89,11 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
     Purpose
     Produces a pdf file with plots of histograms to check the distribution
     of individual galaxies in bins based on R23 and O32
+
+    Parameters
+    fitspath -> path where files are called from and saved to
+    dataset -> keyword that specifies which binning method is used
+    asc_table_det3 -> ascii table created by binning code (ie. bin_info.tbl)
     """
     asc_tab = asc.read(asc_table_det3)
 
@@ -256,6 +258,10 @@ def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
     """
     Purpose
     Calculates the gaussian curve used to fit the OII emission.
+
+    Parameters
+    x -> the emission line that is being fitted
+    the rest -> guess parameters for the fit
     """
     con1 = 72.0/45.0
     return a1 * np.exp(-(x - xbar)**2/(2 * s1**2)) + c + a2 * np.exp(-(x - (xbar * con1))**2/(2 * s2**2))

@@ -18,20 +18,56 @@ from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 jiang_coeff = [-24.135, 6.1532, -0.37866, -0.147, -7.071]
-
-a = -24.135
-b = 6.1532
-c = -0.37866
-d = -0.147
-e = -7.071
+bian_coeff = [138.0430, -54.8284, 7.2954, -0.32293]
 
 
-def jiang_calibration(metal_det, lO32):
-    return a + b * metal_det + c * (metal_det * metal_det) - d * (e + metal_det) * lO32
+def jiang_calibration(metal_det, lo32):
+    """
+    Purpose
+    Calculating the Jiang calibration for the metallicity and O32 measurements enter
+
+    Parameters
+    metal_det -> dictionary of 12+log(O/H)
+    lO32 -> log(O32) value
+    """
+    return jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det)\
+           + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+
+
+def bian_calibration_r23(metal_det):
+    """
+    Purpose
+    Calculating the R23 of Bian calibration for the metallicity measurements enter
+
+    Parameters
+    metal_det -> dictionary of 12+log(O/H)
+    """
+    return bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
+                       + bian_coeff[3] * metal_det * metal_det * metal_det
+
+
+def bian_calibration_o32(metal_det):
+    """
+    Purpose
+    Calculating the O32 of Bian calibration for the metallicity measurements enter
+
+    Parameters
+    metal_det -> dictionary of 12+log(O/H)
+    """
+    return (-1 / 0.59) * (metal_det- 8.54)
 
 
 def plotting_te_metal(fitspath, revised=False):
-    
+    """
+    Purpose
+    Plotting metallicity, temperature, R23, and O32 for different datasets
+
+    Parameters
+    fitspath -> path where files are called from and saved to
+    revised -> keyword (automatically set to False) to determine what data is used
+            -> refers to if using the bin_derived_prop_revised temperature
+                     and metallicity measurements which right now implement dust attenuation
+    """
     indv_all_file = join(fitspath, filename_dict['indv_bin_info'])
 
     if revised:
@@ -89,10 +125,10 @@ def plotting_te_metal(fitspath, revised=False):
     ID_der_MACT = derived_MACT['ID'].data
     
     # Composite Measurements
-    R23_composite=comp_derived['logR23_Composite'].data
-    O32_composite=comp_derived['logO32_Composite'].data
-    ID_composite=comp_derived['bin_ID'].data
-    T_e_composite=comp_derived['T_e'].data
+    R23_composite = comp_derived['logR23_Composite'].data
+    O32_composite = comp_derived['logO32_Composite'].data
+    ID_composite = comp_derived['bin_ID'].data
+    T_e_composite = comp_derived['T_e'].data
     metal_composite = comp_derived['12+log(O/H)'].data
     ver_detection = comp_derived['Detection'].data
 
@@ -211,65 +247,80 @@ def plotting_te_metal(fitspath, revised=False):
     pdf_pages.close()
         
 
-def Jiang_comparison(fitspath, a, b, c, d, e):
+def jiang_comparison(fitspath):
     """
+    Purpose
+    To calculate the difference between the predicted Jiang calibration and the measured values
+    for composite spectra
+
+    Parameters
+    fitspath -> path to where files come and are saved to
+
+    Still trying to decide if this is necessary: 
+    revised -> keyword (automatically set to False) to determine what data is used
+            -> refers to if using the bin_derived_prop_revised temperature
+                     and metallicity measurements which right now implement dust attenuation
+
+    Jiang Calibration
     log(R23) = a +bx+cx^2 - d(e+x)y
     x = 12+log(O/H)
     y = log(O32)
     """
+
     validation = asc.read(join(fitspath, 'bin_validation.revised.tbl'))
     temp_tab = asc.read(join(fitspath, 'bin_derived_properties.tbl'))
 
-
     pdf_pages = PdfPages(join(fitspath, 'comparsion_Jiang_Zcal.pdf'))
 
-    bin_ID = temp_tab['bin_ID'].data
-    lR23_comp = temp_tab['logR23_Composite'].data
-    lO32_comp = temp_tab['logO32_Composite'].data
+    bin_id = temp_tab['bin_ID'].data
+    lr23_comp = temp_tab['logR23_Composite'].data
+    lo32_comp = temp_tab['logO32_Composite'].data
     zmetal = temp_tab['12+log(O/H)'].data
 
     valid = validation['Detection'].data
     detect = np.where(valid == 1.0)[0]
     rlimit = np.where(valid == 0.5)[0]
 
-    valid_ID = bin_ID[detect]
+    valid_id = bin_id[detect]
 
-    lR23 = lR23_comp[detect]
-    lO32 = lO32_comp[detect]
+    lR23 = lr23_comp[detect]
+    lO32 = lo32_comp[detect]
 
-    rlR23 = lR23_comp[rlimit]
-    rlO32 = lO32_comp[rlimit]
+    rlr23 = lr23_comp[rlimit]
+    rlo32 = lo32_comp[rlimit]
 
     metal_det = zmetal[detect]
     metal_rl = zmetal[rlimit]
 
     derived = asc.read(join(fitspath_ini, 'DEEP2_R23_O32_derived.tbl'))
-    derived_MACT = asc.read(join(fitspath_ini, 'MACT_R23_O32_derived.tbl'))
+    derived_mact = asc.read(join(fitspath_ini, 'MACT_R23_O32_derived.tbl'))
     
     # DEEP2 Derived
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
-    der_R23 = np.log10(er_R23)
-    der_O32 = np.log10(er_O32)
-    der_OH = derived['OH'].data
+    er_r23 = derived['R23'].data
+    er_o32 = derived['O32'].data
+    der_r23 = np.log10(er_R23)
+    der_o32 = np.log10(er_O32)
+    der_oh = derived['OH'].data
     
     # MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
-    der_R23_MACT = np.log10(er_R23_MACT)
-    der_O32_MACT = np.log10(er_O32_MACT)
-    der_OH_MACT = derived_MACT['OH'].data
+    er_r23_mact = derived_mact['R23'].data
+    er_o32_mact = derived_mact['O32'].data
+    der_r23_mact = np.log10(er_r23_mact)
+    der_o32_mact = np.log10(er_o32_mact)
+    der_oh_mact = derived_mact['OH'].data
 
-    jR23_det = a + b * metal_det + c * (metal_det * metal_det) - d * (e + metal_det) * lO32
+
+    jR23_det = jiang_calibration(metal_det, lO32)
     A_comparison = np.zeros(len(metal_det))
     count = len(metal_det) + len(der_R23) + len(der_R23_MACT)
     print(count)
 
     for ii in range(len(metal_det)):
         A_comparison[ii]= (jR23_det[ii] - lR23[ii])
-    
-    jR23_DEEP = a +b*der_OH+c*(der_OH*der_OH) - d*(e+der_OH)*der_O32
-    jR23_MACT = a +b*der_OH_MACT+c*(der_OH_MACT*der_OH_MACT) - d*(e+der_OH_MACT)*der_O32_MACT
+
+    jR23_DEEP = jiang_calibration(der_OH, der_O32)
+    jR23_MACT = jiang_calibration(der_OH_MACT, der_O32_MACT)
+
     B_comparison = np.zeros(len(der_R23))
     C_comparison = np.zeros(len(der_R23_MACT))
     for bb in range(len(jR23_DEEP)):
@@ -305,16 +356,12 @@ def Jiang_comparison(fitspath, a, b, c, d, e):
     pdf_pages.close()
 
 
-def dm_Jiang_comparison():
-    fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+def dm_jiang_comparison(fitspath, pdf_name):
+    """
     fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/'
-    pdf_pages = PdfPages(fitspath + 'DEEPMACT_Jiang_Zcal.pdf')
-
-    a = -24.135
-    b = 6.1532
-    c = -0.37866
-    d = -0.147
-    e = -7.071
+    pdf_name -> 'DEEPMACT_Jiang_Zcal.pdf'
+    """
+    pdf_pages = PdfPages(join(fitspath, pdf_name))
 
     fig, ax = plt.subplots()
     
@@ -328,19 +375,22 @@ def dm_Jiang_comparison():
     pdf_pages.close()
 
     
-def Bian_comparison(fitspath):
+def bian_comparison(fitspath):
     """
-    log(R23) = a +bx+cx^2 - d(e+x)y
-    x = 12+log(O/H)
-    y = log(O32)
+    Purpose
+    To calculate the difference between the predicted Bian calibration and the measured values
+    for composite spectra
+
+    Parameters
+    fitspath -> path to where files come and are saved to
+
     """
+    #Do we need an option for revised?
     validation = asc.read(fitspath + 'bin_validation.revised.tbl')
     temp_tab = asc.read(fitspath + 'bin_derived_properties.tbl')
 
-
     pdf_pages = PdfPages(fitspath+'comparsion_Bian_Zcal.pdf')
 
-    
     bin_ID = temp_tab['bin_ID']
     lR23_comp = temp_tab['logR23_Composite']
     lO32_comp = temp_tab['logO32_Composite']
@@ -384,31 +434,24 @@ def Bian_comparison(fitspath):
     bO32_DEEP = np.zeros(len(der_R23))
     bO32_MACT = np.zeros(len(der_R23_MACT))
 
-    jR23_det = np.zeros(len(metal_det))
-    jO32_det = np.zeros(len(metal_det))
     A_comparison = np.zeros(len(metal_det))
     AO_comparison = np.zeros(len(metal_det))
+
+    jR23_det = bian_calibration_R23(metal_det)
+    jO32_det = bian_calibation_O32(metal_det)
     for ii in range(len(metal_det)):
-        jR23_det[ii] = 138.0430 - 54.8284 * metal_det[ii] + 7.2954*metal_det[ii]*metal_det[ii]\
-                       - 0.32293 * metal_det[ii] * metal_det[ii] * metal_det[ii]
         A_comparison[ii] = (jR23_det[ii] - lR23[ii])
-        jO32_det[ii] = (-1/0.59) * (metal_det[ii] - 8.54)
         AO_comparison[ii] = (jO32_det[ii] - lO32[ii])
-    #for aa in range(len(metal_rl)):
-        #jR23_rl[aa] = a +b*metal_rl[aa]+c*(metal_rl[aa]*metal_rl[aa]) - d*(e+metal_rl[aa])*+rlO32[aa]
 
-
+    bR23_DEEP = bian_calibration_R23(der_OH)
+    bO32_DEEP = bian_calibration_O32(der_OH)
+    bR23_MACT = bian_calibration_R23(der_OH_MACT)
+    bO32_MACT = bian_calibration_O32(der_OH_MACT)
     for bb in range(len(bR23_DEEP)):
-        bR23_DEEP[bb] = 138.0430 - 54.8284 * der_OH[bb] + 7.2954 * der_OH[bb] * der_OH[bb]\
-                        - 0.32293 * der_OH[bb] * der_OH[bb] * der_OH[bb]
         B_comparison[bb] = (bR23_DEEP[bb] - der_R23[bb])
-        bO32_DEEP[bb] = (-1/0.59) * (der_OH[bb] - 8.54)
         BO_comparison[bb] = (bO32_DEEP[bb] - der_O32[bb])
     for aa in range(len(bR23_MACT)):
-        bR23_MACT[aa] = 138.0430 - 54.8284 * der_OH_MACT[aa] + 7.2954 * der_OH_MACT[aa] * der_OH_MACT[aa]\
-                        - 0.32293 * der_OH_MACT[aa] * der_OH_MACT[aa] * der_OH_MACT[aa]
         C_comparison[aa] = (bR23_MACT[aa] - der_R23_MACT[aa])
-        bO32_MACT[aa] = (-1/0.59) * (der_OH_MACT[aa] - 8.54)
         CO_comparison[aa] = (bO32_MACT[aa] - der_O32_MACT[aa])
 
     arr_sum = np.concatenate((A_comparison, B_comparison, C_comparison), axis=None)
@@ -419,7 +462,7 @@ def Bian_comparison(fitspath):
     print('DEEP2 x: ', der_R23)
     print('DEEP2 y: ', bR23_DEEP)
     print('MACT x:', der_R23_MACT)
-    print('MACT y:' ,bR23_MACT)
+    print('MACT y:' , bR23_MACT)
     print('concatenate array: ', arr_sum)
     print('med: ', med0, 'avg: ', avg0, 'sig: ', sig0)
 
@@ -476,15 +519,20 @@ def Bian_comparison(fitspath):
     pdf_pages.close()
 
 
-def dm_Bian_comparison():
-    fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-    fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/'
-    pdf_pages = PdfPages(fitspath + 'DEEPMACT_bian_Zcal.pdf')
+def dm_Bian_comparison(fitspath, pdf_name):
+    """
+    Purpose
+
+    Parameters
+    fitspath
+    pdf_name -> ie. 'DEEPMACT_bian_Zcal.pdf'
+
+    """
+    pdf_pages = PdfPages(join(fitspath,pdf_name))
 
     fig, ax = plt.subplots()
     ax.scatter(der_R23, bR23_DEEP,  marker='*', color='b', label='DEEP2 Individual Spectra')
     ax.scatter(der_R23_MACT, bR23_MACT, marker='*', color='r', label='MACT Individual Spectra')
-    # for aa in range(len(valid_ID)): ax.annotate(valid_ID[aa], (lR23[aa], jR23_det[aa]), fontsize = '6')
 
     plt.plot(der_R23_MACT, der_R23_MACT, 'm', label='One to one line')
     ax.set_ylim(0.65, 1.1)
@@ -502,8 +550,6 @@ def dm_Bian_comparison():
     ax.set_xlabel(r'$O_{32}$ Zcalbase')
     ax.set_ylabel(r'$O_{32}$ Bian')
     plt.legend()
-    
-    
+
     fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()
-

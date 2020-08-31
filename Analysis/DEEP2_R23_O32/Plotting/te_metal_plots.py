@@ -250,12 +250,12 @@ def plotting_te_metal(fitspath, revised=False):
 def jiang_comparison(fitspath):
     """
     Purpose
-    To calculate the difference between the predicted Jiang calibration and the measured values
+    To calculate the difference between the predicted Jiang calibration and the measured values 
     for composite spectra
-
+    
     Parameters
     fitspath -> path to where files come and are saved to
-
+    
     Still trying to decide if this is necessary: 
     revised -> keyword (automatically set to False) to determine what data is used
             -> refers to if using the bin_derived_prop_revised temperature
@@ -266,7 +266,7 @@ def jiang_comparison(fitspath):
     x = 12+log(O/H)
     y = log(O32)
     """
-
+    
     validation = asc.read(join(fitspath, 'bin_validation.revised.tbl'))
     temp_tab = asc.read(join(fitspath, 'bin_derived_properties.tbl'))
 
@@ -377,13 +377,13 @@ def dm_jiang_comparison(fitspath, pdf_name):
     
 def bian_comparison(fitspath):
     """
-    Purpose
-    To calculate the difference between the predicted Bian calibration and the measured values
+    Purpose 
+    To calculate the difference between the predicted Bian calibration and the measured values 
     for composite spectra
-
+    
     Parameters
-    fitspath -> path to where files come and are saved to
-
+    fitspath -> path to where files come and are saved to 
+    
     """
     #Do we need an option for revised?
     validation = asc.read(fitspath + 'bin_validation.revised.tbl')

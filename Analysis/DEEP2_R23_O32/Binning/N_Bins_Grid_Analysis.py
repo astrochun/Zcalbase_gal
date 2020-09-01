@@ -9,16 +9,16 @@ from astropy.table import Table
 def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O32,
                    SNR3, data3, galinbin):
     """
-    R23 and O32 are going to be log values
-    One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins
-    increase the number of galaxies as R23 increases
-
     This file holds the function to bin data adaptively based on the entered number of galaxies for each bin.
     First, it bins in the R23 direction and then in the O32 direction
     Used in current analysis
 
+    R23 and O32 are going to be log values
+    One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins
+    increase the number of galaxies as R23 increases
+
     Inputs:
-    fitspath  -> path where files are called from and saved to
+    fitspath  -> str: Absolute path for working directory
     dataset   -> gives the name of the analysis being run
     pdf_pages -> name of outputted pdf file
     outfile   -> name of the npz file produced by the function
@@ -34,17 +34,19 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     n_bins_range = np.arange(0, n_split*n_bins, 1)
 
     # Initializing Arrays for Grid stacking
-    number_inbin = np.zeros((n_bins, n_split))   # Used to be N_arr0
+    inbin_shape = (n_bins, n_split)
+    n_bins_total = n_split * n_bins
+    number_inbin = np.zeros(inbin_shape)   # Used to be N_arr0
     locator = np.zeros((n_bins, n_split), dtype=object)  # Used to be T_arr
-    O32_minimum = np.zeros((n_bins, n_split))    # Used to be O32_grid
-    R23_minimum = np.zeros((n_bins, n_split))      # Used to be R23_grid
-    O32_median = np.zeros((n_bins, n_split))
-    R23_median = np.zeros((n_bins, n_split))
-    O32_max = np.zeros((n_bins, n_split))
-    R23_max = np.zeros((n_bins, n_split))
-    xBar = np.zeros(n_split * n_bins)
-    yBar = np.zeros(n_split * n_bins)
-    area = np.zeros(n_split * n_bins)
+    O32_minimum = np.zeros(inbin_shape)    # Used to be O32_grid
+    R23_minimum = np.zeros(inbin_shape)      # Used to be R23_grid
+    O32_median = np.zeros(inbin_shape)
+    R23_median = np.zeros(inbin_shape)
+    O32_max = np.zeros(inbin_shape)
+    R23_max = np.zeros(inbin_shape)
+    xBar = np.zeros(n_bins_total)
+    yBar = np.zeros(n_bins_total)
+    area = np.zeros(n_bins_total)
     bin_number = np.zeros(len(data3), dtype=int)  # Used to be N_bin
 
     R23_minall = np.zeros(len(R23))
@@ -87,7 +89,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
         subbin_arr = np.ones(n_split, dtype=int) * n_subbins
         n_remainder = len(sortO32) - n_subbins*n_split
         backwardsIdx = -1
-        
+
         # Sorting all the remainders into the correct bins: Use backwardsIdx or forwardsIdx to start adding spectra
         # from the front or the back of the list of bins
         for rr in range(n_remainder):
@@ -157,12 +159,12 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
             startIdx = endIdx
             endIdx = startIdx+subbin_arr[jj] + 1
 
-    O32_lowlimit = O32_minimum.reshape(n_split * n_bins)  # Used to be O32_grids
-    R23_lowlimit = R23_minimum.reshape(n_split * n_bins)  # Used to be R23_grids
-    O32_medians = O32_median.reshape(n_split * n_bins)
-    R23_medians = R23_median.reshape(n_split * n_bins)
-    R23_maxval = R23_max.reshape(n_split * n_bins)
-    O32_maxval = O32_max.reshape(n_split * n_bins)
+    O32_lowlimit = O32_minimum.reshape(n_bins_total)  # Used to be O32_grids
+    R23_lowlimit = R23_minimum.reshape(n_bins_total)  # Used to be R23_grids
+    O32_medians = O32_median.reshape(n_bins_total)
+    R23_medians = R23_median.reshape(n_bins_total)
+    R23_maxval = R23_max.reshape(n_bins_total)
+    O32_maxval = O32_max.reshape(n_bins_total)
 
     # Plotting
     fig, ax = plt.subplots()

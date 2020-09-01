@@ -461,8 +461,8 @@ def bian_comparison(fitspath):
 
     print('DEEP2 x: ', der_R23)
     print('DEEP2 y: ', bR23_DEEP)
-    print('MACT x:', der_R23_MACT)
-    print('MACT y:' , bR23_MACT)
+    print('MACT x: ', der_R23_MACT)
+    print('MACT y: ', bR23_MACT)
     print('concatenate array: ', arr_sum)
     print('med: ', med0, 'avg: ', avg0, 'sig: ', sig0)
 
@@ -528,7 +528,7 @@ def dm_Bian_comparison(fitspath, pdf_name):
     pdf_name -> ie. 'DEEPMACT_bian_Zcal.pdf'
 
     """
-    pdf_pages = PdfPages(join(fitspath,pdf_name))
+    pdf_pages = PdfPages(join(fitspath, pdf_name))
 
     fig, ax = plt.subplots()
     ax.scatter(der_R23, bR23_DEEP,  marker='*', color='b', label='DEEP2 Individual Spectra')

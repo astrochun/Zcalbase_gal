@@ -21,10 +21,7 @@ fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 
 def ew_plot_r23(fitspath, asc_table):
-    """
-    Purpose
-    Plots equivalent width verse R23 and saves to a pdf file.
-    """
+    """Plots equivalent width verse R23 and saves to a pdf file."""
     pdf_pages = PdfPages(join(fitspath, 'equivalent_vs_R23_plots.pdf'))
 
     asc_tab = asc.read(asc_table)
@@ -45,10 +42,7 @@ def ew_plot_r23(fitspath, asc_table):
 
 
 def ew_plot_o32(fitspath, asc_table):
-    """
-    Purpose
-    Plots equivalent width verse O32 and saves to a pdf file.
-    """
+    """Plots equivalent width verse O32 and saves to a pdf file."""
     pdf_pages = PdfPages(join(fitspath, 'equivalent_vs_O32_plots.pdf'))
     asc_tab = asc.read(asc_table)
     O32 = asc_tab['logO32_avg'].data

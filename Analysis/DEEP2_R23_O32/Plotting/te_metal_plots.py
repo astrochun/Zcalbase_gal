@@ -29,10 +29,13 @@ def jiang_calibration(metal_det, lo32):
     Parameters
     metal_det -> dictionary of 12+log(O/H)
     lO32 -> log(O32) value
-    """
-    return jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det)\
-           + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
 
+    Jiang Calibration:
+    jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det) \
+    + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+    """
+    return np.poly1d[jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]] \
+            + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
 
 def bian_calibration_r23(metal_det):
     """
@@ -41,9 +44,12 @@ def bian_calibration_r23(metal_det):
 
     Parameters
     metal_det -> dictionary of 12+log(O/H)
-    """
-    return bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
+
+    Bian R23 Calibration:
+    bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
                        + bian_coeff[3] * metal_det * metal_det * metal_det
+    """
+    return np.poly1d[bian_coeff[3], bian_coeff[2], bian_coeff[1], bian_coeff[0]]
 
 
 def bian_calibration_o32(metal_det):
@@ -252,6 +258,8 @@ def jiang_comparison(fitspath):
     Purpose
     To calculate the difference between the predicted Jiang calibration and the measured values 
     for composite spectra
+
+    Jiang Calibration fron Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145
     
     Parameters
     fitspath -> path to where files come and are saved to
@@ -298,8 +306,8 @@ def jiang_comparison(fitspath):
     # DEEP2 Derived
     er_r23 = derived['R23'].data
     er_o32 = derived['O32'].data
-    der_r23 = np.log10(er_R23)
-    der_o32 = np.log10(er_O32)
+    der_r23 = np.log10(er_r23)
+    der_o32 = np.log10(er_o32)
     der_oh = derived['OH'].data
     
     # MACT Derived
@@ -311,23 +319,15 @@ def jiang_comparison(fitspath):
 
 
     jR23_det = jiang_calibration(metal_det, lO32)
-    A_comparison = np.zeros(len(metal_det))
-    count = len(metal_det) + len(der_R23) + len(der_R23_MACT)
+    A_comparison = (jR23_det - lR23)
+    count = len(metal_det) + len(der_r23) + len(der_r23_mact)
     print(count)
 
-    for ii in range(len(metal_det)):
-        A_comparison[ii]= (jR23_det[ii] - lR23[ii])
+    jR23_DEEP = jiang_calibration(der_oh, der_o32)
+    jR23_MACT = jiang_calibration(der_oh_mact, der_o32_mact)
 
-    jR23_DEEP = jiang_calibration(der_OH, der_O32)
-    jR23_MACT = jiang_calibration(der_OH_MACT, der_O32_MACT)
-
-    B_comparison = np.zeros(len(der_R23))
-    C_comparison = np.zeros(len(der_R23_MACT))
-    for bb in range(len(jR23_DEEP)):
-        B_comparison[bb]= (jR23_DEEP[bb] - der_R23[bb])
-
-    for aa in range(len(jR23_MACT)):
-        C_comparison[aa]= (jR23_MACT[aa] - der_R23_MACT[aa])
+    B_comparison = jR23_DEEP - der_r23
+    C_comparison = jR23_MACT - der_r23_mact
 
     arr_sum = np.concatenate((A_comparison, B_comparison, C_comparison), axis=None)
     print(arr_sum)
@@ -355,31 +355,14 @@ def jiang_comparison(fitspath):
     fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()
 
-
-def dm_jiang_comparison(fitspath, pdf_name):
-    """
-    fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/'
-    pdf_name -> 'DEEPMACT_Jiang_Zcal.pdf'
-    """
-    pdf_pages = PdfPages(join(fitspath, pdf_name))
-
-    fig, ax = plt.subplots()
-    
-    # for aa in range(len(valid_ID)): ax.annotate(valid_ID[aa], (lR23[aa], jR23_det[aa]), fontsize = '6')
-    ax.set_xlabel(r'$R_{23}$ Zcalbase')
-    ax.set_ylabel(r'$R_{23}$ Jiang')
-    plt.legend()
-    plt.plot(der_R23_MACT, der_R23_MACT, 'm', label = 'One to one line')
-    
-    fig.savefig(pdf_pages, format ='pdf')
-    pdf_pages.close()
-
     
 def bian_comparison(fitspath):
     """
     Purpose 
     To calculate the difference between the predicted Bian calibration and the measured values 
     for composite spectra
+
+    Bian Calibration from Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175
     
     Parameters
     fitspath -> path to where files come and are saved to 
@@ -434,25 +417,22 @@ def bian_comparison(fitspath):
     bO32_DEEP = np.zeros(len(der_R23))
     bO32_MACT = np.zeros(len(der_R23_MACT))
 
-    A_comparison = np.zeros(len(metal_det))
-    AO_comparison = np.zeros(len(metal_det))
+    jR23_det = bian_calibration_r23(metal_det)
+    jO32_det = bian_calibration_o32(metal_det)
 
-    jR23_det = bian_calibration_R23(metal_det)
-    jO32_det = bian_calibation_O32(metal_det)
-    for ii in range(len(metal_det)):
-        A_comparison[ii] = (jR23_det[ii] - lR23[ii])
-        AO_comparison[ii] = (jO32_det[ii] - lO32[ii])
+    A_comparison = jR23_det - lR23
+    AO_comparison = jO32_det - lO32
 
-    bR23_DEEP = bian_calibration_R23(der_OH)
-    bO32_DEEP = bian_calibration_O32(der_OH)
-    bR23_MACT = bian_calibration_R23(der_OH_MACT)
-    bO32_MACT = bian_calibration_O32(der_OH_MACT)
-    for bb in range(len(bR23_DEEP)):
-        B_comparison[bb] = (bR23_DEEP[bb] - der_R23[bb])
-        BO_comparison[bb] = (bO32_DEEP[bb] - der_O32[bb])
-    for aa in range(len(bR23_MACT)):
-        C_comparison[aa] = (bR23_MACT[aa] - der_R23_MACT[aa])
-        CO_comparison[aa] = (bO32_MACT[aa] - der_O32_MACT[aa])
+
+    bR23_DEEP = bian_calibration_r23(der_OH)
+    bO32_DEEP = bian_calibration_o32(der_OH)
+    bR23_MACT = bian_calibration_r23(der_OH_MACT)
+    bO32_MACT = bian_calibration_o32(der_OH_MACT)
+
+    B_comparison = bR23_DEEP - der_R23
+    BO_comparison = bO32_DEEP - der_O32
+    C_comparison = bR23_MACT - der_R23_MACT
+    CO_comparison = bO32_MACT - der_O32_MACT
 
     arr_sum = np.concatenate((A_comparison, B_comparison, C_comparison), axis=None)
     med0 = np.median(arr_sum)
@@ -516,40 +496,4 @@ def bian_comparison(fitspath):
     
 
     fig.savefig(pdf_pages, format='pdf')
-    pdf_pages.close()
-
-
-def dm_Bian_comparison(fitspath, pdf_name):
-    """
-    Purpose
-
-    Parameters
-    fitspath
-    pdf_name -> ie. 'DEEPMACT_bian_Zcal.pdf'
-
-    """
-    pdf_pages = PdfPages(join(fitspath, pdf_name))
-
-    fig, ax = plt.subplots()
-    ax.scatter(der_R23, bR23_DEEP,  marker='*', color='b', label='DEEP2 Individual Spectra')
-    ax.scatter(der_R23_MACT, bR23_MACT, marker='*', color='r', label='MACT Individual Spectra')
-
-    plt.plot(der_R23_MACT, der_R23_MACT, 'm', label='One to one line')
-    ax.set_ylim(0.65, 1.1)
-    ax.set_xlabel(r'$R_{23}$ Zcalbase')
-    ax.set_ylabel(r'$R_{23}$ Bian')
-    plt.legend()
-
-    fig.savefig(pdf_pages, format ='pdf')
-    fig.clear()
-
-    fig, ax = plt.subplots()
-    ax.scatter(der_O32, bO32_DEEP, marker='*', color='b', label='DEEP2 Individual Spectra')
-    ax.scatter(der_O32_MACT, bO32_MACT, marker='*', color='r', label='MACT Individual Spectra')
-    plt.plot(der_O32_MACT, der_O32_MACT, 'm', label='One to one line')
-    ax.set_xlabel(r'$O_{32}$ Zcalbase')
-    ax.set_ylabel(r'$O_{32}$ Bian')
-    plt.legend()
-
-    fig.savefig(pdf_pages, format ='pdf')
     pdf_pages.close()

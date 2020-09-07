@@ -5,10 +5,13 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 
+from Metallicity_Stack_Commons.column_names import filename_dict
+
 
 def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O32,
                    SNR3, data3, galinbin):
     """
+    Purpose
     This file holds the function to bin data adaptively based on the entered number of galaxies for each bin.
     First, it bins in the R23 direction and then in the O32 direction
     Used in current analysis
@@ -19,11 +22,15 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
 
     Inputs:
     fitspath  -> str: Absolute path for working directory
-    dataset   -> gives the name of the analysis being run
     pdf_pages -> name of outputted pdf file
     outfile   -> name of the npz file produced by the function
+    n_split   -> the number of times each R23 bin will be split
     galinbin  -> array of numbers that specifies how many spectra go in each bin
-    Other variables -> emission file values of spectra that come from the get_det3 function
+    individual_ID -> individual ids for each spectra
+    R23 -> R23 measurement of each spectra
+    O32 -> O32 measurement of each spectra
+    SNR3 -> signal to noise of the OIII emission lines of each spectra
+    data3 -> array determined by get_det3 that determines if spectra can be used in this study
     """
     pdf_pages = PdfPages(pdf_pages)
     # One_dimensional binning for R23
@@ -197,15 +204,21 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     fig.savefig(pdf_pages, format='pdf')
     pdf_pages.close()
 
-    np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=number_inbin)
-    
+    # np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=number_inbin)
+    # Writing as a dictionary
+    avg_dict = {'locator': locator,
+                'R23_minimum': R23_minimum,
+                'O32_minimum': O32_minimum,
+                'Number_inbin': number_inbin}
+    np.savez(outfile, **avg_dict)
+
     n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
           'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
     tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit), np.log10(O32_lowlimit), np.log10(xBar),
                   np.log10(yBar), np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval),
                   np.log10(O32_maxval)], names=n1)
     # used to be called +dataset+'_binning_averages.tbl
-    asc.write(tab1, fitspath+'/bin_info.tbl', format='fixed_width_two_line')
+    asc.write(tab1, join(fitspath,filename_dict['bin_info']), format='fixed_width_two_line')
 
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
           'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
@@ -213,7 +226,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
                  R23_minall, O32_minall, R23_avgall, O32_avgall,
                  R23_medall, O32_medall, R23_maxall, O32_maxall], names=n2)
     # used to be + dataset+'_2d_binning_datadet3.tbl
-    asc.write(tab2, fitspath+'/individual_bin_info.tbl', format='fixed_width_two_line')
+    asc.write(tab2, join(fitspath,filename_dict['indv_bin_info']), format='fixed_width_two_line')
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')
     tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)

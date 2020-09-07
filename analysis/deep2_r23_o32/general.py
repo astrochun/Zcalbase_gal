@@ -230,19 +230,19 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     if dataset == 'Grid': 
         if mask:
             stack_name = dataset + name_dict['Stackname']
-            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
+            stackboth_masterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
                                                           dataset, stack_name, bin_outfile)
         else:
             stack_name = dataset + name_dict['Stackname_nomask']
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
+            stackboth_masterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
     else:
         if mask:
             stack_name = dataset + name_dict['Stackname']
-            Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
+            stackboth_masterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
                                                           dataset, stack_name, bin_outfile)
         else:
             stack_name = dataset + name_dict['Stackname_nomask']
-            Stackboth_MasterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
+            stackboth_masterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
 
     # Outfile and pdf both use name
     print('finished with stacking,' + stack_name + 'pdf and fits files created')
@@ -302,12 +302,12 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # R_temp_calcul
     # Not going to run the R_temp_calcul.run_function for the 'bin_valid' table because these values
     # are proven to be incomplete. The bin_valid_rev table is different.
-    R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
+    r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
 
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         attenuation.EBV_table_update(fitspath, use_revised= False)
-        R_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
+        r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
         
     '''
     # Check Dust Attenuation
@@ -392,14 +392,14 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
             galinbin = [400, 400, 400, 400, 400, 400, 409]
         pdf_pages = join(fitspath, 'n_Bins_grid.pdf')
         grid_data_file = join(fitspath, 'n_Bins_grid.npz')
-        Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, pdf_pages, grid_data_file, n_split,
+        n_bins_grid_analysis.n_times_binned(fitspath, pdf_pages, grid_data_file, n_split,
                                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
                                                        det3, data3, galinbin, adaptive)
 
     if want == 'stack_mastergrid':
         grid_data_file = join(fitspath, 'n_Bins_grid.npz')
         Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.pdf'
-        Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
+        stackboth_masterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
                                                       dataset, Stack_name, grid_data_file)
 
     if want == 'zoom':
@@ -434,10 +434,10 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
         temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
 
         if dustatten:
-            R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
+            r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
                                     temp_m_gpdf_name, combine_flux_ascii, dustatt=True)
         else:
-            R_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
+            r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
                                     temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
     if want == 'line_ratio_plotting':

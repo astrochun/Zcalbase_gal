@@ -43,7 +43,11 @@ Your will need the following to have a working copy of this software.
 
 ### Running Analysis 
 The analysis is run by executing the run_grid_R23_O32_analysis() function in Analysis/DEEP2_R23_O32/general.py. 
-By importing general in a python environment, the codes needed for the analysis (see list below) are imported.
+By importing analysis/deep2_r23_o32/general.py in a python environment, the codes needed for the analysis 
+(see list below) are imported.
+
+
 Once run_grid_R23_O32_analysis() has run, other codes not listed below can be used to create various plots
 in addition what is created during the run. 
+
 

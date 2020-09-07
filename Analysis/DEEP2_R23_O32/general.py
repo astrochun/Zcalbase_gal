@@ -14,10 +14,12 @@ import glob
 from datetime import date
 
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32 import Binning_and_Graphing_MasterGrid, Stackboth_MasterGrid, \
-    zoom_and_gauss_general, hstack_tables,  adaptivebinning, Stacking_voronoi, \
-    R_temp_calcul, calibration_plots, verification_tables, name_dict
-from Zcalbase_gal.Analysis.DEEP2_R23_O32.Plotting import more_plots, line_ratio_plotting, te_metal_plot
+from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_masterGrid, \
+    zoom_and_gauss_general, hstack_tables,  adaptivebinning, stacking_voronoi, \
+    r_temp_calcul, calibration_plots, verification_tables, name_dict
+from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fixed_grid_analysis, \
+    single_grid_o32, single_grid_r23
+from Zcalbase_gal.analysis.deep2_r23_o32.Plotting import more_plots, line_ratio_plotting, te_metal_plot
 from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
     line_type, line_name, valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
@@ -201,22 +203,22 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     bin_outfile = join(fitspath, dataset + name_dict['gridnpz'])
 
     if dataset == 'O32_Grid':
-        Binning_and_Graphing_MasterGrid.single_grid_O32(fitspath, bin_pdf_pages, bin_outfile,
+        single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
                                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
                                                         galinbin, adaptive)
     if dataset == 'R23_Grid':
-        Binning_and_Graphing_MasterGrid.single_grid_R23(fitspath, bin_pdf_pages, bin_outfile,
+        single_grid_r23.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
                                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3,
                                                         data3, galinbin)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
-        Binning_and_Graphing_MasterGrid.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
+        fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
                                                     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
                                                     R23_bin, O32_bin)
 
     if dataset == 'n_Bins':
-        Binning_and_Graphing_MasterGrid.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
                                                        R23, O32, SNR3, data3, galinbin)
 
     print('made npz, pdf files , testmastergrid (need to find if this is used anywhere)')

@@ -14,7 +14,7 @@ from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 from Metallicity_Stack_Commons import k_dict
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-from Zcalbase_gal.Analysis.DEEP2_R23_O32.general import name_dict
+from Zcalbase_gal.analysis.deep2_r23_o32 import name_dict
 
 k_4363 = k_dict['OIII_4363']
 k_5007 = k_dict['OIII_5007']

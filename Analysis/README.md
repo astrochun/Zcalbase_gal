@@ -22,9 +22,11 @@ the electron temperature of the galaxy, which is used to calculate the metallici
 OIII$\lambda$[4363] is a forbidden transition, which produces a very weak emission line in the spectra. In order to 
 detect OIII$\lambda$[4363], individual spectra are binned and stacked to get a composite spectrum measurement. 
 
-This analysis is also compared against recently published analyses from [Jiang et al. 2019]() and [Bian et al. 2018]()
+This analysis is also compared against recently published analyses from 
+Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145  and 
+Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175. 
 
-Links to materials presented from this work: 
+Links to material presenting  to 
 
 
 # Execution 

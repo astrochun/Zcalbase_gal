@@ -204,22 +204,22 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 
     if dataset == 'O32_Grid':
         single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
-                                                        galinbin, adaptive)
+                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
+                                        det3, data3, galinbin, adaptive)
     if dataset == 'R23_Grid':
         single_grid_r23.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3,
-                                                        data3, galinbin)
+                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
+                                        det3, data3, galinbin)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
         fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
-                                                    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
-                                                    R23_bin, O32_bin)
+                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
+                                        R23_bin, O32_bin)
 
     if dataset == 'n_Bins':
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
-                                                       R23, O32, SNR3, data3, galinbin)
+                                            R23, O32, SNR3, data3, galinbin)
 
     print('made npz, pdf files , testmastergrid (need to find if this is used anywhere)')
     print('finished Binning_and_Graphing_MasterGrid')

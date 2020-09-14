@@ -268,7 +268,6 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                 ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
                                                                        len(idx_all))
             if len(idx) > 0:
-                 
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=alpha[nn], label=ii_label, edgecolors=edgecolors[nn])
 

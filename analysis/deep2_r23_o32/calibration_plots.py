@@ -87,9 +87,10 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         logO32 = individual['logO32']
         com_log = individual['12+log(O/H)']
         bin_ID = individual['bin_ID']
+        alpha = [1]
         green_peas_calibration.main(logR23, logO32, com_log, out_pdf, n_bins=6, xra=[0.3, 1.15],
-                                    yra=[6.5, 9.10], marker=['D'], edgecolors=['face', 'face', 'none'],
-                                    label=['Individual Zcalbase_gal Detection'], ID = [bin_ID], fit=False,
+                                    yra=[6.5, 9.10], marker=['D'], edgecolors=['face', 'face', 'none'], alpha=alpha,
+                                    label=['Individual Zcalbase_gal Detection'], ID=[bin_ID], fit=False,
                                     silent=False, verbose=True)
     # For LAC
     if dataset == 'R23_Grid':
@@ -97,27 +98,32 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         lO32 = [det_O32, der_O32, der_O32_MACT]
         OH = [det_OH, der_OH, der_OH_MACT]
         c_var = ['b', 'r', 'm']
+        label = ['Detection', 'DEEP2', 'MACT']
+        marker = ['D', '3', '4']
         
     if dataset == 'O32_Grid' or dataset == 'Grid':    
         lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
         lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
         OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
         c_var = ['b', 'g', 'r', 'm']
+        label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
     if dataset == 'Voronoi10' or dataset == 'Voronoi14' or dataset == 'Voronoi20' or dataset == 'Double_Bin':
         lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
         lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
         OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
         c_var = ['b', 'g', 'r', 'm']
+        label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
     if dataset == 'n_Bins':
         lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
         lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
         OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
         c_var = ['b', 'g', 'r', 'm']
+        label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
-    # local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var,
-                                    # label=['Detection', 'Robust Limits', 'DEEP2', 'MACT'], silent=False)
+    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var,
+                                  label=label, marker=marker, silent=False)
     print('finished LAC plot')
 
     # For Green Pea Calibration
@@ -133,18 +139,20 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         IDs = [det_ID]
 
     error_npz_file = join(fitspath, npz_filename_dict['der_prop_errors'])
+    alpha = np.repeat(1, len(lR23))
+    edgecolor = np.repeat('face', len(lR23))
     if exists(error_npz_file):
         print('Error npz found  ', error_npz_file, ': Adding error bars to plot')
         error_npz = np.load(error_npz_file)
         metal_err = error_npz['12+log(O/H)_lowhigh_error']  # log values
         green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, lR23_err=[], OH_err=[metal_err],
-                                    xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, label=label, IDs=IDs,
-                                    include_Rlimit=True, fit=False, silent=False, verbose=True)
+                                    xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, edgecolors=edgecolor, alpha=alpha,
+                                    label=label, IDs=IDs, include_Rlimit=True, fit=False, silent=False, verbose=True)
     else:
         print('No error npz found')
         green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5, 1.1], yra=[6.5, 9.10],
-                                    marker=marker, label=label, IDs=IDs, include_Rlimit=True,
-                                    fit=False, silent=False, verbose=True)
+                                    marker=marker, edgecolors=edgecolor, alpha=alpha, label=label, IDs=IDs,
+                                    include_Rlimit=True, fit=False, silent=False, verbose=True)
 
 
 def individual_gpc(individual_ascii, validation_table):

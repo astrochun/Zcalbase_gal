@@ -34,13 +34,11 @@ def jiang_calibration(metal_det, lo32):
     jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det) \
     + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
     """
-    typed_out_polynomial = jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det) \
-    + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
 
-    p_jiang = np.poly1d[jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]]
+    p_jiang = np.poly1d([jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]])
     shortcut = p_jiang(metal_det)\
             + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
-    return  typed_out_polynomial, shortcut
+    return shortcut
 
 def bian_calibration_r23(metal_det):
     """
@@ -54,12 +52,9 @@ def bian_calibration_r23(metal_det):
     bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
                        + bian_coeff[3] * metal_det * metal_det * metal_det
     """
-    typed_out_polynomial = bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
-                       + bian_coeff[3] * metal_det * metal_det * metal_det
-
-    p_bian = np.poly1d[bian_coeff[3], bian_coeff[2], bian_coeff[1], bian_coeff[0]]
+    p_bian = np.poly1d([bian_coeff[3], bian_coeff[2], bian_coeff[1], bian_coeff[0]])
     shortcut = p_bian(metal_det)
-    return typed_out_polynomial, shortcut
+    return shortcut
 
 
 def bian_calibration_o32(metal_det):
@@ -348,10 +343,10 @@ def jiang_comparison(fitspath):
     
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker='D', color='b', alpha=0.75, label='Composite Detections')
-    for aa in range(len(valid_ID)):
-        ax.annotate(valid_ID[aa], (lR23[aa], jR23_det[aa]), fontsize='6')
-    ax.scatter(der_R23, jR23_DEEP, marker='3', color='r', label='DEEP2 Individual Spectra')
-    ax.scatter(der_R23_MACT, jR23_MACT, marker='4', color='m', label='MACT Individual Spectra')
+    for aa in range(len(valid_id)):
+        ax.annotate(valid_id[aa], (lR23[aa], jR23_det[aa]), fontsize='6')
+    ax.scatter(der_r23, jR23_DEEP, marker='3', color='r', label='DEEP2 Individual Spectra')
+    ax.scatter(der_r23_mact, jR23_MACT, marker='4', color='m', label='MACT Individual Spectra')
     ax.set_xlabel(r'Observed $log(R_{23})$')
     ax.set_ylabel(r'Estimated $log(R_{23})$')
     plt.plot(lR23, lR23, 'k', label='One to one line')
@@ -449,7 +444,7 @@ def bian_comparison(fitspath):
     avg0 = np.average(arr_sum)
     sig0 = np.std(arr_sum)
 
-    print('DEEP2 x: ', der_R23)
+    print('DEEP2 x: ', deep_r23)
     print('DEEP2 y: ', bR23_DEEP)
     print('MACT x: ', der_R23_MACT)
     print('MACT y: ', bR23_MACT)
@@ -457,12 +452,13 @@ def bian_comparison(fitspath):
     print('med: ', med0, 'avg: ', avg0, 'sig: ', sig0)
 
     n = ('DEEP2 x', 'DEEP2 y')
-    np.savez('xandy.npz', DEEPx=der_R23, DEEPy=bR23_DEEP, MACTx= der_R23_MACT, MACTy=bR23_MACT)
+    np.savez(fitspath + 'bian_comparison_xandy_values.npz', DEEPx=deep_r23, DEEPy=bR23_DEEP,
+             MACTx= der_R23_MACT, MACTy=bR23_MACT)
     n2 = ('MACT x', 'MACT y')
 
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker = 'D', color = 'b', alpha = 0.75, label = 'Detections')
-    ax.scatter(der_R23,bR23_DEEP,  marker = '3', color = 'r', label = 'DEEP2 Individual Spectra')
+    ax.scatter(deep2_r23,bR23_DEEP,  marker = '3', color = 'r', label = 'DEEP2 Individual Spectra')
     
     ax.scatter(der_R23_MACT,bR23_MACT, marker = '4', color = 'm', label = 'MACT Individual Spectra')
     for aa in range(len(valid_ID)):
@@ -490,7 +486,7 @@ def bian_comparison(fitspath):
     
     fig, ax = plt.subplots()
     ax.scatter(lO32, jO32_det, marker = 'D', color = 'b', label = 'Detections')
-    ax.scatter(der_O32,bO32_DEEP, marker = '3', color = 'r', label = 'DEEP2 Individual Spectra')
+    ax.scatter(deep2_o32,bO32_DEEP, marker = '3', color = 'r', label = 'DEEP2 Individual Spectra')
     ax.scatter(der_O32_MACT,bO32_MACT, marker = '4', color = 'm', label = 'MACT Individual Spectra')
     for aa in range(len(valid_ID)):
         ax.annotate(valid_ID[aa], (lO32[aa], jO32_det[aa]), fontsize = '6')

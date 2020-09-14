@@ -25,7 +25,7 @@ def single_grid_o32(fitspath, pdf_pages, outfile, R23, O32, galinbin):
 
     # 200 galaxies per bin
     n_bins = np.int(len(O32)/galinbin)
-    print n_bins
+    print(n_bins)
 
     # Initializing Arrays for outfile later
     N_arr0 = np.zeros((1, n_bins))

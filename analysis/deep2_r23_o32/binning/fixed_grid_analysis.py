@@ -51,7 +51,7 @@ def making_grid(fitspath, pdf_pages, outfile, R23, O32, det3, R23_bin, O32_bin):
         for kk in range(len(O32_grid)):
             array = np.where((x < R23_grid[jj]+R23_bin) & (x >= R23_grid[jj]) &
                              (y < O32_grid[kk]+O32_bin) & (y >= O32_grid[kk]))[0]
-            print array
+            print(array)
             N_arr0[jj, kk] += len(array)
             T_arr[jj, kk] = array
 

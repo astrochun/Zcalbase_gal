@@ -4,7 +4,7 @@ import numpy as np
 from astropy.io import ascii as asc
 from os.path import exists, join
 
-from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
+from Zcalbase_gal.analysis import local_analog_calibration, green_peas_calibration
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 
@@ -68,6 +68,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
     print('det_O32: ', det_O32)
     det_R23 = R23_all[det_4363]
     det_OH = com_O_log[det_4363]
+    det_ID = ID[det_4363]
 
     rlimit_O32 = O32_all[rlimit]
     rlimit_R23 = R23_all[rlimit]
@@ -115,8 +116,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
         c_var = ['b', 'g', 'r', 'm']
 
-    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var,
-                                    label=['Detection', 'Robust Limits', 'DEEP2', 'MACT'], silent=False, verbose=True)
+    # local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var,
+                                    # label=['Detection', 'Robust Limits', 'DEEP2', 'MACT'], silent=False)
     print('finished LAC plot')
 
     # For Green Pea Calibration

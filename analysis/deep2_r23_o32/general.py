@@ -14,12 +14,11 @@ import glob
 from datetime import date
 
 
-from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_masterGrid, \
-    zoom_and_gauss_general, hstack_tables,  adaptivebinning, stacking_voronoi, \
-    r_temp_calcul, calibration_plots, verification_tables, name_dict
+from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_mastergrid, \
+    zoom_and_gauss_general, hstack_tables, r_temp_calcul, calibration_plots, name_dict
 from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
-from Zcalbase_gal.analysis.deep2_r23_o32.Plotting import more_plots, line_ratio_plotting, te_metal_plot
+from Zcalbase_gal.analysis.deep2_r23_o32.plotting import more_plots, line_ratio_plotting, te_metal_plots
 from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
     line_type, line_name, valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
@@ -184,10 +183,10 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     fitspath = gettime(org_name,fitspath_ini)'''
     fitspath_ini = get_user()
     fitspath = dir_date(fitspath_ini, year=False)
-    print('fitspath_ini = , ', fitspath_ini)
-    print('fitspath = , ', fitspath)
+    print('fitspath_ini =  ', fitspath_ini)
+    print('fitspath =  ', fitspath)
     
-    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)
+    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath, fitspath_ini)
 
     print("length R23: ", len(R23))
 
@@ -230,19 +229,19 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     if dataset == 'Grid': 
         if mask:
             stack_name = dataset + name_dict['Stackname']
-            stackboth_masterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
+            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
                                                           dataset, stack_name, bin_outfile)
         else:
             stack_name = dataset + name_dict['Stackname_nomask']
-            stackboth_masterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
+            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
     else:
         if mask:
             stack_name = dataset + name_dict['Stackname']
-            stackboth_masterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
+            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
                                                           dataset, stack_name, bin_outfile)
         else:
             stack_name = dataset + name_dict['Stackname_nomask']
-            stackboth_masterGrid.run_Stacking_Master(fitspath, stack_name, bin_outfile)
+            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
 
     # Outfile and pdf both use name
     print('finished with stacking,' + stack_name + 'pdf and fits files created')
@@ -338,7 +337,7 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 
     # Calibration Plots
     # calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
-    calibration_plots.LAC_GPC_plots(fitspath, dataset, revised=True)
+    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
 
 
 '''
@@ -435,10 +434,10 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
 
         if dustatten:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                    temp_m_gpdf_name, combine_flux_ascii, dustatt=True)
+                                       temp_m_gpdf_name, combine_flux_ascii, dustatt=True)
         else:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                    temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
+                                       temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
 
     if want == 'line_ratio_plotting':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')

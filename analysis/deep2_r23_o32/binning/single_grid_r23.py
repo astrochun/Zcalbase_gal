@@ -25,7 +25,7 @@ def single_grid_r23(fitspath, pdf_pages, outfile, R23, O32, galinbin):
 
     # 200 galaxies per bin
     n_bins = len(galinbin)
-    print n_bins
+    print(n_bins)
 
     # Initializing Arrays for outfile later
     R23_grid = np.zeros((n_bins, 1))
@@ -44,9 +44,9 @@ def single_grid_r23(fitspath, pdf_pages, outfile, R23, O32, galinbin):
         if ii == n_bins-1:
             bin_end[ii] = len(R23_sort0)-1
         else:
-            print galinbin[ii]+bin_start[ii]
+            print(galinbin[ii]+bin_start[ii])
             bin_end[ii] = galinbin[ii]+bin_start[ii]-1   
-        print 'Bin Start:', bin_start[ii], 'Bin end:', bin_end[ii]
+        print('Bin Start:', bin_start[ii], 'Bin end:', bin_end[ii])
 
         idx_arr = np.where((R23 >= R23_sort0[bin_start[ii]]) & (R23 <= R23_sort0[bin_end[ii]]))[0]
         R23_grid[ii, 0] = R23_sort0[bin_start[ii]]

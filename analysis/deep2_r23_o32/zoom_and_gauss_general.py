@@ -367,7 +367,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
             
             # t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
 
-            for x in lambda_graph:
+            for x in lambda0:
                 t_ax.axvline(x=x, linewidth=0.15, color='k', linestyle='--')
 
             txt1 = 'Intensity'  # Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'

@@ -34,8 +34,13 @@ def jiang_calibration(metal_det, lo32):
     jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det) \
     + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
     """
-    return np.poly1d[jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]] \
+    typed_out_polynomial = jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det) \
+    + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+
+    p_jiang = np.poly1d[jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]]
+    shortcut = p_jiang(metal_det)\
             + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+    return  typed_out_polynomial, shortcut
 
 def bian_calibration_r23(metal_det):
     """
@@ -49,7 +54,12 @@ def bian_calibration_r23(metal_det):
     bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
                        + bian_coeff[3] * metal_det * metal_det * metal_det
     """
-    return np.poly1d[bian_coeff[3], bian_coeff[2], bian_coeff[1], bian_coeff[0]]
+    typed_out_polynomial = bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
+                       + bian_coeff[3] * metal_det * metal_det * metal_det
+
+    p_bian = np.poly1d[bian_coeff[3], bian_coeff[2], bian_coeff[1], bian_coeff[0]]
+    shortcut = p_bian(metal_det)
+    return typed_out_polynomial, shortcut
 
 
 def bian_calibration_o32(metal_det):
@@ -394,11 +404,11 @@ def bian_comparison(fitspath):
     derived_MACT = asc.read(fitspath_ini + 'MACT_R23_O32_derived.tbl')
     
     # DEEP2 Derived
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
-    der_R23 = np.log10(er_R23)
-    der_O32 = np.log10(er_O32)
-    der_OH = derived['OH'].data
+    deep_r23 = derived['R23'].data
+    deep_o32 = derived['O32'].data
+    deep2_r23 = np.log10(deep_r23)
+    deep2_o32 = np.log10(deep_o32)
+    deep2_oh = derived['OH'].data
     
     # MACT Derived
     er_R23_MACT = derived_MACT['R23'].data
@@ -407,15 +417,16 @@ def bian_comparison(fitspath):
     der_O32_MACT = np.log10(er_O32_MACT)
     der_OH_MACT = derived_MACT['OH'].data
 
-    bR23_DEEP = np.zeros(len(der_R23))
-    B_comparison = np.zeros(len(der_R23))
-    BO_comparison = np.zeros(len(der_R23))
+    """bR23_DEEP = np.zeros(len(deep2_r23))
+    B_comparison = np.zeros(len(deep2_r23))
+    BO_comparison = np.zeros(len(deep2_r23))
+
     bR23_MACT = np.zeros(len(der_R23_MACT))
     C_comparison = np.zeros(len(der_R23_MACT))
     CO_comparison = np.zeros(len(der_R23_MACT))
 
-    bO32_DEEP = np.zeros(len(der_R23))
-    bO32_MACT = np.zeros(len(der_R23_MACT))
+    bO32_DEEP = np.zeros(len(deep2_r23))
+    bO32_MACT = np.zeros(len(der_R23_MACT))"""
 
     jR23_det = bian_calibration_r23(metal_det)
     jO32_det = bian_calibration_o32(metal_det)
@@ -423,14 +434,13 @@ def bian_comparison(fitspath):
     A_comparison = jR23_det - lR23
     AO_comparison = jO32_det - lO32
 
-
-    bR23_DEEP = bian_calibration_r23(der_OH)
-    bO32_DEEP = bian_calibration_o32(der_OH)
+    bR23_DEEP = bian_calibration_r23(deep2_oh)
+    bO32_DEEP = bian_calibration_o32(deep2_oh)
     bR23_MACT = bian_calibration_r23(der_OH_MACT)
     bO32_MACT = bian_calibration_o32(der_OH_MACT)
 
-    B_comparison = bR23_DEEP - der_R23
-    BO_comparison = bO32_DEEP - der_O32
+    B_comparison = bR23_DEEP - deep2_r23
+    BO_comparison = bO32_DEEP - deep2_o32
     C_comparison = bR23_MACT - der_R23_MACT
     CO_comparison = bO32_MACT - der_O32_MACT
 

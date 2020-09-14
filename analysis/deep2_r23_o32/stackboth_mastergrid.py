@@ -26,6 +26,7 @@ from astropy.convolution import Box1DKernel, convolve
 from . import general
 from Metallicity_Stack_Commons import lambda0
 from Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 
 RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
 
@@ -53,7 +54,7 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
     """
     pdf_pages = PdfPages(fitspath+name) # open pdf document
 
-    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3(fitspath)
+    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3(fitspath, fitspath_ini)
 
 
     grid_data = np.load(grid_data_file, allow_pickle=True) # This is the npz file
@@ -139,7 +140,7 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
 
                 ax2.legend(loc='upper left', numpoints=3)    
 
-                str0 = 'R23=%.1f O32=%.1f N=%i' % (R23_minimum[rr, oo], O32_minimum[rr oo], len(index))
+                str0 = 'R23=%.1f O32=%.1f N=%i' % (R23_minimum[rr, oo], O32_minimum[rr, oo], len(index))
                 ax2.annotate(str0, (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', weight='bold')
                
                 for x in lambda0:
@@ -205,15 +206,15 @@ def run_stacking_master_mask(fitspath, fitspath_ini, dataset, name, grid_data_fi
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     maskM = fits.getdata(fitspath_ini + '/Results_Graphs_Arrays_Etc/Arrays/MastermaskArray.fits')
-    Master_Stacking(fitspath, dataset, wavemaster, grid_data_file, image2DM, name, header, mask=maskM)
+    master_stacking(fitspath, dataset, wavemaster, grid_data_file, image2DM, name, header, mask=maskM)
 
 
-def run_stacking_master(fitspath, name,grid_data_file):
+def run_stacking_master(fitspath, name, grid_data_file):
     """
     Purpose
     Run function for above function if mask not used
     """
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wavemaster = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
-    Master_Stacking(fitspath, dataset, wavemaster, grid_data_file, image2DM, name, header, mask=None)
+    master_stacking(fitspath, dataset, wavemaster, grid_data_file, image2DM, name, header, mask=None)
     

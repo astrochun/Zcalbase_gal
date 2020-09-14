@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
+from os.path import join
 
 from Metallicity_Stack_Commons.column_names import filename_dict
 
@@ -222,7 +223,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
 
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
           'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
-    tab2 = Table([R23, O32, SNR3, Bin_number, individual_ID,
+    tab2 = Table([R23, O32, SNR3, bin_number, individual_ID,
                  R23_minall, O32_minall, R23_avgall, O32_avgall,
                  R23_medall, O32_medall, R23_maxall, O32_maxall], names=n2)
     # used to be + dataset+'_2d_binning_datadet3.tbl

@@ -54,7 +54,7 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
     """
     pdf_pages = PdfPages(fitspath+name) # open pdf document
 
-    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3(fitspath, fitspath_ini)
+    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = general.get_det3(fitspath, fitspath_ini)
 
 
     grid_data = np.load(grid_data_file, allow_pickle=True) # This is the npz file

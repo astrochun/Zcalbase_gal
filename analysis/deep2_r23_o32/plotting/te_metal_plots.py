@@ -52,7 +52,7 @@ def bian_calibration_r23(metal_det):
     bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
                        + bian_coeff[3] * metal_det * metal_det * metal_det
     """
-    p_bian = np.poly1d([bian_coeff[3], bian_coeff[2], bian_coeff[1], bian_coeff[0]])
+    p_bian = np.poly1d([bian_coeff[::-1]])
     shortcut = p_bian(metal_det)
     return shortcut
 
@@ -412,17 +412,6 @@ def bian_comparison(fitspath):
     der_O32_MACT = np.log10(er_O32_MACT)
     der_OH_MACT = derived_MACT['OH'].data
 
-    """bR23_DEEP = np.zeros(len(deep2_r23))
-    B_comparison = np.zeros(len(deep2_r23))
-    BO_comparison = np.zeros(len(deep2_r23))
-
-    bR23_MACT = np.zeros(len(der_R23_MACT))
-    C_comparison = np.zeros(len(der_R23_MACT))
-    CO_comparison = np.zeros(len(der_R23_MACT))
-
-    bO32_DEEP = np.zeros(len(deep2_r23))
-    bO32_MACT = np.zeros(len(der_R23_MACT))"""
-
     jR23_det = bian_calibration_r23(metal_det)
     jO32_det = bian_calibration_o32(metal_det)
 
@@ -457,12 +446,12 @@ def bian_comparison(fitspath):
     n2 = ('MACT x', 'MACT y')
 
     fig, ax = plt.subplots()
-    ax.scatter(lR23, jR23_det, marker = 'D', color = 'b', alpha = 0.75, label = 'Detections')
-    ax.scatter(deep2_r23,bR23_DEEP,  marker = '3', color = 'r', label = 'DEEP2 Individual Spectra')
+    ax.scatter(lR23, jR23_det, marker='D', color='b', alpha=0.75, label='Detections')
+    ax.scatter(deep2_r23, bR23_DEEP,  marker='3', color='r', label='DEEP2 Individual Spectra')
     
-    ax.scatter(der_R23_MACT,bR23_MACT, marker = '4', color = 'm', label = 'MACT Individual Spectra')
+    ax.scatter(der_R23_MACT, bR23_MACT, marker='4', color='m', label='MACT Individual Spectra')
     for aa in range(len(valid_ID)):
-        ax.annotate(valid_ID[aa], (lR23[aa], jR23_det[aa]), fontsize = '6')
+        ax.annotate(valid_ID[aa], (lR23[aa], jR23_det[aa]), fontsize='6')
     ax.set_xlabel('Observed '+r'$log(R_{23})$')
     ax.set_ylabel('Estimated '+r'$log(R_{23})$')
     plt.plot(lR23, lR23, 'k', label = 'One to one line')
@@ -485,14 +474,14 @@ def bian_comparison(fitspath):
     print('med: ', medO0, 'avg: ', avgO0, 'sig: ', sigO0)
     
     fig, ax = plt.subplots()
-    ax.scatter(lO32, jO32_det, marker = 'D', color = 'b', label = 'Detections')
-    ax.scatter(deep2_o32,bO32_DEEP, marker = '3', color = 'r', label = 'DEEP2 Individual Spectra')
-    ax.scatter(der_O32_MACT,bO32_MACT, marker = '4', color = 'm', label = 'MACT Individual Spectra')
+    ax.scatter(lO32, jO32_det, marker='D', color='b', label='Detections')
+    ax.scatter(deep2_o32, bO32_DEEP, marker='3', color='r', label='DEEP2 Individual Spectra')
+    ax.scatter(der_O32_MACT, bO32_MACT, marker='4', color='m', label='MACT Individual Spectra')
     for aa in range(len(valid_ID)):
-        ax.annotate(valid_ID[aa], (lO32[aa], jO32_det[aa]), fontsize = '6')
+        ax.annotate(valid_ID[aa], (lO32[aa], jO32_det[aa]), fontsize='6')
     ax.set_xlabel('Observed '+r'$log(O_{32})$ ')
     ax.set_ylabel('Estimated '+r'$log(O_{32})$')
-    plt.plot(jO32_det, jO32_det, 'k', label = 'One to one line')
+    plt.plot(jO32_det, jO32_det, 'k', label='One to one line')
     plt.legend()
 
     an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avgO0 + '\n'

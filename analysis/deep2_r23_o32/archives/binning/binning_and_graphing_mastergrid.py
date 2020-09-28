@@ -36,10 +36,10 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     n_bins_range = np.arange(0, n_split*n_bins, 1)
 
     # Initializing Arrays for Grid stacking
-    number_inbin = np.zeros((n_bins, n_split))   # Used to be N_arr0
+    number_inbin = np.zeros((n_bins, n_split))           # Used to be N_arr0
     locator = np.zeros((n_bins, n_split), dtype=object)  # Used to be T_arr
-    O32_minimum = np.zeros((n_bins, n_split))    # Used to be O32_grid
-    R23_minimum = np.zeros((n_bins, n_split))      # Used to be R23_grid
+    O32_minimum = np.zeros((n_bins, n_split))            # Used to be O32_grid
+    R23_minimum = np.zeros((n_bins, n_split))            # Used to be R23_grid
     O32_median = np.zeros((n_bins, n_split))
     R23_median = np.zeros((n_bins, n_split))
     O32_max = np.zeros((n_bins, n_split))
@@ -47,7 +47,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     xBar = np.zeros(n_split * n_bins)
     yBar = np.zeros(n_split * n_bins)
     area = np.zeros(n_split * n_bins)
-    bin_number = np.zeros(len(data3), dtype=int)  # Used to be N_bin
+    bin_number = np.zeros(len(data3), dtype=int)        # Used to be N_bin
 
     R23_minall = np.zeros(len(R23))
     O32_minall = np.zeros(len(R23))

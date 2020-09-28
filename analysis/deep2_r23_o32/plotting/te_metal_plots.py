@@ -445,7 +445,7 @@ def bian_comparison(fitspath):
 
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker='D', color='b', alpha=0.75, label='Detections')
-    ax.scatter(deep2_r23, bR23_DEEP,  marker='3', color='r', label='DEEP2 Individual Spectra')
+    ax.scatter(deep2_r23, bR23_DEEP, marker='3', color='r', label='DEEP2 Individual Spectra')
     
     ax.scatter(der_R23_MACT, bR23_MACT, marker='4', color='m', label='MACT Individual Spectra')
     for aa in range(len(valid_ID)):

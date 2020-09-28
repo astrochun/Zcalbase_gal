@@ -399,10 +399,8 @@ def bian_comparison(fitspath):
     derived_MACT = asc.read(fitspath_ini + 'MACT_R23_O32_derived.tbl')
     
     # DEEP2 Derived
-    deep_r23 = derived['R23'].data
-    deep_o32 = derived['O32'].data
-    deep2_r23 = np.log10(deep_r23)
-    deep2_o32 = np.log10(deep_o32)
+    deep2_r23 = np.log10(derived['R23'].data)
+    deep2_o32 = np.log10(derived['O32'].data)
     deep2_oh = derived['OH'].data
     
     # MACT Derived

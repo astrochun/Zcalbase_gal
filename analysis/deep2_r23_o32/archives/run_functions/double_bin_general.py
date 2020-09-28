@@ -1,8 +1,6 @@
 import numpy as np
 from astropy.io import fits
 from astropy.io import ascii as asc
-from astropy.table import vstack, hstack
-from astropy.table import Table
 import os
 from os.path import exists, join
 import glob

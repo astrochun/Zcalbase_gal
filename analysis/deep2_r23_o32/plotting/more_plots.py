@@ -156,14 +156,13 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
     pdf_pages = PdfPages(pdf_name)
 
     txt0 = r'Intensity ($10^{-17}~{\rm erg}~{\rm s}^{-1}~{\rm cm}^{-2}~\AA^{-1}$)'
-                        
     scalefactor = 1e-17
     image2d = image2DM/scalefactor
     for ii in spec_range:
         fig, ax = plt.subplots()
         plt.plot(wave, image2d[ii, :], linewidth=0.5)
         plt.xlabel('Wavelength (Angstroms)')
-        plt.ylabel(txt0)  # ergs per second per cm^2 per angstron
+        plt.ylabel(txt0)  # ergs per second per cm^2 per Angstrom
         ax.set_xlim(4250, 4450)
         ax.set_ylim(y_lim)
         ax.axvline(x=4363.21, linewidth=1.0, color='r', linestyle=':')
@@ -188,7 +187,6 @@ def plotting_gaussian_curves():
     s = 15.0
     a = 20.0
     c = 0.0
-                         
     singlecurve = zoom_and_gauss_general.gauss(x, xbar, s, a, c)
 
     # Balmer Emission Lines
@@ -262,5 +260,6 @@ def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
     x -> the emission line that is being fitted
     the rest -> guess parameters for the fit
     """
+
     con1 = 72.0/45.0
     return a1 * np.exp(-(x - xbar)**2/(2 * s1**2)) + c + a2 * np.exp(-(x - (xbar * con1))**2/(2 * s2**2))

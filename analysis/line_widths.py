@@ -44,6 +44,7 @@ def exclude_outliers(objno):
     -------
     flag -> list of ones and zeros that flags the bad sources
     """
+
     flag = np.zeros(len(objno), dtype=int)
     bad_data = np.array(['32007727', '32101412', '42006031', '32035286',
                          '14023705'])
@@ -67,6 +68,7 @@ def get_data(out_path):
     -------
     Data for main function 
     """
+
     path0 = '/Users/cly/data/DEEP2/DR4/f_current/'
     files = glob(path0+'*all_line_fit.fits')
 
@@ -260,10 +262,10 @@ def main(silent=False):
                 med0 = np.median(t_diff)
                 avg0 = np.mean(t_diff)
                 sig0 = np.std(t_diff)
-                ax_disp[ii][jj].plot(pt2, pt2*10**(-med0), 'b-')  # , alpha=0.5)
-                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0), 'r-')  # , alpha=0.5)
-                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0-sig0), 'r--')  # , alpha=0.5)
-                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0+sig0), 'r--')  # , alpha=0.5)
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-med0), 'b-')
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0), 'r-')
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0-sig0), 'r--')
+                ax_disp[ii][jj].plot(pt2, pt2*10**(-avg0+sig0), 'r--')
 
                 a_txt = r'$\mu$'+' : %0.3f\n ' % avg0
                 a_txt += r'$\tilde{\Delta}$'+' : %0.3f\n' % med0
@@ -303,4 +305,3 @@ def main(silent=False):
 
     if not silent:
         log.info('### End main : '+systime())
-# enddef

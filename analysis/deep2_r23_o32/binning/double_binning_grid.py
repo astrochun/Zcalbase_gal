@@ -20,6 +20,7 @@ def two_times_binned(fitspath, pdf_pages, outfile, R23, O32, SNR3, data3, galinb
     galinbin  -> array of numbers that specifies how many spectra go in each bin
     Other variables -> emission file values of spectra that come from the get_det3 function
     """
+
     pdf_pages = PdfPages(pdf_pages)
 
     # One_dimensional binning for R23
@@ -80,7 +81,7 @@ def two_times_binned(fitspath, pdf_pages, outfile, R23, O32, SNR3, data3, galinb
         T_arr[ii, 1] = idx3
         
         N_bin[idx2] = ii*2
-        N_bin[idx3] = ii*2+1
+        N_bin[idx3] = ii*2 + 1
 
         xBar[ii*2] = np.log10(np.average(R23[idx2]))
         xBar[ii*2+1] = np.log10(np.average(R23[idx3]))

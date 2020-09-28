@@ -21,6 +21,7 @@ def making_grid(fitspath, pdf_pages, outfile, R23, O32, det3, R23_bin, O32_bin):
     O32_bin   -> set size of the bin in the O32 direction
     Other variables -> emission file values of spectra that come from the get_det3 function
     """
+
     fig1, ax1 = plt.subplots() 
 
     xlim = [0.4, 50]
@@ -71,7 +72,6 @@ def making_grid(fitspath, pdf_pages, outfile, R23, O32, det3, R23_bin, O32_bin):
     cm = plt.cm.get_cmap('Blues')
 
     # Colorbar and hexbin plotting
-
     tabmastergrid = Table([x0, y0])
     tabmastergrid_name = join(fitspath, 'testmastergrid.tbl')
     asc.write(tabmastergrid, tabmastergrid_name, format='fixed_width_two_line')

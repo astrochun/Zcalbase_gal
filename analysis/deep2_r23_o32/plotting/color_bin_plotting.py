@@ -99,7 +99,6 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name):
     ax1.set_xlabel(r'log($R_{23}$)')
     ax1.set_ylabel(r'log($O_{32}$)')
 
-    # fig1.set_size_inches(8,8)
 
     pdf_pages.savefig()
     pdf_pages.close()

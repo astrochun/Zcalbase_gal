@@ -56,8 +56,6 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     #Outfile and pdf both use name
     print('finished with stacking,' + Stack_name + ' pdf and fits files created')
 
-
-
     #Zoom_and_gauss_general
 
     Stack_name= Stack_name.replace('.pdf', '.fits')
@@ -83,12 +81,12 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
         #asc_tab = asc.read(tab)
             
     #Option to change: Constants used as initial guesses for gaussian fit
-    s=1.0
-    a= 1.0
+    s = 1.0
+    a = 1.0
     c = 2.0
         
-    s1=1.3
-    a1= 4.7
+    s1 = 1.3
+    a1 = 4.7
     s2 = 10.0
     a2 = -2.0
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)

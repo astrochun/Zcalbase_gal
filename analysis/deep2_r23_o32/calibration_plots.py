@@ -10,20 +10,21 @@ from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_d
 
 def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=False):
     """
-    Purpose
-    Call function for calculating and plotting data points based with the green_pea_calibration
-    and the local_analog_calibration.
+    Purpose:
+      Call function for calculating and plotting data points based with the green_pea_calibration
+      and the local_analog_calibration.
 
-    Parameters
-    fitspath -> save location of the current run
-    fitspath_ini -> '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-    dataset  -> indicates the type of binning being used
-    revised  -> indicates that revised verification table is being used
-    individual -> used if individual detections from Zcalbase_gal are used
+    Parameters:
+      fitspath -> save location of the current run
+      fitspath_ini -> '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+      dataset  -> indicates the type of binning being used
+      revised  -> indicates that revised verification table is being used
+      individual -> used if individual detections from Zcalbase_gal are used
 
-    Outputs
-    pdf_files
+    Outputs:
+      pdf_files
     """
+
     if revised:
         temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop_rev']))
         verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
@@ -160,8 +161,8 @@ def individual_gpc(individual_ascii, validation_table):
     This function is currently repetitive of the function above for the individual detection cases.
     However, I am going to keep it here in the case that we want to plot the individual detections against
     the binned detections.
-
     """
+
     pea_out_pdf_ind = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/jiang_plot_individual.pdf'
     individual = asc.read(individual_ascii)
     logR23 = individual['logR23']

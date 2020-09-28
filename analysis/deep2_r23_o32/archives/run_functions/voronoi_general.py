@@ -86,8 +86,6 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
     #Outfile and pdf both use name
     print('finished with stacking,' + Stack_name + ' pdf and fits files created')
 
-
-
     #Zoom_and_gauss_general
 
     Stack_name= Stack_name.replace('.pdf', '.fits')

@@ -10,6 +10,7 @@ Emission lines in spectrum (not all being used currently in study) See MSC for s
 [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46,
 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -39,19 +40,20 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
 
 def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, header, mask= None):
     """
-    Purpose
-    Function stacks all spectra in a given bin and produces tables of properties of that bin
+    Purpose:
+      Function stacks all spectra in a given bin and produces tables of properties of that bin
 
-    Parameters
-    fitspath -> save location of the current run
-    dataset -> keyword used to define binning method
-    wave -> spectrum of each galaxy
-    grid_data_file -> npz file that holds the information from the binning process
-    image2D -> spectra data
-    name -> name of the outputted pdf file with graphs
-    header -> header of the data file
-    mask -> optional input used to mask the night sky lines if inputted (default: None)
+    Parameters:
+      fitspath -> save location of the current run
+      dataset -> keyword used to define binning method
+      wave -> spectrum of each galaxy
+      grid_data_file -> npz file that holds the information from the binning process
+      image2D -> spectra data
+      name -> name of the outputted pdf file with graphs
+      header -> header of the data file
+      mask -> optional input used to mask the night sky lines if inputted (default: None)
     """
+
     pdf_pages = PdfPages(fitspath+name) # open pdf document
 
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = general.get_det3(fitspath, fitspath_ini)
@@ -148,7 +150,6 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
 
                 fig.set_size_inches(8, 11)
 
-                
                 x1, x2  = 4200, 4500
                 ind = np.where((wave >= x1) & (wave <= x2))[0]
                 sig, med = np.nanstd(Spect1D[ind]), np.nanmedian(Spect1D[ind])
@@ -170,9 +171,6 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
 
 
                 count +=1
-            # endif else: count +=1
-        # endfor
-    # endfor
     pdf_pages.close()
 
     # Writing fits file

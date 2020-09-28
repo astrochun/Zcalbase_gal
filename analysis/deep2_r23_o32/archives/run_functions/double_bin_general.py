@@ -1,5 +1,3 @@
-
-
 import numpy as np
 from astropy.io import fits
 from astropy.io import ascii as asc
@@ -132,4 +130,3 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
     more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
     more_plots.hist_for_bin(dataset, asc_table2)
-

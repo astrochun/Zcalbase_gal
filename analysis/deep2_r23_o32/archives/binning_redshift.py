@@ -104,9 +104,6 @@ def redshift_graphs(fitspath, RestframeMaster, binning_grid_npz, DEEP2_all_files
                     fig2.savefig(pdf_pages2, format='pdf')
 
                 count += 1
-            # endif
-        # endfor
-    # endfor
 
     for cc in range(count % (nrows*ncols), nrows*ncols):
         row0 = cc / nrows % ncols

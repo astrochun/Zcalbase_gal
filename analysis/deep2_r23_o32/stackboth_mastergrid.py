@@ -56,7 +56,8 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
 
     pdf_pages = PdfPages(fitspath+name) # open pdf document
 
-    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = general.get_det3(fitspath, fitspath_ini)
+    individual_names, R23, O32, O2, O3, Hb, SNR2, \
+    SNR3, SNRH, det3, data3 = general.get_det3(fitspath, fitspath_ini)
 
 
     grid_data = np.load(grid_data_file, allow_pickle=True) # This is the npz file
@@ -77,11 +78,11 @@ def master_stacking(fitspath, dataset, wave, grid_data_file, image2D, name, head
  
     avg_R23 = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as xBar
     avg_O32 = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as yBar
-    R23_node = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as R23_minimum
-    O32_node = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as O32_minimum
+    R23_node = np.zeros(len(R23_minimum)*len(O32_minimum))   #Same as R23_minimum
+    O32_node = np.zeros(len(R23_minimum)*len(O32_minimum))   #Same as O32_minimum
     R23_med = np.zeros(len(R23_minimum)*len(O32_minimum))    #median R23 value
     O32_med = np.zeros(len(R23_minimum)*len(O32_minimum))    #median O32 value
-    N_gal = np.zeros(len(R23_minimum)*len(O32_minimum))     #Same as Number_inbin
+    N_gal = np.zeros(len(R23_minimum)*len(O32_minimum))      #Same as Number_inbin
 
     n_N = R23_minimum.shape[0]
     if dataset == 'n_Bins' or dataset == 'Double_Bin': n_M = R23_minimum.shape[1]

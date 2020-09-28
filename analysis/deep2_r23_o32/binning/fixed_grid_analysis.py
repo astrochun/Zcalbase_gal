@@ -27,8 +27,6 @@ def making_grid(fitspath, pdf_pages, outfile, R23, O32, det3, R23_bin, O32_bin):
     xlim = [0.4, 50]
     ylim = [0.1, 20]
 
-    R23_bin = R23_bin
-    O32_bin = O32_bin
     R23_grid = np.arange(np.log10(xlim[0]), np.log10(xlim[1])+R23_bin, R23_bin)
     O32_grid = np.arange(np.log10(ylim[0]), np.log10(ylim[1])+R23_bin, O32_bin)
     N_arr0 = np.zeros((len(R23_grid), len(O32_grid)), dtype=np.float)

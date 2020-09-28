@@ -90,7 +90,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         bin_ID = individual['bin_ID']
         alpha = [1]
         green_peas_calibration.main(logR23, logO32, com_log, out_pdf, n_bins=6, xra=[0.3, 1.15],
-                                    yra=[6.5, 9.10], marker=['D'], edgecolors=['face', 'face', 'none'], alpha=alpha,
+                                    yra=[6.5, 9.10], marker=['D'],
+                                    edgecolors=['face', 'face', 'none'], alpha=alpha,
                                     label=['Individual Zcalbase_gal Detection'], ID=[bin_ID], fit=False,
                                     silent=False, verbose=True)
     # For LAC
@@ -109,7 +110,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
-    if dataset == 'Voronoi10' or dataset == 'Voronoi14' or dataset == 'Voronoi20' or dataset == 'Double_Bin':
+    if dataset in ['Voronoi10', 'Voronoi14', 'Voronoi20', 'Double_Bin']:
         lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
         lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
         OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]

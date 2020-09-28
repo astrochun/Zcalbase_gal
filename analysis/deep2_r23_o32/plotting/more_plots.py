@@ -114,7 +114,7 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
 
     pdf_pages.close()
 
-    pdf_pages2 = PdfPages(join(fitspath + 'O32_histogram.pdf'))
+    pdf_pages2 = PdfPages(join(fitspath, 'O32_histogram.pdf'))
     for ii in range(number_of_bins):
         bin_idx = np.where(N_bin == ii)[0]
         fig, ax = plt.subplots()
@@ -168,7 +168,7 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
         ax.axvline(x=4363.21, linewidth=1.0, color='r', linestyle=':')
         ax.axvline(x=4340.544, linewidth=1.0, color='r', linestyle=':')
         ax.text(4363.21, y_text, r'[OIII]$\lambda$4363', va='top', ha='center', rotation=90)
-        ax.text(4340.544, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
+        ax.text(4340.46, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
         fig.set_size_inches(6, 6)
         plt.subplots_adjust(left=left, right=0.97, bottom=0.1, top=0.97)
         pdf_pages.savefig()
@@ -202,7 +202,7 @@ def plotting_gaussian_curves():
 
     positive = zoom_and_gauss_general.gauss(x, xbar, s1, a1, doublecurve[0])
     negative = zoom_and_gauss_general.gauss(x, xbar, s2, a2, c)
-                         
+
     # Oxygen Two Line
     x = np.arange(1, 100)
     xbar = 40.0
@@ -213,7 +213,7 @@ def plotting_gaussian_curves():
     c = 0.0
 
     oxycurve = oxy2_gauss(x, xbar, s1, a1, c, s2, a2)
-            
+
     xbar3 = 40.0
     xbar4 = 63.5
     s3 = 8.0

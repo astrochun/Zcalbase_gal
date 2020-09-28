@@ -179,7 +179,7 @@ def main(silent=False):
         x_temp = x_temp/lambda0[ii] * c_value
 
         t_cmd = line+'_vdisp = x_temp'
-        exec t_cmd
+        exec(t_cmd)
 
         sig_idx = np.where(x_temp >= sig_limit)[0]
         sig_idx_SN = intersect(SN_cut, sig_idx)

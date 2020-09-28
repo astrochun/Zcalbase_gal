@@ -125,7 +125,3 @@ def two_times_binned(fitspath, pdf_pages, outfile, R23, O32, SNR3, data3, galinb
     n2 = ('R23', 'O32', 'SN_5007', 'N_bin')
     tab2 = Table([R23, O32, SNR3, N_bin], names=n2)
     asc.write(tab2, fitspath+'/Double_Bin_2d_binning_datadet3.tbl', format='fixed_width_two_line')
-
-    '''n3 = ('ID' , 'R23_grid', 'O32_grid')
-    tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)
-    asc.write(tab1, fitspath+'/Double_Bin_grid_values.tbl', format='fixed_width_two_line')'''

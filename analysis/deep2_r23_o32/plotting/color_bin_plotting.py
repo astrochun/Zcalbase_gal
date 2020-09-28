@@ -8,14 +8,15 @@ from os.path import join
 
 def color_for_bin(fitspath, bin_info, pdf_file):
     """
-    Purpose
-    Plots for R23 and O32 for Voronoi analysis for each bin
+    Purpose:
+      Plots for R23 and O32 for Voronoi analysis for each bin
 
-    Parameters
-    fitspath -> path where files are called from and saved to
-    bin_info -> table created by binning code
-    pdf_file -> name of pdf file produced
+    Parameters:
+      fitspath -> path where files are called from and saved to
+      bin_info -> table created by binning code
+      pdf_file -> name of pdf file produced
     """
+
     pdf_pages = PdfPages(join(fitspath, pdf_file))
     asc_table = asc.read(join(fitspath, bin_info))
     targetSN = 14

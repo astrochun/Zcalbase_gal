@@ -1,5 +1,4 @@
 # This function runs the entire process start to finish
-# This weekend combine the grid and voronoi if statements, voronoi20, log plots for met
 # EW values:equival width
 
 from . import name_dict
@@ -26,23 +25,12 @@ from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect, error_prop
 
 
-'''
-#############Getting username##############
-import getpass
-username = getpass.getuser()
-print(username)
-if username == 'reagenleimbach':
-    fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-if username == 'fill in':
-    fitspath_ini = 'fill in '
-'''
-
-
 def get_det3(fitspath, fitspath_ini):
     """
     Purpose
     ----------
     Function is called to collect data for binning from DEEP2 data files
+
     Parameters
     ----------
     fitspath -> path to the location of files saved for each run
@@ -173,7 +161,6 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     adaptive -> determines if the R23 bins have equal or different number of spectra in them in binning method
     dustatten -> determines if dust attenuation corrections are applied
     mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
-
     """
 
     '''if dataset == 'O32_Grid': org_name = 'O32_Grid'
@@ -358,15 +345,15 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     '''
 
 
-# Below function will run the individual functions in the codes above that produce graphs
-# Enter a keyword for want to indictate what function you want to run
-# This will ease the reproduction process
-# CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
 def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=False):
     """
     Purpose
     ----------
     To run individual codes to test changes or edits plots
+    Below function will run the individual functions in the codes above that produce graphs
+    Enter a keyword for want to indictate what function you want to run
+    This will ease the reproduction process
+    CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
 
     Parameters
     ----------

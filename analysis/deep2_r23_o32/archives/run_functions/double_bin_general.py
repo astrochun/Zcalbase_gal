@@ -18,45 +18,34 @@ from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect, error_prop
 
-def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='None'):
-    #dataset must equal Double_bin
-    
+
+def run_two_times_binned_analysis(dataset,y_correction, adaptive=False, mask='None'):
+    # dataset must equal Double_bin
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()
 
-
     if dataset == 'Double_Bin':
-        if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
-        if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2809 
+        # Each bin will be split in half
+        # Must sum to 2809
+        if adaptive == False: galinbin = [400, 400, 400, 400, 400, 400, 409]
+        if adaptive == True: galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
         pdf_pages = fitspath +'double_grid.pdf'
         grid_data_file = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath,
-                                                         pdf_pages,
-                                                         grid_data_file,
-                                                         R23,
-                                                         O32,
-                                                         O2,
-                                                         O3,
-                                                         Hb,
-                                                         SNR2,
-                                                         SNR3,
-                                                         SNRH,
-                                                         det3,
-                                                         data3,
-                                                         galinbin,
-                                                         adaptive) 
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, grid_data_file, R23, O32, O2, O3,
+                                                        Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)
         
 
-    #Stacking_MASKED_MASTERGRID
+    # Stacking_MASKED_MASTERGRID
     Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf' 
-    Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
+    Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,
+                                                  fitspath_ini, dataset, Stack_name, grid_data_file)
 
-    #Outfile and pdf both use name
+    # Outfile and pdf both use name
     print('finished with stacking,' + Stack_name + ' pdf and fits files created')
 
-    #Zoom_and_gauss_general
+    # Zoom_and_gauss_general
 
     Stack_name= Stack_name.replace('.pdf', '.fits')
     outfile_voronoi = fitspath+ Stack_name

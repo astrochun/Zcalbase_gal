@@ -25,12 +25,6 @@ from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2
 from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 
-'''
-Debugging Note:
-   If 'x0' is infeasible error occurs, check the para_bound values to
-   make sure the expected values are within the range set up upper and
-   lower limits.
-'''
 
 def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr):
@@ -276,14 +270,13 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
             # line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2d,
             #                line_name,row,col,fig,ax_arr)
 
-            # Filling In Arrays
+            # Array Population
             norm_array[rr] = max0
             rms_array[rr] = rms_tot
             SN_array[rr] = (flux_s/rms_tot)
             if line_type == 'Balmer':
                 flux_neg_array[rr] = flux_neg
 
-            # Filling In Arrays
             flux_g_array[rr] = flux_g
             flux_s_array[rr] = flux_s
             xbar_array[rr] = o1[0]   # referred to as Center as well
@@ -364,9 +357,6 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
                     txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
                     txt0 += 'S/N: %.3f' % (SN_array[rr])
 
-            
-            # t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
-
             for x in lambda0:
                 t_ax.axvline(x=x, linewidth=0.15, color='k', linestyle='--')
 
@@ -393,7 +383,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
 
     # Writing Ascii Tables and Fits Tables
     # Repetive Columns have been added: The last four ot six columns will be used for individual graphing
-    out_ascii = fitspath+'/' + dataset + '_flux_gaussian_' + str(np.int(working_wave)) + '.tbl'
+    out_ascii = fitspath+'/' + dataset + '_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
 
     if line_type == 'Single':
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
@@ -430,6 +420,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
     # pdfpages3.close() #Add back in equivalent width plots are added
     print('Done!')
     fig.clear()
+
 
 def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction,s,a,c,s1,a1,s2,a2,tab):
     """

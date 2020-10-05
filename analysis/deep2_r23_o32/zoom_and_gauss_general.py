@@ -17,6 +17,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table, Column
 from pylab import subplots_adjust
 from scipy.optimize import curve_fit
+from os.path import join
 
 # Import error propagation codes from chun_codes
 from chun_codes import random_pdf
@@ -383,7 +384,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
 
     # Writing Ascii Tables and Fits Tables
     # Repetive Columns have been added: The last four ot six columns will be used for individual graphing
-    out_ascii = fitspath+'/' + dataset + '_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
+    out_ascii = join(fitspath, f'{dataset}'_flux_gaussian_{str(np.int(working_wave))}.tbl)
+    # out_ascii = fitspath+'/' + dataset + '_flux_gaussian_'+str(np.int(working_wave))+'.tbl'
 
     if line_type == 'Single':
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',

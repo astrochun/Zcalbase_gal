@@ -27,14 +27,16 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive=False, mask='No
     if dataset == 'Double_Bin':
         # Each bin will be split in half
         # Must sum to 2809
-        if adaptive == False: galinbin = [400, 400, 400, 400, 400, 400, 409]
-        if adaptive == True: galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
+        if not adaptive:
+            galinbin = [400, 400, 400, 400, 400, 400, 409]
+        if adaptive:
+            galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
         pdf_pages = fitspath +'double_grid.pdf'
         grid_data_file = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
         Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, grid_data_file, R23, O32, O2, O3,
-                                                        Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)
+                                                         Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)
         
 
     # Stacking_MASKED_MASTERGRID

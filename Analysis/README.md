@@ -85,4 +85,103 @@ Calling the run function
 
 Steps taking throughout run function: 
 
-a. 
+1. Gets the valid data for the study using get_det3() 
+
+   Location:
+   
+   
+    general.get_det3(fitspath, fitspath_ini)
+   
+
+2. Calls correct binning function for dataset 
+
+   Location:
+   
+   
+    if dataset == 'O32_Grid':
+        single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
+                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
+                                        det3, data3, galinbin, adaptive)
+    if dataset == 'R23_Grid':
+        single_grid_r23.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
+                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
+                                        det3, data3, galinbin)
+    if dataset == 'Grid':
+        fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
+                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
+                                        R23_bin, O32_bin)
+    if dataset == 'n_Bins':
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
+                                            R23, O32, SNR3, data3, galinbin)
+   
+
+3. Calls stacking function to stack individual spectra 
+
+   Location:
+   
+   
+    if mask:
+            stack_name = dataset + name_dict['Stackname']
+            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
+                                                          dataset, stack_name, bin_outfile)
+        else:
+            stack_name = dataset + name_dict['Stackname_nomask']
+            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
+   
+
+4. Calls fitting function to fit the emisison lines in the combined spectra 
+with a gaussian profile and determine gaussian properties 
+
+   Location:
+   
+   
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
+                                      s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
+   
+
+5. Creates a validation table that confirms detections of OIIIλ[4363]
+
+   Location (Code imported from MSC):
+   
+   
+    # Verification Table
+    valid_table.make_validation_table(fitspath)
+    verification_table = join(fitspath, filename_dict['bin_valid'])
+   
+
+6. Calls function to calculate the R value, temperature, and metallicity of the detected lines
+
+   Location:
+   
+   
+    r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
+   
+
+7. Applies dust attenuation corrections if specified in run function 
+
+   Location:
+   
+   
+    if dustatten:
+        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+        attenuation.EBV_table_update(fitspath, use_revised= False)
+        r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
+   
+
+8. Applies Error Propagation from MSC
+
+   Location:
+   
+   
+    error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
+   
+
+9. Creates calibration plots that compare detections to other studies 
+
+   Location:
+   
+   
+    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
+   
+
+

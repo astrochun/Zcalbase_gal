@@ -29,7 +29,7 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive=False, mask='No
         # Must sum to 2809
         if not adaptive:
             galinbin = [400, 400, 400, 400, 400, 400, 409]
-        if adaptive:
+        else:
             galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
         pdf_pages = fitspath +'double_grid.pdf'
         grid_data_file = fitspath +'double_grid.npz'

@@ -3,7 +3,8 @@
 1. Overview
 2. Execution 
     1. Requirements
-    2. Running Analysis 
+    2. Running Grid Analysis 
+    3. Running Voronoi Analysis 
 3. Changelog
 4. Authors
 
@@ -44,30 +45,22 @@ Your will need the following to have a working copy of this software.
 - astropy
 - scipy
 
-### Running Analysis 
-The analysis is run by executing the run_grid_R23_O32_analysis() function in Analysis/DEEP2_R23_O32/general.py. 
+### Running Grid Analysis 
+The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
+function in Analysis/DEEP2_R23_O32/general.py. 
 
 
 
     from Zcalbase_gal.analysis.deep2_r23_o32 import general
+    dataset = 'n_Bins'
+    y_correction = ''
+    n_split = 3
+    adaptive = True 
+    dustatten = True
+    mask = True
 
 
-By importing analysis/deep2_r23_o32/general.py in a python environment, the following codes from Zcalbase_gal 
-and other sub-folders are imported. 
-- stackboth_mastergrid
-- zoom_and_gauss_general
-- hstack_tables
-- r_temp_calcul
-- calibration_plots
-- binning/n_bins_grid_analysis
-- binning/fixed_grid_analysis
-- binning/single_grid_o32 
-- binning/single_grid_r23
-- plotting/more_plots
-- plotting/line_ratio_plotting
-- plotting/te_metal_plots
-
-The run function requires the following variables. 
+The run function requires the following variables. (Give example then example)
 
 - dataset -> keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
 - y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
@@ -184,4 +177,29 @@ with a gaussian profile and determine gaussian properties
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
    
 
+### Running Voronoi Analysis 
+The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
+function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py. 
 
+
+
+    from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import vornoi_general
+    dataset = 'Vornoi14'
+    y_correction = ''
+    dustatten = True
+    mask = True
+
+
+The run function requires the following variables. 
+
+- dataset -> keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
+- y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
+- dustatten -> determines if dust attenuation corrections are applied
+- mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
+
+Calling the run function
+
+
+    general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
+    adaptive, dustatten, mask)
+    

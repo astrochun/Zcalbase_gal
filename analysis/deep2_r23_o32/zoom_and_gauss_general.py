@@ -14,9 +14,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
-from astropy.table import Table, Column
+from astropy.table import Table, Column, hstack
 from pylab import subplots_adjust
 from scipy.optimize import curve_fit
+from os.path import join
 
 # Import error propagation codes from chun_codes
 from chun_codes import random_pdf
@@ -364,7 +365,6 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
                     txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
                     txt0 += 'S/N: %.3f' % (SN_array[rr])
 
-            
             # t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
 
             for x in lambda0:
@@ -402,7 +402,6 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
         n = tuple([line_name + '_' + val for val in n])
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array, norm_array,
                       rms_array, SN_array, xbar_array, pos_amp_array], names=n)
-        asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     if line_type == 'Balmer' or line_type == 'Oxy2':
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
@@ -418,18 +417,23 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
             names = 'EW_'+str(np.int(working_wave))+'_abs'
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
-    asc.write(tab0, out_ascii, format='fixed_width_two_line')
-
-    out_ascii_single = fitspath+'/' + dataset + '_Average_R23_O32_Values.tbl'
-
-    n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
-    tab1 = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
-    asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
 
     pdf_pages.close()
     # pdfpages3.close() #Add back in equivalent width plots are added
     print('Done!')
     fig.clear()
+
+    if line_type == 'Oxy2':
+        out_ascii_single = fitspath + '/' + dataset + '_Average_R23_O32_Values.tbl'
+
+        n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
+        tab1 = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
+        # asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
+        return tab0, tab1
+
+    else:
+        return tab0
+
 
 def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction,s,a,c,s1,a1,s2,a2,tab):
     """
@@ -442,7 +446,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         if line_type[ii] == 'Single':
             outpdf = fitspath + dataset + '_Zoomed_Gauss_'+line_name[ii] + '.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
+            em_tab = zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
                             wave, lambda0[ii], lineflag, 
                             y_correction=y_correction, line_type=line_type[ii],
                             outpdf=outpdf, line_name=line_name[ii])
@@ -451,7 +455,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
+            em_tab = zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
                             wave, lambda0[ii], lineflag,
                             y_correction=y_correction, line_type=line_type[ii],
                             outpdf=outpdf, line_name=line_name[ii])
@@ -460,7 +464,13 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
             print(outpdf)
-            zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
+            em_tab, avg_tab = zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
                             wave, lambda0[ii], lineflag,
                             y_correction=y_correction, line_type=line_type[ii],
                             outpdf=outpdf, line_name=line_name[ii])
+        if ii == 0:
+            table_stack = hstack([avg_tab, em_tab])
+        else:
+            table_stack = hstack([table_stack, em_tab])
+        out_ascii = join(fitspath, 'combine_flux_ascii.tbl')
+        asc.write(table_stack, out_ascii,  format='fixed_width_two_line', overwrite=True)

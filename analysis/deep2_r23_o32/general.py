@@ -278,12 +278,12 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # hstack_table
     # Option to change: name of new fits file created
 
-    intro = join(fitspath, dataset + name_dict['Average_Bin_Value'])
+    """intro = join(fitspath, dataset + name_dict['Average_Bin_Value'])
     asc_intro = asc.read(intro)
     table_files = glob.glob(fitspath + '/' + dataset + '_flux_gaussian_*.tbl')
     combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
 
-    hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
+    hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)"""
         
     print('combine_flux_table created')
 

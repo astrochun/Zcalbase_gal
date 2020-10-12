@@ -88,11 +88,11 @@ Calling the run function
 Steps taking throughout run function: 
 
 1. Gets the valid data for the study using get_det3() 
-   
-   
-    general.get_det3(fitspath, fitspath_ini)
-   
 
+ 
+    general.get_det3(fitspath, fitspath_ini)
+    
+    
 2. Calls correct binning function for dataset 
 
    

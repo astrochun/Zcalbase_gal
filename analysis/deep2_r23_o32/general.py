@@ -274,18 +274,8 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
                                       s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
 
     print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
-
-    # hstack_table
-    # Option to change: name of new fits file created
-
-    """intro = join(fitspath, dataset + name_dict['Average_Bin_Value'])
-    asc_intro = asc.read(intro)
-    table_files = glob.glob(fitspath + '/' + dataset + '_flux_gaussian_*.tbl')
-    combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
-
-    hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)"""
-        
     print('combine_flux_table created')
+    # combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
 
     # FIX THIS CODE: line_ratio_plotting
     # I need to go back through and figure out what is the average and what is the composite

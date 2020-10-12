@@ -62,40 +62,39 @@ function in Analysis/DEEP2_R23_O32/general.py.
 
 The run function requires the following variables. (Give example then example)
 
-- dataset -> keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
-- y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
-- n_split -> determined how many times the R23 bins are split when using manual binning
-- adaptive -> determines if the R23 bins have equal or different number of spectra in them in binning method
-- dustatten -> determines if dust attenuation corrections are applied
-- mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
+- `dataset`: keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
+- `y_correction`: determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
+- `n_split`: determined how many times the R23 bins are split when using manual binning
+- `adaptive`: determines if the R23 bins have equal or different number of spectra in them in binning method
+- `dustatten`: determines if dust attenuation corrections are applied
+- `mask`: determines if the night sky mask is used in Stackingboth_MasterGrid.py
 
 Difference between analyses
+
 Different grid methods were utilize throughout the process of developing this study. The dataset option determines
 which grid method is used. For the run_grid_R23_O32_analysis(), the following options are available. 
-- Grid -> set two dimensional grid with equal lengthen sides 
-- O32_Grid -> one dimensional grid that bins in O32 
-- R23_Grid -> one dimensional grid that bins in R23
-- n_Bins -> two dimensional grid with a set number of spectra in each bin
+- `Grid`: set two dimensional grid with equal lengthen sides 
+- `O32_Grid`: one dimensional grid that bins in O32 
+- `R23_Grid`: one dimensional grid that bins in R23
+- `n_Bins`: two dimensional grid with a set number of spectra in each bin
             bins in R23 then in O32
 
 Calling the run function
 
-
+    ```python
     general.run_grid_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)
-    
+    ```
 
 Steps taking throughout run function: 
 
 1. Gets the valid data for the study using get_det3() 
-
     ```python 
     general.get_det3(fitspath, fitspath_ini)
     ```
     
 2. Calls correct binning function for dataset 
 
-   
     ```python
     if dataset == 'O32_Grid':
         single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
@@ -139,7 +138,7 @@ with a gaussian profile and determine gaussian properties
    Code imported from MSC
    
     ```python 
-    # Verification Table
+    Verification Table
     valid_table.make_validation_table(fitspath)
     verification_table = join(fitspath, filename_dict['bin_valid'])
     ```
@@ -198,9 +197,9 @@ which varies the number of spectra in each bin.
 
 Calling the run function
 
-
+    ```python
     general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)
-    
+    ```
 
 This run function goes through the same process as the grid method above. 

@@ -25,6 +25,7 @@ from chun_codes import random_pdf
 from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
 from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
+from Metallicity_Stack_Commons.column_names import filename_dict
 
 '''
 Debugging Note:
@@ -472,5 +473,5 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
             table_stack = hstack([avg_tab, em_tab])
         else:
             table_stack = hstack([table_stack, em_tab])
-        out_ascii = join(fitspath, 'combine_flux_ascii.tbl')
+        out_ascii = join(fitspath, filename_dict['bin_fit'] ) # used to be 'combine_flux_ascii.tbl'
         asc.write(table_stack, out_ascii,  format='fixed_width_two_line', overwrite=True)

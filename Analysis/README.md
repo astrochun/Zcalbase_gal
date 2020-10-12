@@ -89,14 +89,14 @@ Steps taking throughout run function:
 
 1. Gets the valid data for the study using get_det3() 
 
- 
+    ```python 
     general.get_det3(fitspath, fitspath_ini)
-    
+    ```
     
 2. Calls correct binning function for dataset 
 
    
-   
+    ```python
     if dataset == 'O32_Grid':
         single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
@@ -112,11 +112,11 @@ Steps taking throughout run function:
     if dataset == 'n_Bins':
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
                                             R23, O32, SNR3, data3, galinbin)
-   
+    ```
 
 3. Calls stacking function to stack individual spectra 
    
-   
+    ```python 
     if mask:
             stack_name = dataset + name_dict['Stackname']
             stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
@@ -124,65 +124,65 @@ Steps taking throughout run function:
         else:
             stack_name = dataset + name_dict['Stackname_nomask']
             stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
-   
+    ```
 
 4. Calls fitting function to fit the emisison lines in the combined spectra 
 with a gaussian profile and determine gaussian properties 
    
-   
+    ```python 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
                                       s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
-   
+    ```
 
 5. Creates a validation table that confirms detections of OIIIλ[4363]
 
    Code imported from MSC
    
-   
+    ```python 
     # Verification Table
     valid_table.make_validation_table(fitspath)
     verification_table = join(fitspath, filename_dict['bin_valid'])
-   
+    ```
 
 6. Calls function to calculate the R value, temperature, and metallicity of the detected lines
    
-   
+    ```python 
     r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
-   
+    ```
 
 7. Applies dust attenuation corrections if specified in run function 
    
-   
+    ```python 
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         attenuation.EBV_table_update(fitspath, use_revised= False)
         r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
-   
+    ```
 
 8. Applies Error Propagation from MSC
    
-   
+    ```python 
     error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
-   
+    ```
 
 9. Creates calibration plots that compare detections to other studies 
    
-   
+    ```python 
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
-   
+    ```
 
 ### Running Voronoi Analysis 
 The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
 function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py. 
 
 
-
+    ```python
     from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import vornoi_general
     dataset = 'Vornoi14'
     y_correction = ''
     dustatten = True
     mask = True
-
+    ```
 
 The run function requires the following variables. 
 

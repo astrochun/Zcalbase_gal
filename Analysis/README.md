@@ -72,10 +72,11 @@ The run function requires the following variables. (Give example then example)
 Difference between analyses
 Different grid methods were utilize throughout the process of developing this study. The dataset option determines
 which grid method is used. For the run_grid_R23_O32_analysis(), the following options are available. 
-- Grid -> 
-- O32_Grid
-- R23_Grid
-- n_Bins
+- Grid -> set two dimensional grid with equal lengthen sides 
+- O32_Grid -> one dimensional grid that bins in O32 
+- R23_Grid -> one dimensional grid that bins in R23
+- n_Bins -> two dimensional grid with a set number of spectra in each bin
+            bins in R23 then in O32
 
 Calling the run function
 
@@ -87,8 +88,6 @@ Calling the run function
 Steps taking throughout run function: 
 
 1. Gets the valid data for the study using get_det3() 
-
-   Location:
    
    
     general.get_det3(fitspath, fitspath_ini)
@@ -96,7 +95,6 @@ Steps taking throughout run function:
 
 2. Calls correct binning function for dataset 
 
-   Location:
    
    
     if dataset == 'O32_Grid':
@@ -117,8 +115,6 @@ Steps taking throughout run function:
    
 
 3. Calls stacking function to stack individual spectra 
-
-   Location:
    
    
     if mask:
@@ -132,8 +128,6 @@ Steps taking throughout run function:
 
 4. Calls fitting function to fit the emisison lines in the combined spectra 
 with a gaussian profile and determine gaussian properties 
-
-   Location:
    
    
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
@@ -142,7 +136,7 @@ with a gaussian profile and determine gaussian properties
 
 5. Creates a validation table that confirms detections of OIIIλ[4363]
 
-   Location (Code imported from MSC):
+   Code imported from MSC
    
    
     # Verification Table
@@ -151,16 +145,12 @@ with a gaussian profile and determine gaussian properties
    
 
 6. Calls function to calculate the R value, temperature, and metallicity of the detected lines
-
-   Location:
    
    
     r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
    
 
 7. Applies dust attenuation corrections if specified in run function 
-
-   Location:
    
    
     if dustatten:
@@ -170,16 +160,12 @@ with a gaussian profile and determine gaussian properties
    
 
 8. Applies Error Propagation from MSC
-
-   Location:
    
    
     error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
    
 
 9. Creates calibration plots that compare detections to other studies 
-
-   Location:
    
    
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
@@ -200,10 +186,15 @@ function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py.
 
 The run function requires the following variables. 
 
-- dataset -> keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
+- dataset -> keyword used to define binning method  options: Voronoi10, Voronoi14, Voronoi20 
 - y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
 - dustatten -> determines if dust attenuation corrections are applied
 - mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
+
+Difference between analyses
+Different grid methods were utilize throughout the process of developing this study including the Voronoi 
+Tessellation code. The dataset option for voronoi run function determines the target single to noise of each bin,
+which varies the number of spectra in each bin. 
 
 Calling the run function
 
@@ -211,3 +202,5 @@ Calling the run function
     general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)
     
+
+This run function goes through the same process as the grid method above. 

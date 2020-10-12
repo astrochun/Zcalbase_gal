@@ -69,6 +69,14 @@ The run function requires the following variables. (Give example then example)
 - dustatten -> determines if dust attenuation corrections are applied
 - mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
 
+Difference between analyses
+Different grid methods were utilize throughout the process of developing this study. The dataset option determines
+which grid method is used. For the run_grid_R23_O32_analysis(), the following options are available. 
+- Grid -> 
+- O32_Grid
+- R23_Grid
+- n_Bins
+
 Calling the run function
 
 

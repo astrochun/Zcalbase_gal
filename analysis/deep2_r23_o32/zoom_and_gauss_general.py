@@ -329,42 +329,31 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
             
             if dataset == 'Grid' or dataset == 'O32_Grid' or dataset == 'R23_Grid' \
                     or dataset == 'Double_Bin' or dataset == 'n_Bins':
-                if line_type == 'Balmer': 
-                    txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
-                            (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
-                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (rms_tot, rms_pix, N_gal_array[rr])
+
+                txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
+                       (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
+                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (rms_tot, rms_pix, N_gal_array[rr])
+                if line_type == 'Balmer':
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
-                    txt0 += 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
-                    txt0 += 'S/N: %.3f' % (SN_array[rr])
-
                 if line_type == 'Single' or line_type == 'Oxy2':
-                    txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
-                            (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
-                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (rms_tot, rms_pix, N_gal_array[rr])
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % (o1[3], o1[1], max0, o1[2]) + '\n'
-                    txt0 += 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
-                    txt0 += 'S/N: %.3f' % (SN_array[rr])
+
+                txt0 += 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
+                txt0 += 'S/N: %.3f' % (SN_array[rr])
 
             else:
+                txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % \
+                       (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
+                txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['logR23_avg'][rr], asc_tab['logO32_avg'][rr])
+                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot, rms_pix, N_gal_array[rr])
                 if line_type == 'Balmer':
-                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % \
-                           (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
-                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['logR23_avg'][rr], asc_tab['logO32_avg'][rr])
-                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %.3f\n' % (rms_tot, rms_pix, N_gal_array[rr])
                     txt0 += 'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
-                    txt0 += 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
-                    txt0 += 'S/N: %.3f' % (SN_array[rr])
-
                 if line_type == 'Single' or line_type == 'Oxy2':
-                    txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % \
-                           (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
-                    txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['logR23_avg'][rr], asc_tab['logO32_avg'][rr])
-                    txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot, rms_pix, N_gal_array[rr])
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % (o1[3], o1[1], max0, o1[2]) + '\n'
-                    txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
-                    txt0 += 'S/N: %.3f' % (SN_array[rr])
+                txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
+                txt0 += 'S/N: %.3f' % (SN_array[rr])
 
             # t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
 
@@ -424,16 +413,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
     print('Done!')
     fig.clear()
 
-    if line_type == 'Oxy2':
-
-
-
-
-
-        return tab0, tab1
-
-    else:
-        return tab0, R_23_array, O_32_array, N_gal_array, id
+    return tab0, R_23_array, O_32_array, N_gal_array, id
 
 
 def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction, s2, tab):

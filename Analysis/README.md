@@ -1,12 +1,10 @@
 # Zcalbase-gal/Analysis
 
-1. Overview
-2. Execution 
+1. [Overview](#Overview)
+2. [Execution](#Execution)
     1. Requirements
     2. Running Grid Analysis 
     3. Running Voronoi Analysis 
-3. Changelog
-4. Authors
 
 # Overview
 
@@ -44,6 +42,7 @@ Your will need the following to have a working copy of this software.
 - matplotlib
 - astropy
 - scipy
+- [chun_codes]()
 
 ### Running Grid Analysis 
 The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
@@ -80,7 +79,7 @@ which grid method is used. For the run_grid_R23_O32_analysis(), the following op
             bins in R23 then in O32
 
 Calling the run function
-
+    
     ```python
     general.run_grid_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)

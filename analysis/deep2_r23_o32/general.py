@@ -271,7 +271,7 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     s2 = 5.0
     a2 = 1.8
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
-                                      s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
+                                      s2, tab=binning_avg_asc)
 
     print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
     print('combine_flux_table created')

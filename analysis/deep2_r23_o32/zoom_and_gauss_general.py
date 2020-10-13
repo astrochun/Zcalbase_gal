@@ -425,18 +425,18 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
     fig.clear()
 
     if line_type == 'Oxy2':
-        out_ascii_single = fitspath + '/' + dataset + '_Average_R23_O32_Values.tbl'
 
-        n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
-        tab1 = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
-        # asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
+
+
+
+
         return tab0, tab1
 
     else:
-        return tab0
+        return tab0, R_23_array, O_32_array, N_gal_array, id
 
 
-def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction,s,a,c,s1,a1,s2,a2,tab):
+def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction, s2, tab):
     """
     Purpose
     ----------
@@ -447,31 +447,45 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         if line_type[ii] == 'Single':
             outpdf = fitspath + dataset + '_Zoomed_Gauss_'+line_name[ii] + '.pdf'
             print(outpdf)
-            em_tab = zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
-                            wave, lambda0[ii], lineflag, 
-                            y_correction=y_correction, line_type=line_type[ii],
-                            outpdf=outpdf, line_name=line_name[ii])
+            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset, fitspath,
+                                                                              tab, stack2d, dispersion, s2,
+                                                                              wave, lambda0[ii], lineflag,
+                                                                              y_correction=y_correction,
+                                                                              line_type=line_type[ii],
+                                                                              outpdf=outpdf, line_name=line_name[ii])
 
         # Balmer Line Fit
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
             print(outpdf)
-            em_tab = zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
-                            wave, lambda0[ii], lineflag,
-                            y_correction=y_correction, line_type=line_type[ii],
-                            outpdf=outpdf, line_name=line_name[ii])
+            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset, fitspath,
+                                                                              tab, stack2d, dispersion, s2,
+                                                                              wave, lambda0[ii], lineflag,
+                                                                              y_correction=y_correction,
+                                                                              line_type=line_type[ii],
+                                                                              outpdf=outpdf, line_name=line_name[ii])
 
         # Oxy2 Line Fit
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
             print(outpdf)
-            em_tab, avg_tab = zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2,
-                            wave, lambda0[ii], lineflag,
-                            y_correction=y_correction, line_type=line_type[ii],
-                            outpdf=outpdf, line_name=line_name[ii])
+            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset, fitspath,
+                                                                              tab, stack2d, dispersion, s2,
+                                                                              wave, lambda0[ii], lineflag,
+                                                                              y_correction=y_correction,
+                                                                              line_type=line_type[ii],
+                                                                              outpdf=outpdf, line_name=line_name[ii])
+
         if ii == 0:
+            out_ascii_single = fitspath + '/' + dataset + '_Average_R23_O32_Values.tbl'
+
+            n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
+            avg_tab = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
+            # asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
+            
             table_stack = hstack([avg_tab, em_tab])
         else:
             table_stack = hstack([table_stack, em_tab])
+
         out_ascii = join(fitspath, filename_dict['bin_fit'] ) # used to be 'combine_flux_ascii.tbl'
         asc.write(table_stack, out_ascii,  format='fixed_width_two_line', overwrite=True)

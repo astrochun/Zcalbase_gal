@@ -408,12 +408,14 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
     return tab0, R_23_array, O_32_array, N_gal_array, id
 
 
-def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction, s2, tab):
+def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correction, tab):
     """
     Purpose
     ----------
     Run function for gaussian fitting step
     """
+    s2 = 5.0  # a fitting requirement
+
     for ii in range(len(lambda0)):
         # Single Gaussian Fit
         if line_type[ii] == 'Single':

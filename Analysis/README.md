@@ -27,7 +27,7 @@ and  [Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175](https://iops
 
 Links to material presenting this work: 
 1. [Link](https://arizona.figshare.com/articles/Stacking_of_Galaxy_Spectra/12360626) 
-to figure created in the stacking code: 
+to figure created in the stacking code 
 
 
 2. [Link]() to Honors Thesis
@@ -50,7 +50,6 @@ The analysis of the binning methods is run by executing the run_grid_R23_O32_ana
 function in Analysis/DEEP2_R23_O32/general.py. 
 
 
-1.
     ```python
     from Zcalbase_gal.analysis.deep2_r23_o32 import general
     dataset = 'n_Bins'
@@ -198,7 +197,8 @@ Tessellation code. The dataset option for voronoi run function determines the ta
 which varies the number of spectra in each bin. 
 
 Calling the run function
-1.
+
+
     ```python
     general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)

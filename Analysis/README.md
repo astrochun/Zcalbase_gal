@@ -2,9 +2,9 @@
 
 1. [Overview](#Overview)
 2. [Execution](#Execution)
-    1. Requirements
-    2. Running Grid Analysis 
-    3. Running Voronoi Analysis 
+    1. [Requirements](###Requirements)
+    2. [Running Grid Analysis](###Running Grid Analysis)
+    3. [Running Voronoi Analysis](###Running Voronoi Analysis)
 
 # Overview
 
@@ -22,14 +22,15 @@ OIIIλ[4363] is a forbidden transition, which produces a very weak emission line
 detect OIIIλ[4363], individual spectra are binned and stacked to get a composite spectrum measurement. 
 
 This analysis is also compared against recently published analyses from 
-Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145  and 
-Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175. 
+[Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145](https://arxiv.org/abs/1811.05796)  
+and  [Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175](https://iopscience.iop.org/article/10.3847/1538-4357/aabd74/meta). 
 
 Links to material presenting this work: 
-1. Link to figure created in the stacking code: 
-https://arizona.figshare.com/articles/Stacking_of_Galaxy_Spectra/12360626
+1. [Link](https://arizona.figshare.com/articles/Stacking_of_Galaxy_Spectra/12360626) 
+to figure created in the stacking code: 
 
-2. Link to Honors Thesis
+
+2. [Link]() to Honors Thesis
 
 # Execution 
 
@@ -42,14 +43,15 @@ Your will need the following to have a working copy of this software.
 - matplotlib
 - astropy
 - scipy
-- [chun_codes]()
+- [chun_codes](https://github.com/astrochun/chun_codes)
 
 ### Running Grid Analysis 
 The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
 function in Analysis/DEEP2_R23_O32/general.py. 
 
 
-
+1.
+    ```python
     from Zcalbase_gal.analysis.deep2_r23_o32 import general
     dataset = 'n_Bins'
     y_correction = ''
@@ -57,7 +59,7 @@ function in Analysis/DEEP2_R23_O32/general.py.
     adaptive = True 
     dustatten = True
     mask = True
-
+    ```
 
 The run function requires the following variables. (Give example then example)
 
@@ -78,13 +80,14 @@ which grid method is used. For the run_grid_R23_O32_analysis(), the following op
 - `n_Bins`: two dimensional grid with a set number of spectra in each bin
             bins in R23 then in O32
 
+
 Calling the run function
-    
-    ```python
+1. 
+    ```python 
     general.run_grid_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)
     ```
-
+    
 Steps taking throughout run function: 
 
 1. Gets the valid data for the study using get_det3() 
@@ -173,7 +176,7 @@ with a gaussian profile and determine gaussian properties
 The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
 function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py. 
 
-
+1.
     ```python
     from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import vornoi_general
     dataset = 'Vornoi14'
@@ -184,10 +187,10 @@ function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py.
 
 The run function requires the following variables. 
 
-- dataset -> keyword used to define binning method  options: Voronoi10, Voronoi14, Voronoi20 
-- y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
-- dustatten -> determines if dust attenuation corrections are applied
-- mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
+- `dataset`: keyword used to define binning method  options: Voronoi10, Voronoi14, Voronoi20 
+- `y_correction`: determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
+- `dustatten`: determines if dust attenuation corrections are applied
+- `mask`: determines if the night sky mask is used in Stackingboth_MasterGrid.py
 
 Difference between analyses
 Different grid methods were utilize throughout the process of developing this study including the Voronoi 
@@ -195,7 +198,7 @@ Tessellation code. The dataset option for voronoi run function determines the ta
 which varies the number of spectra in each bin. 
 
 Calling the run function
-
+1.
     ```python
     general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)

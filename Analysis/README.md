@@ -50,12 +50,6 @@ The analysis of the binning methods is run by executing the run_grid_R23_O32_ana
 function in Analysis/DEEP2_R23_O32/general.py. 
 ```python
     from Zcalbase_gal.analysis.deep2_r23_o32 import general
-    dataset = 'n_Bins'
-    y_correction = ''
-    n_split = 3
-    adaptive = True 
-    dustatten = True
-    mask = True
 ```
 The run function requires the following variables. (Give example then example)
 
@@ -76,6 +70,15 @@ which grid method is used. For the run_grid_R23_O32_analysis(), the following op
 - `n_Bins`: two dimensional grid with a set number of spectra in each bin
             bins in R23 then in O32
 
+Sample parameters for general.run_grid_r23_o32_analysis()
+```python
+dataset = 'n_Bins'
+y_correction = ''
+n_split = 3
+adaptive = True 
+dustatten = True
+mask = True
+```
 
 Calling the run function
 
@@ -102,7 +105,7 @@ Steps taking throughout run function:
 
 3. Calls stacking function to stack individual spectra 
     
-    A mask can be applied to correct for night sky lines. 
+    A mask can be applied to correct for night sky lines. Produces a table with binned data properties. 
 ```python 
     stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini, dataset, stack_name, bin_outfile)
 ```
@@ -110,6 +113,7 @@ Steps taking throughout run function:
 4. Calls fitting function to fit the emisison lines in the combined spectra 
 with a gaussian profile and determine gaussian properties 
    
+   Produces a table with emission line fitting parameters for each line of each binned spectra. 
 ```python 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
                                       tab=binning_avg_asc)
@@ -117,17 +121,16 @@ with a gaussian profile and determine gaussian properties
 
 5. Creates a validation table that confirms detections of OIIIλ[4363]
 
-   
+   Code imported from MSC. Adds a row to the table of emission line measurements to indicate if there is a detection of OIIIλ[4363].
+    A one represents a detection, while a zero represents a nan-detection. 
 ```python 
     Verification Table
     valid_table.make_validation_table(fitspath)
 ```
-
-Code imported from MSC. Adds a row to the table of emission line measurements to indicate if there is a detection of OIIIλ[4363].
-A one represents a detection, while a zero represents a nan-detection. 
     
 6. Calls function to calculate the R value, temperature, and metallicity of the detected lines
    
+   Calculates the R_value, temperature, and metallicities of each bin and saves in table. 
 ```python 
     r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
 ```
@@ -158,10 +161,6 @@ The analysis of the binning methods is run by executing the run_grid_R23_O32_ana
 function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py. 
 ```python
     from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import vornoi_general
-    dataset = 'Vornoi14'
-    y_correction = ''
-    dustatten = True
-    mask = True
 ```
 
 The run function requires the following variables. 
@@ -176,9 +175,16 @@ Different grid methods were utilize throughout the process of developing this st
 Tessellation code. The dataset option for voronoi run function determines the target single to noise of each bin,
 which varies the number of spectra in each bin. 
 
+Sample parameters for general.run_grid_r23_o32_analysis()
+```python
+dataset = 'Vornoi14'
+y_correction = ''
+dustatten = True
+mask = True
+```
+
 Calling the run function
 ```python
-    general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
-                                        adaptive, dustatten, mask)
+    general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, adaptive, dustatten, mask)
 ```
 This run function goes through the same process as the grid method above. 

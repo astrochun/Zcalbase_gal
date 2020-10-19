@@ -398,14 +398,6 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
             if len(idx) > 0:
                 lineflag[idx] = 1
 
-        s = 1.0
-        a = 1.0
-        c = 2.0
-        s1 = 1.3
-        a1 = 1.5
-        s2 = 5.0
-        a2 = 1.8
-
         zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
                                           tab=binning_avg_asc)
 

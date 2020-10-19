@@ -93,35 +93,20 @@ Steps taking throughout run function:
     ```
     
 2. Calls correct binning function for dataset 
-
+    
+    Example: 
     ```python
-    if dataset == 'O32_Grid':
-        single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                        det3, data3, galinbin, adaptive)
-    if dataset == 'R23_Grid':
-        single_grid_r23.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                        det3, data3, galinbin)
-    if dataset == 'Grid':
-        fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
-                                        R23_bin, O32_bin)
     if dataset == 'n_Bins':
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
                                             R23, O32, SNR3, data3, galinbin)
     ```
 
 3. Calls stacking function to stack individual spectra 
-   
+    
+    A mask can be applied to correct for night sky lines. 
     ```python 
-    if mask:
-            stack_name = dataset + name_dict['Stackname']
-            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
-                                                          dataset, stack_name, bin_outfile)
-        else:
-            stack_name = dataset + name_dict['Stackname_nomask']
-            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
+    stack_name = dataset + name_dict['Stackname']
+    stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini, dataset, stack_name, bin_outfile)
     ```
 
 4. Calls fitting function to fit the emisison lines in the combined spectra 

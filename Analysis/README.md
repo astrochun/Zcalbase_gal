@@ -49,8 +49,7 @@ Your will need the following to have a working copy of this software.
 The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
 function in Analysis/DEEP2_R23_O32/general.py. 
 
-
-    ```python
+    ```
     from Zcalbase_gal.analysis.deep2_r23_o32 import general
     dataset = 'n_Bins'
     y_correction = ''
@@ -59,7 +58,6 @@ function in Analysis/DEEP2_R23_O32/general.py.
     dustatten = True
     mask = True
     ```
-
 The run function requires the following variables. (Give example then example)
 
 - `dataset`: keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
@@ -143,7 +141,9 @@ with a gaussian profile and determine gaussian properties
     valid_table.make_validation_table(fitspath)
     verification_table = join(fitspath, filename_dict['bin_valid'])
     ```
-
+    Adds a row to the table of emission line measurements to indicate if there is a detection of OIIIλ[4363].
+    A one represents a detection, while a zero represents a nan-detection. 
+    
 6. Calls function to calculate the R value, temperature, and metallicity of the detected lines
    
     ```python 
@@ -198,10 +198,8 @@ which varies the number of spectra in each bin.
 
 Calling the run function
 
-
     ```python
     general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)
     ```
-
 This run function goes through the same process as the grid method above. 

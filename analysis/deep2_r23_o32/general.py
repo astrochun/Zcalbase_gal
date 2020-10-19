@@ -262,16 +262,9 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
         if len(idx) > 0:
             lineflag[idx] = 1
     # Option to change: Constants used as initial guesses for gaussian fit
-    
-    s = 1.0
-    a = 1.0
-    c = 2.0
-    s1 = 1.3
-    a1 = 1.5
-    s2 = 5.0
-    a2 = 1.8
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
-                                      s2, tab=binning_avg_asc)
+
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
+                                      dispersion, y_correction, tab=binning_avg_asc)
 
     print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
     print('combine_flux_table created')
@@ -414,7 +407,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
         a2 = 1.8
 
         zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
-                                          s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
+                                          tab=binning_avg_asc)
 
     if want == 'R_cal_temp':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')

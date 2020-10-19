@@ -48,8 +48,7 @@ Your will need the following to have a working copy of this software.
 ### Running Grid Analysis 
 The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
 function in Analysis/DEEP2_R23_O32/general.py. 
-
-    ```
+```python
     from Zcalbase_gal.analysis.deep2_r23_o32 import general
     dataset = 'n_Bins'
     y_correction = ''
@@ -57,7 +56,7 @@ function in Analysis/DEEP2_R23_O32/general.py.
     adaptive = True 
     dustatten = True
     mask = True
-    ```
+```
 The run function requires the following variables. (Give example then example)
 
 - `dataset`: keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
@@ -79,95 +78,91 @@ which grid method is used. For the run_grid_R23_O32_analysis(), the following op
 
 
 Calling the run function
-1. 
-    ```python 
+
+```python 
     general.run_grid_r23_o32_analysis(dataset, y_correction, n_split, 
     adaptive, dustatten, mask)
-    ```
+```
     
 Steps taking throughout run function: 
 
 1. Gets the valid data for the study using get_det3() 
-    ```python 
+```python 
     general.get_det3(fitspath, fitspath_ini)
-    ```
+```
     
 2. Calls correct binning function for dataset 
     
     Example: 
-    ```python
+```python
     if dataset == 'n_Bins':
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
                                             R23, O32, SNR3, data3, galinbin)
-    ```
+```
 
 3. Calls stacking function to stack individual spectra 
     
     A mask can be applied to correct for night sky lines. 
-    ```python 
-    stack_name = dataset + name_dict['Stackname']
+```python 
     stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini, dataset, stack_name, bin_outfile)
-    ```
+```
 
 4. Calls fitting function to fit the emisison lines in the combined spectra 
 with a gaussian profile and determine gaussian properties 
    
-    ```python 
+```python 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
-                                      s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
-    ```
+                                      tab=binning_avg_asc)
+```
 
 5. Creates a validation table that confirms detections of OIIIλ[4363]
 
-   Code imported from MSC
    
-    ```python 
+```python 
     Verification Table
     valid_table.make_validation_table(fitspath)
-    verification_table = join(fitspath, filename_dict['bin_valid'])
-    ```
-    Adds a row to the table of emission line measurements to indicate if there is a detection of OIIIλ[4363].
-    A one represents a detection, while a zero represents a nan-detection. 
+```
+
+Code imported from MSC. Adds a row to the table of emission line measurements to indicate if there is a detection of OIIIλ[4363].
+A one represents a detection, while a zero represents a nan-detection. 
     
 6. Calls function to calculate the R value, temperature, and metallicity of the detected lines
    
-    ```python 
+```python 
     r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
-    ```
+```
 
 7. Applies dust attenuation corrections if specified in run function 
    
-    ```python 
+```python 
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         attenuation.EBV_table_update(fitspath, use_revised= False)
         r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
-    ```
+```
 
 8. Applies Error Propagation from MSC
    
-    ```python 
+```python 
     error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
-    ```
+```
 
 9. Creates calibration plots that compare detections to other studies 
    
-    ```python 
+```python 
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
-    ```
+```
 
 ### Running Voronoi Analysis 
 The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
 function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py. 
-
-1.
-    ```python
+```python
     from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import vornoi_general
     dataset = 'Vornoi14'
     y_correction = ''
     dustatten = True
     mask = True
-    ```
+```
 
 The run function requires the following variables. 
 
@@ -182,9 +177,8 @@ Tessellation code. The dataset option for voronoi run function determines the ta
 which varies the number of spectra in each bin. 
 
 Calling the run function
-
-    ```python
+```python
     general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, 
-    adaptive, dustatten, mask)
-    ```
+                                        adaptive, dustatten, mask)
+```
 This run function goes through the same process as the grid method above. 

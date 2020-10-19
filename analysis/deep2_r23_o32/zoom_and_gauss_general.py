@@ -9,7 +9,6 @@ Debugging Note:
    lower limits.
 """
 
-
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
@@ -27,12 +26,6 @@ from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-'''
-Debugging Note:
-   If 'x0' is infeasible error occurs, check the para_bound values to
-   make sure the expected values are within the range set up upper and
-   lower limits.
-'''
 
 def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr):
@@ -160,7 +153,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # For each individual stack
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
-def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
+def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                     working_wave, lineflag,  y_correction='', line_type='',
                     outpdf='', line_name=''):
     """
@@ -233,7 +226,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
             dx = x0[2]-x0[1] 
             if line_type == 'Single':
                 x_sigsnip = np.where((np.abs((x0 - working_wave))/o1[1]) <= 2.5)[0]
-                gauss0=gauss(x0, *o1)
+                gauss0 = gauss(x0, *o1)
             
             if line_type == 'Balmer':
                 x_sigsnip = np.where(np.abs((x0 - working_wave))/o1[1] <= 2.5 )[0]
@@ -355,7 +348,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
                 txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
                 txt0 += 'S/N: %.3f' % (SN_array[rr])
 
-            # t_ax.annotate(txt0, [0.95,0.95], xycoords='axes fraction', va='top', ha='right',fontsize= '5')
+            t_ax.annotate(txt0, [0.95, 0.95], xycoords='axes fraction', va='top', ha='right', fontsize='5')
 
             for x in lambda0:
                 t_ax.axvline(x=x, linewidth=0.15, color='k', linestyle='--')
@@ -383,7 +376,6 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
 
     # Writing Ascii Tables and Fits Tables
     # Repetive Columns have been added: The last four ot six columns will be used for individual graphing
-    out_ascii = fitspath+'/' + dataset + '_flux_gaussian_' + str(np.int(working_wave)) + '.tbl'
 
     if line_type == 'Single':
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
@@ -399,8 +391,8 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
         n = tuple([line_name + '_' + val for val in n])
 
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,
-                       norm_array, rms_array, SN_array, xbar_array,
-                       pos_amp_array,  sig2_array, neg_amp_array], names=n)
+                      norm_array, rms_array, SN_array, xbar_array,
+                      pos_amp_array,  sig2_array, neg_amp_array], names=n)
 
         if line_type == 'Balmer':
             print('Adding an Equ_Width Column')
@@ -409,7 +401,7 @@ def zoom_gauss_plot(dataset, fitspath, tab, stack2d, dispersion, s2, wave,
             tab0.add_column(equ_add, 2)
 
     pdf_pages.close()
-    # pdfpages3.close() #Add back in equivalent width plots are added
+    # pdfpages3.close() # Add back in equivalent width plots are added
     print('Done!')
     fig.clear()
 
@@ -427,7 +419,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         if line_type[ii] == 'Single':
             outpdf = fitspath + dataset + '_Zoomed_Gauss_'+line_name[ii] + '.pdf'
             print(outpdf)
-            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset, fitspath,
+            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset,
                                                                               tab, stack2d, dispersion, s2,
                                                                               wave, lambda0[ii], lineflag,
                                                                               y_correction=y_correction,
@@ -438,7 +430,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         if line_type[ii] == 'Balmer': 
             outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
             print(outpdf)
-            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset, fitspath,
+            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset,
                                                                               tab, stack2d, dispersion, s2,
                                                                               wave, lambda0[ii], lineflag,
                                                                               y_correction=y_correction,
@@ -449,7 +441,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         if line_type[ii] == 'Oxy2': 
             outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
             print(outpdf)
-            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset, fitspath,
+            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset,
                                                                               tab, stack2d, dispersion, s2,
                                                                               wave, lambda0[ii], lineflag,
                                                                               y_correction=y_correction,

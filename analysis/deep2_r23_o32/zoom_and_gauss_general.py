@@ -461,5 +461,5 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
         else:
             table_stack = hstack([table_stack, em_tab])
 
-        out_ascii = join(fitspath, filename_dict['bin_fit'] ) # used to be 'combine_flux_ascii.tbl'
+        out_ascii = join(fitspath, filename_dict['bin_fit'])  # used to be 'combine_flux_ascii.tbl'
         asc.write(table_stack, out_ascii,  format='fixed_width_two_line', overwrite=True)

@@ -288,9 +288,12 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
-        attenuation.EBV_table_update(fitspath, use_revised= False)
+        attenuation.EBV_table_update(fitspath, use_revised=False)
         r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
-        
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
+
+    if not dustatten:
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
     '''
     # Check Dust Attenuation
     temp = fitspath + filename_dict['bin_derived_prop']
@@ -306,9 +309,6 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     print('Metallicity' , metallicity)
     print('##################################################################')
     print('Dust Attenuated Metallicity', metallicity_r)'''
-
-    # Error Propagation
-    error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
 
     # Individual Detections
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)

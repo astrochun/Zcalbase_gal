@@ -177,17 +177,20 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
         Three_Beta = (OIII5007 * (1 + 1 / 3.1)) / HBETA
 
     # Raw Data
-    R_value = R_calculation(OIII4363, OIII5007, EBV)
-    T_e = temp_calculation(R_value)
-    metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
+    R_value = R_calculation(OIII4363, OIII5007)
+    T_e = temp_calculation(R_value, EBV=None)
+    # Need to go back and make det3 equal to array because we have a validation table created
+    metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta, EBV=None, det3=None)
 
     n = ('bin_ID', 'Detection', 'logR23_Composite', 'logO32_Composite', 'logR23_avg', 'logO32_avg', 'N_stack',
          'OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N',
          'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N',
-         'OII_3727_Flux_Observed', 'OII_3727_S/N', 'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
+         'OII_3727_Flux_Observed', 'OII_3727_S/N', 'two_beta', 'three_beta', 'R',
+         'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
     tab0 = Table([id, indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy,
                   OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA,
-                  OII3727, SN_3727, T_e, metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'],
+                  OII3727, SN_3727, Two_Beta, Three_Beta, R_value, T_e,
+                  metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'],
                   metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 

@@ -25,7 +25,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
     pdf_files
     """
     if revised:
-        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop_rev']))
+        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop_rev_dust']))
         verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
         pea_out_pdf = join(fitspath, dataset+'_GPC.revised.pdf')
         LAC_out_pdf = join(fitspath, dataset+'_LAC.revised.pdf')

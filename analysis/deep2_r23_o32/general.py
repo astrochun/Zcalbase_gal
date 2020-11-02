@@ -293,7 +293,11 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         attenuation.EBV_table_update(fitspath, use_revised=False)
+<<<<<<< HEAD
         r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=True)
+=======
+        r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
+>>>>>>> 302903b6f157c808a9b9ee84ac284d10f0db64c9
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
 
     if not dustatten:

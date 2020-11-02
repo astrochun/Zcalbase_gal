@@ -151,7 +151,11 @@ def run_function(fitspath, verification_table, dustatt=False):
     n = ('bin_ID', 'Detection', 'logR23_composite', 'logO32_composite', 'logR23_avg', 'logO32_avg', 'N_stack',
          'OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N',
          'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N',
+<<<<<<< HEAD
          'OII_3727_Flux_Observed', 'OII_3727_S/N', 'two_beta_composite', 'three_beta_composite', 'R_composite',
+=======
+         'OII_3727_Flux_Observed', 'OII_3727_S/N', 'two_beta', 'three_beta', 'R',
+>>>>>>> 302903b6f157c808a9b9ee84ac284d10f0db64c9
          'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
     tab0 = Table([id, indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy,
                   OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA,

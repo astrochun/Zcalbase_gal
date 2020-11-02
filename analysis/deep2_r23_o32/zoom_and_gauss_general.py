@@ -455,7 +455,6 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
 
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
             avg_tab = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
-            # asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
             
             table_stack = hstack([avg_tab, em_tab])
         else:

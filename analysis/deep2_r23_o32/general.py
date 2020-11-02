@@ -284,12 +284,16 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # R_temp_calcul
     # Not going to run the R_temp_calcul.run_function for the 'bin_valid' table because these values
     # are proven to be incomplete. The bin_valid_rev table is different.
-    r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
+    # bin_derived_prop
+    # bin_derived_prop_rev
+    # bin_derived_prop_dust
+    # bin_derived_prop_rev_dust
+    r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=False)
 
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         attenuation.EBV_table_update(fitspath, use_revised=False)
-        r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
+        r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=True)
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
 
     if not dustatten:

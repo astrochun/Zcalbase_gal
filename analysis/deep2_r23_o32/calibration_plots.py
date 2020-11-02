@@ -58,9 +58,9 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
     der_O32_MACT = np.log10(er_O32_MACT)
     der_OH_MACT = derived_MACT['OH'].data
 
-    O32_all = temp_table['logO32_Composite']
+    O32_all = temp_table['logO32_composite']
     print(O32_all)
-    R23_all = temp_table['logR23_Composite']
+    R23_all = temp_table['logR23_composite']
     com_O_log = temp_table['12+log(O/H)']  # This is the 12+log(OH) value
     ID = temp_table['bin_ID']
     

@@ -47,7 +47,7 @@ def limit_function(combine_flux_ascii):
     return up_temp
 
 
-def run_function(fitspath, dataset, verification_table, dustatt=False):
+def run_function(fitspath, verification_table, dustatt=False):
     """
     Purpose:
     Organize data to calculate R, temperature, and metallicity using MSC and save data into ascii tables
@@ -66,8 +66,6 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
     """
     combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
     temp_metal_ascii = join(fitspath, filename_dict['bin_derived_prop'])
-    temp_metal_revised = join(fitspath, filename_dict['bin_derived_prop_rev'])
-    temp_m_gpdf_name = join(dataset, name_dict['temp_metallicity_pdf'])
 
     # Combine_Flux_ascii table import
     combine_fits = asc.read(combine_flux_ascii)
@@ -85,32 +83,6 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
     # Verification Table Import
     ver_tab = asc.read(verification_table)
     ver_detection = ver_tab['Detection']
-    ver_detect = np.where((ver_detection == 1))[0]
-    ver_rlimit = np.where((ver_detection == 0.5))[0]
-
-    # Fits Table Calls
-    # DEEP2 and MACT Data
-    derived = asc.read(fitspath_ini + 'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini + 'MACT_R23_O32_derived.tbl')
-
-    # DEEP2 Derived
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
-    der_R23 = np.log10(er_R23)
-    der_O32 = np.log10(er_O32)
-    der_Te = derived['Te'].data
-    der_OH = derived['OH'].data
-    ID_der = derived['ID'].data
-    # der_OH_log = np.log10(er_OH_log)
-
-    # MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
-    der_R23_MACT = np.log10(er_R23_MACT)
-    der_O32_MACT = np.log10(er_O32_MACT)
-    der_Te_MACT = derived_MACT['Te'].data
-    der_OH_MACT = derived_MACT['OH'].data
-    ID_der_MACT = derived_MACT['ID'].data
 
     # Calls for the stacked measurements for R23_O32 project
     print('Running R, Temperature, and Metallicity Calculations for Stacked Spectra')
@@ -158,15 +130,9 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
     # Line Ratios
     O3727_HBETA = OII3727/HBETA
     O5007_HBETA = OIII5007/HBETA
-    O4959_HBETA = OIII4959/HBETA
-    O4363_O5007 = OIII4363/OIII5007
-    O4363_O4959 = OIII4363/OIII4959
         
     # Attenuated Ratios
-    der_4363_5007 = O4363_O5007 * 10**(0.4*EBV*(k_4363-k_5007))
-    der_4363_4959 = O4363_O4959 * 10**(0.4*EBV*(k_4363-k_4959))
     der_3727_HBETA = O3727_HBETA * 10**(0.4*EBV*(k_3727-k_HBETA))
-    der_4959_HBETA = O4959_HBETA * 10**(0.4*EBV*(k_4959-k_HBETA))
     der_5007_HBETA = O5007_HBETA * 10**(0.4*EBV*(k_5007-k_HBETA))
 
     if dustatt:
@@ -177,17 +143,24 @@ def run_function(fitspath, dataset, verification_table, dustatt=False):
         Three_Beta = (OIII5007 * (1 + 1 / 3.1)) / HBETA
 
     # Raw Data
-    R_value = R_calculation(OIII4363, OIII5007, EBV)
-    T_e = temp_calculation(R_value)
-    metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta)
+    R_value = R_calculation(OIII4363, OIII5007)
+    T_e = temp_calculation(R_value, EBV=None)
+    # Need to go back and make det3 equal to array because we have a validation table created
+    metal_dict = metallicity_calculation(T_e, Two_Beta, Three_Beta, EBV=None, det3=None)
 
-    n = ('bin_ID', 'Detection', 'logR23_Composite', 'logO32_Composite', 'logR23_avg', 'logO32_avg', 'N_stack',
+    n = ('bin_ID', 'Detection', 'logR23_composite', 'logO32_composite', 'logR23_avg', 'logO32_avg', 'N_stack',
          'OIII_5007_Flux_Observed', 'OIII_5007_S/N', 'OIII_4959_Flux_Observed', 'OIII_4959_S/N',
          'OIII_4363_Flux_Observed', 'OIII_4363_S/N', 'HBETA_Flux_Observed', 'HBETA_S/N',
-         'OII_3727_Flux_Observed', 'OII_3727_S/N', 'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
+<<<<<<< HEAD
+         'OII_3727_Flux_Observed', 'OII_3727_S/N', 'two_beta_composite', 'three_beta_composite', 'R_composite',
+=======
+         'OII_3727_Flux_Observed', 'OII_3727_S/N', 'two_beta', 'three_beta', 'R',
+>>>>>>> 302903b6f157c808a9b9ee84ac284d10f0db64c9
+         'T_e', 'O+/H', 'O++/H', '12+log(O/H)', 'log(O+/H)', 'log(O++/H)')
     tab0 = Table([id, indicate, R23_composite, O32_composite, R23_avg, O32_avg, N_Galaxy,
                   OIII5007, SN_5007, OIII4959, SN_4959, OIII4363, SN_4363, HBETA, SN_HBETA,
-                  OII3727, SN_3727, T_e, metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'],
+                  OII3727, SN_3727, Two_Beta, Three_Beta, R_value, T_e,
+                  metal_dict['O+/H'], metal_dict['O++/H'], metal_dict['12+log(O/H)'],
                   metal_dict['log(O+/H)'], metal_dict['log(O++/H)']], names=n)
     asc.write(tab0, out_ascii, format='fixed_width_two_line')
 

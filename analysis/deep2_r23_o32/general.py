@@ -262,30 +262,13 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
         if len(idx) > 0:
             lineflag[idx] = 1
     # Option to change: Constants used as initial guesses for gaussian fit
-    
-    s = 1.0
-    a = 1.0
-    c = 2.0
-    s1 = 1.3
-    a1 = 1.5
-    s2 = 5.0
-    a2 = 1.8
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
-                                      s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
+
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
+                                      dispersion, y_correction, tab=binning_avg_asc)
 
     print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
-
-    # hstack_table
-    # Option to change: name of new fits file created
-
-    intro = join(fitspath, dataset + name_dict['Average_Bin_Value'])
-    asc_intro = asc.read(intro)
-    table_files = glob.glob(fitspath + '/' + dataset + '_flux_gaussian_*.tbl')
-    combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
-
-    hstack_tables.h_stack(fitspath, table_files, asc_intro, combine_flux_ascii)
-        
     print('combine_flux_table created')
+    # combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
 
     # FIX THIS CODE: line_ratio_plotting
     # I need to go back through and figure out what is the average and what is the composite
@@ -301,13 +284,24 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # R_temp_calcul
     # Not going to run the R_temp_calcul.run_function for the 'bin_valid' table because these values
     # are proven to be incomplete. The bin_valid_rev table is different.
-    r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
+    # bin_derived_prop
+    # bin_derived_prop_rev
+    # bin_derived_prop_dust
+    # bin_derived_prop_rev_dust
+    r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=False)
 
     if dustatten:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
-        attenuation.EBV_table_update(fitspath, use_revised= False)
+        attenuation.EBV_table_update(fitspath, use_revised=False)
+<<<<<<< HEAD
+        r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=True)
+=======
         r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
-        
+>>>>>>> 302903b6f157c808a9b9ee84ac284d10f0db64c9
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
+
+    if not dustatten:
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
     '''
     # Check Dust Attenuation
     temp = fitspath + filename_dict['bin_derived_prop']
@@ -323,9 +317,6 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     print('Metallicity' , metallicity)
     print('##################################################################')
     print('Dust Attenuated Metallicity', metallicity_r)'''
-
-    # Error Propagation
-    error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
 
     # Individual Detections
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)
@@ -415,16 +406,8 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
             if len(idx) > 0:
                 lineflag[idx] = 1
 
-        s = 1.0
-        a = 1.0
-        c = 2.0
-        s1 = 1.3
-        a1 = 1.5
-        s2 = 5.0
-        a2 = 1.8
-
         zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
-                                          s, a, c, s1, a1, s2, a2, tab=binning_avg_asc)
+                                          tab=binning_avg_asc)
 
     if want == 'R_cal_temp':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')

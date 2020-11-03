@@ -1,10 +1,10 @@
-# Zcalbase-gal/Analysis
+# Executing Zcalbase_gal on DEEP2 data
 
-1. [Overview](#Overview)
-2. [Execution](#Execution)
-    1. [Requirements](###Requirements)
-    2. [Running Grid Analysis](###Running Grid Analysis)
-    3. [Running Voronoi Analysis](###Running Voronoi Analysis)
+1. [Overview](#overview)
+2. [Execution](#execution)
+    1. [Requirements](#requirements)
+    2. [Running Grid Analysis](#running-grid-analysis)
+    3. [Running Voronoi Analysis](#running-voronoi-analysis)
 
 # Overview
 
@@ -26,11 +26,11 @@ This analysis is also compared against recently published analyses from
 and  [Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175](https://iopscience.iop.org/article/10.3847/1538-4357/aabd74/meta). 
 
 Links to material presenting this work: 
-1. [Link](https://arizona.figshare.com/articles/Stacking_of_Galaxy_Spectra/12360626) 
+1. [UA Space Grant Link](https://arizona.figshare.com/articles/Stacking_of_Galaxy_Spectra/12360626) 
 to figure created in the stacking code 
 
 
-2. [Link]() to Honors Thesis
+2. [Link (TBD)] to Honors Thesis
 
 # Execution 
 
@@ -46,12 +46,12 @@ Your will need the following to have a working copy of this software.
 - [chun_codes](https://github.com/astrochun/chun_codes)
 
 ### Running Grid Analysis 
-The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
-function in Analysis/DEEP2_R23_O32/general.py. 
+The analysis of the binning methods is run by executing the `run_grid_R23_O32_analysis`
+function in [Analysis/DEEP2_R23_O32/general.py](deep2_r23_o32/general.py). 
 ```python
     from Zcalbase_gal.analysis.deep2_r23_o32 import general
 ```
-The run function requires the following variables. (Give example then example)
+The `run` function requires the following variables.
 
 - `dataset`: keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
 - `y_correction`: determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
@@ -80,11 +80,11 @@ dustatten = True
 mask = True
 ```
 
-Calling the run function
+Calling the run function:
 
 ```python 
     general.run_grid_r23_o32_analysis(dataset, y_correction, n_split, 
-    adaptive, dustatten, mask)
+                                                               adaptive, dustatten, mask)
 ```
     
 Steps taking throughout run function: 
@@ -106,6 +106,7 @@ Steps taking throughout run function:
 3. Calls stacking function to stack individual spectra 
     
     A mask can be applied to correct for night sky lines. Produces a table with binned data properties. 
+
 ```python 
     stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini, dataset, stack_name, bin_outfile)
 ```
@@ -124,13 +125,13 @@ with a gaussian profile and determine gaussian properties
    Code imported from MSC. Adds a row to the table of emission line measurements to indicate if there is a detection of OIIIλ[4363].
     A one represents a detection, while a zero represents a nan-detection. 
 ```python 
-    Verification Table
+    # Verification Table
     valid_table.make_validation_table(fitspath)
 ```
     
 6. Calls function to calculate the R value, temperature, and metallicity of the detected lines
    
-   Calculates the R_value, temperature, and metallicities of each bin and saves in table. 
+   Calculates the _R_ flux ratio, electron temperature, and metallicities of each bin and saves in table. 
 ```python 
     r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=False)
 ```
@@ -157,15 +158,15 @@ with a gaussian profile and determine gaussian properties
 ```
 
 ### Running Voronoi Analysis 
-The analysis of the binning methods is run by executing the run_grid_R23_O32_analysis() 
-function in analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py. 
+The analysis of the binning methods is run by executing the `run_grid_R23_O32_analysis()`
+function in [analysis/deep2_r23_o32/archives/run_functions/voronoi_general.py](deep2_r23_o32/archives/run_functions/voronoi_general.py). 
 ```python
-    from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import vornoi_general
+    from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import voronoi_general
 ```
 
-The run function requires the following variables. 
+The `run` function requires the following inputs:
 
-- `dataset`: keyword used to define binning method  options: Voronoi10, Voronoi14, Voronoi20 
+- `dataset`: keyword used to define binning method options: 'Voronoi10', 'Voronoi14', 'Voronoi20'
 - `y_correction`: determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
 - `dustatten`: determines if dust attenuation corrections are applied
 - `mask`: determines if the night sky mask is used in Stackingboth_MasterGrid.py
@@ -175,15 +176,15 @@ Different grid methods were utilize throughout the process of developing this st
 Tessellation code. The dataset option for voronoi run function determines the target single to noise of each bin,
 which varies the number of spectra in each bin. 
 
-Sample parameters for general.run_grid_r23_o32_analysis()
+Sample parameters for `general.run_grid_r23_o32_analysis()`
 ```python
-dataset = 'Vornoi14'
+dataset = 'Voronoi14'
 y_correction = ''
 dustatten = True
 mask = True
 ```
 
-Calling the run function
+Calling the run function:
 ```python
     general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, adaptive, dustatten, mask)
 ```

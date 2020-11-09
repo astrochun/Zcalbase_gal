@@ -24,10 +24,9 @@ OIIIλ[4363] is a forbidden transition, which produces a very weak emission line
 in the spectra. In order to detect OIIIλ[4363], individual spectra are binned
 and stacked to get a composite spectrum measurement.
 
-This analysis is also compared against recently published analyses from 
-[Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145](https://arxiv.org/abs/1811.05796)  
-and
-[Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175](https://iopscience.iop.org/article/10.3847/1538-4357/aabd74/meta).
+This analysis is also compared against recently published analyses from:
+1. [Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145](https://arxiv.org/abs/1811.05796)  
+2. [Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175](https://iopscience.iop.org/article/10.3847/1538-4357/aabd74/meta)
 
 Links to material presenting this work: 
 1. [UA Space Grant Link](https://arizona.figshare.com/articles/Stacking_of_Galaxy_Spectra/12360626) 
@@ -41,7 +40,7 @@ to figure created in the stacking code
 ### Requirements 
 Your will need the following to have a working copy of this software.
 
-- Python (3.7). We used 3.7.7
+- Python (>=3.7). We used 3.7.7
 - [Metallicity Stack Commons](https://github.com/astrochun/Metallicity_Stack_Commons)
 - numpy 
 - matplotlib
@@ -58,16 +57,16 @@ The analysis of the binning methods is run by executing the
 from Zcalbase_gal.analysis.deep2_r23_o32 import general
 ```
 
-The `run` function requires the following variables:
+The `run_grid_R23_O32_analysis` function requires the following variables:
 - `dataset`: variable used to define binning method options:
   'Grid', 'O32_Grid', 'R23_Grid', or 'n_Bins'. See [next section](#different-grid-methods)
 - `y_correction`: Bool. Determines if the smoothed (`movingaverage_box1D`)
-  version of spectra is used in zoom_and_gauss_general.py
-- `n_split`: determined how many times the log(R23) bins are split in O32 when
-  using manual binning
+  version of spectra is used in `zoom_and_gauss_general` module
+- `n_split`: determined how many times the log(R23) bins are split in log(O32)
+  when using manual binning
 - `adaptive`: Bool. Set for log(R23) bins to have equal number of spectra in
-  them in binning method. Default: False
-- `dustatten`: Bool. Set to apply dust attenuation corrections. Default: False
+  them in binning method. Default: `False`
+- `dustatten`: Bool. Set to apply dust attenuation corrections. Default: `False`
 - `mask`: Indicate if night sky masking is implemented in
   `Stackingboth_MasterGrid`. Default: `None`/`False`
 
@@ -92,14 +91,14 @@ dustatten = True
 mask = True
 ```
 
-Calling the `run` function:
+Calling the `run_grid_R23_O32_analysis` function:
 
 ``` python
 general.run_grid_r23_o32_analysis(dataset, y_correction, n_split,
                                   adaptive, dustatten, mask)
 ```
     
-Steps taking throughout the `run` function:
+Steps taking throughout the `run_grid_R23_O32_analysis` function:
 
 1. Gets the valid data for the study using `get_det3` function:
 
@@ -119,18 +118,22 @@ Steps taking throughout the `run` function:
 
 3. Calls the stacking function to stack individual spectra
     
-   A mask can be applied to correct for night sky lines. Produces a table with
-   binned data properties.
+   This produces a table with binned data properties.
+   A mask can be applied to correct for night sky lines. 
 
    ``` python
+   # With masking
    stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini, dataset,
-                                                 stack_name, bin_outfile)
+                                                 name, grid_data_file)
+
+   # Without masking
+   stackboth_mastergrid.run_stacking_master(fitspath, name, grid_data_file):
    ```
 
 4. Calls fitting function to fit the emission lines in the combined spectra
-with a gaussian profile and determine gaussian properties 
-   
-   Produces a table with emission line fitting parameters for each line of
+with a gaussian profile and determine Gaussian fitting parameters
+ 
+   This generates a table with emission-line fitting results for each line of
    each binned spectra.
 
    ``` python
@@ -140,11 +143,12 @@ with a gaussian profile and determine gaussian properties
 
 5. Creates a validation table that confirms detections of OIIIλ[4363]
 
-   Code imported from MSC. Adds a row to the table of emission line
+   Code is imported from MSC. It creates a column to the table of emission line
    measurements to indicate if there is a detection of OIIIλ[4363].
-   A one represents a detection, while a zero represents a nan-detection.
+   Detection: 1; Non-detection: 0
    ``` python
-       valid_table.make_validation_table(fitspath)
+   from Metallicity_Stack_commons import valid_table
+   valid_table.make_validation_table(fitspath)
    ```
     
 6. Calls function to calculate the _R_ value, temperature, and metallicity of
@@ -153,23 +157,25 @@ with a gaussian profile and determine gaussian properties
    Calculates the _R_ flux ratio, electron temperature, and metallicities of
    each bin and saves in table.
    ``` python
-       r_temp_calcul.run_function(fitspath, dataset, verification_table_revised,
-                                  dustatt=False)
+   r_temp_calcul.run_function(fitspath, dataset, verification_table_revised,
+                              dustatt=False)
    ```
 
 7. Applies dust attenuation corrections if specified in run function 
    
    ``` python
+   from Metallicity_Stack_commons.plotting import balmer
    if dustatten:
        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
        attenuation.EBV_table_update(fitspath, use_revised= False)
        r_temp_calcul.run_function(fitspath, dataset, verification_table_revised,
-       dustatt=True)
+                                  dustatt=True)
    ```
 
-8. Applies Error Propagation from MSC
+8. Applies error propagation
    
    ``` python
+   from Metallicity_Stack_commons.analysis import error_prop
    error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
    ```
 
@@ -181,13 +187,13 @@ with a gaussian profile and determine gaussian properties
    ```
 
 ### Running Voronoi Analysis 
-The analysis of the binning methods is run by executing the `run_grid_R23_O32_analysis()`
+The analysis of the binning methods is run by executing the `run_grid_R23_O32_analysis`
 function in [`analysis.deep2_r23_o32.archives.run_functions.voronoi_general`](deep2_r23_o32/archives/run_functions/voronoi_general.py).
 ``` python
 from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import voronoi_general
 ```
 
-The `run` function requires the following inputs:
+The `run_grid_R23_O32_analysis` function requires the following inputs:
 
 - `dataset`: Variable used to define binning method options: 'Voronoi10', 'Voronoi14', 'Voronoi20'
 - `y_correction`: determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
@@ -201,7 +207,7 @@ study including the Voronoi Tessellation code. The dataset option for Voronoi
 run function determines the target single-to-noise of each bin, which varies
 the number of spectra in each bin.
 
-Sample parameters for `general.run_grid_r23_o32_analysis()`
+Sample parameters for `general.run_grid_r23_o32_analysis`
 ``` python
 dataset = 'Voronoi14'
 y_correction = False
@@ -209,7 +215,7 @@ dustatten = True
 mask = True
 ```
 
-Calling the `run` function:
+Calling the `run_grid_R23_O32_analysis` function:
 ``` python
 general.run_voronoi_r23_o32_analysis(dataset, y_correction, n_split, adaptive,
                                      dustatten, mask)

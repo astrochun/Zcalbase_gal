@@ -147,7 +147,7 @@ with a gaussian profile and determine Gaussian fitting parameters
    measurements to indicate if there is a detection of OIIIλ[4363].
    Detection: 1; Non-detection: 0
    ``` python
-   from Metallicity_Stack_commons import valid_table
+   from Metallicity_Stack_Commons import valid_table
    valid_table.make_validation_table(fitspath)
    ```
     
@@ -164,7 +164,7 @@ with a gaussian profile and determine Gaussian fitting parameters
 7. Applies dust attenuation corrections if specified in run function 
    
    ``` python
-   from Metallicity_Stack_commons.plotting import balmer
+   from Metallicity_Stack_Commons.plotting import balmer
    if dustatten:
        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
        attenuation.EBV_table_update(fitspath, use_revised= False)
@@ -175,7 +175,7 @@ with a gaussian profile and determine Gaussian fitting parameters
 8. Applies error propagation
    
    ``` python
-   from Metallicity_Stack_commons.analysis import error_prop
+   from Metallicity_Stack_Commons.analysis import error_prop
    error_prop.fluxes_derived_prop(fitspath, binned_data=True, revised=True)
    ```
 

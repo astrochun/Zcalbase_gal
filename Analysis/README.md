@@ -189,13 +189,15 @@ with a gaussian profile and determine Gaussian fitting parameters
 ### Running Voronoi Analysis 
 The analysis of the binning methods is run by executing the `run_grid_R23_O32_analysis`
 function in [`analysis.deep2_r23_o32.archives.run_functions.voronoi_general`](deep2_r23_o32/archives/run_functions/voronoi_general.py).
+
 ``` python
 from Zcalbase_gal.analysis.deep2_r23_o32.archives.run_functions import voronoi_general
 ```
 
 The `run_grid_R23_O32_analysis` function requires the following inputs:
 
-- `dataset`: Variable used to define binning method options: 'Voronoi10', 'Voronoi14', 'Voronoi20'
+- `dataset`: Variable used to define binning method options: 'Voronoi10', 'Voronoi14', 'Voronoi20'. See 
+[next section](#difference-between-analyses).
 - `y_correction`: determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
 - `dustatten`: determines if dust attenuation corrections are applied
 - `mask`: determines if the night sky mask is used in Stackingboth_MasterGrid.py

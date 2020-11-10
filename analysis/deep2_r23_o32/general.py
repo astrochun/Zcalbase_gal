@@ -158,7 +158,8 @@ def gettime(org_name, fitspath_ini):
     return fitspath
 
 
-def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, dustatten='False', mask='None'):
+def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=True,
+                              apply_dust=False, mask=True):
     """
     Purpose
     ----------
@@ -166,26 +167,30 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 
     Parameters
     ----------
-    dataset -> keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
-    y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
-    n_split -> determined how many times the R23 bins are split when using manual binning
-    adaptive -> determines if the R23 bins have equal or different number of spectra in them in binning method
-    dustatten -> determines if dust attenuation corrections are applied
-    mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
-
+    :param dataset: str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param n_split: int. Number of times the log(R23) bins are split.
+           Default: 3.  Only for 'Grid' case
+    :param y_correction: bool. Set to use smoothed (movingaverage_box1D)
+           version for spectrum in zoom_and_gauss_general. Default: False
+    :param adaptive: bool. Set to use adaptive binning, otherwise equal
+           log(R23) bins. Default: True
+    :param apply_dust: bool. Apply dust correction. Default: False
+    :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
+           Default: True
     """
 
-    '''if dataset == 'O32_Grid': org_name = 'O32_Grid'
-    if dataset == 'R23_Grid': org_name = 'R23_Grid'
-    if dataset == 'Grid': org_name = 'R23O32_Grid'
-    if dataset == 'n_Bins': org_name = 'R23O32_Manual'
-    fitspath = gettime(org_name,fitspath_ini)'''
+    if dataset not in ['Grid', 'O32_Grid', 'R23_Grid', 'n_Bins']:
+        print("Warning!!!! Incorrect [dataset]")
+        raise ValueError("Warning!!!! Incorrect [dataset]")
+
     fitspath_ini = get_user()
     fitspath = dir_date(fitspath_ini, year=False)
     print('fitspath_ini =  ', fitspath_ini)
     print('fitspath =  ', fitspath)
-    
-    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath, fitspath_ini)
+
+    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, \
+        data3 = get_det3(fitspath, fitspath_ini)
 
     print("length R23: ", len(R23))
 
@@ -263,7 +268,8 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # Option to change: Constants used as initial guesses for gaussian fit
 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
-                                      dispersion, y_correction, tab=binning_avg_asc)
+                                      dispersion, y_correction=y_correction,
+                                      tab=binning_avg_asc)
 
     print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
     print('combine_flux_table created')
@@ -287,19 +293,15 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # bin_derived_prop_rev
     # bin_derived_prop_dust
     # bin_derived_prop_rev_dust
-    r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=False)
+    r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=False)
 
-    if dustatten:
+    if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         attenuation.EBV_table_update(fitspath, use_revised=False)
-<<<<<<< HEAD
-        r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=True)
-=======
-        r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
->>>>>>> 302903b6f157c808a9b9ee84ac284d10f0db64c9
+        r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=True)
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
 
-    if not dustatten:
+    if not apply_dust:
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
     '''
     # Check Dust Attenuation
@@ -352,7 +354,8 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 # Enter a keyword for want to indictate what function you want to run
 # This will ease the reproduction process
 # CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
-def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=False):
+def run_individual_functions(fitspath, want, adaptive, y_correction=False,
+                             apply_dust=False):
     """
     Purpose
     ----------
@@ -365,7 +368,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
          -> Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
     adaptive  -> determines if the R23 bins have equal or different number of spectra in them in binning method
     y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
-    dustatten -> determines if dust attenuation corrections are applied
+    apply_dust -> determines if dust attenuation corrections are applied
 
     """
 
@@ -405,7 +408,9 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
             if len(idx) > 0:
                 lineflag[idx] = 1
 
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
+                                          lineflag, dispersion,
+                                          y_correction=y_correction,
                                           tab=binning_avg_asc)
 
     if want == 'R_cal_temp':
@@ -414,12 +419,12 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
         temp_m_gfits = join(fitspath, '/nsplit_temperatures_metalicity.fits')
         temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
 
-        if dustatten:
+        if apply_dust:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, dustatt=True)
+                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=True)
         else:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
+                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=False)
 
     if want == 'line_ratio_plotting':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')

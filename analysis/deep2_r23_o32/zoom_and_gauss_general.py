@@ -215,11 +215,11 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
 
         rms_ang = rms_func(wave, dispersion, working_wave, y0, 0, lineflag)
 
-        if y_correction == '':
-            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms_ang, line_type)
-
-        if y_correction == 'y_smooth':
+        if y_correction:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0, y_smooth, x_idx, rms_ang, line_type)
+
+        else:
+            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms_ang, line_type)
 
         # Calculating Flux: Signal Line Fit
         if type(o1) != type(None):

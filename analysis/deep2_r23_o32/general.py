@@ -104,11 +104,26 @@ def get_det3(fitspath, fitspath_ini):
     SNR4363 = SNR4363_ini[det3]
     individual_names = objno[det3]
 
-    n2 = ('ID', 'logR23', 'logO32', 'OII_3727_Flux_Gaussian', 'O3_Flux_Gaussian', 'HGAMMA_Flux_Gaussian',
-         'HDELTA_Flux_Gaussian', 'OIII_4363_Flux_Gaussian', 'OIII_4958_Flux_Gaussian', 'OIII_5007_Flux_Gaussian',
-         'HBETA_Flux_Gaussian', 'O2_S/N', 'O3_S/N', 'RH_S/N', 'HGAMMA_S/N', 'O4363_S/N')
-    tab1 = Table([individual_names, lR23, lO32, O2, O3, Hgamma, Hdelta, O4363, O4959, O5007,
-                  Hb, SNR2, SNR3, SNRH, SNRHG, SNR4363], names=n2)
+    table_dict = {
+        'ID': individual_names,
+        'logR23': lR23,
+        'logO32': lO32,
+        'OII_3727_Flux_Gaussian': O2,
+        'O3_Flux_Gaussian': O3,
+        'HGAMMA_Flux_Gaussian': Hgamma,
+        'HDELTA_Flux_Gaussian': Hdelta,
+        'OIII_4363_Flux_Gaussian': O4363,
+        'OIII_4958_Flux_Gaussian': O4959,
+        'OIII_5007_Flux_Gaussian': O5007,
+        'HBETA_Flux_Gaussian': Hb,
+        'O2_S/N': SNR2,
+        'O3_S/N': SNR3,
+        'RH_S/N': SNRH,
+        'HGAMMA_S/N': SNRHG,
+        'O4363_S/N': SNR4363
+    }
+
+    tab1 = Table(table_dict)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl

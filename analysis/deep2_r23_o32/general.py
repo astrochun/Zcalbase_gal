@@ -285,10 +285,6 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     if not apply_dust:
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
     
-    # Check Dust Attenuation
-    temp = fitspath + filename_dict['bin_derived_prop']
-    temp_revised = fitspath +filename_dict['bin_derived_prop_dustcorr']
-
     '''
     ttab = asc.read(temp)
     trtab = asc.read(temp_revised)

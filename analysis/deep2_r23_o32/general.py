@@ -14,7 +14,7 @@ from datetime import date
 
 
 from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_mastergrid, \
-    zoom_and_gauss_general, hstack_tables, r_temp_calcul, calibration_plots, name_dict
+    zoom_and_gauss_general, hstack_tables, calibration_plots, name_dict
 from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from Zcalbase_gal.analysis.deep2_r23_o32.plotting import more_plots, line_ratio_plotting, te_metal_plots
@@ -22,7 +22,7 @@ from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
     valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
-from Metallicity_Stack_Commons.analysis import attenuation, error_prop
+from Metallicity_Stack_Commons.analysis import error_prop
 
 
 def get_det3(fitspath, fitspath_ini):
@@ -262,7 +262,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # Verification Table
     valid_table.make_validation_table(fitspath)
     verification_table = join(fitspath, filename_dict['bin_valid'])
-    
+
     valid_table.compare_to_by_eye(fitspath, dataset)
     verification_table_revised = join(fitspath, filename_dict['bin_valid_rev'])
     
@@ -273,17 +273,20 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # bin_derived_prop_rev
     # bin_derived_prop_dust
     # bin_derived_prop_rev_dust
-    r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=False)
+    # r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=False)
 
     if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
-        attenuation.EBV_table_update(fitspath, use_revised=False)
-        r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=True)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
+        # r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=True)
 
-    if not apply_dust:
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
-    
+    # Generate baseline table (raw=False)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                   apply_dust=apply_dust, revised=True)
+
+    # Generate MC randomized table (raw=True)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                   apply_dust=apply_dust, revised=True)
+
     '''
     ttab = asc.read(temp)
     trtab = asc.read(temp_revised)

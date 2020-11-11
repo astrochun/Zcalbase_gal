@@ -131,7 +131,7 @@ def get_det3(fitspath, fitspath_ini):
               format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
-    return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3
+    return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
 
 
 def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=True,
@@ -165,7 +165,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     print('fitspath_ini =  ', fitspath_ini)
     print('fitspath =  ', fitspath)
 
-    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, \
+    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
         data3 = get_det3(fitspath, fitspath_ini)
 
     print("length R23: ", len(R23))
@@ -183,18 +183,15 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 
     if dataset == 'O32_Grid':
         single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                        det3, data3, galinbin, adaptive)
+                                        R23, O32, galinbin)
     if dataset == 'R23_Grid':
         single_grid_r23.single_grid_r23(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                        det3, data3, galinbin)
+                                        R23, O32, galinbin)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
         fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                        det3, data3, R23_bin, O32_bin)
+                                        R23, O32, det3, R23_bin, O32_bin)
 
     if dataset == 'n_Bins':
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile,
@@ -329,7 +326,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
     dataset = 'n_Bins'
 
     if want == 'binning_and_graphing':
-        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)
+        R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = get_det3(fitspath)
         # Each bin will be split in half
         # Must sum to 2799
         if adaptive:
@@ -339,8 +336,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
         pdf_pages = join(fitspath, 'n_Bins_grid.pdf')
         grid_data_file = join(fitspath, 'n_Bins_grid.npz')
         n_bins_grid_analysis.n_times_binned(fitspath, pdf_pages, grid_data_file, n_split,
-                                            R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                            det3, data3, galinbin, adaptive)
+                                            R23, O32, SNR3, data3, galinbin, adaptive)
 
     if want == 'stack_mastergrid':
         grid_data_file = join(fitspath, 'n_Bins_grid.npz')

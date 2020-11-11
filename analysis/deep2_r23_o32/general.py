@@ -279,12 +279,12 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
         # r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=True)
 
-    # Generate baseline table (raw=False)
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+    # Generate baseline table (raw=True)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
                                    apply_dust=apply_dust, revised=True)
 
-    # Generate MC randomized table (raw=True)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+    # Generate MC randomized table (raw=False)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
                                    apply_dust=apply_dust, revised=True)
 
     '''

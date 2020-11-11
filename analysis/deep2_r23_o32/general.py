@@ -18,7 +18,7 @@ from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_mastergrid, \
 from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from Zcalbase_gal.analysis.deep2_r23_o32.plotting import more_plots, line_ratio_plotting, te_metal_plots
-from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
+from Metallicity_Stack_Commons import exclude_outliers, dir_date, lambda0, \
     valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
@@ -118,32 +118,6 @@ def get_det3(fitspath, fitspath_ini):
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3
-
-
-def gettime(org_name, fitspath_ini):
-    """
-    Purpose
-    ----------
-    Function is used to create directory for the run and checks to make sure previous runs are not erased
-
-    Parameters
-    ----------
-    org_name -> Keyword for type of binning used in run
-    fitspath_ini-> path to the location of entire project
-
-    Returns
-    -------
-    fitspath
-    """
-    today = date.today()
-    path0 = org_name+'_' + "%02i%02i" % (today.month, today.day) + '/'
-    if not exists(path0):
-        os.mkdir(fitspath_ini + path0)
-        fitspath = fitspath_ini+path0
-    else:
-        print("Path already exists")
-    print(fitspath)
-    return fitspath
 
 
 def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=True,

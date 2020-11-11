@@ -25,18 +25,6 @@ from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import attenuation, error_prop
 
 
-'''
-#############Getting username##############
-import getpass
-username = getpass.getuser()
-print(username)
-if username == 'reagenleimbach':
-    fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-if username == 'fill in':
-    fitspath_ini = 'fill in '
-'''
-
-
 def get_det3(fitspath, fitspath_ini):
     """
     Purpose

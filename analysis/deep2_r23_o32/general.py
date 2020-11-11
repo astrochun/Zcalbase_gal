@@ -249,6 +249,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # I need to go back through and figure out what is the average and what is the composite
     # line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
 
+    # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
     if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
 

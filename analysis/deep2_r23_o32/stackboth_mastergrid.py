@@ -55,7 +55,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
 
     pdf_pages = PdfPages(fitspath+name)  # open pdf document
-    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = general.get_det3(fitspath, fitspath_ini)
+    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = general.get_det3(fitspath, fitspath_ini)
 
     grid_data = np.load(grid_data_file, allow_pickle=True)  # This is the npz file
     R23_minimum = grid_data['R23_minimum']

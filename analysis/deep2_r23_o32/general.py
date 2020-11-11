@@ -250,24 +250,20 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
 
-    # Generate baseline table (raw=True)
+    # Generate baseline table with det3 cut (raw=True and revised = False)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                   apply_dust=apply_dust, revised=False)
+    print('baseline#1 created')
+    # Generate baseline table with revised validation table (raw=True, revised = True)
     error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
                                    apply_dust=apply_dust, revised=True)
-
-    # Generate MC randomized table (raw=False)
+    print('baseline#2 created')
+    # Generate MC randomized table (raw=False, revised=True)
+    # need to figure out how to duplicate a file so that I can run everything in sequence
+    # otherwise I am going to have to run the whole run function twice
     error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
                                    apply_dust=apply_dust, revised=True)
-
-    '''
-    ttab = asc.read(temp)
-    trtab = asc.read(temp_revised)
-    
-    metallicity = ttab['12+log(O/H)'].data
-    metallicity_r = trtab['12+log(O/H)'].data
-
-    print('Metallicity' , metallicity)
-    print('##################################################################')
-    print('Dust Attenuated Metallicity', metallicity_r)'''
+    print('fancy table created')
 
     # Individual Detections
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)

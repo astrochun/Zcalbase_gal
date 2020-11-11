@@ -305,8 +305,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 # Enter a keyword for want to indictate what function you want to run
 # This will ease the reproduction process
 # CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
-def run_individual_functions(fitspath, want, adaptive, y_correction=False,
-                             apply_dust=False):
+def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adaptive=True, y_correction=False,
+                             apply_dust=False, mask=True):
     """
     Purpose
     ----------
@@ -322,27 +322,23 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
     apply_dust -> determines if dust attenuation corrections are applied
 
     """
-
-    dataset = 'n_Bins'
-
-    if want == 'binning_and_graphing':
-        R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = get_det3(fitspath)
+    fitspath_ini = get_user()
+    if want == 'binning_and_stacking':
+        individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = get_det3(fitspath, fitspath_ini)
         # Each bin will be split in half
         # Must sum to 2799
         if adaptive:
             galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
         else:
             galinbin = [400, 400, 400, 400, 400, 400, 409]
-        pdf_pages = join(fitspath, 'n_Bins_grid.pdf')
-        grid_data_file = join(fitspath, 'n_Bins_grid.npz')
-        n_bins_grid_analysis.n_times_binned(fitspath, pdf_pages, grid_data_file, n_split,
-                                            R23, O32, SNR3, data3, galinbin, adaptive)
-
-    if want == 'stack_mastergrid':
-        grid_data_file = join(fitspath, 'n_Bins_grid.npz')
+        bin_pdf_pages = join(fitspath, name_dict['gridpdf_suffix'])
+        bin_outfile = join(fitspath, name_dict['gridnpz_suffix'])
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split,
+                                            individual_ID, R23, O32, SNR3, data3, galinbin)
+        # Starting Stacking
         Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.pdf'
-        stackboth_masterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
-                                                      dataset, Stack_name, grid_data_file)
+        stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
+                                             bin_outfile, Stack_name, mask=mask)
 
     if want == 'zoom':
         Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.fits'
@@ -363,6 +359,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
                                           y_correction=y_correction,
                                           tab=binning_avg_asc)
 
+    # This next section is under construction until the run function is finalized
     if want == 'R_cal_temp':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
         temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')

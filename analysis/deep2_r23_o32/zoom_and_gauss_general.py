@@ -306,10 +306,10 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
 
             # Plotting
-            if y_correction == 'y_smooth':
+            if y_correction:
                 emis = t_ax.plot(wave, y_smooth, 'k', linewidth=0.3, label='Emission')
                 t_ax.plot(x0, gauss0, 'm', linewidth=0.25, label='Gauss Fit')
-            if y_correction == '':
+            else:
                 emis = t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
                 t_ax.plot(x0, gauss0, 'b', linewidth=0.25, label='Gauss Fit')
 

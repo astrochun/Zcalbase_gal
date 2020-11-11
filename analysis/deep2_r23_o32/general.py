@@ -8,9 +8,7 @@ from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack
 from astropy.table import Table
-import os
-from os.path import exists, join
-from datetime import date
+from os.path import join
 
 
 from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_mastergrid, \
@@ -114,7 +112,8 @@ def get_det3(fitspath, fitspath_ini):
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
-    asc.write(tab1, fitspath+'individual_properties.tbl', format='fixed_width_two_line')
+    asc.write(tab1, join(fitspath, filename_dict['indv_prop']),
+              format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3
@@ -212,8 +211,9 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     dispersion = header['CDELT1']
     binning_avg_asc = join(fitspath, filename_dict['bin_info'])
 
-    indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])  # used to be 'n_Bins_2d_binning_datadet3.tbl'
-    
+    # used to be 'n_Bins_2d_binning_datadet3.tbl'
+    indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])
+
     lineflag = np.zeros(len(wave))
     for ii in lambda0:   
         idx = np.where(np.absolute(wave - ii) <= 5)[0]

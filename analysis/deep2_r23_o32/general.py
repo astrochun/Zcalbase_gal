@@ -186,19 +186,20 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
                                         det3, data3, galinbin, adaptive)
     if dataset == 'R23_Grid':
-        single_grid_r23.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
+        single_grid_r23.single_grid_r23(fitspath, bin_pdf_pages, bin_outfile,
                                         R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
                                         det3, data3, galinbin)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
         fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
-                                        R23_bin, O32_bin)
+                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
+                                        det3, data3, R23_bin, O32_bin)
 
     if dataset == 'n_Bins':
-        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
-                                            R23, O32, SNR3, data3, galinbin)
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile,
+                                            n_split, individual_ID, R23, O32,
+                                            SNR3, data3, galinbin)
 
     print('made npz, pdf files , testmastergrid (need to find if this is used anywhere)')
     print('finished Binning_and_Graphing_MasterGrid')
@@ -248,25 +249,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # I need to go back through and figure out what is the average and what is the composite
     # line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
 
-    # Verification Table
-    valid_table.make_validation_table(fitspath)
-    verification_table = join(fitspath, filename_dict['bin_valid'])
-
-    valid_table.compare_to_by_eye(fitspath, dataset)
-    verification_table_revised = join(fitspath, filename_dict['bin_valid_rev'])
-    
-    # R_temp_calcul
-    # Not going to run the R_temp_calcul.run_function for the 'bin_valid' table because these values
-    # are proven to be incomplete. The bin_valid_rev table is different.
-    # bin_derived_prop
-    # bin_derived_prop_rev
-    # bin_derived_prop_dust
-    # bin_derived_prop_rev_dust
-    # r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=False)
-
     if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
-        # r_temp_calcul.run_function(fitspath, verification_table_revised, apply_dust=True)
 
     # Generate baseline table (raw=True)
     error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
@@ -297,7 +281,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 
     # Calibration Plots
     # calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
-    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
+    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset,
+                                    revised=True, individual=False)
 
 
     '''

@@ -25,18 +25,6 @@ from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import attenuation, error_prop
 
 
-'''
-#############Getting username##############
-import getpass
-username = getpass.getuser()
-print(username)
-if username == 'reagenleimbach':
-    fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-if username == 'fill in':
-    fitspath_ini = 'fill in '
-'''
-
-
 def get_det3(fitspath, fitspath_ini):
     """
     Purpose
@@ -230,22 +218,15 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # Stackboth_MasterGrid
     # Option to Change: Bin size
     # Option to Change: Masking the night sky emission lines
-    if dataset == 'Grid': 
-        if mask:
-            stack_name = dataset + name_dict['Stackname']
-            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
-                                                          dataset, stack_name, bin_outfile)
-        else:
-            stack_name = dataset + name_dict['Stackname_nomask']
-            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
+
+    if mask:
+        stack_name = dataset + name_dict['Stackname']
+        stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
+                                             bin_outfile, stack_name, mask=True)
     else:
-        if mask:
-            stack_name = dataset + name_dict['Stackname']
-            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
-                                                          dataset, stack_name, bin_outfile)
-        else:
-            stack_name = dataset + name_dict['Stackname_nomask']
-            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
+        stack_name = dataset + name_dict['Stackname_nomask']
+        stackboth_mastergrid.run_stacking_master(fitspath, fitspath_ini, dataset,
+                                                 bin_outfile, stack_name, mask=False)
 
     # Outfile and pdf both use name
     print('finished with stacking,' + stack_name + 'pdf and fits files created')
@@ -303,12 +284,12 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 
     if not apply_dust:
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
-    '''
+    
     # Check Dust Attenuation
     temp = fitspath + filename_dict['bin_derived_prop']
     temp_revised = fitspath +filename_dict['bin_derived_prop_dustcorr']
 
-
+    '''
     ttab = asc.read(temp)
     trtab = asc.read(temp_revised)
     
@@ -332,7 +313,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
 
 
-'''
+    '''
 
     ###Making More Plots###
     #asc_table = combine_flux_ascii

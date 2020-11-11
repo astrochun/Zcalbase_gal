@@ -338,8 +338,8 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
         pdf_pages = join(fitspath, 'n_Bins_grid.pdf')
         grid_data_file = join(fitspath, 'n_Bins_grid.npz')
         n_bins_grid_analysis.n_times_binned(fitspath, pdf_pages, grid_data_file, n_split,
-                                                       R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                                       det3, data3, galinbin, adaptive)
+                                            R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
+                                            det3, data3, galinbin, adaptive)
 
     if want == 'stack_mastergrid':
         grid_data_file = join(fitspath, 'n_Bins_grid.npz')
@@ -353,7 +353,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         dispersion = header['CDELT1']
-        binning_avg_asc = join(fitspath, '/bin_info.tbl')
+        binning_avg_asc = join(fitspath, 'bin_info.tbl')
 
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   
@@ -368,8 +368,8 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
 
     if want == 'R_cal_temp':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
-        temp_m_gascii = join(fitspath, '/nsplit_temperatures_metalicity.tbl')
-        temp_m_gfits = join(fitspath, '/nsplit_temperatures_metalicity.fits')
+        temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
+        temp_m_gfits = join(fitspath, 'nsplit_temperatures_metalicity.fits')
         temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
 
         if apply_dust:
@@ -381,11 +381,11 @@ def run_individual_functions(fitspath, want, adaptive, y_correction=False,
 
     if want == 'line_ratio_plotting':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
-        binning_avg_asc = join(fitspath, '/bin_info.tbl')
+        binning_avg_asc = join(fitspath, 'bin_info.tbl')
         line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
 
     if want == 'calibration_plots':
-        temp_m_gascii = join(fitspath, '/nsplit_temperatures_metalicity.tbl')
+        temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
         calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
 
     print(want, 'is done')

@@ -35,20 +35,17 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
 
 
 def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=True):
-                # (fitspath, dataset, wave, grid_data_file, image2D, name, header, mask= None):
     """
     Purpose
     Function stacks all spectra in a given bin and produces tables of properties of that bin
 
     Parameters
-    fitspath -> save location of the current run
-    dataset -> keyword used to define binning method
-    wave -> spectrum of each galaxy
-    grid_data_file -> npz file that holds the information from the binning process
-    image2D -> spectra data
-    name -> name of the outputted pdf file with graphs
-    header -> header of the data file
-    mask -> optional input used to mask the night sky lines if inputted (default: None)
+    :param fitspath: str. save location of the current run
+    :param fitspath_ini: str. save location of all of Zcalbase
+    :param dataset: str. keyword used to define binning method
+    :param grid_data_file: str. npz file that holds the information from the binning process
+    :param name: str. name of the outputted pdf file with graphs
+    :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
     """
     RestframeMaster = fitspath_ini + 'Master_Grid.fits'
     image2D, header = fits.getdata(RestframeMaster, header=True)
@@ -183,10 +180,10 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     fits.writeto(outfile, stack_2d[0:count], header, overwrite= True)
 
     # Writing Ascii Tables and Fits Tables
-    out_ascii = fitspath+'/bin_info.tbl'   # used to be 'binning_averages.tbl'
+    out_ascii = fitspath+filename_dict['bin_info']   # used to be 'binning_averages.tbl'
 
-    ID = np.arange(0,len(R23_node), 1, dtype = int)
-    n = ('bin_ID','logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg', 'logR23_med', 'logO32_med', 'N_stack')
+    ID = np.arange(0, len(R23_node), 1, dtype=int)
+    n = ('bin_ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg', 'logR23_med', 'logO32_med', 'N_stack')
     # for n_split xnode and ynode are the lowest values of the bin while xBar and yBar are the averages
 
     tab0 = Table([ID, R23_node, O32_node, avg_R23, avg_O32, R23_med, O32_med, N_gal], names=n)

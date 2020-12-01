@@ -22,16 +22,16 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     increase the number of galaxies as R23 increases
 
     Inputs:
-    fitspath  -> str: Absolute path for working directory
-    pdf_pages -> name of outputted pdf file
-    outfile   -> name of the npz file produced by the function
-    n_split   -> the number of times each R23 bin will be split
-    galinbin  -> array of numbers that specifies how many spectra go in each bin
-    individual_ID -> individual ids for each spectra
-    R23 -> R23 measurement of each spectra
-    O32 -> O32 measurement of each spectra
-    SNR3 -> signal to noise of the OIII emission lines of each spectra
-    data3 -> array determined by get_det3 that determines if spectra can be used in this study
+    :param fitspath: str. Absolute path for working directory
+    :param pdf_pages: str. name of outputted pdf file
+    :param outfile: str. name of the npz file produced by the function
+    :param n_split: int. the number of times each R23 bin will be split
+    :param galinbin: array. array of numbers that specifies how many spectra go in each bin
+    :param individual_ID: array. individual ids for each spectra
+    :param R23: array. R23 measurement of each spectra
+    :param O32: array. O32 measurement of each spectra
+    :param SNR3: array. signal to noise of the OIII emission lines of each spectra
+    :param data3: array.  array determined by get_det3 that determines if spectra can be used in this study
     """
     pdf_pages = PdfPages(pdf_pages)
     # One_dimensional binning for R23
@@ -205,7 +205,6 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     fig.savefig(pdf_pages, format='pdf')
     pdf_pages.close()
 
-    # np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=number_inbin)
     # Writing as a dictionary
     avg_dict = {'locator': locator,
                 'R23_minimum': R23_minimum,

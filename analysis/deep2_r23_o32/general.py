@@ -8,34 +8,19 @@ from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack
 from astropy.table import Table
-import os
-from os.path import exists, join
-import glob
-from datetime import date
+from os.path import join
 
 
 from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_mastergrid, \
-    zoom_and_gauss_general, hstack_tables, r_temp_calcul, calibration_plots, name_dict
+    zoom_and_gauss_general, hstack_tables, calibration_plots, name_dict
 from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from Zcalbase_gal.analysis.deep2_r23_o32.plotting import more_plots, line_ratio_plotting, te_metal_plots
-from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
-    line_type, line_name, valid_table, get_user
+from Metallicity_Stack_Commons import exclude_outliers, dir_date, lambda0, \
+    valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
-from Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect, error_prop
-
-
-'''
-#############Getting username##############
-import getpass
-username = getpass.getuser()
-print(username)
-if username == 'reagenleimbach':
-    fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-if username == 'fill in':
-    fitspath_ini = 'fill in '
-'''
+from Metallicity_Stack_Commons.analysis import error_prop
 
 
 def get_det3(fitspath, fitspath_ini):
@@ -119,47 +104,38 @@ def get_det3(fitspath, fitspath_ini):
     SNR4363 = SNR4363_ini[det3]
     individual_names = objno[det3]
 
-    n2 = ('ID', 'logR23', 'logO32', 'OII_3727_Flux_Gaussian', 'O3_Flux_Gaussian', 'HGAMMA_Flux_Gaussian',
-         'HDELTA_Flux_Gaussian', 'OIII_4363_Flux_Gaussian', 'OIII_4958_Flux_Gaussian', 'OIII_5007_Flux_Gaussian',
-         'HBETA_Flux_Gaussian', 'O2_S/N', 'O3_S/N', 'RH_S/N', 'HGAMMA_S/N', 'O4363_S/N')
-    tab1 = Table([individual_names, lR23, lO32, O2, O3, Hgamma, Hdelta, O4363, O4959, O5007,
-                  Hb, SNR2, SNR3, SNRH, SNRHG, SNR4363], names=n2)
+    table_dict = {
+        'ID': individual_names,
+        'logR23': lR23,
+        'logO32': lO32,
+        'OII_3727_Flux_Gaussian': O2,
+        'O3_Flux_Gaussian': O3,
+        'HGAMMA_Flux_Gaussian': Hgamma,
+        'HDELTA_Flux_Gaussian': Hdelta,
+        'OIII_4363_Flux_Gaussian': O4363,
+        'OIII_4958_Flux_Gaussian': O4959,
+        'OIII_5007_Flux_Gaussian': O5007,
+        'HBETA_Flux_Gaussian': Hb,
+        'O2_S/N': SNR2,
+        'O3_S/N': SNR3,
+        'RH_S/N': SNRH,
+        'HGAMMA_S/N': SNRHG,
+        'O4363_S/N': SNR4363
+    }
+
+    tab1 = Table(table_dict)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
-    asc.write(tab1, fitspath+'individual_properties.tbl', format='fixed_width_two_line')
+    asc.write(tab1, join(fitspath, filename_dict['indv_prop']),
+              format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
-    return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3
+    return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
 
 
-def gettime(org_name, fitspath_ini):
-    """
-    Purpose
-    ----------
-    Function is used to create directory for the run and checks to make sure previous runs are not erased
-
-    Parameters
-    ----------
-    org_name -> Keyword for type of binning used in run
-    fitspath_ini-> path to the location of entire project
-
-    Returns
-    -------
-    fitspath
-    """
-    today = date.today()
-    path0 = org_name+'_' + "%02i%02i" % (today.month, today.day) + '/'
-    if not exists(path0):
-        os.mkdir(fitspath_ini + path0)
-        fitspath = fitspath_ini+path0
-    else:
-        print("Path already exists")
-    print(fitspath)
-    return fitspath
-
-
-def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, dustatten='False', mask='None'):
+def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=True,
+                              apply_dust=False, mask=True):
     """
     Purpose
     ----------
@@ -167,26 +143,30 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 
     Parameters
     ----------
-    dataset -> keyword used to define binning method  options: Grid, O32_Grid, R23_Grid, n_Bins
-    y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
-    n_split -> determined how many times the R23 bins are split when using manual binning
-    adaptive -> determines if the R23 bins have equal or different number of spectra in them in binning method
-    dustatten -> determines if dust attenuation corrections are applied
-    mask -> determines if the night sky mask is used in Stackingboth_MasterGrid.py
-
+    :param dataset: str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param n_split: int. Number of times the log(R23) bins are split.
+           Default: 3.  Only for 'Grid' case
+    :param y_correction: bool. Set to use smoothed (movingaverage_box1D)
+           version for spectrum in zoom_and_gauss_general. Default: False
+    :param adaptive: bool. Set to use adaptive binning, otherwise equal
+           log(R23) bins. Default: True
+    :param apply_dust: bool. Apply dust correction. Default: False
+    :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
+           Default: True
     """
 
-    '''if dataset == 'O32_Grid': org_name = 'O32_Grid'
-    if dataset == 'R23_Grid': org_name = 'R23_Grid'
-    if dataset == 'Grid': org_name = 'R23O32_Grid'
-    if dataset == 'n_Bins': org_name = 'R23O32_Manual'
-    fitspath = gettime(org_name,fitspath_ini)'''
+    if dataset not in ['Grid', 'O32_Grid', 'R23_Grid', 'n_Bins']:
+        print("Warning!!!! Incorrect [dataset]")
+        raise ValueError("Warning!!!! Incorrect [dataset]")
+
     fitspath_ini = get_user()
     fitspath = dir_date(fitspath_ini, year=False)
     print('fitspath_ini =  ', fitspath_ini)
     print('fitspath =  ', fitspath)
-    
-    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath, fitspath_ini)
+
+    individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
+        data3 = get_det3(fitspath, fitspath_ini)
 
     print("length R23: ", len(R23))
 
@@ -198,27 +178,25 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
         galinbin = [400, 400, 400, 400, 400, 400, 409]
     print('# of Gal in Bin:', galinbin)
 
-    bin_pdf_pages = join(fitspath, dataset + name_dict['gridpdf'])
-    bin_outfile = join(fitspath, dataset + name_dict['gridnpz'])
+    bin_pdf_pages = join(fitspath, dataset + name_dict['gridpdf_suffix'])
+    bin_outfile = join(fitspath, dataset + name_dict['gridnpz_suffix'])
 
     if dataset == 'O32_Grid':
         single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                        det3, data3, galinbin, adaptive)
+                                        R23, O32, galinbin)
     if dataset == 'R23_Grid':
-        single_grid_r23.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                        det3, data3, galinbin)
+        single_grid_r23.single_grid_r23(fitspath, bin_pdf_pages, bin_outfile,
+                                        R23, O32, galinbin)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
         fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,
-                                        R23_bin, O32_bin)
+                                        R23, O32, det3, R23_bin, O32_bin)
 
     if dataset == 'n_Bins':
-        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split, individual_ID,
-                                            R23, O32, SNR3, data3, galinbin)
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile,
+                                            n_split, individual_ID, R23, O32,
+                                            SNR3, data3, galinbin)
 
     print('made npz, pdf files , testmastergrid (need to find if this is used anywhere)')
     print('finished Binning_and_Graphing_MasterGrid')
@@ -226,22 +204,14 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # Stackboth_MasterGrid
     # Option to Change: Bin size
     # Option to Change: Masking the night sky emission lines
-    if dataset == 'Grid': 
-        if mask:
-            stack_name = dataset + name_dict['Stackname']
-            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
-                                                          dataset, stack_name, bin_outfile)
-        else:
-            stack_name = dataset + name_dict['Stackname_nomask']
-            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
+
+    if mask:
+        stack_name = dataset + name_dict['Stackname']
     else:
-        if mask:
-            stack_name = dataset + name_dict['Stackname']
-            stackboth_mastergrid.run_stacking_master_mask(fitspath, fitspath_ini,
-                                                          dataset, stack_name, bin_outfile)
-        else:
-            stack_name = dataset + name_dict['Stackname_nomask']
-            stackboth_mastergrid.run_stacking_master(fitspath, stack_name, bin_outfile)
+        stack_name = dataset + name_dict['Stackname_nomask']
+
+    stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
+                                         bin_outfile, stack_name, mask=mask)
 
     # Outfile and pdf both use name
     print('finished with stacking,' + stack_name + 'pdf and fits files created')
@@ -254,8 +224,9 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     dispersion = header['CDELT1']
     binning_avg_asc = join(fitspath, filename_dict['bin_info'])
 
-    indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])  # used to be 'n_Bins_2d_binning_datadet3.tbl'
-    
+    # used to be 'n_Bins_2d_binning_datadet3.tbl'
+    indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])
+
     lineflag = np.zeros(len(wave))
     for ii in lambda0:   
         idx = np.where(np.absolute(wave - ii) <= 5)[0]
@@ -264,7 +235,8 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # Option to change: Constants used as initial guesses for gaussian fit
 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
-                                      dispersion, y_correction, tab=binning_avg_asc)
+                                      dispersion, y_correction=y_correction,
+                                      tab=binning_avg_asc)
 
     print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
     print('combine_flux_table created')
@@ -277,46 +249,27 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
     # Verification Table
     valid_table.make_validation_table(fitspath)
     verification_table = join(fitspath, filename_dict['bin_valid'])
-    
+
     valid_table.compare_to_by_eye(fitspath, dataset)
     verification_table_revised = join(fitspath, filename_dict['bin_valid_rev'])
-    
-    # R_temp_calcul
-    # Not going to run the R_temp_calcul.run_function for the 'bin_valid' table because these values
-    # are proven to be incomplete. The bin_valid_rev table is different.
-    # bin_derived_prop
-    # bin_derived_prop_rev
-    # bin_derived_prop_dust
-    # bin_derived_prop_rev_dust
-    r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=False)
 
-    if dustatten:
+    # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
+    if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
-        attenuation.EBV_table_update(fitspath, use_revised=False)
-<<<<<<< HEAD
-        r_temp_calcul.run_function(fitspath, verification_table_revised, dustatt=True)
-=======
-        r_temp_calcul.run_function(fitspath, dataset, verification_table_revised, dustatt=True)
->>>>>>> 302903b6f157c808a9b9ee84ac284d10f0db64c9
+
+    # Run raw data derived properties calculations (option to apply dust correction)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=False)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=True)
+    if apply_dust:
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=False)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
+
+    # Run Monte Carlo randomization calculations (option to apply dust correction)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
+    if apply_dust:
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
-
-    if not dustatten:
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
-    '''
-    # Check Dust Attenuation
-    temp = fitspath + filename_dict['bin_derived_prop']
-    temp_revised = fitspath +filename_dict['bin_derived_prop_dustcorr']
-
-
-    ttab = asc.read(temp)
-    trtab = asc.read(temp_revised)
-    
-    metallicity = ttab['12+log(O/H)'].data
-    metallicity_r = trtab['12+log(O/H)'].data
-
-    print('Metallicity' , metallicity)
-    print('##################################################################')
-    print('Dust Attenuated Metallicity', metallicity_r)'''
 
     # Individual Detections
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)
@@ -328,10 +281,11 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 
     # Calibration Plots
     # calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
-    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
+    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset,
+                                    revised=True, individual=False)
 
 
-'''
+    '''
 
     ###Making More Plots###
     #asc_table = combine_flux_ascii
@@ -353,7 +307,8 @@ def run_grid_r23_o32_analysis(dataset, y_correction, n_split, adaptive=False, du
 # Enter a keyword for want to indictate what function you want to run
 # This will ease the reproduction process
 # CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
-def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=False):
+def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adaptive=True, y_correction=False,
+                             apply_dust=False, mask=True):
     """
     Purpose
     ----------
@@ -366,31 +321,26 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
          -> Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
     adaptive  -> determines if the R23 bins have equal or different number of spectra in them in binning method
     y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
-    dustatten -> determines if dust attenuation corrections are applied
+    apply_dust -> determines if dust attenuation corrections are applied
 
     """
-
-    dataset = 'n_Bins'
-
-    if want == 'binning_and_graphing':
-        R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3(fitspath)
+    fitspath_ini = get_user()
+    if want == 'binning_and_stacking':
+        individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = get_det3(fitspath, fitspath_ini)
         # Each bin will be split in half
         # Must sum to 2799
         if adaptive:
             galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
         else:
             galinbin = [400, 400, 400, 400, 400, 400, 409]
-        pdf_pages = join(fitspath, 'n_Bins_grid.pdf')
-        grid_data_file = join(fitspath, 'n_Bins_grid.npz')
-        n_bins_grid_analysis.n_times_binned(fitspath, pdf_pages, grid_data_file, n_split,
-                                                       R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH,
-                                                       det3, data3, galinbin, adaptive)
-
-    if want == 'stack_mastergrid':
-        grid_data_file = join(fitspath, 'n_Bins_grid.npz')
+        bin_pdf_pages = join(fitspath, name_dict['gridpdf_suffix'])
+        bin_outfile = join(fitspath, name_dict['gridnpz_suffix'])
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split,
+                                            individual_ID, R23, O32, SNR3, data3, galinbin)
+        # Starting Stacking
         Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.pdf'
-        stackboth_masterGrid.run_Stacking_Master_mask(det3, data3, fitspath, fitspath_ini,
-                                                      dataset, Stack_name, grid_data_file)
+        stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
+                                             bin_outfile, Stack_name, mask=mask)
 
     if want == 'zoom':
         Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.fits'
@@ -398,7 +348,7 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         dispersion = header['CDELT1']
-        binning_avg_asc = join(fitspath, '/bin_info.tbl')
+        binning_avg_asc = join(fitspath, 'bin_info.tbl')
 
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   
@@ -406,29 +356,32 @@ def run_individual_functions(fitspath, want, adaptive, y_correction, dustatten=F
             if len(idx) > 0:
                 lineflag[idx] = 1
 
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag, dispersion, y_correction,
+        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
+                                          lineflag, dispersion,
+                                          y_correction=y_correction,
                                           tab=binning_avg_asc)
 
+    # This next section is under construction until the run function is finalized
     if want == 'R_cal_temp':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
-        temp_m_gascii = join(fitspath, '/nsplit_temperatures_metalicity.tbl')
-        temp_m_gfits = join(fitspath, '/nsplit_temperatures_metalicity.fits')
+        temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
+        temp_m_gfits = join(fitspath, 'nsplit_temperatures_metalicity.fits')
         temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
 
-        if dustatten:
+        if apply_dust:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, dustatt=True)
+                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=True)
         else:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, dustatt=False)
+                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=False)
 
     if want == 'line_ratio_plotting':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
-        binning_avg_asc = join(fitspath, '/bin_info.tbl')
+        binning_avg_asc = join(fitspath, 'bin_info.tbl')
         line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
 
     if want == 'calibration_plots':
-        temp_m_gascii = join(fitspath, '/nsplit_temperatures_metalicity.tbl')
+        temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
         calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
 
     print(want, 'is done')

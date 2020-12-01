@@ -215,11 +215,11 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
 
         rms_ang = rms_func(wave, dispersion, working_wave, y0, 0, lineflag)
 
-        if y_correction == '':
-            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms_ang, line_type)
-
-        if y_correction == 'y_smooth':
+        if y_correction:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0, y_smooth, x_idx, rms_ang, line_type)
+
+        else:
+            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms_ang, line_type)
 
         # Calculating Flux: Signal Line Fit
         if type(o1) != type(None):
@@ -306,10 +306,10 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
 
             # Plotting
-            if y_correction == 'y_smooth':
+            if y_correction:
                 emis = t_ax.plot(wave, y_smooth, 'k', linewidth=0.3, label='Emission')
                 t_ax.plot(x0, gauss0, 'm', linewidth=0.25, label='Gauss Fit')
-            if y_correction == '':
+            else:
                 emis = t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
                 t_ax.plot(x0, gauss0, 'b', linewidth=0.25, label='Gauss Fit')
 
@@ -455,10 +455,6 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
 
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
             avg_tab = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
-<<<<<<< HEAD
-=======
-            # asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
->>>>>>> 302903b6f157c808a9b9ee84ac284d10f0db64c9
             
             table_stack = hstack([avg_tab, em_tab])
         else:

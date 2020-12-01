@@ -246,24 +246,30 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # I need to go back through and figure out what is the average and what is the composite
     # line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
 
+    # Verification Table
+    valid_table.make_validation_table(fitspath)
+    verification_table = join(fitspath, filename_dict['bin_valid'])
+
+    valid_table.compare_to_by_eye(fitspath, dataset)
+    verification_table_revised = join(fitspath, filename_dict['bin_valid_rev'])
+
     # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
     if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
 
-    # Generate baseline table with det3 cut (raw=True and revised = False)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                   apply_dust=apply_dust, revised=False)
-    print('baseline#1 created')
-    # Generate baseline table with revised validation table (raw=True, revised = True)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                   apply_dust=apply_dust, revised=True)
-    print('baseline#2 created')
-    # Generate MC randomized table (raw=False, revised=True)
-    # need to figure out how to duplicate a file so that I can run everything in sequence
-    # otherwise I am going to have to run the whole run function twice
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                   apply_dust=apply_dust, revised=True)
-    print('fancy table created')
+    # Run raw data derived properties calculations (option to apply dust correction)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=False)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=True)
+    if apply_dust:
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=False)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
+
+    # Run Monte Carlo randomization calculations (option to apply dust correction)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
+    if apply_dust:
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
 
     # Individual Detections
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)

@@ -378,10 +378,10 @@ def bian_comparison(fitspath, fitspath_ini):
     
     """
     # Do we need an option for revised?
-    validation = asc.read(fitspath + 'bin_validation.revised.tbl')
-    temp_tab = asc.read(fitspath + 'bin_derived_properties.tbl')
+    validation = asc.read(join(fitspath, 'bin_validation.revised.tbl'))
+    temp_tab = asc.read(join(fitspath, 'bin_derived_properties.tbl'))
 
-    pdf_pages = PdfPages(fitspath + 'comparsion_Bian_Zcal.pdf')
+    pdf_pages = PdfPages(join(fitspath, 'comparsion_Bian_Zcal.pdf'))
 
     bin_ID = temp_tab['bin_ID']
     lR23_comp = temp_tab['logR23_Composite']
@@ -445,8 +445,9 @@ def bian_comparison(fitspath, fitspath_ini):
     print('med: ', med0, 'avg: ', avg0, 'sig: ', sig0)
 
     n = ('DEEP2 x', 'DEEP2 y')
-    np.savez(fitspath + 'bian_comparison_xandy_values.npz', DEEPx=deep_r23, DEEPy=bR23_DEEP,
-             MACTx=der_R23_MACT, MACTy=bR23_MACT)
+    np.savez(join(fitspath, 'bian_comparison_xandy_values.npz'),
+             DEEPx=deep_r23, DEEPy=bR23_DEEP, MACTx=der_R23_MACT,
+             MACTy=bR23_MACT)
     n2 = ('MACT x', 'MACT y')
 
     fig, ax = plt.subplots()

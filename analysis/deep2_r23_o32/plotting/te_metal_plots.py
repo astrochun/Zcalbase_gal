@@ -14,7 +14,6 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
-from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 jiang_coeff = [-24.135, 6.1532, -0.37866, -0.147, -7.071]
@@ -68,7 +67,7 @@ def bian_calibration_o32(metal_det):
     return (-1 / 0.59) * (metal_det- 8.54)
 
 
-def plotting_te_metal(fitspath, revised=False):
+def plotting_te_metal(fitspath, fitspath_ini, revised=False):
     """
     Purpose
     Plotting metallicity, temperature, R23, and O32 for different datasets

@@ -451,8 +451,6 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
                                                                               outpdf=outpdf, line_name=line_name[ii])
 
         if ii == 0:
-            out_ascii_single = fitspath + '/' + dataset + '_Average_R23_O32_Values.tbl'
-
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
             avg_tab = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
             

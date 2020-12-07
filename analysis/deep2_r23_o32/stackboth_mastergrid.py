@@ -47,7 +47,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     :param name: str. name of the outputted pdf file with graphs
     :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
     """
-    RestframeMaster = fitspath_ini + 'Master_Grid.fits'
+    RestframeMaster = fitspath_ini + '/DEEP2_Commons/Images/Master_Grid.fits'
     image2D, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
 
@@ -61,7 +61,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     image2DM = np.nan_to_num(image2D[det3])
 
     if mask:
-        maskM = fits.getdata(fitspath_ini + '/stacking_masks/MastermaskArray.fits')
+        maskM = fits.getdata(fitspath_ini + '/DEEP2_Commons/Images/MastermaskArray.fits')
         image2DM = np.ma.masked_array(image2DM, maskM[det3])
         print('Mask[det3]', maskM[det3])
 

@@ -39,7 +39,7 @@ def get_det3(fitspath, fitspath_ini):
     Creates "individual_properties.tbl"
     """
     for ii in range(1, 5):
-        file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
+        file1 = fitspath_ini+'DEEP2_Commons/Catalogs/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
         data = Table(fits.getdata(file1))
         if ii == 1:
             data0 = data
@@ -161,7 +161,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
         raise ValueError("Warning!!!! Incorrect [dataset]")
 
     fitspath_ini = get_user()
-    fitspath = dir_date(fitspath_ini, year=False)
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/')
+    fitspath = dir_date(fitspath_currentrun, year=False)
     print('fitspath_ini =  ', fitspath_ini)
     print('fitspath =  ', fitspath)
 

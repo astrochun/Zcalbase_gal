@@ -21,8 +21,6 @@ from os.path import join
 
 from Zcalbase_gal.analysis.deep2_r23_o32 import zoom_and_gauss_general
 
-fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-
 
 def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     """

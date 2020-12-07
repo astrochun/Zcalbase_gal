@@ -39,7 +39,8 @@ def get_det3(fitspath, fitspath_ini):
     Creates "individual_properties.tbl"
     """
     for ii in range(1, 5):
-        file1 = fitspath_ini+'DEEP2_Commons/Catalogs/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
+        file1 = join(fitspath_ini,
+                     'DEEP2_Commons/Catalogs/DEEP2_Field'+str(ii)+'_all_line_fit.fits')
         data = Table(fits.getdata(file1))
         if ii == 1:
             data0 = data

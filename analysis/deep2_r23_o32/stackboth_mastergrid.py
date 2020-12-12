@@ -61,7 +61,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     image2DM = np.nan_to_num(image2D[det3])
 
     if mask:
-        maskM = fits.getdata(join(fitspath_ini, '/DEEP2_Commons/Images/MastermaskArray.fits'))
+        maskM = fits.getdata(join(fitspath_ini, 'DEEP2_Commons/Images/MastermaskArray.fits'))
         image2DM = np.ma.masked_array(image2DM, maskM[det3])
         print('Mask[det3]', maskM[det3])
 

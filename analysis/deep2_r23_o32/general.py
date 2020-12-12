@@ -365,17 +365,23 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
 
     # This next section is under construction until the run function is finalized
     if want == 'R_cal_temp':
-        combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
-        temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
-        temp_m_gfits = join(fitspath, 'nsplit_temperatures_metalicity.fits')
-        temp_m_gpdf_name = 'nsplit_Temp_Composite_Metallicity.pdf'
-
+        # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
         if apply_dust:
-            r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=True)
-        else:
-            r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=False)
+            balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+
+        # Run raw data derived properties calculations (option to apply dust correction)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=False)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=True)
+        if apply_dust:
+            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=False)
+            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
+
+        # Run Monte Carlo randomization calculations (option to apply dust correction)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
+        if apply_dust:
+            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)
+            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
 
     if want == 'line_ratio_plotting':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')

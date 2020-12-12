@@ -283,9 +283,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 
     # Calibration Plots
     # calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
-    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset,
-                                    revised=True, individual=False)
-
+    # calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
 
     '''
 

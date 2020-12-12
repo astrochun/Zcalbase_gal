@@ -93,9 +93,7 @@ def plotting_te_metal(fitspath, fitspath_ini, revised=False):
     # Individual Measurements
     indv_all = asc.read(indv_all_file)
 
-    iID = indv_derived['ID']
-    iTe = indv_derived['T_e']
-    icom_log = indv_derived['12+log(O/H)']
+    icom_log = indv_all['12+log(O/H)']
     ilogR23 = indv_all['logR23']
     ilogO32 = indv_all['logO32']
     print(ilogR23)
@@ -103,9 +101,6 @@ def plotting_te_metal(fitspath, fitspath_ini, revised=False):
     # icom_nan = np.isnan(icom_log)
     iidx = np.where((icom_log != 0.0))[0]
 
-    iID_idv = iID[iidx]
-    iTe_idv = iTe[iidx]
-    icom_idv = icom_log[iidx]
     iiR23_idv = ilogR23[iidx]
     iiO32_idv = ilogO32[iidx]
     iR23_idv = np.log10(iiR23_idv)
@@ -390,7 +385,6 @@ def bian_comparison(fitspath, fitspath_ini):
 
     valid = validation['Detection']
     detect = np.where((valid == 1.0))[0]
-    rlimit = np.where((valid == 0.5))[0]
 
     valid_ID = bin_ID[detect]
 
@@ -444,11 +438,9 @@ def bian_comparison(fitspath, fitspath_ini):
     print('concatenate array: ', arr_sum)
     print('med: ', med0, 'avg: ', avg0, 'sig: ', sig0)
 
-    n = ('DEEP2 x', 'DEEP2 y')
     np.savez(join(fitspath, 'bian_comparison_xandy_values.npz'),
              DEEPx=deep_r23, DEEPy=bR23_DEEP, MACTx=der_R23_MACT,
              MACTy=bR23_MACT)
-    n2 = ('MACT x', 'MACT y')
 
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker='D', color='b', alpha=0.75, label='Detections')

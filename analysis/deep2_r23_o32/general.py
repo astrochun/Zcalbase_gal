@@ -18,12 +18,14 @@ from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fi
 from Zcalbase_gal.analysis.deep2_r23_o32.plotting import more_plots, line_ratio_plotting, te_metal_plots
 from Metallicity_Stack_Commons import exclude_outliers, dir_date, lambda0, \
     valid_table, get_user
+from .logging import LogClass, log_stdout
+
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import error_prop
 
 
-def get_det3(fitspath, fitspath_ini):
+def get_det3(fitspath, fitspath_ini, log=None):
     """
     Purpose
     ----------
@@ -38,6 +40,9 @@ def get_det3(fitspath, fitspath_ini):
     Data for run
     Creates "individual_properties.tbl"
     """
+    if log is None:
+        log = log_stdout()
+
     for ii in range(1, 5):
         file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
         data = Table(fits.getdata(file1))
@@ -50,7 +55,7 @@ def get_det3(fitspath, fitspath_ini):
 
     # Excluding Outliers
     exclude_flag = exclude_outliers(objno)
-    print("exclude flag: ", np.where(exclude_flag == 1))
+    log.info(f"exclude flag: ", np.where(exclude_flag == 1))
 
     O2_ini = data0['OII_FLUX_MOD'].data
     O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data
@@ -73,7 +78,7 @@ def get_det3(fitspath, fitspath_ini):
     SNRHg_ini = data0['HG_SNR'].data
     SNR4363_ini = data0['OIIIA_SNR'].data
 
-    print('O2 len:', len(O2_ini))
+    log.info(f"O2 len: {len(O2_ini)}")
 
     #################################################################################
     # SNR code: This rules out major outliers by only using specified data
@@ -156,19 +161,23 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
            Default: True
     """
 
-    if dataset not in ['Grid', 'O32_Grid', 'R23_Grid', 'n_Bins']:
-        print("Warning!!!! Incorrect [dataset]")
-        raise ValueError("Warning!!!! Incorrect [dataset]")
-
     fitspath_ini = get_user()
     fitspath = dir_date(fitspath_ini, year=False)
-    print('fitspath_ini =  ', fitspath_ini)
-    print('fitspath =  ', fitspath)
+
+    # Define logging function
+    log = LogClass(fitspath, 'run_grid_r23_o32_analysis.log').get_logger()
+
+    if dataset not in ['Grid', 'O32_Grid', 'R23_Grid', 'n_Bins']:
+        log.warning("Warning!!!! Incorrect [dataset]")
+        raise ValueError("Warning!!!! Incorrect [dataset]")
+
+    log.info(f"fitspath_ini = {fitspath_ini}")
+    log.info(f"fitspath = {fitspath}")
 
     individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
         data3 = get_det3(fitspath, fitspath_ini)
 
-    print("length R23: ", len(R23))
+    log.info(f"length R23: {len(R23)}")
 
     # Each bin will be split in half
     # Must sum to 2799 for Zcalbase_gal Analysis
@@ -176,7 +185,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
         galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
     else:
         galinbin = [400, 400, 400, 400, 400, 400, 409]
-    print('# of Gal in Bin:', galinbin)
+    log.info(f"# of Gal in Bin: {galinbin}")
 
     bin_pdf_pages = join(fitspath, dataset + name_dict['gridpdf_suffix'])
     bin_outfile = join(fitspath, dataset + name_dict['gridnpz_suffix'])
@@ -198,8 +207,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
                                             n_split, individual_ID, R23, O32,
                                             SNR3, data3, galinbin)
 
-    print('made npz, pdf files , testmastergrid (need to find if this is used anywhere)')
-    print('finished Binning_and_Graphing_MasterGrid')
+    log.info("made npz, pdf files , testmastergrid (need to find if this is used anywhere)")
+    log.info("finished Binning_and_Graphing_MasterGrid")
 
     # Stackboth_MasterGrid
     # Option to Change: Bin size
@@ -214,11 +223,11 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
                                          bin_outfile, stack_name, mask=mask)
 
     # Outfile and pdf both use name
-    print('finished with stacking,' + stack_name + 'pdf and fits files created')
+    log.info(f"finished with stacking, {stack_name} pdf and fits files created")
 
     # Zoom_and_gauss_general
     outfile_grid = join(fitspath, filename_dict['comp_spec'])
-    print(outfile_grid)
+    log.info(f"outfile_grid : {outfile_grid}")
     stack2D, header = fits.getdata(outfile_grid, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']
@@ -238,8 +247,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
                                       dispersion, y_correction=y_correction,
                                       tab=binning_avg_asc)
 
-    print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
-    print('combine_flux_table created')
+    log.info(f"finished gaussian fitting: {fitspath}_{dataset}_Zoomed_Gauss_* pdfs and fits created")
+    log.info("combine_flux_table created")
     # combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
 
     # FIX THIS CODE: line_ratio_plotting
@@ -324,6 +333,9 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
     apply_dust -> determines if dust attenuation corrections are applied
 
     """
+
+    log = LogClass(fitspath, 'run_individual_functions.log').get_logger()
+
     fitspath_ini = get_user()
     if want == 'binning_and_stacking':
         individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = get_det3(fitspath, fitspath_ini)
@@ -384,4 +396,4 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
         temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
         calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
 
-    print(want, 'is done')
+    log.info(f"{want} is done")

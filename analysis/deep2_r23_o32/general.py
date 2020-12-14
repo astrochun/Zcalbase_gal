@@ -277,13 +277,24 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)
     # print('Individual Detections Complete')
 
+
+def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, revised=False, individual=False):
+    """
+    Purpose
+    --------
+    This function will be run to make plots of the final results
+
+    Parameters
+    ----------
+
+    """
     # Te_metal Plots
-    # te_metal_plots.plotting_te_metal(fitspath, revised=False)
-    # te_metal_plots.plotting_te_metal(fitspath,   revised=True)
+    te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw, apply_dust=apply_dust,
+                                     revised=revised, individual=individual)
 
     # Calibration Plots
-    # calibration_plots.LAC_GPC_plots(fitspath, dataset, revised= False)
-    # calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=True, individual=False)
+    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw, apply_dust=apply_dust,
+                                    revised=revised, individual=individual)
 
     '''
 

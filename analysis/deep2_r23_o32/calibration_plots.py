@@ -8,7 +8,7 @@ from Zcalbase_gal.analysis import local_analog_calibration, green_peas_calibrati
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 
-def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=False):
+def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, revised=False, individual=False):
     """
     Purpose
     Call function for calculating and plotting data points based with the green_pea_calibration

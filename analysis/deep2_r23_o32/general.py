@@ -267,18 +267,26 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
 
     # Run raw data derived properties calculations (option to apply dust correction)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=False)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=True)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                   apply_dust=False, revised=False, log=log)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                   apply_dust=False, revised=True, log=log)
     if apply_dust:
-        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=False)
-        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                       apply_dust=True, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                       apply_dust=True, revised=True, log=log)
 
     # Run Monte Carlo randomization calculations (option to apply dust correction)
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                   apply_dust=False, revised=False, log=log)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                   apply_dust=False, revised=True, log=log)
     if apply_dust:
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=True, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=True, revised=True, log=log)
 
     # Individual Detections
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)

@@ -226,7 +226,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
         stack_name = dataset + name_dict['Stackname_nomask']
 
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                         bin_outfile, stack_name, mask=mask)
+                                         bin_outfile, stack_name, mask=mask,
+                                         log=log)
 
     # Outfile and pdf both use name
     log.info(f"finished with stacking, {stack_name} pdf and fits files created")

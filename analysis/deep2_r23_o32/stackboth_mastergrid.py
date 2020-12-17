@@ -1,4 +1,3 @@
-
 """
 THIS FUNCTION DOES THE STACKING FOR THE ALL BINNING METHODS EXCEPT VORNOI
 
@@ -24,6 +23,8 @@ from matplotlib.gridspec import GridSpec
 from astropy.convolution import Box1DKernel, convolve
 
 from . import general
+from .logging import log_stdout
+
 from Metallicity_Stack_Commons import lambda0
 from Metallicity_Stack_Commons.column_names import filename_dict
 
@@ -34,7 +35,8 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
     return smooth
 
 
-def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=True):
+def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
+                    mask=True, log=None):
     """
     Purpose
     Function stacks all spectra in a given bin and produces tables of properties of that bin
@@ -47,7 +49,11 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     :param name: str. name of the outputted pdf file with graphs
     :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
     """
-    RestframeMaster = fitspath_ini + 'Master_Grid.fits'
+
+    if log is None:
+        log = log_stdout()
+
+    RestframeMaster = join(fitspath_ini, 'Master_Grid.fits')
     image2D, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
 
@@ -63,31 +69,32 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     if mask:
         maskM = fits.getdata(fitspath_ini + '/stacking_masks/MastermaskArray.fits')
         image2DM = np.ma.masked_array(image2DM, maskM[det3])
-        print('Mask[det3]', maskM[det3])
+        log.debug('Mask[det3]', maskM[det3])
 
     outfile = join(fitspath, filename_dict['comp_spec'])
     if not exists(outfile):
-        stack_2d = np.zeros((len(R23_minimum)*len(O32_minimum), len(wave)), dtype=np.float64)
+        stack_2d = np.zeros((len(R23_minimum) * len(O32_minimum), len(wave)),
+                            dtype=np.float64)
     else:
         stack_2d = fits.getdata(outfile)
- 
-    avg_R23 = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as xBar
-    avg_O32 = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as yBar
-    R23_node = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as R23_minimum
-    O32_node = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as O32_minimum
-    R23_med = np.zeros(len(R23_minimum)*len(O32_minimum))  # median R23 value
-    O32_med = np.zeros(len(R23_minimum)*len(O32_minimum))  # median O32 value
-    N_gal = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as Number_inbin
+
+    avg_R23 = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as xBar
+    avg_O32 = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as yBar
+    R23_node = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as R23_minimum
+    O32_node = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as O32_minimum
+    R23_med = np.zeros(len(R23_minimum) * len(O32_minimum))  # median R23 value
+    O32_med = np.zeros(len(R23_minimum) * len(O32_minimum))  # median O32 value
+    N_gal = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as Number_inbin
 
     n_N = R23_minimum.shape[0]
     if dataset == 'n_Bins' or dataset == 'Double_Bin': n_M = R23_minimum.shape[1]
     else: n_M = O32_minimum.shape[0]
     count = 0
-    
+
     for rr in range(n_N):
         for oo in range(n_M):
-            print(rr,oo)
-            index= grid_data['locator'][rr, oo]
+            log.info(f"{rr}, {oo}")
+            index = grid_data['locator'][rr, oo]
 
             # calculating the average and minimum values of R23 and O32
             if len(index) > 10:
@@ -100,15 +107,15 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
                 N_gal[count] = len(index)
                 subgrid = image2DM[index]
 
-                print('R23:', R23_node[count],'O32:', O32_node[count],
-                      'avg_R23', avg_R23[count], 'avg_O32', avg_O32[count])
+                log.info(f"R23: {R23_node[count]} O32: {O32_node[count]}," +
+                         f"avg_R23: {avg_R23[count]} avg_O32: {avg_O32[count]}")
 
                 if exists(outfile):
                     Spect1D = stack_2d[count]
                 else:
                     if mask:
                         Spect1D = np.ma.mean(subgrid, axis=0)
-                
+
                     else:
                         Spect1D = np.nanmean(subgrid, axis=0)
 
@@ -116,13 +123,13 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
 
                 # Compute number of spectra at a given wavelength
                 a = ma.count(subgrid, axis=0)
-                
+
                 fig, ax = plt.subplots()
 
                 # GridSpec
-                gs = GridSpec(6,1)
-                ax1 = plt.subplot(gs[0,0])
-                ax2 = plt.subplot(gs[1:,0])
+                gs = GridSpec(6, 1)
+                ax1 = plt.subplot(gs[0, 0])
+                ax2 = plt.subplot(gs[1:, 0])
 
                 # ax1 Plot
                 ax1.plot(wave, a, linewidth=0.5)
@@ -170,14 +177,14 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     pdf_pages.close()
 
     # Writing fits file
-    print('writing ', outfile)
     header['CTYPE1'] = 'LINEAR'
     header['CTYPE2'] = 'LINEAR'
     header['CRPIX1'] = 1.00000
     header['CDELT2'] = 1.00000
     header['CRPIX2'] = 1.00000
 
-    fits.writeto(outfile, stack_2d[0:count], header, overwrite= True)
+    log.info(f"Writing : {outfile}")
+    fits.writeto(outfile, stack_2d[0:count], header, overwrite=True)
 
     # Writing Ascii Tables and Fits Tables
     out_ascii = fitspath+filename_dict['bin_info']   # used to be 'binning_averages.tbl'
@@ -187,6 +194,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     # for n_split xnode and ynode are the lowest values of the bin while xBar and yBar are the averages
 
     tab0 = Table([ID, R23_node, O32_node, avg_R23, avg_O32, R23_med, O32_med, N_gal], names=n)
+    log.info(f"Writing : {out_ascii}")
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
 
     fig.clear()

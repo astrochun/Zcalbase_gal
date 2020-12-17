@@ -221,9 +221,9 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # Option to Change: Masking the night sky emission lines
 
     if mask:
-        stack_name = dataset + name_dict['Stackname']
+        stack_name = join(dataset, name_dict['Stackname'])
     else:
-        stack_name = dataset + name_dict['Stackname_nomask']
+        stack_name = join(dataset, name_dict['Stackname_nomask'])
 
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
                                          bin_outfile, stack_name, mask=mask,
@@ -254,7 +254,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
                                       dispersion, y_correction=y_correction,
                                       tab=binning_avg_asc)
 
-    log.info(f"finished gaussian fitting: {fitspath}_{dataset}_Zoomed_Gauss_* pdfs and fits created")
+    log.info(f"finished gaussian fitting: {fitspath}_{dataset}_Zoomed_Gauss_*" +
+             " pdfs and fits created")
     log.info("combine_flux_table created")
     # combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
 
@@ -365,12 +366,12 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split,
                                             individual_ID, R23, O32, SNR3, data3, galinbin)
         # Starting Stacking
-        Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.pdf'
+        Stack_name = f"Stacking_Masked_MasterGrid_{dataset}.pdf"
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
                                              bin_outfile, Stack_name, mask=mask)
 
     if want == 'zoom':
-        Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.fits'
+        Stack_name = f"Stacking_Masked_MasterGrid_{dataset}.fits"
         outfile_grid = join(fitspath, Stack_name)
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])

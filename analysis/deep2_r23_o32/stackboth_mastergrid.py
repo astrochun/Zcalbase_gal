@@ -48,6 +48,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     :param grid_data_file: str. npz file that holds the information from the binning process
     :param name: str. name of the outputted pdf file with graphs
     :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
+    :param log: LogClass. Default use log_stdout()
     """
 
     if log is None:
@@ -57,8 +58,9 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     image2D, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
 
-    pdf_pages = PdfPages(fitspath+name)  # open pdf document
-    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = general.get_det3(fitspath, fitspath_ini)
+    pdf_pages = PdfPages(join(fitspath, name))  # open pdf document
+    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
+        data3 = general.get_det3(fitspath, fitspath_ini)
 
     grid_data = np.load(grid_data_file, allow_pickle=True)  # This is the npz file
     R23_minimum = grid_data['R23_minimum']
@@ -67,7 +69,9 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     image2DM = np.nan_to_num(image2D[det3])
 
     if mask:
-        maskM = fits.getdata(fitspath_ini + '/stacking_masks/MastermaskArray.fits')
+        mask_file = join(fitspath_ini,
+                         'stacking_masks/MastermaskArray.fits')
+        maskM = fits.getdata(mask_file)
         image2DM = np.ma.masked_array(image2DM, maskM[det3])
         log.debug('Mask[det3]', maskM[det3])
 
@@ -87,8 +91,10 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     N_gal = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as Number_inbin
 
     n_N = R23_minimum.shape[0]
-    if dataset == 'n_Bins' or dataset == 'Double_Bin': n_M = R23_minimum.shape[1]
-    else: n_M = O32_minimum.shape[0]
+    if dataset == 'n_Bins' or dataset == 'Double_Bin':
+        n_M = R23_minimum.shape[1]
+    else:
+        n_M = O32_minimum.shape[0]
     count = 0
 
     for rr in range(n_N):
@@ -100,9 +106,9 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
             if len(index) > 10:
                 R23_node[count] = R23_minimum[rr, oo]
                 O32_node[count] = O32_minimum[rr, oo]
-                avg_R23[count] = np.average(R23[index])        #np.log10(R23)
-                avg_O32[count] = np.average(O32[index]) #(np.log10(O32
-                R23_med[count] = np.median(R23[index])   #np.log10(R23)
+                avg_R23[count] = np.average(R23[index])  # np.log10(R23)
+                avg_O32[count] = np.average(O32[index])  # (np.log10(O32
+                R23_med[count] = np.median(R23[index])  # np.log10(R23)
                 O32_med[count] = np.median(O32[index])
                 N_gal[count] = len(index)
                 subgrid = image2DM[index]
@@ -141,39 +147,41 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 ax2.minorticks_on()
                 ax2.set_ylim([0, np.nanmax(Spect1D)])
 
-                ax2.legend(loc='upper left', numpoints=3)    
+                ax2.legend(loc='upper left', numpoints=3)
 
-                str0 = 'R23=%.1f O32=%.1f N=%i' % (R23_minimum[rr, oo], O32_minimum[rr, oo], len(index))
-                ax2.annotate(str0, (0.05, 0.95), xycoords='axes fraction', ha='left', va='top', weight='bold')
-               
+                str0 = f"R23={R23_minimum[rr, oo]:.1f} " + \
+                       f"O32={O32_minimum[rr, oo]:.1f} " + \
+                       f"N={len(index):d}"
+                ax2.annotate(str0, (0.05, 0.95), xycoords='axes fraction',
+                             ha='left', va='top', weight='bold')
+
                 for x in lambda0:
-                    ax2.axvline(x=x, linewidth= 0.3, color= 'k')
+                    ax2.axvline(x=x, linewidth=0.3, color='k')
 
                 fig.set_size_inches(8, 11)
 
                 x1, x2 = 4200, 4500
                 ind = np.where((wave >= x1) & (wave <= x2))[0]
                 sig, med = np.nanstd(Spect1D[ind]), np.nanmedian(Spect1D[ind])
-                y1, y2 = med-2.5*sig, np.nanmax(Spect1D[ind])
-                axins = zoomed_inset_axes(ax2, 2, loc=6, bbox_to_anchor=[375, 425])  #loc=9 
+                y1, y2 = med - 2.5 * sig, np.nanmax(Spect1D[ind])
+                axins = zoomed_inset_axes(ax2, 2, loc=6,
+                                          bbox_to_anchor=[375, 425])
                 axins.plot(wave, Spect1D, linewidth=0.5)
                 axins.set_xlim([x1, x2])
                 axins.set_ylim([y1, y2])
                 axins.minorticks_on()
-                    
-                for x in lambda0:
-                    axins.axvline(x=x, linewidth= 0.3, color='r')
 
-                mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="k", ls='dashed', lw=0.5)
+                for x in lambda0:
+                    axins.axvline(x=x, linewidth=0.3, color='r')
+
+                mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="k",
+                           ls='dashed', lw=0.5)
 
                 fig.tight_layout()
                 plt.draw()
                 pdf_pages.savefig(fig)
 
-                count +=1
-            # endif else: count +=1
-        # endfor
-    # endfor
+                count += 1
     pdf_pages.close()
 
     # Writing fits file
@@ -187,10 +195,11 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     fits.writeto(outfile, stack_2d[0:count], header, overwrite=True)
 
     # Writing Ascii Tables and Fits Tables
-    out_ascii = fitspath+filename_dict['bin_info']   # used to be 'binning_averages.tbl'
+    out_ascii = join(fitspath, filename_dict['bin_info'])  # Used to be 'binning_averages.tbl'
 
     ID = np.arange(0, len(R23_node), 1, dtype=int)
-    n = ('bin_ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg', 'logR23_med', 'logO32_med', 'N_stack')
+    n = ('bin_ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
+         'logR23_med', 'logO32_med', 'N_stack')
     # for n_split xnode and ynode are the lowest values of the bin while xBar and yBar are the averages
 
     tab0 = Table([ID, R23_node, O32_node, avg_R23, avg_O32, R23_med, O32_med, N_gal], names=n)

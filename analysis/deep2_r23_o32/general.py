@@ -43,8 +43,10 @@ def get_det3(fitspath, fitspath_ini, log=None):
     if log is None:
         log = log_stdout()
 
+    log.info("start ...")
+
     for ii in range(1, 5):
-        file1 = fitspath_ini+'f3_0716/DEEP2_Field'+str(ii)+'_all_line_fit.fits'
+        file1 = join(fitspath_ini, f"f3_0716/DEEP2_Field{ii}_all_line_fit.fits")
         data = Table(fits.getdata(file1))
         if ii == 1:
             data0 = data
@@ -84,7 +86,8 @@ def get_det3(fitspath, fitspath_ini, log=None):
     # SNR code: This rules out major outliers by only using specified data
     # May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
-                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini > 0) & (exclude_flag == 0) & (lR23_ini < 1.4))[0]
+                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini > 0) &
+                    (exclude_flag == 0) & (lR23_ini < 1.4))[0]
 
     # Organize the R23_032 data
     data3 = data0[det3]
@@ -132,9 +135,12 @@ def get_det3(fitspath, fitspath_ini, log=None):
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
-    asc.write(tab1, join(fitspath, filename_dict['indv_prop']),
-              format='fixed_width_two_line')
+    outfile = join(fitspath, filename_dict['indv_prop'])
+    log.info(f"Writing : {outfile}")
+    asc.write(tab1, outfile, format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
+
+    log.info("end ...")
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
 

@@ -327,7 +327,7 @@ def zcalbase():
     OH_all = []
 
     for name, dir in zip(ref_name0, dir0):
-        lR23, lO32, OH = get_zcalbase_sample(name, dir=dir)
+        lR23, lO32, OH = get_zcalbase_sample(name, dir_path=dir)
 
         lR23_all.append(lR23)
         lO32_all.append(lO32)

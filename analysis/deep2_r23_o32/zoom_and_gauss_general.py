@@ -238,11 +238,13 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
 
         if y_correction:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
-                                              y_smooth, x_idx, rms_ang, line_type)
+                                              y_smooth, x_idx, rms_ang, line_type,
+                                              log=log)
 
         else:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
-                                              y_norm, x_idx, rms_ang, line_type)
+                                              y_norm, x_idx, rms_ang, line_type,
+                                              log=log)
 
         # Calculating Flux: Signal Line Fit
         if type(o1) != type(None):
@@ -292,7 +294,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
 
             # Line Flag Checking Plots
             # line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2d,
-            #                line_name, row, col, fig, ax_arr)
+            #                line_name, row, col, fig, ax_arr, log=log)
 
             # Filling In Arrays
             norm_array[rr] = max0
@@ -448,32 +450,31 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
     s2 = 5.0  # a fitting requirement
 
     for ii in range(len(lambda0)):
+        outpdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
+        log.info(f"outpdf: {outpdf}")
+
         # Single Gaussian Fit
         if line_type[ii] == 'Single':
-            outpdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
-            log.info("outpdf: {outpdf}")
             em_tab, R_23_array, O_32_array, N_gal_array, \
                 id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     outpdf=outpdf, line_name=line_name[ii])
+                                     outpdf=outpdf, line_name=line_name[ii],
+                                     log=log)
 
         # Balmer Line Fit
         if line_type[ii] == 'Balmer': 
-            outpdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
-            log.info("outpdf: {outpdf}")
             em_tab, R_23_array, O_32_array, N_gal_array, \
                 id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     outpdf=outpdf, line_name=line_name[ii])
+                                     outpdf=outpdf, line_name=line_name[ii],
+                                     log=log)
 
         # Oxy2 Line Fit
         if line_type[ii] == 'Oxy2': 
-            outpdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
-            log.info(f"outpdf: {outpdf}")
             em_tab, R_23_array, O_32_array, N_gal_array, \
                 id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
@@ -485,7 +486,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
             avg_tab = Table([id, R_23_array, O_32_array, N_gal_array],
                             names=n2)
-            
+
             table_stack = hstack([avg_tab, em_tab])
         else:
             table_stack = hstack([table_stack, em_tab])

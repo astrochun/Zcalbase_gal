@@ -251,7 +251,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
                                       dispersion, y_correction=y_correction,
-                                      tab=binning_avg_asc)
+                                      tab=binning_avg_asc, log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}_{dataset}_Zoomed_Gauss_*" +
              " pdfs and fits created")
@@ -366,11 +366,12 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
                                             bin_outfile, n_split,
                                             individual_ID, R23, O32, SNR3,
-                                            data3, galinbin)
+                                            data3, galinbin, log=log)
         # Starting Stacking
         Stack_name = f"Stacking_Masked_MasterGrid_{dataset}.pdf"
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                             bin_outfile, Stack_name, mask=mask)
+                                             bin_outfile, Stack_name, mask=mask,
+                                             log=log)
 
     if want == 'zoom':
         Stack_name = f"Stacking_Masked_MasterGrid_{dataset}.fits"
@@ -390,7 +391,7 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
         zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
                                           lineflag, dispersion,
                                           y_correction=y_correction,
-                                          tab=binning_avg_asc)
+                                          tab=binning_avg_asc, log=log)
 
     # This next section is under construction until the run function is finalized
     if want == 'R_cal_temp':

@@ -100,14 +100,14 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
     if line_type0 == 'Balmer':
         para_bound = (working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0), 0.0, -med0), \
                      (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0), 30.0, 0.0)
-        if dataset == 'R23_Grid' or dataset == 'O32_Grid':
+        if dataset in ['R23_Grid', 'O32_Grid']:
             p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0]  # must have some reasonable values
 
         if dataset == 'Grid':
             p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0]  # must have some reasonable values
 
-        if dataset == 'Voronoi10' or dataset == 'Voronoi14' or dataset == 'Voronoi20' \
-                or dataset == 'Double_Bin' or dataset == 'n_Bins':
+        if dataset in ['Voronoi10', 'Voronoi14', 'Voronoi20',
+                       'Double_Bin', 'n_Bins']:
             p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0]  # must have some reasonable values
 
         # Attempt fit
@@ -240,7 +240,6 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
                                               y_smooth, x_idx, rms_ang, line_type,
                                               log=log)
-
         else:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
                                               y_norm, x_idx, rms_ang, line_type,
@@ -278,7 +277,8 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                                      ((x0-working_wave*con1)/o1[4] <= 2.5))[0]
                 gauss0 = oxy2_gauss(x0, *o1)
 
-            if line_type == 'Single' or line_type == 'Oxy2':
+            # Get fluxes
+            if line_type in ['Single', 'Oxy2']:
                 # Flux from gaussian distribution
                 flux_g = np.sum((gauss0-o1[3])*dx)
                 # Flux from snipping method (spectral flux)where snip off sigma > 2.5
@@ -314,7 +314,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
             rms_array[rr] = rms_tot
             SN_array[rr] = (flux_s/rms_tot)
 
-            if line_type == 'Balmer' or line_type == 'Oxy2':
+            if line_type in ['Balmer', 'Oxy2']:
                 sig2_array[rr] = o1[4]
                 neg_amp_array[rr] = o1[5]
 
@@ -345,21 +345,18 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
             if line_name == 'OIII_4363':
                 t_ax.set_ylim(0, 1)
             
-            if dataset == 'Grid' or dataset == 'O32_Grid' or dataset == 'R23_Grid' \
-                    or dataset == 'Double_Bin' or dataset == 'n_Bins':
-
+            if dataset in ['Grid', 'O32_Grid', 'R23_Grid', 'Double_Bin', 'n_Bins']:
                 txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
                        (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
                 txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (rms_tot, rms_pix, N_gal_array[rr])
                 if line_type == 'Balmer':
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
-                if line_type == 'Single' or line_type == 'Oxy2':
+                if line_type in ['Single', 'Oxy2']:
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % (o1[3], o1[1], max0, o1[2]) + '\n'
 
                 txt0 += 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
                 txt0 += 'S/N: %.3f' % (SN_array[rr])
-
             else:
                 txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % \
                        (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
@@ -368,7 +365,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                 if line_type == 'Balmer':
                     txt0 += 'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
-                if line_type == 'Single' or line_type == 'Oxy2':
+                if line_type in ['Single', 'Oxy2']:
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % (o1[3], o1[1], max0, o1[2]) + '\n'
                 txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
                 txt0 += 'S/N: %.3f' % (SN_array[rr])
@@ -411,7 +408,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array, norm_array,
                       rms_array, SN_array, xbar_array, pos_amp_array], names=n)
 
-    if line_type == 'Balmer' or line_type == 'Oxy2':
+    if line_type in ['Balmer', 'Oxy2']:
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
               'S/N', 'Center', 'Pos_Amp', 'Abs_Sigma', 'Abs_Norm')
         n = tuple([f"{line_name}_{val}" for val in n])
@@ -421,7 +418,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                       pos_amp_array,  sig2_array, neg_amp_array], names=n)
 
         if line_type == 'Balmer':
-            print('Adding an Equ_Width Column')
+            log.info('Adding an Equ_Width Column')
             names = f"EW_{np.int(working_wave)}_abs"
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
@@ -495,3 +492,5 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
         log.info("Writing: {out_ascii}")
         asc.write(table_stack, out_ascii,  format='fixed_width_two_line',
                   overwrite=True)
+
+    log.debug("finished ...")

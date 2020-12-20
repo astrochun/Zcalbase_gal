@@ -137,7 +137,7 @@ def get_det3(fitspath, fitspath_ini, log=None):
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
     outfile = join(fitspath, filename_dict['indv_prop'])
-    log.info(f"Writing : {outfile}")
+    log.info(f"Writing: {outfile}")
     asc.write(tab1, outfile, format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
@@ -233,7 +233,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Zoom_and_gauss_general
     outfile_grid = join(fitspath, filename_dict['comp_spec'])
     log.info(f"outfile_grid : {outfile_grid}")
-    log.info(f"Reading : {outfile_grid}")
+    log.info(f"Reading: {outfile_grid}")
     stack2D, header = fits.getdata(outfile_grid, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']

@@ -54,14 +54,19 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     if log is None:
         log = log_stdout()
 
+    log.debug("starting ...")
+
     RestframeMaster = join(fitspath_ini, 'Master_Grid.fits')
+    log.info(f"Reading: {RestframeMaster}")
     image2D, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
 
     pdf_pages = PdfPages(join(fitspath, name))  # open pdf document
-    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
-        data3 = general.get_det3(fitspath, fitspath_ini)
 
+    individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
+        data3 = general.get_det3(fitspath, fitspath_ini, log=log)
+
+    log.info(f"Reading: {grid_data_file}")
     grid_data = np.load(grid_data_file, allow_pickle=True)  # This is the npz file
     R23_minimum = grid_data['R23_minimum']
     O32_minimum = grid_data['O32_minimum']
@@ -71,24 +76,26 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     if mask:
         mask_file = join(fitspath_ini,
                          'stacking_masks/MastermaskArray.fits')
+        log.info(f"Reading: {mask_file}")
         maskM = fits.getdata(mask_file)
         image2DM = np.ma.masked_array(image2DM, maskM[det3])
-        log.debug('Mask[det3]', maskM[det3])
+        log.debug("Mask[det3]", maskM[det3])
 
     outfile = join(fitspath, filename_dict['comp_spec'])
     if not exists(outfile):
         stack_2d = np.zeros((len(R23_minimum) * len(O32_minimum), len(wave)),
                             dtype=np.float64)
     else:
+        log.info(f"Reading: {outfile}")
         stack_2d = fits.getdata(outfile)
 
-    avg_R23 = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as xBar
-    avg_O32 = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as yBar
+    avg_R23 = np.zeros(len(R23_minimum) * len(O32_minimum))   # Same as xBar
+    avg_O32 = np.zeros(len(R23_minimum) * len(O32_minimum))   # Same as yBar
     R23_node = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as R23_minimum
     O32_node = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as O32_minimum
-    R23_med = np.zeros(len(R23_minimum) * len(O32_minimum))  # median R23 value
-    O32_med = np.zeros(len(R23_minimum) * len(O32_minimum))  # median O32 value
-    N_gal = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as Number_inbin
+    R23_med = np.zeros(len(R23_minimum) * len(O32_minimum))   # median R23 value
+    O32_med = np.zeros(len(R23_minimum) * len(O32_minimum))   # median O32 value
+    N_gal = np.zeros(len(R23_minimum) * len(O32_minimum))     # Same as Number_inbin
 
     n_N = R23_minimum.shape[0]
     if dataset == 'n_Bins' or dataset == 'Double_Bin':
@@ -121,7 +128,6 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 else:
                     if mask:
                         Spect1D = np.ma.mean(subgrid, axis=0)
-
                     else:
                         Spect1D = np.nanmean(subgrid, axis=0)
 
@@ -182,6 +188,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 pdf_pages.savefig(fig)
 
                 count += 1
+
+    log.info(f"Writing: {join(fitspath, name)}")
     pdf_pages.close()
 
     # Writing fits file
@@ -202,8 +210,11 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
          'logR23_med', 'logO32_med', 'N_stack')
     # for n_split xnode and ynode are the lowest values of the bin while xBar and yBar are the averages
 
-    tab0 = Table([ID, R23_node, O32_node, avg_R23, avg_O32, R23_med, O32_med, N_gal], names=n)
+    tab0 = Table([ID, R23_node, O32_node, avg_R23, avg_O32, R23_med, O32_med, N_gal],
+                 names=n)
     log.info(f"Writing : {out_ascii}")
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
 
     fig.clear()
+
+    log.debug("finished ...")

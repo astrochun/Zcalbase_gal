@@ -103,8 +103,8 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
             ii_label = ''
             if nn == 0:  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
-                ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
-                                                                       len(idx_all))
+                ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
+                           fr"< {y_ii_max:.2f}, N = {len(idx_all):d}"
 
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - jiang_R23[idx]
@@ -268,8 +268,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             ii_label = ''
             if nn == 0:  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
-                ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
-                                                                       len(idx_all))
+                ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
+                           f"< {y_ii_max:.2f}, N = {len(idx_all):d}"
             if len(idx) > 0:
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=alpha[nn], label=ii_label, edgecolors=edgecolors[nn])
@@ -278,7 +278,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                 # Added if statement so that only data points on the OH_err[0] place will be plotted
                 if nn == 0: 
                     if len(OH_err) != 0:
-                        print('OH_err: ', OH_err[nn][idx])
+                        log.info(f"OH_err: {OH_err[nn][idx]}")
                         ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=np.transpose(OH_err[nn][idx]),
                                     mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
                                     fmt='', label=None, ls='none')
@@ -294,7 +294,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                     opt = jiang18_coeffs
 
                 mod_logR23 = O32_OH_fit((x_arr, lO32_avg), *opt)
-                ax.annotate('%.2f' % lO32_avg, [mod_logR23[-1], x_arr[-1]],
+                ax.annotate(f"{lO32_avg:.2f}", [mod_logR23[-1], x_arr[-1]],
                             xytext=xytext_location[ii], textcoords='offset points',
                             color=ctype[ii], xycoords='data', ha='center',
                             va='bottom', fontsize=8)
@@ -386,11 +386,11 @@ def get_zcalbase_sample(prefix, dir_path='', log=None):
 
     dir0 = '/Users/cly/data/Metallicity/Others/Te_Repository/'
     if dir_path == '':
-        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, prefix, prefix)
-        Te_file = '%s%s/%s_Te_table.fits' % (dir0, prefix, prefix)
+        flux_file = f"{dir0}{prefix}/{prefix}_sample.det4363.int.fits"
+        Te_file = f"{dir0}{prefix}/{prefix}_Te_table.fits"
     else:
-        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, dir_path, prefix)
-        Te_file = '%s%s/%s_Te_table.fits' % (dir0, dir0, prefix)
+        flux_file = f"{dir0}{dir_path}/{prefix}_sample.det4363.int.fits"
+        Te_file = f"{dir0}{dir0}/{prefix}_Te_table.fits"
 
     if 'SDSS' in prefix:
         path_SDSS = '/Users/cly/data/Metallicity/Others/SDSS/'
@@ -478,7 +478,7 @@ def DEEP2_OIII4363(log=None):
          xra=[0.75, 1.05], yra=[7.1, 8.65])
 
     # Got RuntimeError
-    # out_pdf = path0 + 'DEEP2_R23_O32_Jiang18.fit.pdf'
+    # out_pdf = join(path0, 'DEEP2_R23_O32_Jiang18.fit.pdf')
     # main([lR23], [lO32], [OH], out_pdf, lR23_err=[lR23_err], OH_err=[OH_err],
     # xra=[0.75,1.05], yra=[7.1,8.65], fit=True)
 
@@ -503,7 +503,7 @@ def MACT_OIII4363(log=None):
     main([lR23], [lO32], [OH], out_pdf, n_bins=6, lR23_err=[lR23_err],
          OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7])
 
-    out_pdf = path0 + 'MACT_R23_O32_Jiang18.fit.pdf'
+    out_pdf = join(path0, 'MACT_R23_O32_Jiang18.fit.pdf')
     main([lR23], [lO32], [OH], out_pdf, n_bins=6, lR23_err=[lR23_err],
          OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7], fit=True)
 

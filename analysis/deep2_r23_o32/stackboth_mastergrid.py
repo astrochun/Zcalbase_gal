@@ -98,7 +98,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     N_gal = np.zeros(len(R23_minimum) * len(O32_minimum))     # Same as Number_inbin
 
     n_N = R23_minimum.shape[0]
-    if dataset == 'n_Bins' or dataset == 'Double_Bin':
+    if dataset in ['n_Bins', 'Double_Bin']:
         n_M = R23_minimum.shape[1]
     else:
         n_M = O32_minimum.shape[0]

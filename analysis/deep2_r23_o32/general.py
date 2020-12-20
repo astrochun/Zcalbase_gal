@@ -43,10 +43,11 @@ def get_det3(fitspath, fitspath_ini, log=None):
     if log is None:
         log = log_stdout()
 
-    log.info("start ...")
+    log.info("starting ...")
 
     for ii in range(1, 5):
         file1 = join(fitspath_ini, f"f3_0716/DEEP2_Field{ii}_all_line_fit.fits")
+        log.info(f"Reading: {file1}")
         data = Table(fits.getdata(file1))
         if ii == 1:
             data0 = data
@@ -140,20 +141,17 @@ def get_det3(fitspath, fitspath_ini, log=None):
     asc.write(tab1, outfile, format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
-    log.info("end ...")
+    log.info("finished ...")
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
 
 
-def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=True,
-                              apply_dust=False, mask=True):
+def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
+                              adaptive=True, apply_dust=False, mask=True):
     """
     Purpose
-    ----------
-    Function runs the entire analysis
+      Function runs the entire analysis
 
-    Parameters
-    ----------
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
     :param n_split: int. Number of times the log(R23) bins are split.
@@ -213,7 +211,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
                                             n_split, individual_ID, R23, O32,
                                             SNR3, data3, galinbin)
 
-    log.info("made npz, pdf files , testmastergrid (need to find if this is used anywhere)")
+    log.info("made npz, pdf files, testmastergrid (need to find if this is used anywhere)")
     log.info("finished Binning_and_Graphing_MasterGrid")
 
     # Stackboth_MasterGrid
@@ -235,6 +233,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     # Zoom_and_gauss_general
     outfile_grid = join(fitspath, filename_dict['comp_spec'])
     log.info(f"outfile_grid : {outfile_grid}")
+    log.info(f"Reading : {outfile_grid}")
     stack2D, header = fits.getdata(outfile_grid, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']
@@ -272,7 +271,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 
     # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
     if apply_dust:
-        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',
+                           use_revised=False, log=log)
 
     # Run raw data derived properties calculations (option to apply dust correction)
     error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
@@ -327,34 +327,34 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
     more_plots.hist_for_bin(dataset, asc_table2)
     '''
 
+    log.debug("finished ...")
+
 
 # Below function will run the individual functions in the codes above that produce graphs
 # Enter a keyword for want to indictate what function you want to run
 # This will ease the reproduction process
 # CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
-def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adaptive=True, y_correction=False,
+def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
+                             adaptive=True, y_correction=False,
                              apply_dust=False, mask=True):
     """
     Purpose
-    ----------
-    To run individual codes to test changes or edits plots
+      To run individual codes to test changes or edits plots
 
-    Parameters
-    ----------
     fitspath -> path to the location of files saved for each run
     want -> keyword to determine what part of the process needs to be run
          -> Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
     adaptive  -> determines if the R23 bins have equal or different number of spectra in them in binning method
     y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
     apply_dust -> determines if dust attenuation corrections are applied
-
     """
 
     log = LogClass(fitspath, 'run_individual_functions.log').get_logger()
 
     fitspath_ini = get_user()
     if want == 'binning_and_stacking':
-        individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = get_det3(fitspath, fitspath_ini)
+        individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
+            data3 = get_det3(fitspath, fitspath_ini)
         # Each bin will be split in half
         # Must sum to 2799
         if adaptive:
@@ -363,8 +363,10 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
             galinbin = [400, 400, 400, 400, 400, 400, 409]
         bin_pdf_pages = join(fitspath, name_dict['gridpdf_suffix'])
         bin_outfile = join(fitspath, name_dict['gridnpz_suffix'])
-        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split,
-                                            individual_ID, R23, O32, SNR3, data3, galinbin)
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
+                                            bin_outfile, n_split,
+                                            individual_ID, R23, O32, SNR3,
+                                            data3, galinbin)
         # Starting Stacking
         Stack_name = f"Stacking_Masked_MasterGrid_{dataset}.pdf"
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
@@ -373,6 +375,7 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
     if want == 'zoom':
         Stack_name = f"Stacking_Masked_MasterGrid_{dataset}.fits"
         outfile_grid = join(fitspath, Stack_name)
+        log.info(f"Reading: {outfile_grid}")
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         dispersion = header['CDELT1']
@@ -398,18 +401,23 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
 
         if apply_dust:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=True)
+                                       temp_m_gpdf_name, combine_flux_ascii,
+                                       apply_dust=True)
         else:
             r_temp_calcul.run_function(fitspath, dataset, temp_m_gascii, temp_m_gfits,
-                                       temp_m_gpdf_name, combine_flux_ascii, apply_dust=False)
+                                       temp_m_gpdf_name, combine_flux_ascii,
+                                       apply_dust=False)
 
     if want == 'line_ratio_plotting':
         combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
         binning_avg_asc = join(fitspath, 'bin_info.tbl')
-        line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
+        line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii,
+                                           binning_avg_asc)
 
     if want == 'calibration_plots':
         temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
         calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
 
     log.info(f"{want} is done")
+
+    log.debug("finished ...")

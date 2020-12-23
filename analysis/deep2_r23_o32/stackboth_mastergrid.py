@@ -10,16 +10,18 @@ Emission lines in spectrum (not all being used currently in study) See MSC for s
 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 """
 import numpy as np
-import matplotlib.pyplot as plt
+import numpy.ma as ma
+
 from astropy.io import fits
 from astropy.io import ascii as asc
-from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-from os.path import exists, join
-import numpy.ma as ma
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.gridspec import GridSpec
+
+from os.path import exists, join
 from astropy.convolution import Box1DKernel, convolve
 
 from . import general

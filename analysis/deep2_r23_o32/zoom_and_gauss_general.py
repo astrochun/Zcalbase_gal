@@ -180,7 +180,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
     lower limits.
     """
 
-    if log is None
+    if log is None:
         log = log_stdout()
 
     log.debug("starting ...")

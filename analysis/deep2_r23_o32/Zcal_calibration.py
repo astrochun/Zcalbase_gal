@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
-from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 
-fitspath_ini ='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-temp_met ='/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0202/n_Bins_temperatures_metalicity.tbl'  #fitspath_ini+'R23O32_Manual_0202/n_Bins_temperature_metalicity.tbl'
+from .. import local_analog_calibration, green_peas_calibration
+
+fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+temp_met = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0202/n_Bins_temperatures_metallicity.tbl'  #fitspath_ini+'R23O32_Manual_0202/n_Bins_temperature_metalicity.tbl'
 tm_table = asc.read(temp_met)
 
 verification_tab = fitspath_ini+'/verification_tables/n_Bins_verification_tab.tbl'
@@ -34,7 +35,7 @@ det_ID = ID[det_4363]
     
 nandet_O32 = O32_all[nan_det_4363]
 nandet_R23 = R23_all[nan_det_4363]
-print len(nandet_O32), len(nandet_R23)
+print(len(nandet_O32), len(nandet_R23))
 nandet_OH = com_O_log[nan_det_4363]
 nandet_ID = ID[nan_det_4363]
 

@@ -80,6 +80,7 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
     sigma = np.repeat(rms, len(x0))
 
     fail = 0
+    o1 = None
 
     # curve_fit(gauss function, x0 ,y0, initial_guesses, sigma, parameter_bounds)
     # Single Emission Line
@@ -101,14 +102,17 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
         para_bound = (working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0), 0.0, -med0), \
                      (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0), 30.0, 0.0)
         if dataset in ['R23_Grid', 'O32_Grid']:
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0]  # must have some reasonable values
+            # must have some reasonable values
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0]
 
         if dataset == 'Grid':
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0]  # must have some reasonable values
+            # must have some reasonable values
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.25*med0]
 
         if dataset in ['Voronoi10', 'Voronoi14', 'Voronoi20',
                        'Double_Bin', 'n_Bins']:
-            p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0]  # must have some reasonable values
+            # must have some reasonable values
+            p0 = [working_wave, 1.0, max0, med0, s2, -0.5*med0]
 
         # Attempt fit
         try:
@@ -130,13 +134,10 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
         except ValueError:
             log.warning('fail')
             fail = 1
-   
+
     log.debug("finished ...")
 
-    if not fail:
-        return o1, med0, max0
-    else:
-        return None, med0, max0
+    return o1, med0, max0
 
 
 def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
@@ -225,10 +226,11 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
         row = rr // nrows % ncols
         col = rr % ncols
         if rr % (nrows*ncols) == 0:
-            fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols, squeeze=False)
+            fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols,
+                                       squeeze=False)
 
         t_ax = ax_arr[row, col]
-        
+
         x1 = working_wave-100
         x2 = working_wave+100
 
@@ -246,12 +248,12 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                                               log=log)
 
         # Calculating Flux: Signal Line Fit
-        if type(o1) != type(None):
-            dx = x0[2]-x0[1] 
+        if o1 is not None:
+            dx = x0[2]-x0[1]
             if line_type == 'Single':
                 x_sigsnip = np.where((np.abs((x0 - working_wave))/o1[1]) <= 2.5)[0]
                 gauss0 = gauss(x0, *o1)
-            
+
             if line_type == 'Balmer':
                 x_sigsnip = np.where(np.abs((x0 - working_wave))/o1[1] <= 2.5)[0]
                 gauss0 = double_gauss(x0, *o1)
@@ -321,12 +323,12 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
             N_gal_array[rr] = asc_tab['N_stack'][rr]
             R_23_array[rr] = asc_tab['logR23_avg'][rr]
             O_32_array[rr] = asc_tab['logO32_avg'][rr]
-        
+
             # Residuals
-            if line_type == 'Oxy2': 
+            if line_type == 'Oxy2':
                 x_sigsnip_2 = np.where(np.abs(x0 - 3727)/o1[1] <= 4.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
-            else: 
+            else:
                 x_sigsnip_2 = np.where(np.abs((x0 - working_wave))/o1[1] <= 3.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
 
@@ -344,7 +346,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
 
             if line_name == 'OIII_4363':
                 t_ax.set_ylim(0, 1)
-            
+
             if dataset in ['Grid', 'O32_Grid', 'R23_Grid', 'Double_Bin', 'n_Bins']:
                 txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
                        (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
@@ -363,7 +365,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                 txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['logR23_avg'][rr], asc_tab['logO32_avg'][rr])
                 txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot, rms_pix, N_gal_array[rr])
                 if line_type == 'Balmer':
-                    txt0 += 'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
                 if line_type in ['Single', 'Oxy2']:
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % (o1[3], o1[1], max0, o1[2]) + '\n'
@@ -376,8 +378,8 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
             for x in lambda0:
                 t_ax.axvline(x=x, linewidth=0.15, color='k', linestyle='--')
 
-            txt1 = 'Intensity'  # Units: ' + r'$ergs *s^{-1} *cm^{-2} *\AA$' + '\n'
-            
+            txt1 = 'Intensity'  # Units: r'$ergs *s^{-1} *cm^{-2} *\AA$'
+
             if col == 0:
                 t_ax.set_ylabel(txt1)
             else:
@@ -405,8 +407,9 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
              'S/N', 'Center', 'Pos_Amp')
 
         n = tuple([f"{line_name}_{val}" for val in n])
-        tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array, norm_array,
-                      rms_array, SN_array, xbar_array, pos_amp_array], names=n)
+        tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,
+                      norm_array, rms_array, SN_array, xbar_array, pos_amp_array],
+                     names=n)
 
     if line_type in ['Balmer', 'Oxy2']:
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
@@ -461,7 +464,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      log=log)
 
         # Balmer Line Fit
-        if line_type[ii] == 'Balmer': 
+        if line_type[ii] == 'Balmer':
             em_tab, R_23_array, O_32_array, N_gal_array, \
                 id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
@@ -471,13 +474,14 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      log=log)
 
         # Oxy2 Line Fit
-        if line_type[ii] == 'Oxy2': 
+        if line_type[ii] == 'Oxy2':
             em_tab, R_23_array, O_32_array, N_gal_array, \
                 id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     outpdf=outpdf, line_name=line_name[ii])
+                                     outpdf=outpdf, line_name=line_name[ii],
+                                     log=None)
 
         if ii == 0:
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
@@ -489,7 +493,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
             table_stack = hstack([table_stack, em_tab])
 
         out_ascii = join(fitspath, filename_dict['bin_fit'])
-        log.info("Writing: {out_ascii}")
+        log.info(f"Writing: {out_ascii}")
         asc.write(table_stack, out_ascii,  format='fixed_width_two_line',
                   overwrite=True)
 

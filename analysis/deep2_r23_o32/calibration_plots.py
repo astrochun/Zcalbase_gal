@@ -4,7 +4,7 @@ import numpy as np
 from astropy.io import ascii as asc
 from os.path import exists, join
 
-from Zcalbase_gal.analysis import local_analog_calibration, green_peas_calibration
+from .. import local_analog_calibration, green_peas_calibration
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 from .logging import log_stdout

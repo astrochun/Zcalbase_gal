@@ -27,7 +27,6 @@ det_4363 = np.where((detect == 1.0))[0]
 nan_det_4363 = np.where((detect == 0.0))[0]
 r_limit = np.where((detect == 0.5))[0]
 
-    
 det_O32 = O32_all[det_4363]
 det_R23 = R23_all[det_4363]
 det_OH = com_O_log[det_4363]

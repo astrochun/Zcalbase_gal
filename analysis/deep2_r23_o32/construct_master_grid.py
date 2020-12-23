@@ -5,15 +5,15 @@ construct_master_grid
 Construct the DEEP2 rest-frame master grid
 """
 
-from chun_codes import systime
-
 from astropy.io import fits
 import numpy as np
 import glob
-from astropy import log
+from os.path import join
+
+from .logging import log_stdout
 
 
-def main(path0, silent=False, verbose=True):
+def main(path0, silent=False, log=None):
     """
     Combine 1-D DEEP2 spectra and de-redshift to rest-frame wavelength
 
@@ -21,12 +21,9 @@ def main(path0, silent=False, verbose=True):
     ----------
     path0:
       path to data (ie '/Users/cly/data/DEEP2/DR4/')
-
     silent : boolean
       Turns off stdout messages. Default: False
-
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
+    log : LogClass or logging object
 
     Returns
     -------
@@ -36,13 +33,15 @@ def main(path0, silent=False, verbose=True):
     Created by Chun Ly, 18 February 2018
     Edited by Reagen Leimbach August 2020
     """
-    
-    if not silent:
-        log.info('### Begin main : '+systime())
 
-    files_2D = glob.glob(path0 + 'DEEP2_2D_Field?.f3.fits')
+    if log is None:
+        log = log_stdout()
 
-    cat_files = glob.glob(path0 + 'f_current/DEEP2_Field?_all_line_fit.fits')
+    log.info("starting")
+
+    files_2D = glob.glob(join(path0, 'DEEP2_2D_Field?.f3.fits'))
+
+    cat_files = glob.glob(join(path0, 'f_current/DEEP2_Field?_all_line_fit.fits'))
 
     n_fields = len(files_2D)
 
@@ -68,20 +67,18 @@ def main(path0, silent=False, verbose=True):
         cdelt0 = np.append(cdelt0, cdelt1[ii]/(1+zspec))
         x0_min[ii] = np.min(cdata.LMIN0)
         x0_max[ii] = np.max(cdata.LMAX0)
-    # endfor
 
     avg_cdelt = np.average(cdelt0)
-    log.info('## avg_cdelt : %.3f' % avg_cdelt)
+    log.info(f"## avg_cdelt : {avg_cdelt:%.3f}")
 
     n_pixel = np.ceil((max(x0_max)-np.min(x0_min))/avg_cdelt)
-    log.info('## n_pixel : %i' % n_pixel)
+    log.info(f"## n_pixel : {n_pixel:%i}")
 
     crval0 = np.min(x0_min)
-    log.info('## crval0 : %.3f' % crval0)
+    log.info(f"## crval0 : {crval0:%.3f})")
 
     x0 = crval0 + avg_cdelt * np.arange(n_pixel)
-    print np.min(x0), np.max(x0)
-           
+    log.info(np.min(x0), np.max(x0))
+
     if not silent:
-        log.info('### End main : '+systime())
-# enddef
+        log.info("finished.")

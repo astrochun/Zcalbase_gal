@@ -5,6 +5,8 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
+from ..logging import log_stdout
+
 
 def color_for_bin(fitspath, bin_info, pdf_file):
     """
@@ -49,17 +51,24 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     pdf_pages.close()
 
 
-def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name):
+def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
     """
     Purpose
     Plotting R23 vs O32 with a color map for metallicity and then for temperature
 
     Parameters
-    fitspath -> path where files are called from and saved to
-    bin_info -> table created by binning code
-    temp_tab -> table holding metallicity and temperature measurements
-    pdf_name -> name of pdf file produced
+    :param fitspath: path where files are called from and saved to
+    :param bin_info: table created by binning code
+    :param temp_tab: table holding metallicity and temperature measurements
+    :param pdf_name: name of pdf file produced
+    :param log: LogClass or logging object
     """
+
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
     # pdf_name = 'R23vsO32_color_comandavg.pdf'
     pdf_pages = PdfPages(join(fitspath, pdf_name))
 
@@ -83,16 +92,19 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name):
     vmax = np.nanmax(com_O_log[com_O_log != np.inf])   # temp
     c = com_O_log  # temp
 
-    print('min, max, c: ', vmin, vmax, c)
-    # scat= plt.scatter(logR23, logO32, c=logR23, vmin=min(logR23), vmax=max(logR23), marker='.', cmap=cm)
-    scat = plt.scatter(xBar, yBar, c=c, vmin=vmin, vmax=vmax, marker='.', cmap=cm)
-    scat_com = plt.scatter(R23_com, O32_com, c=c, vmin=vmin, vmax=vmax, marker='*', cmap=cm)
+    log.info(f"min, max, c: {vmin}, {vmax}, {c}")
+    scat = plt.scatter(xBar, yBar, c=c, vmin=vmin, vmax=vmax,
+                       marker='.', cmap=cm)
+    plt.scatter(R23_com, O32_com, c=c, vmin=vmin, vmax=vmax,
+                marker='*', cmap=cm)
     cax = plt.axes([0.9, 0.15, 0.8, 0.75])
-    cbar = plt.colorbar(scat, cax=cax, orientation='vertical', label='Oxygen Abundance')
+    plt.colorbar(scat, cax=cax, orientation='vertical', label='Oxygen Abundance')
     for rr in range(len(n_gal)):
-        ax1.annotate(str(n_gal[rr]), (xBar[rr], yBar[rr]), xycoords='data', fontsize=5)
+        ax1.annotate(str(n_gal[rr]), (xBar[rr], yBar[rr]), xycoords='data',
+                     fontsize=5)
     for oo in range(len(n_gal)):
-        ax1.annotate(str(n_gal[oo]), (R23_com[oo], O32_com[oo]), xycoords='data', fontsize=5, fontweight='bold')
+        ax1.annotate(str(n_gal[oo]), (R23_com[oo], O32_com[oo]),
+                     xycoords='data', fontsize=5, fontweight='bold')
     ax1.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for DEEP2')
     ax1.set_xlabel(r'log($R_{23}$)')
     ax1.set_ylabel(r'log($O_{32}$)')
@@ -101,3 +113,5 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name):
 
     pdf_pages.savefig()
     pdf_pages.close()
+
+    log.info("finished.")

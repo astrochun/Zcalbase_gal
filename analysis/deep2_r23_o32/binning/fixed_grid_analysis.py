@@ -10,8 +10,8 @@ from os.path import join
 from ..logging import log_stdout
 
 
-def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin, O32_bin,
-                log=None):
+def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
+                O32_bin, log=None):
     """
     Purpose:
       This file holds the function to bin data in a bin of fixed size entered

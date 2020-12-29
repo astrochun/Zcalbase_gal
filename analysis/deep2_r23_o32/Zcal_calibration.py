@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from Zcalbase_gal.Analysis import local_analog_calibration, green_peas_calibration
 
-fitspath_ini ='/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-temp_met ='/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0202/n_Bins_temperatures_metalicity.tbl'  #fitspath_ini+'R23O32_Manual_0202/n_Bins_temperature_metalicity.tbl'
+fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
+temp_met = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0202/n_Bins_temperatures_metalicity.tbl'  #fitspath_ini+'R23O32_Manual_0202/n_Bins_temperature_metalicity.tbl'
 tm_table = asc.read(temp_met)
 
-verification_tab = fitspath_ini+'/verification_tables/n_Bins_verification_tab.tbl'
+verification_tab = fitspath_ini + 'verification_tables/n_Bins_verification_tab.tbl'
 v_tab = asc.read(verification_tab)
 
 out_pdf = fitspath_ini+'green_pea_jiang.pdf'
@@ -76,4 +76,3 @@ for qq in range(len(det_ID)):
     ax.annotate(det_ID[qq], (x_plus[qq], det_OH[qq]), fontsize='12')
 for aa in range(len(det_ID)):
     ax.annotate(det_ID[aa], (x_minus[aa],det_OH[aa]), fontsize='12')
-

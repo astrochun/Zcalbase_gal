@@ -105,11 +105,6 @@ def get_det3(fitspath, individual_detect=False):
             new_det = np.concatenate((ML_data_det,nan_array))
             det_tab = Table([new_det,det3], names=n_comb)
             
-        
-
-
-
-
         print('Using mass evolve table from 09/24')
         mass_valid_idx_tab = np.load('/Users/reagenleimbach/Desktop/Zcalbase_gal/From_Caroline/'
                                      'mass_bin_hbeta_revised_75_112_113_300_600_1444_1444.npz')
@@ -136,8 +131,4 @@ def get_det3(fitspath, individual_detect=False):
         asc.write(det_tab,fitspath+'indexed_individual.tbl',format = 'fixed_width_two_line')
         asc.write(mL_tab, fitspath+'mass_LHbeta_tab.tbl', format = 'fixed_width_two_line')
      
-
-
-
-
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3    #, O2_det3, O3_det3, Hb_det3

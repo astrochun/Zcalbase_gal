@@ -1,5 +1,4 @@
 # This function runs the entire process start to finish
-# This weekend combine the grid and voronoi if statements, voronoi20, log plots for met
 # EW values:equival width
 
 from . import name_dict
@@ -28,6 +27,7 @@ def get_det3(fitspath, fitspath_ini):
     Purpose
     ----------
     Function is called to collect data for binning from DEEP2 data files
+
     Parameters
     ----------
     fitspath -> path to the location of files saved for each run
@@ -313,6 +313,10 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
     Purpose
     ----------
     To run individual codes to test changes or edits plots
+    Below function will run the individual functions in the codes above that produce graphs
+    Enter a keyword for want to indictate what function you want to run
+    This will ease the reproduction process
+    CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
 
     Parameters
     ----------

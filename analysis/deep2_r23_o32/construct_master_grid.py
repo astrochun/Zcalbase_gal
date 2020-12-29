@@ -68,7 +68,6 @@ def main(path0, silent=False, verbose=True):
         cdelt0 = np.append(cdelt0, cdelt1[ii]/(1+zspec))
         x0_min[ii] = np.min(cdata.LMIN0)
         x0_max[ii] = np.max(cdata.LMAX0)
-    # endfor
 
     avg_cdelt = np.average(cdelt0)
     log.info('## avg_cdelt : %.3f' % avg_cdelt)

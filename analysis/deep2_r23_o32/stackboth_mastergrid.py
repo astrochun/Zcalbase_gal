@@ -10,6 +10,7 @@ Emission lines in spectrum (not all being used currently in study) See MSC for s
 [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46,
 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -36,6 +37,7 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
 
 def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=True):
     """
+
     Purpose
     Function stacks all spectra in a given bin and produces tables of properties of that bin
 
@@ -71,13 +73,13 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
     else:
         stack_2d = fits.getdata(outfile)
  
-    avg_R23 = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as xBar
-    avg_O32 = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as yBar
-    R23_node = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as R23_minimum
-    O32_node = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as O32_minimum
-    R23_med = np.zeros(len(R23_minimum)*len(O32_minimum))  # median R23 value
-    O32_med = np.zeros(len(R23_minimum)*len(O32_minimum))  # median O32 value
-    N_gal = np.zeros(len(R23_minimum)*len(O32_minimum))  # Same as Number_inbin
+    avg_R23 = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as xBar
+    avg_O32 = np.zeros(len(R23_minimum)*len(O32_minimum))    #Same as yBar
+    R23_node = np.zeros(len(R23_minimum)*len(O32_minimum))   #Same as R23_minimum
+    O32_node = np.zeros(len(R23_minimum)*len(O32_minimum))   #Same as O32_minimum
+    R23_med = np.zeros(len(R23_minimum)*len(O32_minimum))    #median R23 value
+    O32_med = np.zeros(len(R23_minimum)*len(O32_minimum))    #median O32 value
+    N_gal = np.zeros(len(R23_minimum)*len(O32_minimum))      #Same as Number_inbin
 
     n_N = R23_minimum.shape[0]
     if dataset == 'n_Bins' or dataset == 'Double_Bin': n_M = R23_minimum.shape[1]
@@ -164,9 +166,6 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
                 pdf_pages.savefig(fig)
 
                 count +=1
-            # endif else: count +=1
-        # endfor
-    # endfor
     pdf_pages.close()
 
     # Writing fits file

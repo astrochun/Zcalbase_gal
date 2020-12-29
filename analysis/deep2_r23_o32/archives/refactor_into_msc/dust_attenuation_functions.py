@@ -55,12 +55,6 @@ def call_cardelli(lam0): #, extrapolate=False):
     return k_values
 
 
-'''k_ascii = fitspath_ini+'/cardelli_k_values.tbl'
-    n3 = ('Line_Name','K_value')
-    tab3 = Table([line_name, k_values])
-    asc.write(tab3, k_ascii, format = 'fixed_width_two_line')'''
-
-
 
 
 def dust_vs_nondust_table(fitspath, dust_metal_table, nondust_metal_table, dust_atten_values, name):

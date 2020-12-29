@@ -16,6 +16,7 @@ def single_grid_r23(fitspath, pdf_pages, outfile, R23, O32, galinbin):
     galinbin  -> array of numbers that specifies how many spectra go in each bin
     Other variables -> emission file values of spectra that come from the get_det3 function
     """
+
     pdf_pages = PdfPages(pdf_pages)
 
     # One_dimensional binning for R23

@@ -11,16 +11,16 @@ from os.path import join
 
 def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     """
-    Purpose
-    Plots measurements to check to make sure that data follows a one-to-one line
+    Purpose:
+      Plots measurements to check to make sure that data follows a one-to-one line
 
-    Parameters
-    fitspath -> path where files are called from and saved to
-    dataset  -> keyword used to define binning method
-    combine_flux_ascii -> table of data calculated for emission line
-    bin_info -> table of averages calculated in binning code
-
+    Parameters:
+      fitspath -> path where files are called from and saved to
+      dataset  -> keyword used to define binning method
+      combine_flux_ascii -> table of data calculated for emission line
+      bin_info -> table of averages calculated in binning code
     """
+
     line_plot = join(fitspath, dataset +'_line_ratio_plots.pdf')
     print("### combine_flux_ascii : " + combine_flux_ascii)
     fitted_data = asc.read(combine_flux_ascii)

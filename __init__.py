@@ -20,3 +20,5 @@ import Zcalbase-gal as Zcb
 """
 
 #import observing
+
+__version__ = "0.9.2"

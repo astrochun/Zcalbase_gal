@@ -24,16 +24,37 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
     Outputs
     pdf_files
     """
+    # what different cases do we have?
+    #   - regular old data
+    #   - regular old data with dust correction
+    #   - regular old data with validation table
+    #   -
+    #
+    #
+    #
+
+    # Call for validation table
     if revised:
-        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop_rev_dust']))
+        rev_s = ''
         verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
-        pea_out_pdf = join(fitspath, dataset+'_GPC.revised.pdf')
-        LAC_out_pdf = join(fitspath, dataset+'_LAC.revised.pdf')
     else:
-        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop']))
+        rev_s = '.valid1'
         verification = asc.read(join(fitspath, filename_dict['bin_valid']))
-        pea_out_pdf = join(fitspath, dataset+'_GPC.pdf')
-        LAC_out_pdf = join(fitspath, dataset+'_LAC.pdf')
+
+    if raw:
+        mc = '.MC'
+    else:
+        mc = ''
+
+    if apply_dust:
+        ad = '_dustcorr'
+    else:
+        ad = ''
+    tempature_table = fitspath + 'bin_derived_properties' + mc + ad + rev_s + '.tbl'
+    pea_out_pdf = fitspath + dataset + '_GPC' + mc + ad + rev_s + '.pdf'
+    LAC_out_pdf = fitspath + dataset + '_LAC' + mc + ad + rev_s + '.pdf'
+    print(tempature_table)
+    temp_table = asc.read(tempature_table)
 
     detect = verification['Detection']
     det_4363 = np.where(detect == 1)[0]
@@ -41,8 +62,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
     print('Begin Local analog Calibration')
 
     # Tables of individual detections from DEEP2 and MACT samples
-    derived = asc.read(fitspath_ini + 'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini + 'MACT_R23_O32_derived.tbl')
+    derived = asc.read(join(fitspath_ini, 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'))
+    derived_MACT = asc.read(join(fitspath_ini, 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'))
     
     # DEEP2 Derived
     er_R23 = derived['R23'].data

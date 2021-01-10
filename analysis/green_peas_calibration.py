@@ -192,6 +192,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     fig, ax = plt.subplots()
 
     n_sample = len(lR23)
+    print('n_sample: ', n_sample)
 
     min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
     OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
@@ -261,6 +262,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
             y_ii_max = bin_end[ii]   # y_min + (ii+1) * dy
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
+            print('idx: ', idx)
             
             ii_label = ''
             if nn == 0:  # n_sample-1:
@@ -273,8 +275,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
                 # Pushed Error bars under idx requirement
                 # Added if statement so that only data points on the OH_err[0] place will be plotted
-                if nn == 0: 
+                if nn == 0:
                     if len(OH_err) != 0:
+                        print('OH: ', OH[nn][idx])
                         print('OH_err: ', OH_err[nn][idx])
                         ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=np.transpose(OH_err[nn][idx]),
                                     mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,

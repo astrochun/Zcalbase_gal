@@ -24,14 +24,6 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
     Outputs
     pdf_files
     """
-    # what different cases do we have?
-    #   - regular old data
-    #   - regular old data with dust correction
-    #   - regular old data with validation table
-    #   -
-    #
-    #
-    #
 
     # Call for validation table
     if revised:
@@ -53,13 +45,14 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
     tempature_table = fitspath + 'bin_derived_properties' + rev_s + mc + ad + '.tbl'
     pea_out_pdf = fitspath + dataset + '_GPC' + rev_s + mc + ad + '.pdf'
     LAC_out_pdf = fitspath + dataset + '_LAC' + rev_s + mc + ad + '.pdf'
-    print(tempature_table)
     temp_table = asc.read(tempature_table)
 
     detect = verification['Detection']
     det_4363 = np.where(detect == 1)[0]
     rlimit = np.where(detect == 0.5)[0]
-    print('Begin Local analog Calibration')
+    print('det_4363: ', det_4363)
+    print(tempature_table)
+    # print('Begin Local analog Calibration')
 
     # Tables of individual detections from DEEP2 and MACT samples
     derived = asc.read(join(fitspath_ini, 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'))
@@ -142,7 +135,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
-    # local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var, label=label, marker=marker, silent=False)
+    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var, label=label, marker=marker, silent=False)
     print('finished LAC plot')
 
     # For Green Pea Calibration
@@ -157,21 +150,23 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
         OH = [det_OH, der_OH, der_OH_MACT]
         IDs = [det_ID]
 
-    error_npz_file = join(fitspath, npz_filename_dict['der_prop_errors'])
-    alpha = np.repeat(1, len(lR23))
-    edgecolor = np.repeat('face', len(lR23))
-    if exists(error_npz_file):
-        print('Error npz found  ', error_npz_file, ': Adding error bars to plot')
-        error_npz = np.load(error_npz_file)
-        metal_err = error_npz['12+log(O/H)_error']  # log values
-        green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, lR23_err=[], OH_err=[metal_err],
-                                    xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, edgecolors=edgecolor, alpha=alpha,
-                                    label=label, IDs=IDs, include_Rlimit=True, fit=False, silent=False, verbose=True)
-    else:
-        print('No error npz found')
-        green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5, 1.1], yra=[6.5, 9.10],
-                                    marker=marker, edgecolors=edgecolor, alpha=alpha, label=label, IDs=IDs,
-                                    include_Rlimit=True, fit=False, silent=False, verbose=True)
+    if revised:
+        alpha = np.repeat(1, len(lR23))
+        edgecolor = np.repeat('face', len(lR23))
+        error_npz_file = join(fitspath, npz_filename_dict['der_prop_errors'])
+        if exists(error_npz_file):
+            print('Error npz found  ', error_npz_file, ': Adding error bars to plot')
+            error_npz = np.load(error_npz_file)
+            metal_err = error_npz['12+log(O/H)_error']  # log values
+            print('metal_err: ', metal_err)
+            green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, lR23_err=[], OH_err=[metal_err],
+                                        xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, edgecolors=edgecolor, alpha=alpha,
+                                        label=label, IDs=IDs, include_Rlimit=True, fit=False, silent=False, verbose=True)
+        else:
+            print('No error npz found')
+            green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5, 1.1], yra=[6.5, 9.10],
+                                        marker=marker, edgecolors=edgecolor, alpha=alpha, label=label, IDs=IDs,
+                                        include_Rlimit=True, fit=False, silent=False, verbose=True)
 
 
 def individual_gpc(individual_ascii, validation_table):

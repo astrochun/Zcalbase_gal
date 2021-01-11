@@ -289,10 +289,10 @@ def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
 
     """
     # Te_metal Plots
-    # te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw, apply_dust=apply_dust,
-                                     # revised=revised, individual=individual)
+    te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw, apply_dust=apply_dust,
+                                     revised=revised, individual=individual)
 
-    # Calibration Plots: currently works when revised is True; gives index error when revised is false
+    # Calibration Plots
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw, apply_dust=apply_dust,
                                     revised=revised, individual=individual)
 

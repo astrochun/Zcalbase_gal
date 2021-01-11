@@ -327,13 +327,20 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
 
     Parameters
     ----------
-    fitspath -> path to the location of files saved for each run
-    want -> keyword to determine what part of the process needs to be run
-         -> Keywords: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
-    adaptive  -> determines if the R23 bins have equal or different number of spectra in them in binning method
-    y_correction -> determines if the smoothed (movingaverage_box1D) version of y is used in zoom_and_gauss_general.py
-    apply_dust -> determines if dust attenuation corrections are applied
-
+    :param fitspath: str. path to the location of files saved for each run
+    :param want: str. keyword to determine what part of the process needs to be run
+          options: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
+    :param dataset: str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param n_split: int. Number of times the log(R23) bins are split.
+           Default: 3.  Only for 'Grid' case
+    :param y_correction: bool. Set to use smoothed (movingaverage_box1D)
+           version for spectrum in zoom_and_gauss_general. Default: False
+    :param adaptive: bool. Set to use adaptive binning, otherwise equal
+           log(R23) bins. Default: True
+    :param apply_dust: bool. Apply dust correction. Default: False
+    :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
+           Default: True
     """
     fitspath_ini = get_user()
     if want == 'binning_and_stacking':
@@ -349,17 +356,19 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split,
                                             individual_ID, R23, O32, SNR3, data3, galinbin)
         # Starting Stacking
-        Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.pdf'
+        if mask:
+            stack_name = dataset + name_dict['Stackname']
+        else:
+            stack_name = dataset + name_dict['Stackname_nomask']
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                             bin_outfile, Stack_name, mask=mask)
+                                             bin_outfile, stack_name, mask=mask)
 
     if want == 'zoom':
-        Stack_name = 'Stacking_Masked_MasterGrid_' + dataset + '.fits'
-        outfile_grid = join(fitspath, Stack_name)
+        outfile_grid = join(fitspath, filename_dict['comp_spec'])
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         dispersion = header['CDELT1']
-        binning_avg_asc = join(fitspath, 'bin_info.tbl')
+        binning_avg_asc = join(fitspath, filename_dict['bin_info'])
 
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   
@@ -372,7 +381,6 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
                                           y_correction=y_correction,
                                           tab=binning_avg_asc)
 
-    # This next section is under construction until the run function is finalized
     if want == 'R_cal_temp':
         # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
         if apply_dust:
@@ -386,19 +394,10 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
             error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
 
         # Run Monte Carlo randomization calculations (option to apply dust correction)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_datha=True, apply_dust=False, revised=False)
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
         if apply_dust:
             error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)
             error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
-
-    if want == 'line_ratio_plotting':
-        combine_flux_ascii = join(fitspath, 'bin_emission_line_fit.tbl')
-        binning_avg_asc = join(fitspath, 'bin_info.tbl')
-        line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
-
-    if want == 'calibration_plots':
-        temp_m_gascii = join(fitspath, 'nsplit_temperatures_metalicity.tbl')
-        calibration_plots.LAC_GPC_plots(fitspath, dataset, temp_m_gascii)
 
     print(want, 'is done')

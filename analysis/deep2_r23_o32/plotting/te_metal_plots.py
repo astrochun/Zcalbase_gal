@@ -68,7 +68,7 @@ def bian_calibration_o32(metal_det):
     return (-1 / 0.59) * (metal_det - 8.54)
 
 
-def plotting_te_metal(fitspath, fitspath_ini, revised=False):
+def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revised=False, individual=False):
     """
     Purpose
     Plotting metallicity, temperature, R23, and O32 for different datasets
@@ -79,37 +79,47 @@ def plotting_te_metal(fitspath, fitspath_ini, revised=False):
             -> refers to if using the bin_derived_prop_revised temperature
                      and metallicity measurements which right now implement dust attenuation
     """
-    indv_all_file = join(fitspath, filename_dict['indv_bin_info'])
-
-    if revised:
-        composite_file = join(fitspath, filename_dict['bin_derived_prop_rev'])
-        out_pdf = join(fitspath, 'temperature_metallicity_revised.pdf')
+    if raw:
+        mc = '.MC'
     else:
-        composite_file = join(fitspath, filename_dict['bin_derived_prop'])
-        out_pdf = join(fitspath, 'temperature_metallicity_plots.pdf')
+        mc = ''
 
-    # Composite bin derived properties
-    comp_derived = asc.read(composite_file)
+    if apply_dust:
+        ad = '.dustcorr'
+    else:
+        ad = ''
+    if revised:
+        rev_s = ''
+        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
+    else:
+        rev_s = '.valid1'
+        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
+    out_pdf = fitspath + 'temperature_metallicity_plots' + rev_s + mc + ad + '.pdf'
+    tempature_table = fitspath + 'bin_derived_properties' + rev_s + mc + ad + '.tbl'
+    print(tempature_table)
+    comp_derived = asc.read(tempature_table)
+
     # Individual Measurements
-    indv_all = asc.read(indv_all_file)
+    if individual:
+        indv_all_file = join(fitspath, filename_dict['indv_bin_info'])
+        indv_all = asc.read(indv_all_file)
 
-    icom_log = indv_all['12+log(O/H)']
-    ilogR23 = indv_all['logR23']
-    ilogO32 = indv_all['logO32']
-    print(ilogR23)
+        icom_log = indv_all['12+log(O/H)']
+        ilogR23 = indv_all['logR23']
+        ilogO32 = indv_all['logO32']
+        iidx = np.where((icom_log != 0.0))[0]
 
-    # icom_nan = np.isnan(icom_log)
-    iidx = np.where((icom_log != 0.0))[0]
-
-    iiR23_idv = ilogR23[iidx]
-    iiO32_idv = ilogO32[iidx]
-    iR23_idv = np.log10(iiR23_idv)
-    iO32_idv = np.log10(iiO32_idv)
-    print("len:", len(iR23_idv))
+        iiR23_idv = ilogR23[iidx]
+        iiO32_idv = ilogO32[iidx]
+        iR23_idv = np.log10(iiR23_idv)
+        iO32_idv = np.log10(iiO32_idv)
+        print("len:", len(iR23_idv))
 
     # DEEP2 and MACT Data
-    derived = asc.read(join(fitspath_ini, 'DEEP2_R23_O32_derived.tbl'))
-    derived_MACT = asc.read(join(fitspath_ini, 'MACT_R23_O32_derived.tbl'))
+    derived_table = fitspath_ini + '/DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'
+    MACT_table = fitspath_ini + '/MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'
+    derived = asc.read(derived_table)
+    derived_MACT = asc.read(MACT_table)
 
     # DEEP2 Derived
     er_R23 = derived['R23'].data
@@ -131,25 +141,26 @@ def plotting_te_metal(fitspath, fitspath_ini, revised=False):
     ID_der_MACT = derived_MACT['ID'].data
 
     # Composite Measurements
-    R23_composite = comp_derived['logR23_Composite'].data
-    O32_composite = comp_derived['logO32_Composite'].data
+    R23_composite = comp_derived['logR23_composite'].data
+    O32_composite = comp_derived['logO32_composite'].data
     ID_composite = comp_derived['bin_ID'].data
     T_e_composite = comp_derived['T_e'].data
     metal_composite = comp_derived['12+log(O/H)'].data
-    ver_detection = comp_derived['Detection'].data
 
+    #Verification Table
+    ver_detection = verification['Detection'].data
     ver_detect = np.where((ver_detection == 1))[0]
     ver_rlimit = np.where((ver_detection == 0.5))[0]
 
     pdf_pages = PdfPages(out_pdf)
-
-    fig, ax = plt.subplots()
-    ax.scatter(iR23_idv, iO32_idv, marker='.', s=35, color='g')
-    ax.set_title(r'$R_{23}$ vs. $O_{32}$')
-    ax.set_xlabel(r'log($R_{23}$)')
-    ax.set_ylabel(r'log($O_{32}$)')
-    fig.savefig(pdf_pages, format='pdf')
-    fig.clear()
+    if individual:
+        fig, ax = plt.subplots()
+        ax.scatter(iR23_idv, iO32_idv, marker='.', s=35, color='g')
+        ax.set_title(r'$R_{23}$ vs. $O_{32}$')
+        ax.set_xlabel(r'log($R_{23}$)')
+        ax.set_ylabel(r'log($O_{32}$)')
+        fig.savefig(pdf_pages, format='pdf')
+        fig.clear()
 
     # ########################################################################
     fig1, ax1 = plt.subplots()

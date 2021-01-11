@@ -50,9 +50,9 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
         ad = '.dustcorr'
     else:
         ad = ''
-    tempature_table = fitspath + 'bin_derived_properties' + mc + ad + rev_s + '.tbl'
-    pea_out_pdf = fitspath + dataset + '_GPC' + mc + ad + rev_s + '.pdf'
-    LAC_out_pdf = fitspath + dataset + '_LAC' + mc + ad + rev_s + '.pdf'
+    tempature_table = fitspath + 'bin_derived_properties' + rev_s + mc + ad + '.tbl'
+    pea_out_pdf = fitspath + dataset + '_GPC' + rev_s + mc + ad + '.pdf'
+    LAC_out_pdf = fitspath + dataset + '_LAC' + rev_s + mc + ad + '.pdf'
     print(tempature_table)
     temp_table = asc.read(tempature_table)
 
@@ -142,8 +142,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
-    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var,
-                                  label=label, marker=marker, silent=False)
+    # local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var, label=label, marker=marker, silent=False)
     print('finished LAC plot')
 
     # For Green Pea Calibration

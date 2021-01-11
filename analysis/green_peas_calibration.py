@@ -192,7 +192,6 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     fig, ax = plt.subplots()
 
     n_sample = len(lR23)
-    print('n_sample: ', n_sample)
 
     min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
     OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)

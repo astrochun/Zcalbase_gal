@@ -148,8 +148,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
     :param n_split: int. Number of times the log(R23) bins are split.
            Default: 3.  Only for 'Grid' case
-    :param y_correction: bool. Set to use smoothed (movingaverage_box1D)
-           version for spectrum in zoom_and_gauss_general. Default: False
+    :param y_correction: bool. Set to use smoothed ('movingaverage_box1D')
+           Version for spectrum in zoom_and_gauss_general. Default: False
     :param adaptive: bool. Set to use adaptive binning, otherwise equal
            log(R23) bins. Default: True
     :param apply_dust: bool. Apply dust correction. Default: False
@@ -327,15 +327,15 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
 
     Parameters
     ----------
-    :param fitspath: str. path to the location of files saved for each run
-    :param want: str. keyword to determine what part of the process needs to be run
-          options: binning_and_graphing, stack_mastergrid, zoom, R_cal_temp, line_ratio_plotting
+    :param fitspath: str. Path to the location of files saved for each run
+    :param want: str. Keyword to determine what part of the process needs to be run
+          Options are: "binning_and_graphing", "stack_mastergrid", "zoom", "R_cal_temp"
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
     :param n_split: int. Number of times the log(R23) bins are split.
            Default: 3.  Only for 'Grid' case
-    :param y_correction: bool. Set to use smoothed (movingaverage_box1D)
-           version for spectrum in zoom_and_gauss_general. Default: False
+    :param y_correction: bool. Set to use smoothed ('movingaverage_box1D')
+           Version for spectrum in zoom_and_gauss_general. Default: False
     :param adaptive: bool. Set to use adaptive binning, otherwise equal
            log(R23) bins. Default: True
     :param apply_dust: bool. Apply dust correction. Default: False
@@ -394,7 +394,7 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
             error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
 
         # Run Monte Carlo randomization calculations (option to apply dust correction)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_datha=True, apply_dust=False, revised=False)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
         if apply_dust:
             error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)

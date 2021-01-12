@@ -94,10 +94,10 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revis
     else:
         rev_s = '.valid1'
         verification = asc.read(join(fitspath, filename_dict['bin_valid']))
-    out_pdf = fitspath + 'temperature_metallicity_plots' + rev_s + mc + ad + '.pdf'
-    tempature_table = fitspath + 'bin_derived_properties' + rev_s + mc + ad + '.tbl'
-    print(tempature_table)
-    comp_derived = asc.read(tempature_table)
+    out_pdf = join(fitspath, 'temperature_metallicity_plots' + rev_s + mc + ad + '.pdf')
+    temperature_table = join(fitspath, 'bin_derived_properties' + rev_s + mc + ad + '.tbl')
+    print(temperature_table)
+    comp_derived = asc.read(temperature_table)
 
     # Individual Measurements
     if individual:
@@ -116,26 +116,22 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revis
         print("len:", len(iR23_idv))
 
     # DEEP2 and MACT Data
-    derived_table = fitspath_ini + '/DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'
-    MACT_table = fitspath_ini + '/MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'
-    derived = asc.read(derived_table)
+    DEEP_table = fitspath_ini + 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'
+    MACT_table = fitspath_ini + 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'
+    derived_DEEP = asc.read(DEEP_table)
     derived_MACT = asc.read(MACT_table)
 
     # DEEP2 Derived
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
-    der_R23 = np.log10(er_R23)
-    der_O32 = np.log10(er_O32)
-    der_Te = derived['Te'].data
-    der_OH = derived['OH'].data
-    ID_der = derived['ID'].data
+    der_R23 = np.log10(derived_DEEP['R23'].data)
+    der_O32 = np.log10(derived_DEEP['O32'].data)
+    der_Te = derived_DEEP['Te'].data
+    der_OH = derived_DEEP['OH'].data
+    ID_der = derived_DEEP['ID'].data
     # der_OH_log = np.log10(er_OH_log)
 
     # MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
-    der_R23_MACT = np.log10(er_R23_MACT)
-    der_O32_MACT = np.log10(er_O32_MACT)
+    der_R23_MACT = np.log10(derived_MACT['R23'].data)
+    der_O32_MACT = np.log10(derived_MACT['O32'].data)
     der_Te_MACT = derived_MACT['Te'].data
     der_OH_MACT = derived_MACT['OH'].data
     ID_der_MACT = derived_MACT['ID'].data
@@ -147,7 +143,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revis
     T_e_composite = comp_derived['T_e'].data
     metal_composite = comp_derived['12+log(O/H)'].data
 
-    #Verification Table
+    # Verification Table
     ver_detection = verification['Detection'].data
     ver_detect = np.where((ver_detection == 1))[0]
     ver_rlimit = np.where((ver_detection == 0.5))[0]

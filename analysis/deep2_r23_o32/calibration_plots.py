@@ -42,16 +42,17 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
         ad = '.dustcorr'
     else:
         ad = ''
-    tempature_table = fitspath + 'bin_derived_properties' + rev_s + mc + ad + '.tbl'
-    pea_out_pdf = fitspath + dataset + '_GPC' + rev_s + mc + ad + '.pdf'
-    LAC_out_pdf = fitspath + dataset + '_LAC' + rev_s + mc + ad + '.pdf'
-    temp_table = asc.read(tempature_table)
+
+    pea_out_pdf = join(fitspath, dataset + '_GPC' + rev_s + mc + ad + '.pdf')
+    LAC_out_pdf = join(fitspath, dataset + '_LAC' + rev_s + mc + ad + '.pdf')
+
+    temperature_table = fitspath + 'bin_derived_properties' + rev_s + mc + ad + '.tbl'
+    temp_table = asc.read(temperature_table)
 
     detect = verification['Detection']
     det_4363 = np.where(detect == 1)[0]
     rlimit = np.where(detect == 0.5)[0]
     print('det_4363: ', det_4363)
-    print(tempature_table)
     # print('Begin Local analog Calibration')
 
     # Tables of individual detections from DEEP2 and MACT samples
@@ -135,7 +136,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
-    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var, label=label, marker=marker, silent=False)
+    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var,
+                                  label=label, marker=marker, silent=False)
     print('finished LAC plot')
 
     # For Green Pea Calibration

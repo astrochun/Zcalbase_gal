@@ -44,6 +44,7 @@ def balmer_fitting_test(dataset):
             idx = np.where(np.absolute(wave - ii) <= 5)[0]
             if len(idx) > 0:
                 lineflag[idx] = 1
+
     # Voronoi14
     if dataset == 'Voronoi14':
         Stack_name = 'Stacking' + dataset + 'output.pdf'

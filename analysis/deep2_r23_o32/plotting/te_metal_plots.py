@@ -404,10 +404,8 @@ def bian_comparison(fitspath, fitspath_ini):
     derived_MACT = asc.read(join(fitspath_ini, 'MACT_R23_O32_derived.tbl'))
 
     # DEEP2 Derived
-    deep_r23 = derived['R23'].data
-    deep_o32 = derived['O32'].data
-    deep2_r23 = np.log10(deep_r23)
-    deep2_o32 = np.log10(deep_o32)
+    deep2_r23 = np.log10(derived['R23'].data)
+    deep2_o32 = np.log10(derived['O32'].data)
     deep2_oh = derived['OH'].data
 
     # MACT Derived
@@ -452,7 +450,6 @@ def bian_comparison(fitspath, fitspath_ini):
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker='D', color='b', alpha=0.75, label='Detections')
     ax.scatter(deep2_r23, bR23_DEEP, marker='3', color='r', label='DEEP2 Individual Spectra')
-
     ax.scatter(der_R23_MACT, bR23_MACT, marker='4', color='m', label='MACT Individual Spectra')
     for aa in range(len(valid_ID)):
         ax.annotate(valid_ID[aa], (lR23[aa], jR23_det[aa]), fontsize='6')

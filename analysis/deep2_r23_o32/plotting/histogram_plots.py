@@ -115,9 +115,6 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
         if hist_name == 'R23_pdf':
             calculated_value = R23_combine[detection]
         
-        # if hist_name == '4959/HBETA': calculated_value = O4959_HBETA
-        # if hist_name == '4959/3727' : calculated_value = O4959_O3727
-        # if hist_name == '4363/4959': calculated_value =  O4363_O4959
         
         if len(calculated_value) % 2 == 0:
             nrows = len(calculated_value)//2

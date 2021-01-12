@@ -28,8 +28,6 @@ def bian18_R23(OH):
     R23_p = np.poly1d(R23_coeff)
 
     return R23_p(OH)
-# enddef
-
 
 def bian18_O32(O32):
     """
@@ -43,8 +41,6 @@ def bian18_O32(O32):
     OH = 8.54 - 0.59 * O32
 
     return OH
-# enddef
-
 
 def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
          OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''], marker=[],
@@ -175,7 +171,6 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
 
     if not silent:
         log.info('### End main : '+systime())
-# enddef
 
 
 def get_measurements(data):
@@ -199,8 +194,6 @@ def get_measurements(data):
     lO32_err = np.row_stack((lO32_lo, lO32_hi))
 
     return lR23, lO32, OH, OH_err, lR23_err, lO32_err
-# enddef
-
 
 def get_DEEP2(path0):
     """
@@ -215,8 +208,6 @@ def get_DEEP2(path0):
     lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
     return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err
-# enddef
-
 
 def get_MACT(path0):
     """
@@ -231,8 +222,6 @@ def get_MACT(path0):
     lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
     return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err
-# enddef
-
 
 def DEEP2_OIII4363():
     """
@@ -249,7 +238,6 @@ def DEEP2_OIII4363():
          lO32_err=[lO32_err], OH_err=[OH_err], R23_xra=[0.75, 1.05],
          O32_xra=[0.05, 0.95], yra=[7.1, 8.65], label=[r'DEEP2 (Ly+2015)'])
 
-# enddef
 
 
 def MACT_OIII4363():
@@ -308,7 +296,6 @@ def DEEP2_MACT_OIII4363():
     main(lR23, lO32, OH, out_pdf, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6, 1.15], O32_xra=[-0.55, 2.1],
          yra=[7.1, 8.85], ctype=['blue', 'green'], label=labels)
-# enddef
 
 
 def zcalbase():

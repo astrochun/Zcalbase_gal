@@ -50,7 +50,7 @@ def jiang18(x, y):
     logR23 = O32_OH_fit(xy, * jiang18_coeffs)
 
     return logR23
-# enddef
+
 
 
 def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=4,
@@ -150,7 +150,6 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
 
     fig.savefig(out_diff_pdf)
-# enddef
 
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
@@ -259,7 +258,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
         for ii in range(n_bins):
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
-            y_ii_max = bin_end[ii]   # y_min + (ii+1) * dy
+            y_ii_max = bin_end[ii]    # y_min + (ii+1) * dy
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
             print('idx: ', idx)
             
@@ -298,8 +297,6 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                             color=ctype[ii], xycoords='data', ha='center',
                             va='bottom', fontsize=8)
                 ax.plot(mod_logR23, x_arr, color=ctype[ii], linestyle='dashed')
-        # endfor
-    # endfor
 
     # if len(xra) != 0: ax.set_xlim(xra)
     # if len(yra) != 0: ax.set_ylim(yra)
@@ -348,7 +345,6 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                          label=label, IDs=nIDs)
         if not silent: 
             log.info('### End main : '+systime())
-# enddef
 
 
 def get_measurements(data):
@@ -367,7 +363,6 @@ def get_measurements(data):
     lR23_err = np.row_stack((lR23_lo, lR23_hi))
 
     return lR23, lO32, OH, OH_err, lR23_err
-# enddef
 
 
 def get_zcalbase_sample(prefix, dir=''):
@@ -397,7 +392,6 @@ def get_zcalbase_sample(prefix, dir=''):
     # OH_err = np.row_stack((data1.OH_gas_lo, data1.OH_gas_hi))
 
     return lR23, lO32, OH
-# enddef
 
 
 def get_DEEP2(path0):
@@ -413,7 +407,6 @@ def get_DEEP2(path0):
     lR23, lO32, OH, OH_err, lR23_err = get_measurements(data)
 
     return data, lR23, lO32, OH, OH_err, lR23_err
-# enddef
 
 
 def get_MACT(path0):
@@ -434,7 +427,6 @@ def get_MACT(path0):
     lR23, lO32, OH, OH_err, lR23_err = get_measurements(data)
 
     return data, lR23, lO32, OH, OH_err, lR23_err
-# enddef
 
 
 def DEEP2_OIII4363():
@@ -454,8 +446,6 @@ def DEEP2_OIII4363():
     # main([lR23], [lO32], [OH], out_pdf, lR23_err=[lR23_err], OH_err=[OH_err],
     # xra=[0.75,1.05], yra=[7.1,8.65], fit=True)
 
-# enddef
-
 
 def MACT_OIII4363():
     """
@@ -472,8 +462,6 @@ def MACT_OIII4363():
     out_pdf = path0 + 'MACT_R23_O32_Jiang18.fit.pdf'
     main([lR23], [lO32], [OH], out_pdf, n_bins=6, lR23_err=[lR23_err],
          OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7], fit=True)
-
-# enddef
 
 
 def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
@@ -519,7 +507,6 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
         OH_err += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
         lR23_err += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
         print(OH_err)
-    # endif
 
     out_pdf = join(path0, 'MACT_DEEP2_R23_O32_Jiang18.pdf')
     label = [r'$\mathcal{MACT}$  (Ly+2016)',

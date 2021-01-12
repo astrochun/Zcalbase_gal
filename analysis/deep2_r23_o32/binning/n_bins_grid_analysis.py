@@ -47,7 +47,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     number_inbin = np.zeros(inbin_shape)   # Used to be N_arr0
     locator = np.zeros((n_bins, n_split), dtype=object)  # Used to be T_arr
     O32_minimum = np.zeros(inbin_shape)    # Used to be O32_grid
-    R23_minimum = np.zeros(inbin_shape)      # Used to be R23_grid
+    R23_minimum = np.zeros(inbin_shape)    # Used to be R23_grid
     O32_median = np.zeros(inbin_shape)
     R23_median = np.zeros(inbin_shape)
     O32_max = np.zeros(inbin_shape)

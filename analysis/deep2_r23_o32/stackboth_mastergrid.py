@@ -9,6 +9,7 @@ Emission lines in spectrum (not all being used currently in study) See MSC for s
 [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46,
 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -35,6 +36,7 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
 
 def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=True):
     """
+
     Purpose
     Function stacks all spectra in a given bin and produces tables of properties of that bin
 
@@ -166,9 +168,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name, mask=
                 fig.tight_layout()
                 plt.draw()
                 pdf_pages.savefig(fig)
-
                 count += 1
-            # endif else: count +=1
+
     pdf_pages.close()
 
     # Writing fits file

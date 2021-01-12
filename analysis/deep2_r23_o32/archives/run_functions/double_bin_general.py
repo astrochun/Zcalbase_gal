@@ -1,56 +1,53 @@
-
-
 import numpy as np
 from astropy.io import fits
 from astropy.io import ascii as asc
-from astropy.table import vstack, hstack
-from astropy.table import Table
 import os
 from os.path import exists, join
 import glob
 from datetime import date
 
-def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='None'):
-    #dataset must equal Double_bin
-    
+from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_mastergrid, \
+    zoom_and_gauss_general, hstack_tables, r_temp_calcul, calibration_plots, name_dict
+from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fixed_grid_analysis, \
+    single_grid_o32, single_grid_r23
+from Zcalbase_gal.analysis.deep2_r23_o32.plotting import more_plots, line_ratio_plotting, te_metal_plots
+from Zcalbase_gal.analysis.deep2_r23_o32.general import get_det3
+from Metallicity_Stack_Commons import exclude_outliers, dir_date,lambda0, \
+    line_type, line_name, valid_table, get_user
+from Metallicity_Stack_Commons.column_names import filename_dict
+from Metallicity_Stack_Commons.plotting import balmer
+from Metallicity_Stack_Commons.analysis import attenuation, composite_indv_detect, error_prop
+
+
+def run_two_times_binned_analysis(dataset,y_correction, adaptive=False, mask='None'):
+    # dataset must equal Double_bin
     
     R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()
 
-
     if dataset == 'Double_Bin':
-        if adaptive == False: galinbin = [400,400,400,400,400,400,409] #Each bin will be split in half
-        if adaptive == True: galinbin = [458,450,400,300,300,275,250,200,176] #Must sum to 2809 
+        # Each bin will be split in half
+        # Must sum to 2809
+        if not adaptive:
+            galinbin = [400, 400, 400, 400, 400, 400, 409]
+        else:
+            galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
         pdf_pages = fitspath +'double_grid.pdf'
         grid_data_file = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath,
-                                                         pdf_pages,
-                                                         grid_data_file,
-                                                         R23,
-                                                         O32,
-                                                         O2,
-                                                         O3,
-                                                         Hb,
-                                                         SNR2,
-                                                         SNR3,
-                                                         SNRH,
-                                                         det3,
-                                                         data3,
-                                                         galinbin,
-                                                         adaptive) 
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, grid_data_file, R23, O32, O2, O3,
+                                                         Hb, SNR2, SNR3, SNRH, det3, data3, galinbin, adaptive)
         
 
-    #Stacking_MASKED_MASTERGRID
+    # Stacking_MASKED_MASTERGRID
     Stack_name = 'Stacking_Masked_MasterGrid_single'+dataset+'.pdf' 
-    Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,fitspath_ini, dataset, Stack_name,grid_data_file)
+    Stackboth_MasterGrid.run_Stacking_Master_mask(det3, data3, fitspath,
+                                                  fitspath_ini, dataset, Stack_name, grid_data_file)
 
-    #Outfile and pdf both use name
+    # Outfile and pdf both use name
     print('finished with stacking,' + Stack_name + ' pdf and fits files created')
 
-
-
-    #Zoom_and_gauss_general
+    # Zoom_and_gauss_general
 
     Stack_name= Stack_name.replace('.pdf', '.fits')
     outfile_voronoi = fitspath+ Stack_name
@@ -75,12 +72,12 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
         #asc_tab = asc.read(tab)
             
     #Option to change: Constants used as initial guesses for gaussian fit
-    s=1.0
-    a= 1.0
+    s = 1.0
+    a = 1.0
     c = 2.0
         
-    s1=1.3
-    a1= 4.7
+    s1 = 1.3
+    a1 = 4.7
     s2 = 10.0
     a2 = -2.0
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,lineflag, dispersion, y_correction, s,a,c,s1,a1,s2,a2,tab=asc_table1)
@@ -132,4 +129,3 @@ def run_two_times_binned_analysis(dataset,y_correction, adaptive = False, mask='
     more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
     more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_ascii, m_ver_table)
     more_plots.hist_for_bin(dataset, asc_table2)
-

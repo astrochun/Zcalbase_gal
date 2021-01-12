@@ -35,8 +35,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
     if apply_dust:
         suffix += '.dustcorr'
 
-    pea_out_pdf = join(fitspath, dataset + '_GPC' + suffix + '.pdf')
-    LAC_out_pdf = join(fitspath, dataset + '_LAC' + suffix + '.pdf')
+    pea_out_pdf = join(fitspath, f"{dataset}_GPC{suffix}.pdf")
+    LAC_out_pdf = join(fitspath, f"{dataset}_LAC{suffix}.pdf")
 
     # Validation Table Call
     if revised:

@@ -14,7 +14,6 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
-from Metallicity_Stack_Commons import fitspath_reagen as fitspath_ini
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 jiang_coeff = [-24.135, 6.1532, -0.37866, -0.147, -7.071]
@@ -36,9 +35,10 @@ def jiang_calibration(metal_det, lo32):
     """
 
     p_jiang = np.poly1d([jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]])
-    shortcut = p_jiang(metal_det)\
-            + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+    shortcut = p_jiang(metal_det) + \
+               jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
     return shortcut
+
 
 def bian_calibration_r23(metal_det):
     """
@@ -65,10 +65,10 @@ def bian_calibration_o32(metal_det):
     Parameters
     metal_det -> dictionary of 12+log(O/H)
     """
-    return (-1 / 0.59) * (metal_det- 8.54)
+    return (-1 / 0.59) * (metal_det - 8.54)
 
 
-def plotting_te_metal(fitspath, revised=False):
+def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revised=False, individual=False):
     """
     Purpose
     Plotting metallicity, temperature, R23, and O32 for different datasets
@@ -79,142 +79,145 @@ def plotting_te_metal(fitspath, revised=False):
             -> refers to if using the bin_derived_prop_revised temperature
                      and metallicity measurements which right now implement dust attenuation
     """
-    indv_all_file = join(fitspath, filename_dict['indv_bin_info'])
+    suffix = ''
+    if not revised:
+        suffix += '.valid1'
+
+    if not raw:
+        suffix += '.MC'
+
+    if apply_dust:
+        suffix += '.dustcorr'
+
+    out_pdf = join(fitspath, f"temperature_metallicity_plots{suffix}.pdf")
+    temperature_table = join(fitspath, f"bin_derived_properties{suffix}.tbl")
+    print(temperature_table)
+    comp_derived = asc.read(temperature_table)
 
     if revised:
-        composite_file = join(fitspath, filename_dict['bin_derived_prop_rev'])
-        out_pdf = join(fitspath, 'temperature_metallicity_revised.pdf')
+        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
     else:
-        composite_file = join(fitspath, filename_dict['bin_derived_prop'])
-        out_pdf = join(fitspath, 'temperature_metallicity_plots.pdf')
+        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
 
-    # Composite bin derived properties
-    comp_derived = asc.read(composite_file)
     # Individual Measurements
-    indv_all = asc.read(indv_all_file)
-    
-    iID = indv_derived['ID']
-    iTe = indv_derived['T_e']
-    icom_log = indv_derived['12+log(O/H)']
-    ilogR23 = indv_all['logR23']
-    ilogO32 = indv_all['logO32']
-    print(ilogR23)
-    
-    # icom_nan = np.isnan(icom_log)
-    iidx = np.where((icom_log != 0.0))[0]
+    if individual:
+        indv_all_file = join(fitspath, filename_dict['indv_bin_info'])
+        indv_all = asc.read(indv_all_file)
 
-    iID_idv  = iID[iidx]
-    iTe_idv  = iTe[iidx]
-    icom_idv = icom_log[iidx]
-    iiR23_idv = ilogR23[iidx]
-    iiO32_idv = ilogO32[iidx]
-    iR23_idv = np.log10(iiR23_idv)
-    iO32_idv = np.log10(iiO32_idv)
-    print("len:", len(iR23_idv))
-    
+        icom_log = indv_all['12+log(O/H)']
+        ilogR23 = indv_all['logR23']
+        ilogO32 = indv_all['logO32']
+        iidx = np.where((icom_log != 0.0))[0]
+
+        iiR23_idv = ilogR23[iidx]
+        iiO32_idv = ilogO32[iidx]
+        iR23_idv = np.log10(iiR23_idv)
+        iO32_idv = np.log10(iiO32_idv)
+        print("len:", len(iR23_idv))
+
     # DEEP2 and MACT Data
-    derived = asc.read(fitspath_ini +'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini +'MACT_R23_O32_derived.tbl')
+    DEEP_table = join(fitspath_ini, 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl')
+    MACT_table = join(fitspath_ini, 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl')
+    derived_DEEP = asc.read(DEEP_table)
+    derived_MACT = asc.read(MACT_table)
 
     # DEEP2 Derived
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
-    der_R23 = np.log10(er_R23)
-    der_O32 = np.log10(er_O32)
-    der_Te = derived['Te'].data
-    der_OH = derived['OH'].data
-    ID_der = derived['ID'].data
+    der_R23 = np.log10(derived_DEEP['R23'].data)
+    der_O32 = np.log10(derived_DEEP['O32'].data)
+    der_Te = derived_DEEP['Te'].data
+    der_OH = derived_DEEP['OH'].data
+    ID_der = derived_DEEP['ID'].data
     # der_OH_log = np.log10(er_OH_log)
 
     # MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
-    der_R23_MACT = np.log10(er_R23_MACT)
-    der_O32_MACT = np.log10(er_O32_MACT)
+    der_R23_MACT = np.log10(derived_MACT['R23'].data)
+    der_O32_MACT = np.log10(derived_MACT['O32'].data)
     der_Te_MACT = derived_MACT['Te'].data
     der_OH_MACT = derived_MACT['OH'].data
     ID_der_MACT = derived_MACT['ID'].data
-    
+
     # Composite Measurements
-    R23_composite = comp_derived['logR23_Composite'].data
-    O32_composite = comp_derived['logO32_Composite'].data
+    R23_composite = comp_derived['logR23_composite'].data
+    O32_composite = comp_derived['logO32_composite'].data
     ID_composite = comp_derived['bin_ID'].data
     T_e_composite = comp_derived['T_e'].data
     metal_composite = comp_derived['12+log(O/H)'].data
-    ver_detection = comp_derived['Detection'].data
 
-    ver_detect = np.where((ver_detection ==1))[0]
-    ver_rlimit = np.where((ver_detection ==0.5))[0]
+    # Verification Table
+    ver_detection = verification['Detection'].data
+    ver_detect = np.where((ver_detection == 1))[0]
+    ver_rlimit = np.where((ver_detection == 0.5))[0]
 
     pdf_pages = PdfPages(out_pdf)
+    if individual:
+        fig, ax = plt.subplots()
+        ax.scatter(iR23_idv, iO32_idv, marker='.', s=35, color='g')
+        ax.set_title(r'$R_{23}$ vs. $O_{32}$')
+        ax.set_xlabel(r'log($R_{23}$)')
+        ax.set_ylabel(r'log($O_{32}$)')
+        fig.savefig(pdf_pages, format='pdf')
+        fig.clear()
 
-    fig, ax = plt.subplots()
-    ax.scatter(iR23_idv, iO32_idv, marker='.', s=35, color='g')
-    ax.set_title(r'$R_{23}$ vs. $O_{32}$')
-    ax.set_xlabel(r'log($R_{23}$)')
-    ax.set_ylabel(r'log($O_{32}$)')
-    fig.savefig(pdf_pages, format ='pdf')
-    fig.clear()
-##################################################################################################
+    # ########################################################################
     fig1, ax1 = plt.subplots()
 
-    ax1.scatter(T_e_composite[ver_detect], R23_composite[ver_detect], marker = '.',s = 50, color = 'b')
-    ax1.scatter(T_e_composite[ver_rlimit], R23_composite[ver_rlimit], marker = '<',s = 35, color = 'b')
+    ax1.scatter(T_e_composite[ver_detect], R23_composite[ver_detect], marker='.', s=50, color='b')
+    ax1.scatter(T_e_composite[ver_rlimit], R23_composite[ver_rlimit], marker='<', s=35, color='b')
     for xx in ver_detect:
-        ax1.annotate(ID_composite[xx], (T_e_composite[xx], R23_composite[xx]), fontsize = '6')
+        ax1.annotate(ID_composite[xx], (T_e_composite[xx], R23_composite[xx]), fontsize='6')
     for xx in ver_rlimit:
-        ax1.annotate(ID_composite[xx], (T_e_composite[xx], R23_composite[xx]), fontsize = '6')
-    
-    ax1.scatter(der_Te, der_R23, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for b in range(len(ID_der)):
-        ax1.annotate(ID_der[b], (der_Te[b], der_R23[b]), fontsize = '2')
+        ax1.annotate(ID_composite[xx], (T_e_composite[xx], R23_composite[xx]), fontsize='6')
 
-    ax1.scatter(der_Te_MACT, der_R23_MACT, s =20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
+    ax1.scatter(der_Te, der_R23, s=20, marker='*', color='k', edgecolors='None')
+    for b in range(len(ID_der)):
+        ax1.annotate(ID_der[b], (der_Te[b], der_R23[b]), fontsize='2')
+
+    ax1.scatter(der_Te_MACT, der_R23_MACT, s=20, marker='P', color='r', alpha=0.5, edgecolors='None')
     for q in range(len(ID_der_MACT)):
-        ax1.annotate(ID_der_MACT[q], (der_Te_MACT[q], der_R23_MACT[q]), fontsize= '2')
+        ax1.annotate(ID_der_MACT[q], (der_Te_MACT[q], der_R23_MACT[q]), fontsize='2')
 
     ax1.set_xlabel('Temperature (K)')
     ax1.set_ylabel(r'$R_{23}$')
     ax1.set_title(r'Temperatures vs $R_{23}$ Temperature')
 
-    fig1.savefig(pdf_pages, format ='pdf')
+    fig1.savefig(pdf_pages, format='pdf')
     fig1.clear()
 
-##################################################################################################
-    fig2,ax2 = plt.subplots()
+    # ########################################################################
+    fig2, ax2 = plt.subplots()
 
-    ax2.scatter(T_e_composite[ver_detect], O32_composite[ver_detect], marker = '.',s=50, color = 'b')
-    ax2.scatter(T_e_composite[ver_rlimit], O32_composite[ver_rlimit], marker = '<',s=35, color = 'b')
+    ax2.scatter(T_e_composite[ver_detect], O32_composite[ver_detect], marker='.', s=50, color='b')
+    ax2.scatter(T_e_composite[ver_rlimit], O32_composite[ver_rlimit], marker='<', s=35, color='b')
     for c in ver_detect:
-        ax2.annotate(ID_composite[c], (T_e_composite[c], O32_composite[c]), fontsize = '6')
+        ax2.annotate(ID_composite[c], (T_e_composite[c], O32_composite[c]), fontsize='6')
     for c in ver_rlimit:
-        ax2.annotate(ID_composite[c], (T_e_composite[c], O32_composite[c]), fontsize = '6')
+        ax2.annotate(ID_composite[c], (T_e_composite[c], O32_composite[c]), fontsize='6')
 
-    ax2.scatter(der_Te, der_O32, s=20, marker = '*', color = 'k',edgecolors = 'None')
+    ax2.scatter(der_Te, der_O32, s=20, marker='*', color='k', edgecolors='None')
     for f in range(len(ID_der)):
-        ax2.annotate(ID_der[f], (der_Te[f], der_O32[f]), fontsize = '2')
+        ax2.annotate(ID_der[f], (der_Te[f], der_O32[f]), fontsize='2')
 
-    ax2.scatter(der_Te_MACT, der_O32_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors ='None')
+    ax2.scatter(der_Te_MACT, der_O32_MACT, s=20, marker='P', color='r', alpha=0.5, edgecolors='None')
     for s in range(len(ID_der_MACT)):
-        ax2.annotate(ID_der_MACT[s], (der_Te_MACT[s], der_O32_MACT[s]), fontsize= '2')
-    
+        ax2.annotate(ID_der_MACT[s], (der_Te_MACT[s], der_O32_MACT[s]), fontsize='2')
+
     ax2.set_xlabel('Temperature (K)')
     ax2.set_ylabel(r'$O_{32}$')
     ax2.set_title(r'Temperatures vs $O_{32}$ Temperature')
 
-    fig2.savefig(pdf_pages, format ='pdf')
+    fig2.savefig(pdf_pages, format='pdf')
     fig2.clear()
-    
-##################################################################################################
-    fig3,ax3 = plt.subplots()
-    ax3.scatter(R23_composite[ver_detect], metal_composite[ver_detect], marker = '.', s = 50, color = 'b')
-    ax3.scatter(R23_composite[ver_rlimit], metal_composite[ver_rlimit], marker = '^', s = 35, color = 'b')
+
+    # ########################################################################
+    fig3, ax3 = plt.subplots()
+    ax3.scatter(R23_composite[ver_detect], metal_composite[ver_detect], marker='.', s=50, color='b')
+    ax3.scatter(R23_composite[ver_rlimit], metal_composite[ver_rlimit], marker='^', s=35, color='b')
     for zz in ver_detect:
-        ax3.annotate(ID_composite[zz], (R23_composite[zz],metal_composite[zz]), fontsize = '6')
+        ax3.annotate(ID_composite[zz], (R23_composite[zz], metal_composite[zz]), fontsize='6')
     for zz in ver_rlimit:
-        ax3.annotate(ID_composite[zz], (R23_composite[zz],metal_composite[zz]), fontsize = '6')
-    
-    ax3.scatter(der_R23, der_OH, s= 20, marker = '*', color = 'k', edgecolors = 'None')
+        ax3.annotate(ID_composite[zz], (R23_composite[zz], metal_composite[zz]), fontsize='6')
+
+    ax3.scatter(der_R23, der_OH, s=20, marker='*', color='k', edgecolors='None')
     for gg in range(len(ID_der)):
         ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize='2')
     ax3.scatter(der_R23_MACT, der_OH_MACT, s=20, marker='P', color='r', alpha=0.5, edgecolors='None')
@@ -226,39 +229,43 @@ def plotting_te_metal(fitspath, revised=False):
     ax3.set_ylabel('12+log(O/H)')
     ax3.set_title(r'$R_{23}$ vs. Composite Metallicity')
 
-    fig3.savefig(pdf_pages, format ='pdf')
+    fig3.savefig(pdf_pages, format='pdf')
     fig3.clear()
-    
-##################################################################################################
-    fig4,ax4 = plt.subplots()
-    ax4.scatter(O32_composite[ver_detect], metal_composite[ver_detect], marker = '.',s =50, color = 'b')
-    ax4.scatter(O32_composite[ver_rlimit], metal_composite[ver_rlimit], marker = '^',s =35, color = 'b')
+
+    # ########################################################################
+    fig4, ax4 = plt.subplots()
+    ax4.scatter(O32_composite[ver_detect], metal_composite[ver_detect],
+                marker='.', s=50, color='b')
+    ax4.scatter(O32_composite[ver_rlimit], metal_composite[ver_rlimit],
+                marker='^', s=35, color='b')
 
     for ww in ver_detect:
-        ax4.annotate(ID_composite[ww], (O32_composite[ww], metal_composite[ww]), fontsize = '6')
+        ax4.annotate(ID_composite[ww], (O32_composite[ww], metal_composite[ww]),
+                     fontsize='6')
     for ww in ver_rlimit:
-        ax4.annotate(ID_composite[ww], (O32_composite[ww], metal_composite[ww]), fontsize = '6')
-    
-    ax4.scatter(der_O32,der_OH, s=20, marker = '*', color = 'k', edgecolors = 'None')
-    for hh in range(len(ID_der)):
-        ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize = '2')
+        ax4.annotate(ID_composite[ww], (O32_composite[ww], metal_composite[ww]),
+                     fontsize='6')
 
-    ax4.scatter(der_O32_MACT,der_OH_MACT, s=20, marker = 'P', color = 'r', alpha = 0.5, edgecolors = 'None')
+    ax4.scatter(der_O32, der_OH, s=20, marker='*', color='k', edgecolors='None')
+    for hh in range(len(ID_der)):
+        ax4.annotate(ID_der[hh], (der_O32[hh], der_OH[hh]), fontsize='2')
+
+    ax4.scatter(der_O32_MACT, der_OH_MACT, s=20, marker='P', color='r',
+                alpha=0.5, edgecolors='None')
     for h in range(len(ID_der_MACT)):
-        ax4.annotate(ID_der_MACT[h], (der_O32_MACT[h], der_OH_MACT[h]), fontsize= '2')
+        ax4.annotate(ID_der_MACT[h], (der_O32_MACT[h], der_OH_MACT[h]), fontsize='2')
 
     ax4.set_xlabel(r'$O_{32}$')
     ax4.set_ylabel('12+log(O/H)')
     ax4.set_title(r'$O_{32}$ vs. Composite Metallicity')
-    fig4.savefig(pdf_pages, format ='pdf')
+    fig4.savefig(pdf_pages, format='pdf')
     fig4.clear()
 
-
-##################################################################################################        
+    # ########################################################################
     pdf_pages.close()
-        
 
-def jiang_comparison(fitspath):
+
+def jiang_comparison(fitspath, fitspath_ini):
     """
     Purpose
     To calculate the difference between the predicted Jiang calibration and the measured values 
@@ -279,7 +286,7 @@ def jiang_comparison(fitspath):
     x = 12+log(O/H)
     y = log(O32)
     """
-    
+
     validation = asc.read(join(fitspath, 'bin_validation.revised.tbl'))
     temp_tab = asc.read(join(fitspath, 'bin_derived_properties.tbl'))
 
@@ -307,21 +314,20 @@ def jiang_comparison(fitspath):
 
     derived = asc.read(join(fitspath_ini, 'DEEP2_R23_O32_derived.tbl'))
     derived_mact = asc.read(join(fitspath_ini, 'MACT_R23_O32_derived.tbl'))
-    
+
     # DEEP2 Derived
     er_r23 = derived['R23'].data
     er_o32 = derived['O32'].data
     der_r23 = np.log10(er_r23)
     der_o32 = np.log10(er_o32)
     der_oh = derived['OH'].data
-    
+
     # MACT Derived
     er_r23_mact = derived_mact['R23'].data
     er_o32_mact = derived_mact['O32'].data
     der_r23_mact = np.log10(er_r23_mact)
     der_o32_mact = np.log10(er_o32_mact)
     der_oh_mact = derived_mact['OH'].data
-
 
     jR23_det = jiang_calibration(metal_det, lO32)
     A_comparison = (jR23_det - lR23)
@@ -340,7 +346,7 @@ def jiang_comparison(fitspath):
     avg0 = np.average(arr_sum)
     sig0 = np.std(arr_sum)
     print(f'med: {med0} avg: {avg0} sig: {sig0}')
-    
+
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker='D', color='b', alpha=0.75, label='Composite Detections')
     for aa in range(len(valid_id)):
@@ -355,13 +361,13 @@ def jiang_comparison(fitspath):
     an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
-    ax.annotate(an_txt, [0.2,0.015], xycoords='axes fraction', va='bottom', ha='right',fontsize=10)
-    
-    fig.savefig(pdf_pages, format ='pdf')
+    ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction', va='bottom', ha='right', fontsize=10)
+
+    fig.savefig(pdf_pages, format='pdf')
     pdf_pages.close()
 
-    
-def bian_comparison(fitspath):
+
+def bian_comparison(fitspath, fitspath_ini):
     """
     Purpose 
     To calculate the difference between the predicted Bian calibration and the measured values 
@@ -373,11 +379,11 @@ def bian_comparison(fitspath):
     fitspath -> path to where files come and are saved to 
     
     """
-    #Do we need an option for revised?
-    validation = asc.read(fitspath + 'bin_validation.revised.tbl')
-    temp_tab = asc.read(fitspath + 'bin_derived_properties.tbl')
+    # Do we need an option for revised?
+    validation = asc.read(join(fitspath, 'bin_validation.revised.tbl'))
+    temp_tab = asc.read(join(fitspath, 'bin_derived_properties.tbl'))
 
-    pdf_pages = PdfPages(fitspath+'comparsion_Bian_Zcal.pdf')
+    pdf_pages = PdfPages(join(fitspath, 'comparsion_Bian_Zcal.pdf'))
 
     bin_ID = temp_tab['bin_ID']
     lR23_comp = temp_tab['logR23_Composite']
@@ -386,7 +392,6 @@ def bian_comparison(fitspath):
 
     valid = validation['Detection']
     detect = np.where((valid == 1.0))[0]
-    rlimit = np.where((valid == 0.5))[0]
 
     valid_ID = bin_ID[detect]
 
@@ -395,14 +400,14 @@ def bian_comparison(fitspath):
 
     metal_det = zmetal[detect]
 
-    derived = asc.read(fitspath_ini + 'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini + 'MACT_R23_O32_derived.tbl')
-    
+    derived = asc.read(join(fitspath_ini, 'DEEP2_R23_O32_derived.tbl'))
+    derived_MACT = asc.read(join(fitspath_ini, 'MACT_R23_O32_derived.tbl'))
+
     # DEEP2 Derived
     deep2_r23 = np.log10(derived['R23'].data)
     deep2_o32 = np.log10(derived['O32'].data)
     deep2_oh = derived['OH'].data
-    
+
     # MACT Derived
     er_R23_MACT = derived_MACT['R23'].data
     er_O32_MACT = derived_MACT['O32'].data
@@ -438,28 +443,26 @@ def bian_comparison(fitspath):
     print('concatenate array: ', arr_sum)
     print('med: ', med0, 'avg: ', avg0, 'sig: ', sig0)
 
-    n = ('DEEP2 x', 'DEEP2 y')
-    np.savez(fitspath + 'bian_comparison_xandy_values.npz', DEEPx=deep_r23, DEEPy=bR23_DEEP,
-             MACTx= der_R23_MACT, MACTy=bR23_MACT)
-    n2 = ('MACT x', 'MACT y')
+    np.savez(join(fitspath, 'bian_comparison_xandy_values.npz'),
+             DEEPx=deep_r23, DEEPy=bR23_DEEP, MACTx=der_R23_MACT,
+             MACTy=bR23_MACT)
 
     fig, ax = plt.subplots()
     ax.scatter(lR23, jR23_det, marker='D', color='b', alpha=0.75, label='Detections')
     ax.scatter(deep2_r23, bR23_DEEP, marker='3', color='r', label='DEEP2 Individual Spectra')
-    
     ax.scatter(der_R23_MACT, bR23_MACT, marker='4', color='m', label='MACT Individual Spectra')
     for aa in range(len(valid_ID)):
         ax.annotate(valid_ID[aa], (lR23[aa], jR23_det[aa]), fontsize='6')
-    ax.set_xlabel('Observed '+r'$log(R_{23})$')
-    ax.set_ylabel('Estimated '+r'$log(R_{23})$')
-    plt.plot(lR23, lR23, 'k', label = 'One to one line')
+    ax.set_xlabel('Observed ' + r'$log(R_{23})$')
+    ax.set_ylabel('Estimated ' + r'$log(R_{23})$')
+    plt.plot(lR23, lR23, 'k', label='One to one line')
     plt.legend()
 
     an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
     ax.annotate(an_txt, [0.2, 0.85], xycoords='axes fraction', va='bottom', ha='right', fontsize=10)
-    
+
     fig.savefig(pdf_pages, format='pdf')
     fig.clear()
 
@@ -470,23 +473,22 @@ def bian_comparison(fitspath):
 
     print(arr_sum1)
     print('med: ', medO0, 'avg: ', avgO0, 'sig: ', sigO0)
-    
+
     fig, ax = plt.subplots()
     ax.scatter(lO32, jO32_det, marker='D', color='b', label='Detections')
     ax.scatter(deep2_o32, bO32_DEEP, marker='3', color='r', label='DEEP2 Individual Spectra')
     ax.scatter(der_O32_MACT, bO32_MACT, marker='4', color='m', label='MACT Individual Spectra')
     for aa in range(len(valid_ID)):
         ax.annotate(valid_ID[aa], (lO32[aa], jO32_det[aa]), fontsize='6')
-    ax.set_xlabel('Observed '+r'$log(O_{32})$ ')
-    ax.set_ylabel('Estimated '+r'$log(O_{32})$')
+    ax.set_xlabel('Observed ' + r'$log(O_{32})$ ')
+    ax.set_ylabel('Estimated ' + r'$log(O_{32})$')
     plt.plot(jO32_det, jO32_det, 'k', label='One to one line')
     plt.legend()
 
     an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avgO0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % medO0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sigO0
-    ax.annotate(an_txt, [0.2, 0.85], xycoords='axes fraction', va='bottom', ha='right',fontsize=10)
-    
+    ax.annotate(an_txt, [0.2, 0.85], xycoords='axes fraction', va='bottom', ha='right', fontsize=10)
 
     fig.savefig(pdf_pages, format='pdf')
     pdf_pages.close()

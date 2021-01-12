@@ -8,7 +8,7 @@ from Zcalbase_gal.analysis import local_analog_calibration, green_peas_calibrati
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
 
-def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=False):
+def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, revised=False, individual=False):
     """
     Purpose:
       Call function for calculating and plotting data points based with the green_pea_calibration
@@ -25,25 +25,38 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
       pdf_files
     """
 
+    suffix = ''
+    if not revised:
+        suffix += '.valid1'
+
+    if not raw:
+        suffix += '.MC'
+
+    if apply_dust:
+        suffix += '.dustcorr'
+
+    pea_out_pdf = join(fitspath, f"{dataset}_GPC{suffix}.pdf")
+    LAC_out_pdf = join(fitspath, f"{dataset}_LAC{suffix}.pdf")
+
+    # Validation Table Call
+
     if revised:
-        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop_rev_dust']))
         verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
-        pea_out_pdf = join(fitspath, dataset+'_GPC.revised.pdf')
-        LAC_out_pdf = join(fitspath, dataset+'_LAC.revised.pdf')
     else:
-        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop']))
         verification = asc.read(join(fitspath, filename_dict['bin_valid']))
-        pea_out_pdf = join(fitspath, dataset+'_GPC.pdf')
-        LAC_out_pdf = join(fitspath, dataset+'_LAC.pdf')
+
+    temperature_table = join(fitspath, f"bin_derived_properties{suffix}.tbl")
+    temp_table = asc.read(temperature_table)
 
     detect = verification['Detection']
     det_4363 = np.where(detect == 1)[0]
     rlimit = np.where(detect == 0.5)[0]
-    print('Begin Local analog Calibration')
+    print('det_4363: ', det_4363)
+    # print('Begin Local analog Calibration')
 
     # Tables of individual detections from DEEP2 and MACT samples
-    derived = asc.read(fitspath_ini + 'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini + 'MACT_R23_O32_derived.tbl')
+    derived = asc.read(join(fitspath_ini, 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'))
+    derived_MACT = asc.read(join(fitspath_ini, 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'))
     
     # DEEP2 Derived
     er_R23 = derived['R23'].data
@@ -60,7 +73,6 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
     der_OH_MACT = derived_MACT['OH'].data
 
     O32_all = temp_table['logO32_composite']
-    print(O32_all)
     R23_all = temp_table['logR23_composite']
     com_O_log = temp_table['12+log(O/H)']  # This is the 12+log(OH) value
     ID = temp_table['bin_ID']
@@ -140,21 +152,23 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         OH = [det_OH, der_OH, der_OH_MACT]
         IDs = [det_ID]
 
-    error_npz_file = join(fitspath, npz_filename_dict['der_prop_errors'])
-    alpha = np.repeat(1, len(lR23))
-    edgecolor = np.repeat('face', len(lR23))
-    if exists(error_npz_file):
-        print('Error npz found  ', error_npz_file, ': Adding error bars to plot')
-        error_npz = np.load(error_npz_file)
-        metal_err = error_npz['12+log(O/H)_lowhigh_error']  # log values
-        green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, lR23_err=[], OH_err=[metal_err],
-                                    xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, edgecolors=edgecolor, alpha=alpha,
-                                    label=label, IDs=IDs, include_Rlimit=True, fit=False, silent=False, verbose=True)
-    else:
-        print('No error npz found')
-        green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5, 1.1], yra=[6.5, 9.10],
-                                    marker=marker, edgecolors=edgecolor, alpha=alpha, label=label, IDs=IDs,
-                                    include_Rlimit=True, fit=False, silent=False, verbose=True)
+    if revised:
+        alpha = np.repeat(1, len(lR23))
+        edgecolor = np.repeat('face', len(lR23))
+        error_npz_file = join(fitspath, npz_filename_dict['der_prop_errors'])
+        if exists(error_npz_file):
+            print('Error npz found  ', error_npz_file, ': Adding error bars to plot')
+            error_npz = np.load(error_npz_file)
+            metal_err = error_npz['12+log(O/H)_error']  # log values
+            print('metal_err: ', metal_err)
+            green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, lR23_err=[], OH_err=[metal_err],
+                                        xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, edgecolors=edgecolor, alpha=alpha,
+                                        label=label, IDs=IDs, include_Rlimit=True, fit=False, silent=False, verbose=True)
+        else:
+            print('No error npz found')
+            green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5, 1.1], yra=[6.5, 9.10],
+                                        marker=marker, edgecolors=edgecolor, alpha=alpha, label=label, IDs=IDs,
+                                        include_Rlimit=True, fit=False, silent=False, verbose=True)
 
 
 def individual_gpc(individual_ascii, validation_table):

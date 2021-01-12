@@ -18,9 +18,6 @@ from pylab import subplots_adjust
 from scipy.optimize import curve_fit
 from os.path import join
 
-# Import error propagation codes from chun_codes
-from chun_codes import random_pdf
-
 from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
 from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
@@ -37,7 +34,7 @@ def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
 
     """
     # New plots for line flagging
-    out_pdf = '%s/%s_lineflag_check_%s.pdf' % (fitspath, dataset, line_name0)
+    out_pdf = join(fitspath, f"{dataset}_lineflag_check_{line_name0}.pdf")
     pdf_pages2 = PdfPages(out_pdf)
 
     t_ax2 = ax_arr[row, col]
@@ -154,8 +151,8 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
 def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
-                    working_wave, lineflag,  y_correction='', line_type='',
-                    outpdf='', line_name=''):
+                    working_wave, lineflag, y_correction='', line_type='',
+                    out_pdf='', line_name=''):
     """
     Purpose
     ----------
@@ -169,7 +166,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
     """
 
     asc_tab = asc.read(tab)
-    pdf_pages = PdfPages(outpdf)
+    pdf_pages = PdfPages(out_pdf)
     nrows = 4
     ncols = 4
     x_idx = np.where((wave >= (working_wave-100)) & (wave <= (working_wave+100)))[0]
@@ -426,40 +423,38 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
     for ii in range(len(lambda0)):
         # Single Gaussian Fit
         if line_type[ii] == 'Single':
-            outpdf = fitspath + dataset + '_Zoomed_Gauss_'+line_name[ii] + '.pdf'
-            print(outpdf)
-            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset,
-                                                                              tab, stack2d, dispersion, s2,
-                                                                              wave, lambda0[ii], lineflag,
-                                                                              y_correction=y_correction,
-                                                                              line_type=line_type[ii],
-                                                                              outpdf=outpdf, line_name=line_name[ii])
+            out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
+            print(out_pdf)
+            em_tab, R_23_array, O_32_array, N_gal_array, \
+                id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
+                                     wave, lambda0[ii], lineflag,
+                                     y_correction=y_correction,
+                                     line_type=line_type[ii],
+                                     out_pdf=out_pdf, line_name=line_name[ii])
 
         # Balmer Line Fit
         if line_type[ii] == 'Balmer': 
-            outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
-            print(outpdf)
-            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset,
-                                                                              tab, stack2d, dispersion, s2,
-                                                                              wave, lambda0[ii], lineflag,
-                                                                              y_correction=y_correction,
-                                                                              line_type=line_type[ii],
-                                                                              outpdf=outpdf, line_name=line_name[ii])
+            out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
+            print(out_pdf)
+            em_tab, R_23_array, O_32_array, N_gal_array, \
+                id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
+                                     wave, lambda0[ii], lineflag,
+                                     y_correction=y_correction,
+                                     line_type=line_type[ii],
+                                     out_pdf=out_pdf, line_name=line_name[ii])
 
         # Oxy2 Line Fit
         if line_type[ii] == 'Oxy2': 
-            outpdf = fitspath + dataset + '_Zoomed_Gauss_' + line_name[ii] + '.pdf'
-            print(outpdf)
-            em_tab, R_23_array, O_32_array, N_gal_array, id = zoom_gauss_plot(dataset,
-                                                                              tab, stack2d, dispersion, s2,
-                                                                              wave, lambda0[ii], lineflag,
-                                                                              y_correction=y_correction,
-                                                                              line_type=line_type[ii],
-                                                                              outpdf=outpdf, line_name=line_name[ii])
+            out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
+            print(out_pdf)
+            em_tab, R_23_array, O_32_array, N_gal_array, \
+                id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
+                                     wave, lambda0[ii], lineflag,
+                                     y_correction=y_correction,
+                                     line_type=line_type[ii],
+                                     out_pdf=out_pdf, line_name=line_name[ii])
 
         if ii == 0:
-            out_ascii_single = fitspath + '/' + dataset + '_Average_R23_O32_Values.tbl'
-
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
             avg_tab = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
             

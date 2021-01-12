@@ -79,25 +79,25 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revis
             -> refers to if using the bin_derived_prop_revised temperature
                      and metallicity measurements which right now implement dust attenuation
     """
-    if raw:
-        mc = '.MC'
-    else:
-        mc = ''
+    suffix = ''
+    if not revised:
+        suffix += '.valid1'
+
+    if not raw:
+        suffix += '.MC'
 
     if apply_dust:
-        ad = '.dustcorr'
-    else:
-        ad = ''
-    if revised:
-        rev_s = ''
-        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
-    else:
-        rev_s = '.valid1'
-        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
-    out_pdf = join(fitspath, 'temperature_metallicity_plots' + rev_s + mc + ad + '.pdf')
-    temperature_table = join(fitspath, 'bin_derived_properties' + rev_s + mc + ad + '.tbl')
+        suffix += '.dustcorr'
+
+    out_pdf = join(fitspath, 'temperature_metallicity_plots' + suffix + '.pdf')
+    temperature_table = join(fitspath, 'bin_derived_properties' + suffix + '.tbl')
     print(temperature_table)
     comp_derived = asc.read(temperature_table)
+
+    if revised:
+        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
+    else:
+        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
 
     # Individual Measurements
     if individual:

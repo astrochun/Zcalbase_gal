@@ -25,28 +25,26 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
     pdf_files
     """
 
-    # Call for validation table
-    if revised:
-        rev_s = ''
-        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
-    else:
-        rev_s = '.valid1'
-        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
+    suffix = ''
+    if not revised:
+        suffix += '.valid1'
 
-    if raw:
-        mc = '.MC'
-    else:
-        mc = ''
+    if not raw:
+        suffix += '.MC'
 
     if apply_dust:
-        ad = '.dustcorr'
+        suffix += '.dustcorr'
+
+    pea_out_pdf = join(fitspath, dataset + '_GPC' + suffix + '.pdf')
+    LAC_out_pdf = join(fitspath, dataset + '_LAC' + suffix + '.pdf')
+
+    # Validation Table Call
+    if revised:
+        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
     else:
-        ad = ''
+        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
 
-    pea_out_pdf = join(fitspath, dataset + '_GPC' + rev_s + mc + ad + '.pdf')
-    LAC_out_pdf = join(fitspath, dataset + '_LAC' + rev_s + mc + ad + '.pdf')
-
-    temperature_table = fitspath + 'bin_derived_properties' + rev_s + mc + ad + '.tbl'
+    temperature_table = fitspath + 'bin_derived_properties' + suffix + '.tbl'
     temp_table = asc.read(temperature_table)
 
     detect = verification['Detection']

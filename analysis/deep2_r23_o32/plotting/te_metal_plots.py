@@ -89,8 +89,8 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revis
     if apply_dust:
         suffix += '.dustcorr'
 
-    out_pdf = join(fitspath, 'temperature_metallicity_plots' + suffix + '.pdf')
-    temperature_table = join(fitspath, 'bin_derived_properties' + suffix + '.tbl')
+    out_pdf = join(fitspath, f"temperature_metallicity_plots{suffix}.pdf")
+    temperature_table = join(fitspath, f"bin_derived_properties{suffix}.tbl")
     print(temperature_table)
     comp_derived = asc.read(temperature_table)
 
@@ -116,8 +116,8 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revis
         print("len:", len(iR23_idv))
 
     # DEEP2 and MACT Data
-    DEEP_table = fitspath_ini + 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'
-    MACT_table = fitspath_ini + 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'
+    DEEP_table = join(fitspath_ini, 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl')
+    MACT_table = join(fitspath_ini, 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl')
     derived_DEEP = asc.read(DEEP_table)
     derived_MACT = asc.read(MACT_table)
 

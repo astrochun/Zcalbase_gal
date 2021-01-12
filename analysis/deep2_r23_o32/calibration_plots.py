@@ -44,7 +44,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
     else:
         verification = asc.read(join(fitspath, filename_dict['bin_valid']))
 
-    temperature_table = fitspath + 'bin_derived_properties' + suffix + '.tbl'
+    temperature_table = join(fitspath, f"bin_derived_properties{suffix}.tbl")
     temp_table = asc.read(temperature_table)
 
     detect = verification['Detection']

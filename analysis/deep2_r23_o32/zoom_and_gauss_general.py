@@ -168,7 +168,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # Plotting Zoomed
 def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
                     working_wave, lineflag,  y_correction='', line_type='',
-                    outpdf='', line_name='', log=None):
+                    out_pdf='', line_name='', log=None):
     """
     Purpose
     ----------
@@ -189,7 +189,7 @@ def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
     log.info(f"Reading: {tab}")
     asc_tab = asc.read(tab)
 
-    pdf_pages = PdfPages(outpdf)
+    pdf_pages = PdfPages(out_pdf)
 
     nrows = 4
     ncols = 4
@@ -450,8 +450,8 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
     s2 = 5.0  # a fitting requirement
 
     for ii in range(len(lambda0)):
-        outpdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
-        log.info(f"outpdf: {outpdf}")
+        out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
+        log.info(f"out_pdf: {out_pdf}")
 
         # Single Gaussian Fit
         if line_type[ii] == 'Single':
@@ -460,7 +460,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     outpdf=outpdf, line_name=line_name[ii],
+                                     out_pdf=out_pdf, line_name=line_name[ii],
                                      log=log)
 
         # Balmer Line Fit
@@ -470,7 +470,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     outpdf=outpdf, line_name=line_name[ii],
+                                     out_pdf=out_pdf, line_name=line_name[ii],
                                      log=log)
 
         # Oxy2 Line Fit
@@ -480,7 +480,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     outpdf=outpdf, line_name=line_name[ii],
+                                     out_pdf=out_pdf, line_name=line_name[ii],
                                      log=None)
 
         if ii == 0:

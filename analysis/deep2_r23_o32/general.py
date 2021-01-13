@@ -10,11 +10,13 @@ from astropy.table import Table
 from os.path import join
 
 
-from Zcalbase_gal.analysis.deep2_r23_o32 import stackboth_mastergrid, \
-    zoom_and_gauss_general, calibration_plots, name_dict
-from Zcalbase_gal.analysis.deep2_r23_o32.binning import n_bins_grid_analysis, fixed_grid_analysis, \
+from . import stackboth_mastergrid, zoom_and_gauss_general, \
+    hstack_tables, calibration_plots, name_dict
+from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
-from Zcalbase_gal.analysis.deep2_r23_o32.plotting import more_plots, line_ratio_plotting, te_metal_plots
+from .plotting import more_plots, line_ratio_plotting, te_metal_plots
+from .logging import LogClass, log_stdout
+
 from Metallicity_Stack_Commons import exclude_outliers, dir_date, lambda0, \
     valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
@@ -22,7 +24,7 @@ from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import error_prop
 
 
-def get_det3(fitspath, fitspath_ini):
+def get_det3(fitspath, fitspath_ini, log=None):
     """
     Purpose
     ----------
@@ -38,9 +40,15 @@ def get_det3(fitspath, fitspath_ini):
     Data for run
     Creates "individual_properties.tbl"
     """
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
     for ii in range(1, 5):
         file1 = join(fitspath_ini,
                      'DEEP2_Commons/Catalogs/DEEP2_Field'+str(ii)+'_all_line_fit.fits')
+        log.info(f"Reading: {file1}")
         data = Table(fits.getdata(file1))
         if ii == 1:
             data0 = data
@@ -51,7 +59,7 @@ def get_det3(fitspath, fitspath_ini):
 
     # Excluding Outliers
     exclude_flag = exclude_outliers(objno)
-    print("exclude flag: ", np.where(exclude_flag == 1))
+    log.info(f"exclude flag: ", np.where(exclude_flag == 1))
 
     O2_ini = data0['OII_FLUX_MOD'].data
     O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data
@@ -74,13 +82,14 @@ def get_det3(fitspath, fitspath_ini):
     SNRHg_ini = data0['HG_SNR'].data
     SNR4363_ini = data0['OIIIA_SNR'].data
 
-    print('O2 len:', len(O2_ini))
+    log.info(f"O2 len: {len(O2_ini)}")
 
     #################################################################################
     # SNR code: This rules out major outliers by only using specified data
     # May limit the logR23 value further to 1.2, check the velocity dispersions of the high R23 spectra
     det3 = np.where((SNR2_ini >= 3) & (SNR3_ini >= 3) & (SNRH_ini >= 3) &
-                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini > 0) & (exclude_flag == 0) & (lR23_ini < 1.4))[0]
+                    (O2_ini > 0) & (O3_ini > 0) & (Hb_ini > 0) &
+                    (exclude_flag == 0) & (lR23_ini < 1.4))[0]
 
     # Organize the R23_032 data
     data3 = data0[det3]
@@ -128,22 +137,22 @@ def get_det3(fitspath, fitspath_ini):
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
-    asc.write(tab1, join(fitspath, filename_dict['indv_prop']),
-              format='fixed_width_two_line')
+    outfile = join(fitspath, filename_dict['indv_prop'])
+    log.info(f"Writing: {outfile}")
+    asc.write(tab1, outfile, format='fixed_width_two_line')
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
+
+    log.info("finished.")
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
 
 
-def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=True,
-                              apply_dust=False, mask=True):
+def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
+                              adaptive=True, apply_dust=False, mask=True):
     """
     Purpose
-    ----------
-    Function runs the entire analysis
+      Function runs the entire analysis
 
-    Parameters
-    ----------
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
     :param n_split: int. Number of times the log(R23) bins are split.
@@ -157,20 +166,24 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
            Default: True
     """
 
-    if dataset not in ['Grid', 'O32_Grid', 'R23_Grid', 'n_Bins']:
-        print("Warning!!!! Incorrect [dataset]")
-        raise ValueError("Warning!!!! Incorrect [dataset]")
-
     fitspath_ini = get_user()
     fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/')
     fitspath = dir_date(fitspath_currentrun, year=False)
-    print('fitspath_ini =  ', fitspath_ini)
-    print('fitspath =  ', fitspath)
+
+    # Define logging function
+    log = LogClass(fitspath, 'run_grid_r23_o32_analysis.log').get_logger()
+
+    if dataset not in ['Grid', 'O32_Grid', 'R23_Grid', 'n_Bins']:
+        log.warning("Incorrect [dataset] input")
+        raise ValueError("Warning!!!! Incorrect [dataset]")
+
+    log.info(f"fitspath_ini = {fitspath_ini}")
+    log.info(f"fitspath = {fitspath}")
 
     individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
-        data3 = get_det3(fitspath, fitspath_ini)
+        data3 = get_det3(fitspath, fitspath_ini, log=log)
 
-    print("length R23: ", len(R23))
+    log.info(f"length R23: {len(R23)}")
 
     # Each bin will be split in half
     # Must sum to 2799 for Zcalbase_gal Analysis
@@ -178,49 +191,51 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
         galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
     else:
         galinbin = [400, 400, 400, 400, 400, 400, 409]
-    print('# of Gal in Bin:', galinbin)
+    log.info(f"# of Gal in Bin: {galinbin}")
 
     bin_pdf_pages = join(fitspath, dataset + name_dict['gridpdf_suffix'])
     bin_outfile = join(fitspath, dataset + name_dict['gridnpz_suffix'])
 
     if dataset == 'O32_Grid':
         single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, galinbin)
+                                        R23, O32, galinbin, log=log)
     if dataset == 'R23_Grid':
         single_grid_r23.single_grid_r23(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, galinbin)
+                                        R23, O32, galinbin, log=log)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
-        fixed_grid_analysis.making_Grid(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, det3, R23_bin, O32_bin)
+        fixed_grid_analysis.making_grid(fitspath, bin_pdf_pages, bin_outfile,
+                                        R23, O32, det3, R23_bin, O32_bin, log=log)
 
     if dataset == 'n_Bins':
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile,
                                             n_split, individual_ID, R23, O32,
-                                            SNR3, data3, galinbin)
+                                            SNR3, data3, galinbin, log=log)
 
-    print('made npz, pdf files , testmastergrid (need to find if this is used anywhere)')
-    print('finished Binning_and_Graphing_MasterGrid')
+    log.info("made npz, pdf files, testmastergrid (need to find if this is used anywhere)")
+    log.info("finished Binning_and_Graphing_MasterGrid")
 
     # Stackboth_MasterGrid
     # Option to Change: Bin size
     # Option to Change: Masking the night sky emission lines
 
     if mask:
-        stack_name = dataset + name_dict['Stackname']
+        stack_name = join(dataset, name_dict['Stackname'])
     else:
-        stack_name = dataset + name_dict['Stackname_nomask']
+        stack_name = join(dataset, name_dict['Stackname_nomask'])
 
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                         bin_outfile, stack_name, mask=mask)
+                                         bin_outfile, stack_name, mask=mask,
+                                         log=log)
 
     # Outfile and pdf both use name
-    print('finished with stacking,' + stack_name + 'pdf and fits files created')
+    log.info(f"finished with stacking, {stack_name} pdf and fits files created")
 
     # Zoom_and_gauss_general
     outfile_grid = join(fitspath, filename_dict['comp_spec'])
-    print(outfile_grid)
+    log.info(f"outfile_grid : {outfile_grid}")
+    log.info(f"Reading: {outfile_grid}")
     stack2D, header = fits.getdata(outfile_grid, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']
@@ -238,10 +253,11 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
                                       dispersion, y_correction=y_correction,
-                                      tab=binning_avg_asc)
+                                      tab=binning_avg_asc, log=log)
 
-    print('finished gaussian fitting:,' + fitspath + '_'+dataset+'_Zoomed_Gauss_* pdfs and fits created')
-    print('combine_flux_table created')
+    log.info(f"finished gaussian fitting: {fitspath}_{dataset}_Zoomed_Gauss_*" +
+             " pdfs and fits created")
+    log.info("combine_flux_table created")
     # combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
 
     # FIX THIS CODE: line_ratio_plotting
@@ -257,28 +273,38 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False, adaptive=T
 
     # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
     if apply_dust:
-        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',
+                           use_revised=False, log=log)
 
     # Run raw data derived properties calculations (option to apply dust correction)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=False)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=True)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                   apply_dust=False, revised=False, log=log)
+    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                   apply_dust=False, revised=True, log=log)
     if apply_dust:
-        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=False)
-        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                       apply_dust=True, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                       apply_dust=True, revised=True, log=log)
 
     # Run Monte Carlo randomization calculations (option to apply dust correction)
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                   apply_dust=False, revised=False, log=log)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                   apply_dust=False, revised=True, log=log)
     if apply_dust:
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=True, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=True, revised=True, log=log)
 
     # Individual Detections
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)
     # print('Individual Detections Complete')
 
 
-def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, revised=False, individual=False):
+def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
+                   revised=False, individual=False):
     """
     Purpose
     --------
@@ -293,8 +319,9 @@ def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
                                      revised=revised, individual=individual)
 
     # Calibration Plots
-    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw, apply_dust=apply_dust,
-                                    revised=revised, individual=individual)
+    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw,
+                                    apply_dust=apply_dust, revised=revised,
+                                    individual=individual, log=log)
 
     '''
 
@@ -313,21 +340,19 @@ def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
     more_plots.hist_for_bin(dataset, asc_table2)
     '''
 
+    log.debug("finished.")
+
 
 # Below function will run the individual functions in the codes above that produce graphs
 # Enter a keyword for want to indictate what function you want to run
 # This will ease the reproduction process
 # CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
-def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adaptive=True, y_correction=False,
+def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
+                             adaptive=True, y_correction=False,
                              apply_dust=False, mask=True):
     """
     Purpose
-    ----------
-    To run individual codes to test changes or edits plots
-    Below function will run the individual functions in the codes above that produce graphs
-    Enter a keyword for want to indictate what function you want to run
-    This will ease the reproduction process
-    CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
+      To run individual codes to test changes or edits plots
 
     Parameters
     ----------
@@ -346,9 +371,13 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
     """
+
+    log = LogClass(fitspath, 'run_individual_functions.log').get_logger()
+
     fitspath_ini = get_user()
     if want == 'binning_and_stacking':
-        individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3 = get_det3(fitspath, fitspath_ini)
+        individual_ID, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
+            data3 = get_det3(fitspath, fitspath_ini, log=log)
         # Each bin will be split in half
         # Must sum to 2799
         if adaptive:
@@ -357,18 +386,22 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
             galinbin = [400, 400, 400, 400, 400, 400, 409]
         bin_pdf_pages = join(fitspath, name_dict['gridpdf_suffix'])
         bin_outfile = join(fitspath, name_dict['gridnpz_suffix'])
-        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile, n_split,
-                                            individual_ID, R23, O32, SNR3, data3, galinbin)
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
+                                            bin_outfile, n_split,
+                                            individual_ID, R23, O32, SNR3,
+                                            data3, galinbin, log=log)
         # Starting Stacking
         if mask:
             stack_name = dataset + name_dict['Stackname']
         else:
             stack_name = dataset + name_dict['Stackname_nomask']
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                             bin_outfile, stack_name, mask=mask)
+                                             bin_outfile, stack_name,
+                                             mask=mask, log=log)
 
     if want == 'zoom':
         outfile_grid = join(fitspath, filename_dict['comp_spec'])
+        log.info(f"Reading: {outfile_grid}")
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         dispersion = header['CDELT1']
@@ -383,25 +416,34 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3, adapti
         zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
                                           lineflag, dispersion,
                                           y_correction=y_correction,
-                                          tab=binning_avg_asc)
+                                          tab=binning_avg_asc, log=log)
 
     if want == 'R_cal_temp':
         # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
         if apply_dust:
-            balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits', use_revised=False)
+            balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',
+                               use_revised=False, log=log)
 
         # Run raw data derived properties calculations (option to apply dust correction)
-        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=False)
-        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=False, revised=True)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                       apply_dust=False, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                       apply_dust=False, revised=True, log=log)
         if apply_dust:
-            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=False)
-            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True, apply_dust=True, revised=True)
+            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                           apply_dust=True, revised=False, log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
+                                           apply_dust=True, revised=True, log=log)
 
         # Run Monte Carlo randomization calculations (option to apply dust correction)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=False)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=False, revised=True)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=False, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=False, revised=True, log=log)
         if apply_dust:
-            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=False)
-            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True, apply_dust=True, revised=True)
+            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                           apply_dust=True, revised=False, log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                           apply_dust=True, revised=True, log=True)
 
-    print(want, 'is done')
+    log.debug("finished.")

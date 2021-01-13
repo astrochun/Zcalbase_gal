@@ -6,14 +6,15 @@ Plots R23 and O32 line ratios and compare it to Jiang et al. (2018)
 calibration that is based on green pea galaxies
 """
 
-from chun_codes import systime, match_nosort_str
+from chun_codes import match_nosort_str
 from astropy.io import ascii as asc
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from astropy import log
 from astropy.io import fits
 from os.path import join
+
+from analysis.deep2_r23_o32.logging import log_stdout, LogClass
 
 jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 
@@ -52,12 +53,18 @@ def jiang18(x, y):
     return logR23
 
 
-
-def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end, n_bins=4,
-                     lR23_err=[], OH_err=[], OH_range=[], dR23_range=[], marker=[], label=[], IDs=[]):
+def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
+                     bin_end, n_bins=4, lR23_err=[], OH_err=[], OH_range=[],
+                     dR23_range=[], marker=[], label=[], IDs=[], log=None):
     """
     Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
     """
+
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
     fig, ax = plt.subplots()
 
     n_sample = len(lR23)
@@ -71,7 +78,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
     diff0 = []
     for nn in range(n_sample):
         jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
-        print('jiang_R23', jiang_R23)
+        log.info(f"jiang_R23: {jiang_R23}")
 
         if nn == 0:
             if IDs:
@@ -96,8 +103,8 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
             ii_label = ''
             if nn == 0:  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
-                ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
-                                                                       len(idx_all))
+                ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
+                           fr"< {y_ii_max:.2f}, N = {len(idx_all):d}"
 
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - jiang_R23[idx]
@@ -149,12 +156,15 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start, bin_end,
 
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
 
+    log.info(f"Writing: {out_diff_pdf}")
     fig.savefig(out_diff_pdf)
+
+    log.info("finished.")
 
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
-         marker=[], edgecolors = [], alpha = [], label=[], dR23_range=[-0.3, 0.3],
-         IDs=[], include_Rlimit = True, fit=False, silent=False, verbose=True):
+         marker=[], edgecolors=[], alpha=[], label=[], dR23_range=[-0.3, 0.3],
+         IDs=[], include_Rlimit=True, fit=False, log=None):
     """
     Main function to plot dataset against Jiang+ (2018) calibration
 
@@ -165,28 +175,33 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     OH   : 12+log(O/H)
 
     out_pdf : full path for output PDF
-
+    n_bins : number of bins to bin data
+    lR23_err : error on x-axis (logR23)
+    OH_err : error on y-axis (logR23)
+    xra : x-axis plotting range
+    yra : y-axis plotting range
+    marker : list of markers
+    edgecolors : list of edge colors
+    alpha : list of alpha (transparency)
+    label : list of string labels
+    dR23_range : for annotation
+    IDs : list of list of ID's
+    include_Rlimit : Boolean to plot cases with R-limits
     fit : boolean
       Turn on fitting. Default: False -> Uses Jiang+2018 relation
-
-    silent : boolean
-      Turns off stdout messages. Default: False
-
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
-
-    Returns
-    -------
+    log: LogClass or logging object
 
     Notes
     -----
     Created by Chun Ly, 23 November 2018
 
-    Editted by Reagen Leimbach, 18 June 2020 to add IDs to the plots
+    Edited by Reagen Leimbach, 18 June 2020 to add IDs to the plots
     """
-    
-    if not silent: 
-        log.info('### Begin main : '+systime())
+
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
 
     fig, ax = plt.subplots()
 
@@ -198,7 +213,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
         min1[nn] = np.min(lO32[nn])
         max1[nn] = np.max(lO32[nn])
 
-        good = np.where(np.isfinite(OH[nn]) == True)[0]
+        good = np.where(np.isfinite(OH[nn]))[0]
         OH_min1[nn] = np.min(OH[nn][good])
         OH_max1[nn] = np.max(OH[nn][good])
 
@@ -245,7 +260,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             lR23_all = np.append(lR23_all, lR23[nn])
 
         opt, cov = curve_fit(O32_OH_fit, (OH_all, lO32_all), lR23_all, p0=p0)
-        print(opt)
+        log.info(opt)
 
     for nn in range(n_sample):
         if len(label) != 0:
@@ -265,8 +280,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             ii_label = ''
             if nn == 0:  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
-                ii_label = r' %.2f < $\log(O_{32})$ < %.2f, N = %i' % (y_ii_min, y_ii_max,
-                                                                       len(idx_all))
+                ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
+                           f"< {y_ii_max:.2f}, N = {len(idx_all):d}"
             if len(idx) > 0:
                 ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
                            alpha=alpha[nn], label=ii_label, edgecolors=edgecolors[nn])
@@ -275,8 +290,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                 # Added if statement so that only data points on the OH_err[0] place will be plotted
                 if nn == 0:
                     if len(OH_err) != 0:
-                        print('OH: ', OH[nn][idx])
-                        print('OH_err: ', OH_err[nn][idx])
+                        log.info(f"OH: {OH[nn][idx]}")
+                        log.info(f"OH_err: {OH_err[nn][idx]}")
                         ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=np.transpose(OH_err[nn][idx]),
                                     mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
                                     fmt='', label=None, ls='none')
@@ -292,19 +307,18 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                     opt = jiang18_coeffs
 
                 mod_logR23 = O32_OH_fit((x_arr, lO32_avg), *opt)
-                ax.annotate('%.2f' % lO32_avg, [mod_logR23[-1], x_arr[-1]],
+                ax.annotate(f"{lO32_avg:.2f}", [mod_logR23[-1], x_arr[-1]],
                             xytext=xytext_location[ii], textcoords='offset points',
                             color=ctype[ii], xycoords='data', ha='center',
                             va='bottom', fontsize=8)
                 ax.plot(mod_logR23, x_arr, color=ctype[ii], linestyle='dashed')
 
-    # if len(xra) != 0: ax.set_xlim(xra)
-    # if len(yra) != 0: ax.set_ylim(yra)
     ax.set_xlim(0.5, 1.1)
     ax.set_ylim(6.75, np.max(x_arr) + 0.1)
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
-    leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8, framealpha=0.5)
+    leg = ax.legend(loc='lower right', scatterpoints=1, fontsize=8,
+                    framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
@@ -327,7 +341,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
         nO32 = [lO32[0], lO32[2], lO32[3]]
         nOH = [OH[0], OH[2], OH[3]]
         nIDs = [IDs[0]]
-        print('Using redefined values')
+        log.info('Using redefined values')
         label = ['Detection', 'DEEP2', 'MACT']
         marker = ['D', '3', '4']
     else:
@@ -342,16 +356,22 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
         plot_differences(nR23, nO32, nOH, lO32_all, out_diff_pdf, bin_start, bin_end,
                          n_bins=n_bins, lR23_err=lR23_err, OH_err=OH_err,
                          OH_range=yra, dR23_range=dR23_range, marker=marker,
-                         label=label, IDs=nIDs)
-        if not silent: 
-            log.info('### End main : '+systime())
+                         label=label, IDs=nIDs, log=log)
+
+    log.info("finished.")
 
 
-def get_measurements(data):
+def get_measurements(data, log=None):
     """
     Used in get_DEEP2 and get_MACT to pull data and return it to
     DEEP2_OIII4363 and MACT_OIII4363
     """
+
+    if log is None:
+        log = log_stdout()
+
+    log.debug("starting ...")
+
     lR23 = np.log10(data['R23'].data)
     lO32 = np.log10(data['O32'].data)
     OH = data['OH'].data
@@ -362,25 +382,33 @@ def get_measurements(data):
     lR23_hi = np.log10(data['R23'].data + data['R23_hi'].data) - lR23
     lR23_err = np.row_stack((lR23_lo, lR23_hi))
 
+    log.debug("finished.")
+
     return lR23, lO32, OH, OH_err, lR23_err
 
 
-def get_zcalbase_sample(prefix, dir=''):
+def get_zcalbase_sample(prefix, dir_path='', log=None):
     """
     Used in Zcalbase function to pull data
     """
+
+    if log is None:
+        log = log_stdout()
+
+    log.debug("starting ...")
+
     dir0 = '/Users/cly/data/Metallicity/Others/Te_Repository/'
-    if dir == '':
-        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, prefix, prefix)
-        Te_file = '%s%s/%s_Te_table.fits' % (dir0, prefix, prefix)
+    if dir_path == '':
+        flux_file = f"{dir0}{prefix}/{prefix}_sample.det4363.int.fits"
+        Te_file = f"{dir0}{prefix}/{prefix}_Te_table.fits"
     else:
-        flux_file = '%s%s/%s_sample.det4363.int.fits' % (dir0, dir, prefix)
-        Te_file = '%s%s/%s_Te_table.fits' % (dir0, dir, prefix)
+        flux_file = f"{dir0}{dir_path}/{prefix}_sample.det4363.int.fits"
+        Te_file = f"{dir0}{dir0}/{prefix}_Te_table.fits"
 
     if 'SDSS' in prefix:
         path_SDSS = '/Users/cly/data/Metallicity/Others/SDSS/'
-        flux_file = path_SDSS + 'SDSS_DR7_det4363.OIIfix.int.fits'
-        Te_file = path_SDSS + 'SDSS_DR7_det4363_Te_table.dered.fits'
+        flux_file = join(path_SDSS, 'SDSS_DR7_det4363.OIIfix.int.fits')
+        Te_file = join(path_SDSS, 'SDSS_DR7_det4363_Te_table.dered.fits')
 
     data0 = fits.getdata(flux_file)
     data1 = fits.getdata(Te_file)
@@ -389,34 +417,47 @@ def get_zcalbase_sample(prefix, dir=''):
     lO32 = np.log10(data0.OIII_5007_FLUX / data0.OII_3727_FLUX)
 
     OH = data1.OH_gas
-    # OH_err = np.row_stack((data1.OH_gas_lo, data1.OH_gas_hi))
+
+    log.info("finished ...")
 
     return lR23, lO32, OH
 
 
-def get_DEEP2(path0):
+def get_DEEP2(path0, log=None):
     """
     Called by DEEP2_OIII4363 and returns data to main function
     """
-    infile = path0 + 'DEEP2_R23_O32_derived.tbl'
 
-    log.info('### Reading : '+infile)
+    if log is None:
+        log = log_stdout()
 
+    log.debug("starting ...")
+
+    infile = join(path0, 'DEEP2_R23_O32_derived.tbl')
+
+    log.info(f"Reading: {infile}")
     data = asc.read(infile)
 
-    lR23, lO32, OH, OH_err, lR23_err = get_measurements(data)
+    lR23, lO32, OH, OH_err, lR23_err = get_measurements(data, log=log)
+
+    log.debug("finished ...")
 
     return data, lR23, lO32, OH, OH_err, lR23_err
 
 
-def get_MACT(path0):
+def get_MACT(path0, log=None):
     """
     Called by MACT_OIII4363 and returns data to main function
     """
-    infile = join(path0 + 'MACT_R23_O32_derived.tbl')
 
-    log.info('### Reading : '+infile)
+    if log is None:
+        log = log_stdout()
 
+    log.debug("starting ...")
+
+    infile = join(path0, 'MACT_R23_O32_derived.tbl')
+
+    log.info(f"Reading: {infile}")
     data = asc.read(infile)
 
     dup = ['Keck10', 'Keck17', 'Keck22', 'Keck25']
@@ -424,59 +465,81 @@ def get_MACT(path0):
 
     data.remove_rows(d_idx1)
 
-    lR23, lO32, OH, OH_err, lR23_err = get_measurements(data)
+    lR23, lO32, OH, OH_err, lR23_err = get_measurements(data, log=log)
+
+    log.debug("finished ...")
 
     return data, lR23, lO32, OH, OH_err, lR23_err
 
 
-def DEEP2_OIII4363():
+def DEEP2_OIII4363(log_dir):
     """
     Run function for DEEP2 dataset for hardcoded path (line 442)
     """
+
+    log = LogClass(log_dir, 'green_peas_calibration_deep2_oiii4363.log').get_logger()
+
+    log.debug("starting ...")
+
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    data, lR23, lO32, OH, OH_err, lR23_err = get_DEEP2(path0)
+    data, lR23, lO32, OH, OH_err, lR23_err = get_DEEP2(path0, log=log)
 
-    out_pdf = join(path0 + 'DEEP2_R23_O32_Jiang18.pdf')
+    out_pdf = join(path0, 'DEEP2_R23_O32_Jiang18.pdf')
     main([lR23], [lO32], [OH], out_pdf, lR23_err=[lR23_err], OH_err=[OH_err],
-         xra=[0.75, 1.05], yra=[7.1, 8.65])
+         xra=[0.75, 1.05], yra=[7.1, 8.65], log=log)
 
     # Got RuntimeError
-    # out_pdf = path0 + 'DEEP2_R23_O32_Jiang18.fit.pdf'
+    # out_pdf = join(path0, 'DEEP2_R23_O32_Jiang18.fit.pdf')
     # main([lR23], [lO32], [OH], out_pdf, lR23_err=[lR23_err], OH_err=[OH_err],
     # xra=[0.75,1.05], yra=[7.1,8.65], fit=True)
 
+    log.debug("finished.")
 
-def MACT_OIII4363():
+
+def MACT_OIII4363(log_dir):
     """
     Run function for MACT dataset for hardcoded path (line 462)
     """
+
+    log = LogClass(log_dir, 'green_peas_calibration_mact_oiii4363.log').get_logger()
+
+    log.debug("starting ...")
+
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    data, lR23, lO32, OH, OH_err, lR23_err = get_MACT(path0)
+    data, lR23, lO32, OH, OH_err, lR23_err = get_MACT(path0, log=log)
 
     out_pdf = join(path0, 'MACT_R23_O32_Jiang18.pdf')
     main([lR23], [lO32], [OH], out_pdf, n_bins=6, lR23_err=[lR23_err],
-         OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7])
+         OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7], log=log)
 
-    out_pdf = path0 + 'MACT_R23_O32_Jiang18.fit.pdf'
+    out_pdf = join(path0, 'MACT_R23_O32_Jiang18.fit.pdf')
     main([lR23], [lO32], [OH], out_pdf, n_bins=6, lR23_err=[lR23_err],
-         OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7], fit=True)
+         OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7], fit=True,
+         log=log)
+
+    log.debug("finished.")
 
 
-def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
+def DEEP2_MACT_OIII4363(log_dir, include_stack=False, fit=False):
     """
     Run function for DEEP2 and MACT (combined) dataset for hardcoded path (line 481)
     """
+
+    log = LogClass(log_dir, 'green_peas_calibration_deep2_mact_oiii4363.log').get_logger()
+
+    log.debug("starting ...")
+
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
     # DEEP2
     DEEP2_data, DEEP2_lR23, DEEP2_lO32, DEEP2_OH, DEEP2_OH_err, \
-        DEEP2_lR23_err = get_DEEP2(path0)
+        DEEP2_lR23_err = get_DEEP2(path0, log=log)
 
     # MACT
     MACT_data, MACT_lR23, MACT_lO32, MACT_OH, MACT_OH_err, \
-        MACT_lR23_err = get_MACT(path0)
+        MACT_lR23_err = get_MACT(path0, log=log)
 
     # Combine together
     lR23 = [MACT_lR23, DEEP2_lR23]
@@ -495,7 +558,7 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
 
         stack_det = np.where((stack_tbl['S/N_4363'] >= 3.0) &
                              (stack_tbl['com_O_log'] >= 8.1))[0]
-        print('stack_det : ', len(stack_det))
+        log.info(f"stack_det: {len(stack_det)}")
         R23_stack = stack_tbl['R23_Composite'].data[stack_det]
         O32_stack = stack_tbl['O32_Composite'].data[stack_det]
         OH_stack = stack_tbl['com_O_log'].data[stack_det]
@@ -506,7 +569,7 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
 
         OH_err += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
         lR23_err += [np.array([[0] * len(stack_det), [0] * len(stack_det)])]
-        print(OH_err)
+        log.info(OH_err)
 
     out_pdf = join(path0, 'MACT_DEEP2_R23_O32_Jiang18.pdf')
     label = [r'$\mathcal{MACT}$  (Ly+2016)',
@@ -522,18 +585,25 @@ def DEEP2_MACT_OIII4363(include_stack=False, fit=False):
         yra = [7.10, 8.8]
 
     main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-         xra=[0.45, 1.15], yra=yra, dR23_range=[-0.15, 0.3], marker=marker, label=label)
+         xra=[0.45, 1.15], yra=yra, dR23_range=[-0.15, 0.3], marker=marker,
+         label=label, log=log)
 
     if fit:
-        out_pdf = path0 + 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf'
+        out_pdf = join(path0, 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf')
         main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-             xra=[0.45, 1.15], yra=yra, marker=['*', 'o'], label=label, fit=True)
+             xra=[0.45, 1.15], yra=yra, marker=['*', 'o'], label=label,
+             fit=True, log=log)
+
+    log.debug("finished ...")
 
 
-def zcalbase():
+def zcalbase(log_dir):
     """
     Run function for Zcalbase_gal dataset for hardcoded path (line 548)
     """
+
+    log = LogClass(log_dir, 'green_peas_calibration_zcalbase.log').get_logger()
+
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
     ref_name0 = ['Berg2012', 'Kennicutt2003', 'Izotov1994', 'Thuan1995',
@@ -545,14 +615,15 @@ def zcalbase():
     lO32_all = []
     OH_all = []
 
-    for name, dir in zip(ref_name0, dir0):
-        lR23, lO32, OH = get_zcalbase_sample(name, dir=dir)
+    for name, dir0 in zip(ref_name0, dir0):
+        lR23, lO32, OH = get_zcalbase_sample(name, dir_path=dir0, log=log)
 
         lR23_all.append(lR23)
         lO32_all.append(lO32)
         OH_all.append(OH)
 
-    out_pdf = join(path0,'Zcalbase_Jiang18.pdf')
+    out_pdf = join(path0, 'Zcalbase_Jiang18.pdf')
     label = ref_name0  # ['Kennicutt+2003']
     main(lR23_all, lO32_all, OH_all, out_pdf, n_bins=6, xra=[0.1, 1.05],
-         yra=[7.0, 9.0], marker=['s', 'x', 's', 's', 'D', 'D', 's', '*'], label=label)
+         yra=[7.0, 9.0], marker=['s', 'x', 's', 's', 'D', 'D', 's', '*'],
+         label=label, log=log)

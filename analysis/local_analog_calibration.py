@@ -6,11 +6,11 @@ Plots R23 and O32 line ratios and compare it to Bian et al. (2018)
 calibration that is based on local analogs to z~2 galaxies
 """
 
-from chun_codes import systime, match_nosort_str
 from astropy.io import ascii as asc
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy import log
+
+from analysis.deep2_r23_o32.logging import log_stdout, LogClass
 
 from .green_peas_calibration import get_zcalbase_sample
 
@@ -29,6 +29,7 @@ def bian18_R23(OH):
 
     return R23_p(OH)
 
+
 def bian18_O32(O32):
     """
     Function to return metallicity given log(O32)
@@ -42,9 +43,10 @@ def bian18_O32(O32):
 
     return OH
 
+
 def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''], marker=[],
-         silent=False):
+         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''],
+         marker=[], log=None):
 
     """
     Main function to plot dataset against Bian+ (2018) calibration
@@ -60,9 +62,6 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     ID   : ID of source
       Provide if plots should be annotated
 
-    silent : boolean
-      Turns off stdout messages. Default: False
-
     Returns
     -------
 
@@ -71,8 +70,10 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     Created by Chun Ly, 29 November 2018
     """
 
-    if not silent:
-        log.info('### Begin main : '+systime())
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
 
     fig, ax = plt.subplots(ncols=2)
 
@@ -95,14 +96,14 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
 
     # Grid of 12+log(O/H)
     if len(yra) == 0:
-        print(len(yra))
-        print(min(OH_min1))
+        log.info(len(yra))
+        log.info(min(OH_min1))
         OH_max = np.nanmax(OH_max1)
-        print(OH_max)
+        log.info(OH_max)
         OH_arr = np.arange(min(OH_min1), OH_max, 0.25)
     else:
         OH_arr = np.arange(yra[0], yra[1], 0.05)
-    print('OH_arr:', OH_arr)
+    log.info(f"OH_arr: {OH_arr}")
     bian_R23 = bian18_R23(OH_arr)
 
     if len(ctype) == 0:
@@ -120,16 +121,19 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
 
         if len(OH_err) != 0:
             ax[0].errorbar(lR23[nn], OH[nn], yerr=OH_err[nn], mec=ctype[nn],
-                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None, label=None)
+                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None,
+                           label=None)
 
         if len(lR23_err) != 0:
             ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec=ctype[nn],
-                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None, label=None)
+                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None,
+                           label=None)
 
     ax[0].plot(bian_R23, OH_arr, 'k--')
 
     avail_idx = np.where((OH_arr >= 7.80) & (OH_arr <= 8.4))[0]
-    ax[0].plot(bian_R23[avail_idx], OH_arr[avail_idx], 'k-', label='Bian+(2018)')
+    ax[0].plot(bian_R23[avail_idx], OH_arr[avail_idx], 'k-',
+               label='Bian+(2018)')
 
     if len(R23_xra) != 0:
         ax[0].set_xlim(R23_xra)
@@ -141,7 +145,8 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     ax[0].legend(loc='lower left', framealpha=0.5, fontsize=10)
 
     for nn in range(n_sample):
-        ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], edgecolor='none', marker=marker[nn], alpha=0.5)
+        ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], edgecolor='none',
+                      marker=marker[nn], alpha=0.5)
         if len(ID) != 0:
             for ii in range(len(lO32[nn])):
                 ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],
@@ -149,11 +154,13 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
 
         if len(OH_err) != 0:
             ax[1].errorbar(lO32[nn], OH[nn], yerr=OH_err[nn], mec=ctype[nn],
-                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None, label=None)
+                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None,
+                           label=None)
 
         if len(lO32_err) != 0:
             ax[1].errorbar(lO32[nn], OH[nn], xerr=lO32_err[nn], mec=ctype[nn],
-                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None, label=None)
+                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None,
+                           label=None)
 
     ax[1].plot(O32_arr, bian_OH, 'k--', label='Bian+(2018)')
 
@@ -165,20 +172,26 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     ax[1].set_yticklabels([])
     ax[1].set_xlabel(r'$\log(O_{32})$')
 
-    plt.subplots_adjust(left=0.065, right=0.99, bottom=0.1, top=0.99, wspace=0.01)
+    plt.subplots_adjust(left=0.065, right=0.99, bottom=0.1, top=0.99,
+                        wspace=0.01)
     fig.set_size_inches(10, 5)
     fig.savefig(out_pdf, format='pdf')
 
-    if not silent:
-        log.info('### End main : '+systime())
+    log.info("finished.")
 
 
-def get_measurements(data):
+def get_measurements(data, log=None):
     """
     Used in get_DEEP2 and get_MACT to pull data and return it to
     DEEP2_OIII4363 and MACT_OIII4363
 
     """
+
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
     lR23 = np.log10(data['R23'].data)
     lO32 = np.log10(data['O32'].data)
     OH = data['OH'].data
@@ -193,51 +206,74 @@ def get_measurements(data):
     lO32_hi = np.log10(data['O32'].data + data['O32_hi'].data) - lO32
     lO32_err = np.row_stack((lO32_lo, lO32_hi))
 
+    log.info("finished.")
     return lR23, lO32, OH, OH_err, lR23_err, lO32_err
 
-def get_DEEP2(path0):
+
+def get_DEEP2(path0, log=None):
     """
     Called by DEEP2_OIII4363 and returns data to main function
     """
     infile = path0 + 'DEEP2_R23_O32_derived.tbl'
 
-    log.info('### Reading : '+infile)
+    if log is None:
+        log = log_stdout()
 
+    log.info("starting ...")
+
+    log.info(f"Reading: {infile}")
     data = asc.read(infile)
 
     lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
+    log.info("finished.")
     return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err
 
-def get_MACT(path0):
+
+def get_MACT(path0, log=None):
     """
     Called by MACT_OIII4363 and returns data to main function
     """
+
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
     infile = path0 + 'MACT_R23_O32_derived.tbl'
 
-    log.info('### Reading : '+infile)
+    log.info(f"Reading : {infile}")
 
     data = asc.read(infile)
 
     lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_measurements(data)
 
+    log.info("finished.")
     return data, lR23, lO32, OH, OH_err, lR23_err, lO32_err
+
 
 def DEEP2_OIII4363():
     """
     Run function for DEEP2 dataset for hardcoded path (line 241) 
     """
+
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_DEEP2(path0)
+    log = LogClass(path0, 'local_analog_calibration_deep2_oiii4363.log').get_logger()
+
+    log.info("starting ...")
+
+    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_DEEP2(path0, log=log)
 
     ID = data['ID']
 
     out_pdf = path0 + 'DEEP2_R23_O32_Bian18.pdf'
     main([lR23], [lO32], [OH], out_pdf, ID=[ID], lR23_err=[lR23_err],
          lO32_err=[lO32_err], OH_err=[OH_err], R23_xra=[0.75, 1.05],
-         O32_xra=[0.05, 0.95], yra=[7.1, 8.65], label=[r'DEEP2 (Ly+2015)'])
+         O32_xra=[0.05, 0.95], yra=[7.1, 8.65], label=[r'DEEP2 (Ly+2015)'],
+         log=log)
 
+    log.info("finished.")
 
 
 def MACT_OIII4363():
@@ -246,16 +282,21 @@ def MACT_OIII4363():
     """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_MACT(path0)
+    log = LogClass(path0, 'local_analog_calibration_mact_oiii4363.log').get_logger()
+
+    log.info("starting ...")
+
+    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_MACT(path0, log=log)
 
     ID = data['ID']
 
     out_pdf = path0 + 'MACT_R23_O32_Bian18.pdf'
     main([lR23], [lO32], [OH], out_pdf, ID=[ID], lR23_err=[lR23_err],
          lO32_err=[lO32_err], OH_err=[OH_err], R23_xra=[0.6, 1.15],
-         O32_xra=[-0.55, 2.1], yra=[7.1, 8.85], label=[r'$\mathcal{MACT}$  (Ly+2016)'])
+         O32_xra=[-0.55, 2.1], yra=[7.1, 8.85],
+         label=[r'$\mathcal{MACT}$  (Ly+2016)'], log=log)
 
-# enddef
+    log.info("finished.")
 
 
 def DEEP2_MACT_OIII4363():
@@ -264,13 +305,17 @@ def DEEP2_MACT_OIII4363():
     """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
+    log = LogClass(path0, 'local_analog_calibration_deep2_mact_oiii4363.log').get_logger()
+
+    log.info("starting ...")
+
     # DEEP2
     DEEP2_data, DEEP2_lR23, DEEP2_lO32, DEEP2_OH, DEEP2_OH_err, \
-        DEEP2_lR23_err, DEEP2_lO32_err = get_DEEP2(path0)
+        DEEP2_lR23_err, DEEP2_lO32_err = get_DEEP2(path0, log=log)
 
     # MACT
     MACT_data, MACT_lR23, MACT_lO32, MACT_OH, MACT_OH_err, \
-        MACT_lR23_err, MACT_lO32_err = get_MACT(path0)
+        MACT_lR23_err, MACT_lO32_err = get_MACT(path0, log=log)
 
     # Combine together
     lR23 = [DEEP2_lR23, MACT_lR23]
@@ -289,13 +334,16 @@ def DEEP2_MACT_OIII4363():
     labels = [r'DEEP2 [OIII]$\lambda$4363-detected', r'$\mathcal{MACT}$  (Ly+2016)']
     main(lR23, lO32, OH, out_pdf, ID=ID, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6, 1.15], O32_xra=[-0.55, 2.1],
-         yra=[7.1, 8.85], ctype=['blue', 'green'], label=labels)
+         yra=[7.1, 8.85], ctype=['blue', 'green'], label=labels, log=log)
 
     out_pdf = path0 + 'DEEP2_MACT_R23_O32_Bian18.nolabel.pdf'
 
     main(lR23, lO32, OH, out_pdf, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6, 1.15], O32_xra=[-0.55, 2.1],
          yra=[7.1, 8.85], ctype=['blue', 'green'], label=labels)
+         log=log)
+
+    log.info("finished.")
 
 
 def zcalbase():
@@ -303,6 +351,10 @@ def zcalbase():
     Run function for Zcalbase_gal dataset for hardcoded path (line 316) 
     """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
+
+    log = LogClass(path0, 'local_analog_calibration_zcalbase.log').get_logger()
+
+    log.info("starting ...")
 
     ref_name0 = ['Berg2012', 'Kennicutt2003', 'Izotov1994', 'Thuan1995',
                  'Izotov1997', 'Guseva2009', 'Izotov2012', 'SDSS']
@@ -313,8 +365,9 @@ def zcalbase():
     lO32_all = []
     OH_all = []
 
-    for name, dir in zip(ref_name0, dir0):
-        lR23, lO32, OH = get_zcalbase_sample(name, dir=dir)
+    for name, dir_path in zip(ref_name0, dir0):
+        lR23, lO32, OH = get_zcalbase_sample(name, dir_path=dir_path,
+                                             log=log)
 
         lR23_all.append(lR23)
         lO32_all.append(lO32)
@@ -322,6 +375,8 @@ def zcalbase():
 
     out_pdf = path0 + 'Zcalbase_Bian18.pdf'
     label = ref_name0  # ['Kennicutt+2003']
+    ctype = ['blue', 'cyan', 'green', 'yellow',
+             'red', 'magenta', 'gray', 'black']
     main(lR23_all, lO32_all, OH_all, out_pdf, R23_xra=[0.1, 1.05],
          O32_xra=[-0.5, 1.5], yra=[7.0, 9.0], label=label,
-         ctype=['blue', 'cyan', 'green', 'yellow', 'red', 'magenta', 'gray', 'black'])
+         ctype=ctype, log=log)

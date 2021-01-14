@@ -167,9 +167,8 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
 def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
-                    working_wave, lineflag, y_correction='', line_type='',
-                    out_pdf='', line_name=''):
-                    outpdf='', line_name='', log=None):
+                    working_wave, lineflag,  y_correction='', line_type='',
+                    out_pdf='', line_name='', log=None):
     """
     Purpose
     ----------
@@ -466,7 +465,8 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     out_pdf=out_pdf, line_name=line_name[ii])
+                                     out_pdf=out_pdf, line_name=line_name[ii],
+                                     log=log)
 
         if line_type[ii] == 'Balmer':
             em_tab, R_23_array, O_32_array, N_gal_array, \
@@ -474,7 +474,8 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
-                                     out_pdf=out_pdf, line_name=line_name[ii])
+                                     out_pdf=out_pdf, line_name=line_name[ii],
+                                     log=log)
 
         # Oxy2 Line Fit
         if line_type[ii] == 'Oxy2':

@@ -180,11 +180,11 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         else:
             log.info('No error npz found')
             green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6,
-                                    xra=[0.5, 1.1], yra=[6.5, 9.10],
-                                    marker=marker, edgecolors=edgecolor,
-                                    alpha=alpha, label=label, IDs=IDs,
-                                    include_Rlimit=True, fit=False,
-                                    silent=False, verbose=True, log=log)
+                                        xra=[0.5, 1.1], yra=[6.5, 9.10],
+                                        marker=marker, edgecolors=edgecolor,
+                                        alpha=alpha, label=label, IDs=IDs,
+                                        include_Rlimit=True, fit=False,
+                                        silent=False, verbose=True, log=log)
 
     log.info("finished.")
 

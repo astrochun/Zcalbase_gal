@@ -10,7 +10,7 @@ from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_d
 from .logging import log_stdout
 
 def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
-                  apply_dust=False, revised=False, individual=False, log=NOne):
+                  apply_dust=False, revised=False, individual=False, log=None):
     """
     Purpose:
       Call function for calculating and plotting data points based with the green_pea_calibration

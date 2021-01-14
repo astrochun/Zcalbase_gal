@@ -47,7 +47,7 @@ def get_det3(fitspath, fitspath_ini, log=None):
 
     for ii in range(1, 5):
         file1 = join(fitspath_ini,
-                     'DEEP2_Commons/Catalogs/DEEP2_Field'+str(ii)+'_all_line_fit.fits')
+                     f"DEEP2_Commons/Catalogs/DEEP2_Field{ii}_all_line_fit.fits")
         log.info(f"Reading: {file1}")
         data = Table(fits.getdata(file1))
         if ii == 1:

@@ -150,7 +150,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # For each individual stack
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
-def zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2, wave,
+def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
                     working_wave, lineflag, y_correction='', line_type='',
                     out_pdf='', line_name=''):
     """
@@ -426,7 +426,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
             out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
             print(out_pdf)
             em_tab, R_23_array, O_32_array, N_gal_array, \
-                id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
+                id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
@@ -437,7 +437,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
             out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
             print(out_pdf)
             em_tab, R_23_array, O_32_array, N_gal_array, \
-                id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
+                id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
@@ -448,7 +448,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, y_correct
             out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
             print(out_pdf)
             em_tab, R_23_array, O_32_array, N_gal_array, \
-                id = zoom_gauss_plot(dataset, tab, stack2d, dispersion, s2,
+                id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
                                      wave, lambda0[ii], lineflag,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],

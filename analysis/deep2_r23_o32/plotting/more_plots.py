@@ -21,8 +21,6 @@ from os.path import join
 
 from Zcalbase_gal.analysis.deep2_r23_o32 import zoom_and_gauss_general
 
-fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-
 
 def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     """
@@ -114,7 +112,7 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
 
     pdf_pages.close()
 
-    pdf_pages2 = PdfPages(join(fitspath + 'O32_histogram.pdf'))
+    pdf_pages2 = PdfPages(join(fitspath, 'O32_histogram.pdf'))
     for ii in range(number_of_bins):
         bin_idx = np.where(N_bin == ii)[0]
         fig, ax = plt.subplots()
@@ -156,20 +154,19 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
     pdf_pages = PdfPages(pdf_name)
 
     txt0 = r'Intensity ($10^{-17}~{\rm erg}~{\rm s}^{-1}~{\rm cm}^{-2}~\AA^{-1}$)'
-                        
     scalefactor = 1e-17
     image2d = image2DM/scalefactor
     for ii in spec_range:
         fig, ax = plt.subplots()
         plt.plot(wave, image2d[ii, :], linewidth=0.5)
         plt.xlabel('Wavelength (Angstroms)')
-        plt.ylabel(txt0)  # ergs per second per cm^2 per angstron
+        plt.ylabel(txt0)  # ergs per second per cm^2 per Angstrom
         ax.set_xlim(4250, 4450)
         ax.set_ylim(y_lim)
         ax.axvline(x=4363.21, linewidth=1.0, color='r', linestyle=':')
         ax.axvline(x=4340.544, linewidth=1.0, color='r', linestyle=':')
         ax.text(4363.21, y_text, r'[OIII]$\lambda$4363', va='top', ha='center', rotation=90)
-        ax.text(4340.544, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
+        ax.text(4340.46, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
         fig.set_size_inches(6, 6)
         plt.subplots_adjust(left=left, right=0.97, bottom=0.1, top=0.97)
         pdf_pages.savefig()
@@ -188,7 +185,6 @@ def plotting_gaussian_curves():
     s = 15.0
     a = 20.0
     c = 0.0
-                         
     singlecurve = zoom_and_gauss_general.gauss(x, xbar, s, a, c)
 
     # Balmer Emission Lines
@@ -204,7 +200,7 @@ def plotting_gaussian_curves():
 
     positive = zoom_and_gauss_general.gauss(x, xbar, s1, a1, doublecurve[0])
     negative = zoom_and_gauss_general.gauss(x, xbar, s2, a2, c)
-                         
+
     # Oxygen Two Line
     x = np.arange(1, 100)
     xbar = 40.0
@@ -215,7 +211,7 @@ def plotting_gaussian_curves():
     c = 0.0
 
     oxycurve = oxy2_gauss(x, xbar, s1, a1, c, s2, a2)
-            
+
     xbar3 = 40.0
     xbar4 = 63.5
     s3 = 8.0
@@ -262,5 +258,6 @@ def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
     x -> the emission line that is being fitted
     the rest -> guess parameters for the fit
     """
+
     con1 = 72.0/45.0
     return a1 * np.exp(-(x - xbar)**2/(2 * s1**2)) + c + a2 * np.exp(-(x - (xbar * con1))**2/(2 * s2**2))

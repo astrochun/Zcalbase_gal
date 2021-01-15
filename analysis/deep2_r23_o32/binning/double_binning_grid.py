@@ -96,7 +96,7 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
         T_arr[ii, 1] = idx3
         
         N_bin[idx2] = ii*2
-        N_bin[idx3] = ii*2+1
+        N_bin[idx3] = ii*2 + 1
 
         xBar[ii*2] = np.log10(np.average(R23[idx2]))
         xBar[ii*2+1] = np.log10(np.average(R23[idx3]))

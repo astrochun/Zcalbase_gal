@@ -298,14 +298,13 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
             # line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2d,
             #                line_name, row, col, fig, ax_arr, log=log)
 
-            # Filling In Arrays
+            # Array Population
             norm_array[rr] = max0
             rms_array[rr] = rms_tot
             SN_array[rr] = (flux_s/rms_tot)
             if line_type == 'Balmer':
                 flux_neg_array[rr] = flux_neg
 
-            # Filling In Arrays
             flux_g_array[rr] = flux_g
             flux_s_array[rr] = flux_s
             xbar_array[rr] = o1[0]   # referred to as Center as well
@@ -399,8 +398,7 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
             fig.savefig(pdf_pages, format='pdf')
             fig.clear()
 
-    # Writing Ascii Tables and Fits Tables
-    # Repetitive Columns have been added: The last four ot six columns will be used for individual graphing
+    # Repetitive Columns have been added: The last four to six columns will be used for individual graphing
 
     if line_type == 'Single':
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
@@ -425,6 +423,13 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
             names = f"EW_{np.int(working_wave)}_abs"
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
+    asc.write(tab0, out_ascii, format='fixed_width_two_line')
+
+    out_ascii_single = join(fitspath, dataset + '_Average_R23_O32_Values.tbl')
+
+    n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
+    tab1 = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
+    asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
 
     pdf_pages.close()
     # pdfpages3.close() # Add back in equivalent width plots are added
@@ -463,7 +468,6 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      out_pdf=out_pdf, line_name=line_name[ii],
                                      log=log)
 
-        # Balmer Line Fit
         if line_type[ii] == 'Balmer':
             em_tab, R_23_array, O_32_array, N_gal_array, \
                 id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,

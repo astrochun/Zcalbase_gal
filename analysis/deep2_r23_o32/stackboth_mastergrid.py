@@ -9,6 +9,7 @@ Emission lines in spectrum (not all being used currently in study) See MSC for s
 [3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46,
 4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
 """
+
 import numpy as np
 import numpy.ma as ma
 
@@ -40,6 +41,7 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
 def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                     mask=True, log=None):
     """
+
     Purpose
     Function stacks all spectra in a given bin and produces tables of properties of that bin
 
@@ -58,7 +60,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     log.debug("starting ...")
 
-    RestframeMaster = join(fitspath_ini, 'Master_Grid.fits')
+    RestframeMaster = join(fitspath_ini, 'DEEP2_Commons/Images/Master_Grid.fits')
     log.info(f"Reading: {RestframeMaster}")
     image2D, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
@@ -117,7 +119,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 O32_node[count] = O32_minimum[rr, oo]
                 avg_R23[count] = np.average(R23[index])  # np.log10(R23)
                 avg_O32[count] = np.average(O32[index])  # (np.log10(O32
-                R23_med[count] = np.median(R23[index])  # np.log10(R23)
+                R23_med[count] = np.median(R23[index])   # np.log10(R23)
                 O32_med[count] = np.median(O32[index])
                 N_gal[count] = len(index)
                 subgrid = image2DM[index]
@@ -188,7 +190,6 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 fig.tight_layout()
                 plt.draw()
                 pdf_pages.savefig(fig)
-
                 count += 1
 
     log.info(f"Writing: {join(fitspath, name)}")

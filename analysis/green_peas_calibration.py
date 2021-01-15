@@ -159,7 +159,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
     log.info(f"Writing: {out_diff_pdf}")
     fig.savefig(out_diff_pdf)
 
-    log.info("finished ...")
+    log.info("finished.")
 
 
 def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
@@ -273,8 +273,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
         for ii in range(n_bins):
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
-            y_ii_max = bin_end[ii]   # y_min + (ii+1) * dy
+            y_ii_max = bin_end[ii]    # y_min + (ii+1) * dy
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
+            print('idx: ', idx)
             
             ii_label = ''
             if nn == 0:  # n_sample-1:
@@ -287,8 +288,9 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
                 # Pushed Error bars under idx requirement
                 # Added if statement so that only data points on the OH_err[0] place will be plotted
-                if nn == 0: 
+                if nn == 0:
                     if len(OH_err) != 0:
+                        log.info(f"OH: {OH[nn][idx]}")
                         log.info(f"OH_err: {OH_err[nn][idx]}")
                         ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=np.transpose(OH_err[nn][idx]),
                                     mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
@@ -356,7 +358,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
                          OH_range=yra, dR23_range=dR23_range, marker=marker,
                          label=label, IDs=nIDs, log=log)
 
-    log.info("finished ...")
+    log.info("finished.")
 
 
 def get_measurements(data, log=None):
@@ -380,7 +382,7 @@ def get_measurements(data, log=None):
     lR23_hi = np.log10(data['R23'].data + data['R23_hi'].data) - lR23
     lR23_err = np.row_stack((lR23_lo, lR23_hi))
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
     return lR23, lO32, OH, OH_err, lR23_err
 
@@ -492,7 +494,7 @@ def DEEP2_OIII4363(log_dir):
     # main([lR23], [lO32], [OH], out_pdf, lR23_err=[lR23_err], OH_err=[OH_err],
     # xra=[0.75,1.05], yra=[7.1,8.65], fit=True)
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
 
 def MACT_OIII4363(log_dir):
@@ -517,7 +519,7 @@ def MACT_OIII4363(log_dir):
          OH_err=[OH_err], xra=[0.60, 1.15], yra=[7.10, 8.7], fit=True,
          log=log)
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
 
 def DEEP2_MACT_OIII4363(log_dir, include_stack=False, fit=False):

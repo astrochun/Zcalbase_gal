@@ -6,7 +6,7 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 
-from ..logging import log_stdout
+from ..log_commons import log_stdout
 
 
 def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,

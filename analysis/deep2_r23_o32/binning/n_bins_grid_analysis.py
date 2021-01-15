@@ -8,7 +8,7 @@ from os.path import join
 
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-from ..logging import log_stdout
+from ..log_commons import log_stdout
 
 
 def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,

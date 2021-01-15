@@ -15,13 +15,14 @@ from . import stackboth_mastergrid, zoom_and_gauss_general, \
 from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from .plotting import more_plots, line_ratio_plotting, te_metal_plots
-from .logging import LogClass, log_stdout
+from .log_commons import LogClass, log_stdout
 
 from Metallicity_Stack_Commons import exclude_outliers, dir_date, lambda0, \
     valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import error_prop
+# from Metallicity_Stack_Commons.logging import LogClass, log_stdout
 
 
 def get_det3(fitspath, fitspath_ini, log=None):

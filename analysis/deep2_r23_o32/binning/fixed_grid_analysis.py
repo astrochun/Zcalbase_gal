@@ -7,7 +7,7 @@ from astropy.io import ascii as asc
 from astropy.table import Table
 from os.path import join
 
-from ..logging import log_stdout
+from ..log_commons import log_stdout
 
 
 def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,

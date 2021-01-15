@@ -5,7 +5,7 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
-from ..logging import log_stdout
+from ..log_commons import log_stdout
 
 
 def color_for_bin(fitspath, bin_info, pdf_file):

@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 from astropy.io import fits
 from os.path import join
 
-from analysis.deep2_r23_o32.logging import log_stdout, LogClass
+from .deep2_r23_o32.log_commons import log_stdout, LogClass
 
 jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 

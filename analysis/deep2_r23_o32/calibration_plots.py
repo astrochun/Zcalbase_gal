@@ -7,7 +7,7 @@ from os.path import exists, join
 from .. import local_analog_calibration, green_peas_calibration
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
-from .logging import log_stdout
+from .log_commons import log_stdout
 
 def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
                   apply_dust=False, revised=False, individual=False, log=None):

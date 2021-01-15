@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from ..logging import log_stdout
+from ..log_commons import log_stdout
 
 
 def single_grid_o32(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):

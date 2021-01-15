@@ -26,7 +26,7 @@ from os.path import exists, join
 from astropy.convolution import Box1DKernel, convolve
 
 from . import general
-from .logging import log_stdout
+from .log_commons import log_stdout
 
 from Metallicity_Stack_Commons import lambda0
 from Metallicity_Stack_Commons.column_names import filename_dict

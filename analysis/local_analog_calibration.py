@@ -10,7 +10,7 @@ from astropy.io import ascii as asc
 import numpy as np
 import matplotlib.pyplot as plt
 
-from analysis.deep2_r23_o32.logging import log_stdout, LogClass
+from .deep2_r23_o32.log_commons import log_stdout, LogClass
 
 from .green_peas_calibration import get_zcalbase_sample
 

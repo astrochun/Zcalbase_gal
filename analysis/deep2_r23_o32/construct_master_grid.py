@@ -10,7 +10,7 @@ import numpy as np
 import glob
 from os.path import join
 
-from .logging import log_stdout
+from .log_commons import log_stdout
 
 
 def main(path0, silent=False, log=None):

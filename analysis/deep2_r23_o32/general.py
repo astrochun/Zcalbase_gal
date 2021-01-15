@@ -315,6 +315,13 @@ def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
     ----------
 
     """
+
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/')
+    fitspath = dir_date(fitspath_currentrun, year=False)
+
+    # Define logging function
+    log = LogClass(fitspath, 'run_grid_plots.log').get_logger()
+
     # Te_metal Plots
     te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw, apply_dust=apply_dust,
                                      revised=revised, individual=individual)

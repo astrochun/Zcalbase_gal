@@ -444,6 +444,6 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
             error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
                                            apply_dust=True, revised=False, log=log)
             error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                           apply_dust=True, revised=True, log=True)
+                                           apply_dust=True, revised=True, log=log)
 
     log.debug("finished.")

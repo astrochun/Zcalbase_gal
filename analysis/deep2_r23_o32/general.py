@@ -60,7 +60,7 @@ def get_det3(fitspath, fitspath_ini, log=None):
 
     # Excluding Outliers
     exclude_flag = exclude_outliers(objno)
-    log.info(f"exclude flag: ", np.where(exclude_flag == 1))
+    log.info(f"exclude flag: {np.where(exclude_flag == 1)[0]}")
 
     O2_ini = data0['OII_FLUX_MOD'].data
     O3_ini = 1.33*data0['OIIIR_FLUX_MOD'].data

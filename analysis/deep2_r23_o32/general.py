@@ -198,10 +198,10 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     bin_outfile = join(fitspath, dataset + name_dict['gridnpz_suffix'])
 
     if dataset == 'O32_Grid':
-        single_grid_o32.single_grid_o32(fitspath, bin_pdf_pages, bin_outfile,
+        single_grid_o32.single_grid_o32(bin_pdf_pages, bin_outfile,
                                         R23, O32, galinbin, log=log)
     if dataset == 'R23_Grid':
-        single_grid_r23.single_grid_r23(fitspath, bin_pdf_pages, bin_outfile,
+        single_grid_r23.single_grid_r23(bin_pdf_pages, bin_outfile,
                                         R23, O32, galinbin, log=log)
     if dataset == 'Grid':
         R23_bin = 0.25

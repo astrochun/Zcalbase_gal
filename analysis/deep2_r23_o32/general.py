@@ -11,7 +11,7 @@ from os.path import join
 
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
-    hstack_tables, calibration_plots, name_dict
+    calibration_plots, name_dict
 from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from .plotting import more_plots, line_ratio_plotting, te_metal_plots

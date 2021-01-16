@@ -37,7 +37,7 @@ def main(path0, silent=False, log=None):
     if log is None:
         log = log_stdout()
 
-    log.info("starting")
+    log.info("starting ...")
 
     files_2D = glob.glob(join(path0, 'DEEP2_2D_Field?.f3.fits'))
 
@@ -80,5 +80,4 @@ def main(path0, silent=False, log=None):
     x0 = crval0 + avg_cdelt * np.arange(n_pixel)
     log.info(np.min(x0), np.max(x0))
 
-    if not silent:
-        log.info("finished.")
+    log.info("finished.")

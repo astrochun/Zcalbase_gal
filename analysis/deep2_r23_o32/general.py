@@ -173,6 +173,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Define logging function
     log = LogClass(fitspath, 'run_grid_r23_o32_analysis.log').get_logger()
 
+    log.info("starting ...")
+
     if dataset not in ['Grid', 'O32_Grid', 'R23_Grid', 'n_Bins']:
         log.warning("Incorrect [dataset] input")
         raise ValueError("Warning!!!! Incorrect [dataset]")
@@ -302,6 +304,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)
     # print('Individual Detections Complete')
 
+    log.info("finished.")
+
 
 def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
                    revised=False, individual=False):
@@ -320,6 +324,8 @@ def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
 
     # Define logging function
     log = LogClass(fitspath, 'run_grid_plots.log').get_logger()
+
+    log.info("starting ...")
 
     # Te_metal Plots
     te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw, apply_dust=apply_dust,
@@ -347,7 +353,7 @@ def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
     more_plots.hist_for_bin(dataset, asc_table2)
     '''
 
-    log.debug("finished.")
+    log.info("finished.")
 
 
 # Below function will run the individual functions in the codes above that produce graphs
@@ -380,6 +386,8 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
     """
 
     log = LogClass(fitspath, 'run_individual_functions.log').get_logger()
+
+    log.info("starting ...")
 
     fitspath_ini = get_user()
     if want == 'binning_and_stacking':
@@ -453,4 +461,4 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
             error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
                                            apply_dust=True, revised=True, log=log)
 
-    log.debug("finished.")
+    log.info("finished.")

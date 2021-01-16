@@ -110,7 +110,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     for rr in range(n_N):
         for oo in range(n_M):
-            log.info(f"{rr}, {oo}")
+            log.info(f"rr: {rr}  oo: {oo}")
             index = grid_data['locator'][rr, oo]
 
             # calculating the average and minimum values of R23 and O32
@@ -124,7 +124,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 N_gal[count] = len(index)
                 subgrid = image2DM[index]
 
-                log.info(f"R23: {R23_node[count]} O32: {O32_node[count]}," +
+                log.info(f"R23: {R23_node[count]} O32: {O32_node[count]} " +
                          f"avg_R23: {avg_R23[count]} avg_O32: {avg_O32[count]}")
 
                 if exists(outfile):

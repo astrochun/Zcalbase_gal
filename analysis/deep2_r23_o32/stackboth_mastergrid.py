@@ -79,7 +79,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     if mask:
         mask_file = join(fitspath_ini,
-                         'stacking_masks/MastermaskArray.fits')
+                         'DEEP2_Commons/Images/MastermaskArray.fits')
         log.info(f"Reading: {mask_file}")
         maskM = fits.getdata(mask_file)
         image2DM = np.ma.masked_array(image2DM, maskM[det3])

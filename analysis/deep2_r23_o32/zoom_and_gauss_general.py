@@ -423,7 +423,6 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
             names = f"EW_{np.int(working_wave)}_abs"
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
-    asc.write(tab0, out_ascii, format='fixed_width_two_line')
 
     out_ascii_single = join(fitspath, dataset + '_Average_R23_O32_Values.tbl')
 

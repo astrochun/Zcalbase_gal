@@ -87,4 +87,4 @@ def single_grid_o32(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
 
     fig.clear()
 
-    log.info("finished ...")
+    log.info("finished.")

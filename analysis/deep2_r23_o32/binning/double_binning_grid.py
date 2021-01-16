@@ -150,4 +150,4 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
     log.info(f"Writing: {out_table_file3}")
     asc.write(tab2, out_table_file3, format='fixed_width_two_line')
 
-    log.debug("finished ...")
+    log.debug("finished.")

@@ -118,4 +118,4 @@ def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
     np.savez(npz_outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=O32_grid,
              N_arr0=N_arr0)
 
-    log.debug("finished ...")
+    log.debug("finished.")

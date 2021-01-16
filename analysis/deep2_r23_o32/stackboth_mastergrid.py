@@ -220,4 +220,4 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     fig.clear()
 
-    log.debug("finished ...")
+    log.debug("finished.")

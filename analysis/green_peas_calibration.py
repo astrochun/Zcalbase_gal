@@ -418,7 +418,7 @@ def get_zcalbase_sample(prefix, dir_path='', log=None):
 
     OH = data1.OH_gas
 
-    log.info("finished ...")
+    log.info("finished.")
 
     return lR23, lO32, OH
 
@@ -440,7 +440,7 @@ def get_DEEP2(path0, log=None):
 
     lR23, lO32, OH, OH_err, lR23_err = get_measurements(data, log=log)
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
     return data, lR23, lO32, OH, OH_err, lR23_err
 
@@ -467,7 +467,7 @@ def get_MACT(path0, log=None):
 
     lR23, lO32, OH, OH_err, lR23_err = get_measurements(data, log=log)
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
     return data, lR23, lO32, OH, OH_err, lR23_err
 
@@ -594,7 +594,7 @@ def DEEP2_MACT_OIII4363(log_dir, include_stack=False, fit=False):
              xra=[0.45, 1.15], yra=yra, marker=['*', 'o'], label=label,
              fit=True, log=log)
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
 
 def zcalbase(log_dir):

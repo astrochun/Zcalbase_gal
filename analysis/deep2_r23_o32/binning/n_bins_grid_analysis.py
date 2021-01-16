@@ -249,4 +249,4 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     asc.write(tab1, fitspath+'/Double_Bin_grid_values.tbl', format='fixed_width_two_line')'''
     # Create another ascii table with the R23_grid and O32_grid values for plots
 
-    log.debug("finished ...")
+    log.debug("finished.")

@@ -55,7 +55,7 @@ def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
     fig.savefig(pdf_pages2, format='pdf')
     pdf_pages2.close()
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
 
 def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
@@ -135,7 +135,7 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
             log.warning('fail')
             fail = 1
 
-    log.debug("finished ...")
+    log.debug("finished.")
 
     return o1, med0, max0
 
@@ -434,7 +434,7 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
     # pdfpages3.close() # Add back in equivalent width plots are added
     fig.clear()
 
-    log.debug("finished ...")
+    log.debug("finished.")
     return tab0, R_23_array, O_32_array, N_gal_array, id
 
 
@@ -500,4 +500,4 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
         asc.write(table_stack, out_ascii,  format='fixed_width_two_line',
                   overwrite=True)
 
-    log.debug("finished ...")
+    log.debug("finished.")

@@ -106,6 +106,9 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False, 
                                     edgecolors=['face', 'face', 'none'], alpha=alpha,
                                     label=['Individual Zcalbase_gal Detection'], ID=[bin_ID], fit=False,
                                     silent=False, verbose=True)
+        # green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, lR23_err=[], OH_err=[metal_err],
+                                    # xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, edgecolors=edgecolor, alpha=alpha,
+                                    # label=label, IDs=IDs, include_Rlimit=True, fit=False, silent=False, verbose=True)
     # For LAC
     if dataset == 'R23_Grid':
         lR23 = [det_R23, der_R23, der_R23_MACT]

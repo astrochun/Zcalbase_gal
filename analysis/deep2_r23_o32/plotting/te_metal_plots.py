@@ -101,7 +101,8 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False, revis
 
     # Individual Measurements
     if individual:
-        indv_all_file = join(fitspath, filename_dict['indv_bin_info'])
+        indv_all_file = join(fitspath, filename_dict['indv_derived_prop'])
+        print(indv_all_file)
         indv_all = asc.read(indv_all_file)
 
         icom_log = indv_all['12+log(O/H)']

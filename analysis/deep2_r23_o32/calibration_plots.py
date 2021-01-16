@@ -9,6 +9,7 @@ from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_d
 
 from .log_commons import log_stdout
 
+
 def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
                   apply_dust=False, revised=False, individual=False, log=None):
     """

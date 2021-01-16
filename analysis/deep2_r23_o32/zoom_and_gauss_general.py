@@ -484,7 +484,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                                      y_correction=y_correction,
                                      line_type=line_type[ii],
                                      out_pdf=out_pdf, line_name=line_name[ii],
-                                     log=None)
+                                     log=log)
 
         if ii == 0:
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')

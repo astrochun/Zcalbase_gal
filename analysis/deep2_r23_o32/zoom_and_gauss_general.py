@@ -495,9 +495,9 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
         else:
             table_stack = hstack([table_stack, em_tab])
 
-        out_ascii = join(fitspath, filename_dict['bin_fit'])
-        log.info(f"Writing: {out_ascii}")
-        asc.write(table_stack, out_ascii,  format='fixed_width_two_line',
-                  overwrite=True)
+    out_ascii = join(fitspath, filename_dict['bin_fit'])
+    log.info(f"Writing: {out_ascii}")
+    asc.write(table_stack, out_ascii, format='fixed_width_two_line',
+              overwrite=True)
 
     log.debug("finished.")

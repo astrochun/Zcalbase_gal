@@ -275,8 +275,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
             y_ii_max = bin_end[ii]    # y_min + (ii+1) * dy
             idx = np.where((lO32[nn] >= y_ii_min) & (lO32[nn] <= y_ii_max))[0]
-            print('idx: ', idx)
-            
+            log.info(f"idx: {idx}")
+
             ii_label = ''
             if nn == 0:  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]

@@ -8,32 +8,39 @@ from os.path import join
 
 from Metallicity_Stack_Commons.column_names import filename_dict
 
+from ..log_commons import log_stdout
 
-def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O32,
-                   SNR3, data3, galinbin):
+
+def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
+                   R23, O32, SNR3, data3, galinbin, log=None):
     """
-    Purpose
-    This file holds the function to bin data adaptively based on the entered number of galaxies for each bin.
-    First, it bins in the R23 direction and then in the O32 direction
-    Used in current analysis
+    Purpose:
+      This file holds the function to bin data adaptively based on the entered
+      number of galaxies for each bin.
+      First, it bins in the R23 direction and then in the O32 direction
 
-    R23 and O32 are going to be log values
-    One_dimensional binning for R23 followed by each bin being split in O32 in n_split bins
-    increase the number of galaxies as R23 increases
+      This is used in current analysis.
 
-    Inputs:
-    fitspath  -> str: Absolute path for working directory
-    pdf_pages -> name of outputted pdf file
-    outfile   -> name of the npz file produced by the function
-    n_split   -> the number of times each R23 bin will be split
-    galinbin  -> array of numbers that specifies how many spectra go in each bin
-    individual_ID -> individual ids for each spectra
-    R23 -> R23 measurement of each spectra
-    O32 -> O32 measurement of each spectra
-    SNR3 -> signal to noise of the OIII emission lines of each spectra
-    data3 -> array determined by get_det3 that determines if spectra can be used in this study
+    :param fitspath: str. Absolute path for working directory
+    :param pdf_pages: str. name of outputted pdf file
+    :param npz_outfile: str. name of the npz file produced by the function
+    :param n_split: int. the number of times each R23 bin will be split
+    :param galinbin: np.array. Number of spectra in each bin
+    :param individual_ID: np.array. Individual IDs for each spectra
+    :param R23: np.array. log(R23) measurements of each spectra
+    :param O32: np.array. log(O32) measurements of each spectra
+    :param SNR3: np.array. Signal to noise of the OIII emission lines of each spectra
+    :param data3: np.array. From get_det3 - indicates if spectra can be used
+    :param log: LogClass or logging object
     """
-    pdf_pages = PdfPages(pdf_pages)
+
+    if log is None:
+        log = log_stdout()
+
+    log.debug("starting ...")
+
+    pp = PdfPages(pdf_pages)
+
     # One_dimensional binning for R23
     sortR23 = np.argsort(R23)
     R23_sort0 = R23[sortR23]
@@ -44,10 +51,10 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     # Initializing Arrays for Grid stacking
     inbin_shape = (n_bins, n_split)
     n_bins_total = n_split * n_bins
-    number_inbin = np.zeros(inbin_shape)   # Used to be N_arr0
+    number_inbin = np.zeros(inbin_shape)                 # Used to be N_arr0
     locator = np.zeros((n_bins, n_split), dtype=object)  # Used to be T_arr
-    O32_minimum = np.zeros(inbin_shape)    # Used to be O32_grid
-    R23_minimum = np.zeros(inbin_shape)    # Used to be R23_grid
+    O32_minimum = np.zeros(inbin_shape)                  # Used to be O32_grid
+    R23_minimum = np.zeros(inbin_shape)                  # Used to be R23_grid
     O32_median = np.zeros(inbin_shape)
     R23_median = np.zeros(inbin_shape)
     O32_max = np.zeros(inbin_shape)
@@ -71,7 +78,7 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     bin_end = np.zeros(n_bins, dtype=np.int)
 
     for ii in range(n_bins):
-        print('ii: ', ii) 
+        log.info(f"ii: {ii}")
         if ii == 0:
             bin_start[ii] = 0
         else:
@@ -80,19 +87,18 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
             bin_end[ii] = len(R23_sort0) - 1
         else:
             bin_end[ii] = galinbin[ii]+bin_start[ii] - 1
-        print('Bin Start:', bin_start[ii], 'Bin end:', bin_end[ii])
+        log.info(f"Bin Start: {bin_start[ii]}  Bin end: {bin_end[ii]}")
 
-        R23_idx = np.where((R23 >= R23_sort0[bin_start[ii]]) & (R23 <= R23_sort0[bin_end[ii]]))[0]
+        R23_idx = np.where((R23 >= R23_sort0[bin_start[ii]]) &
+                           (R23 <= R23_sort0[bin_end[ii]]))[0]
 
-        R23_inbins = R23[R23_idx]
         O32_inbins = O32[R23_idx]           # O32 relative to the R23_index/ O32 sorted into the R23 bins
         O32_index = np.argsort(O32_inbins)  # Sort the O32 in their bins so that we have their locations
         sortO32 = O32_inbins[O32_index]     # Take O32 in each bin & organizes them based on the index in previous line
 
-        # The following lines could go into a defintion called "evenSplit( ... )" therefore
+        # The following lines could go into a definition called "evenSplit( ... )" therefore
         # allowing you to create a different splitting method definition called "optimalSplit( ... )"
         # or something to that effect if so desired.
-        # @{
         n_subbins = np.int(np.floor(float(len(sortO32))/n_split))
         subbin_arr = np.ones(n_split, dtype=int) * n_subbins
         n_remainder = len(sortO32) - n_subbins*n_split
@@ -104,7 +110,6 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
             subbin_arr[backwardsIdx] = n_subbins + 1
             backwardsIdx -= 1
         subbin_arr[backwardsIdx] = n_subbins
-        # }
         
         startIdx = 0
         endIdx = subbin_arr[0]
@@ -189,47 +194,59 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     ax.set_ylabel(r'log($O_{32}$)')
 
     for jj in range(len(O32_lowlimit)):
-        xmin = vlines[jj]
+        x_min = vlines[jj]
         if jj <= (len(O32_lowlimit) - n_split - 1):
-            xmax = vlines[jj + n_split]
+            x_max = vlines[jj + n_split]
         else:
-            xmax = np.log10(max(R23))
+            x_max = np.log10(max(R23))
         plt.axvline(x=vlines[jj], linewidth=0.3, color='k')
         
-        x_value = [xmin, xmax]
+        x_value = [x_min, x_max]
         y_value = [hlines[jj], hlines[jj]]
         y_average = [yBar[jj], yBar[jj]]
         plt.plot(x_value, y_value, linewidth=0.3, color='b')
         plt.plot(x_value, y_average, linewidth=0.3, color='g')
 
-    fig.savefig(pdf_pages, format='pdf')
-    pdf_pages.close()
+    fig.savefig(pp, format='pdf')
+    log.info(f"Writing: {pdf_pages}")
+    pp.close()
 
-    # np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=number_inbin)
     # Writing as a dictionary
     avg_dict = {'locator': locator,
                 'R23_minimum': R23_minimum,
                 'O32_minimum': O32_minimum,
                 'Number_inbin': number_inbin}
-    np.savez(outfile, **avg_dict)
+    log.info(f"Writing: {npz_outfile}")
+    np.savez(npz_outfile, **avg_dict)
 
-    n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
-          'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
-    tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit), np.log10(O32_lowlimit), np.log10(xBar),
-                  np.log10(yBar), np.log10(R23_medians), np.log10(O32_medians), np.log10(R23_maxval),
-                  np.log10(O32_maxval)], names=n1)
-    # used to be called +dataset+'_binning_averages.tbl
-    asc.write(tab1, join(fitspath,filename_dict['bin_info']), format='fixed_width_two_line')
+    n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg',
+          'logO32_avg', 'logR23_median', 'logO32_median', 'logR23_max',
+          'logO32_max')
+    tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit),
+                  np.log10(O32_lowlimit), np.log10(xBar), np.log10(yBar),
+                  np.log10(R23_medians), np.log10(O32_medians),
+                  np.log10(R23_maxval), np.log10(O32_maxval)], names=n1)
 
-    n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
+    # Used to be called +dataset+'_binning_averages.tbl
+    bin_outfile = join(fitspath, filename_dict['bin_info'])
+    log.info(f"Writing: {bin_outfile}")
+    asc.write(tab1, bin_outfile, format='fixed_width_two_line')
+
+    n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min',
+          'logO32_min', 'logR23_avg', 'logO32_avg',
           'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
     tab2 = Table([R23, O32, SNR3, bin_number, individual_ID,
                  R23_minall, O32_minall, R23_avgall, O32_avgall,
                  R23_medall, O32_medall, R23_maxall, O32_maxall], names=n2)
-    # used to be + dataset+'_2d_binning_datadet3.tbl
-    asc.write(tab2, join(fitspath,filename_dict['indv_bin_info']), format='fixed_width_two_line')
+
+    # Used to be + dataset+'_2d_binning_datadet3.tbl
+    indv_outfile = join(fitspath, filename_dict['indv_bin_info'])
+    log.info(f"Writing: {indv_outfile}")
+    asc.write(tab2, indv_outfile, format='fixed_width_two_line')
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')
     tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)
     asc.write(tab1, fitspath+'/Double_Bin_grid_values.tbl', format='fixed_width_two_line')'''
-# Create another ascii table with the R23_grid and O32_grid values for plots
+    # Create another ascii table with the R23_grid and O32_grid values for plots
+
+    log.debug("finished.")

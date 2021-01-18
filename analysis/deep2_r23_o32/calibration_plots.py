@@ -4,11 +4,14 @@ import numpy as np
 from astropy.io import ascii as asc
 from os.path import exists, join
 
-from Zcalbase_gal.analysis import local_analog_calibration, green_peas_calibration
+from .. import local_analog_calibration, green_peas_calibration
 from Metallicity_Stack_Commons.column_names import filename_dict, npz_filename_dict
 
+from .log_commons import log_stdout
 
-def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=False):
+
+def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
+                  apply_dust=False, revised=False, individual=False, log=None):
     """
     Purpose:
       Call function for calculating and plotting data points based with the green_pea_calibration
@@ -25,26 +28,43 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
       pdf_files
     """
 
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
+    suffix = ''
+    if not revised:
+        suffix += '.valid1'
+
+    if not raw:
+        suffix += '.MC'
+
+    if apply_dust:
+        suffix += '.dustcorr'
+
+    pea_out_pdf = join(fitspath, f"{dataset}_GPC{suffix}.pdf")
+    LAC_out_pdf = join(fitspath, f"{dataset}_LAC{suffix}.pdf")
+
+    # Validation Table Call
     if revised:
-        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop_rev']))
         verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
-        pea_out_pdf = join(fitspath, dataset+'_GPC.revised.pdf')
-        LAC_out_pdf = join(fitspath, dataset+'_LAC.revised.pdf')
     else:
-        temp_table = asc.read(join(fitspath, filename_dict['bin_derived_prop']))
         verification = asc.read(join(fitspath, filename_dict['bin_valid']))
-        pea_out_pdf = join(fitspath, dataset+'_GPC.pdf')
-        LAC_out_pdf = join(fitspath, dataset+'_LAC.pdf')
+
+    temperature_table = join(fitspath, f"bin_derived_properties{suffix}.tbl")
+    temp_table = asc.read(temperature_table)
 
     detect = verification['Detection']
     det_4363 = np.where(detect == 1)[0]
     rlimit = np.where(detect == 0.5)[0]
-    print('Begin Local analog Calibration')
+    # print('det_4363: ', det_4363)
+    # print('Begin Local analog Calibration')
 
     # Tables of individual detections from DEEP2 and MACT samples
-    derived = asc.read(fitspath_ini + 'DEEP2_R23_O32_derived.tbl')
-    derived_MACT = asc.read(fitspath_ini + 'MACT_R23_O32_derived.tbl')
-    
+    derived = asc.read(join(fitspath_ini, 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'))
+    derived_MACT = asc.read(join(fitspath_ini, 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'))
+
     # DEEP2 Derived
     er_R23 = derived['R23'].data
     er_O32 = derived['O32'].data
@@ -59,14 +79,14 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
     der_O32_MACT = np.log10(er_O32_MACT)
     der_OH_MACT = derived_MACT['OH'].data
 
-    O32_all = temp_table['logO32_Composite']
-    print(O32_all)
-    R23_all = temp_table['logR23_Composite']
+    O32_all = temp_table['logO32_composite']
+    log.debug(O32_all)
+    R23_all = temp_table['logR23_composite']
     com_O_log = temp_table['12+log(O/H)']  # This is the 12+log(OH) value
     ID = temp_table['bin_ID']
     
     det_O32 = O32_all[det_4363]
-    print('det_O32: ', det_O32)
+    log.debug(f"det_O32: {det_O32}")
     det_R23 = R23_all[det_4363]
     det_OH = com_O_log[det_4363]
     det_ID = ID[det_4363]
@@ -89,11 +109,12 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         com_log = individual['12+log(O/H)']
         bin_ID = individual['bin_ID']
         alpha = [1]
-        green_peas_calibration.main(logR23, logO32, com_log, out_pdf, n_bins=6, xra=[0.3, 1.15],
-                                    yra=[6.5, 9.10], marker=['D'],
-                                    edgecolors=['face', 'face', 'none'], alpha=alpha,
-                                    label=['Individual Zcalbase_gal Detection'], ID=[bin_ID], fit=False,
-                                    silent=False, verbose=True)
+        green_peas_calibration.main(logR23, logO32, com_log, out_pdf, n_bins=6,
+                                    xra=[0.3, 1.15], yra=[6.5, 9.10],
+                                    marker=['D'], edgecolors=['face', 'face', 'none'],
+                                    alpha=alpha, ID=[bin_ID],
+                                    label=['Individual Zcalbase_gal Detection'], fit=False)
+
     # For LAC
     if dataset == 'R23_Grid':
         lR23 = [det_R23, der_R23, der_R23_MACT]
@@ -103,7 +124,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         label = ['Detection', 'DEEP2', 'MACT']
         marker = ['D', '3', '4']
         
-    if dataset == 'O32_Grid' or dataset == 'Grid':    
+    if dataset in ['O32_Grid', 'Grid']:
         lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
         lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
         OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
@@ -124,9 +145,9 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
-    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0], ctype=c_var,
-                                  label=label, marker=marker, silent=False)
-    print('finished LAC plot')
+    local_analog_calibration.main(lR23, lO32, OH, LAC_out_pdf, yra=[7.0, 9.0],
+                                  ctype=c_var, label=label, marker=marker, log=log)
+    log.info('finished LAC plot')
 
     # For Green Pea Calibration
     lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
@@ -140,29 +161,42 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, revised=False, individual=Fal
         OH = [det_OH, der_OH, der_OH_MACT]
         IDs = [det_ID]
 
-    error_npz_file = join(fitspath, npz_filename_dict['der_prop_errors'])
-    alpha = np.repeat(1, len(lR23))
-    edgecolor = np.repeat('face', len(lR23))
-    if exists(error_npz_file):
-        print('Error npz found  ', error_npz_file, ': Adding error bars to plot')
-        error_npz = np.load(error_npz_file)
-        metal_err = error_npz['12+log(O/H)_lowhigh_error']  # log values
-        green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, lR23_err=[], OH_err=[metal_err],
-                                    xra=[0.5, 1.1], yra=[6.5, 9.10], marker=marker, edgecolors=edgecolor, alpha=alpha,
-                                    label=label, IDs=IDs, include_Rlimit=True, fit=False, silent=False, verbose=True)
-    else:
-        print('No error npz found')
-        green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6, xra=[0.5, 1.1], yra=[6.5, 9.10],
-                                    marker=marker, edgecolors=edgecolor, alpha=alpha, label=label, IDs=IDs,
-                                    include_Rlimit=True, fit=False, silent=False, verbose=True)
+    if revised:
+        alpha = np.repeat(1, len(lR23))
+        edgecolor = np.repeat('face', len(lR23))
+        error_npz_file = join(fitspath, npz_filename_dict['der_prop_errors'])
+        if exists(error_npz_file):
+            log.info(f"Error npz found {error_npz_file}: Adding error bars to plot")
+            error_npz = np.load(error_npz_file)
+            metal_err = error_npz['12+log(O/H)_error']  # log values
+            green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6,
+                                        lR23_err=[], OH_err=[metal_err],
+                                        xra=[0.5, 1.1], yra=[6.5, 9.10],
+                                        marker=marker, edgecolors=edgecolor,
+                                        alpha=alpha, label=label, IDs=IDs,
+                                        include_Rlimit=True, fit=False, log=log)
+        else:
+            log.info('No error npz found')
+            green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf, n_bins=6,
+                                        xra=[0.5, 1.1], yra=[6.5, 9.10],
+                                        marker=marker, edgecolors=edgecolor,
+                                        alpha=alpha, label=label, IDs=IDs,
+                                        include_Rlimit=True, fit=False, log=log)
+
+    log.info("finished.")
 
 
-def individual_gpc(individual_ascii, validation_table):
+def individual_gpc(individual_ascii, validation_table, log=None):
     """
     This function is currently repetitive of the function above for the individual detection cases.
     However, I am going to keep it here in the case that we want to plot the individual detections against
     the binned detections.
     """
+
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
 
     pea_out_pdf_ind = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/jiang_plot_individual.pdf'
     individual = asc.read(individual_ascii)
@@ -184,6 +218,9 @@ def individual_gpc(individual_ascii, validation_table):
     OH = [com_log]
     Id = [ID_detect]
 
-    green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf_ind, n_bins=6, xra=[0.3, 1.15], yra=[6.5, 9.10],
-                                marker=['3'], label=['Individual Detection'], ID=Id, fit=False,
-                                silent=False, verbose=True)
+    green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf_ind, n_bins=6,
+                                xra=[0.3, 1.15], yra=[6.5, 9.10],
+                                marker=['3'], label=['Individual Detection'],
+                                ID=Id, fit=False, log=log)
+
+    log.info("finished.")

@@ -55,8 +55,7 @@ def single_grid_r23(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
         if ii == n_bins-1:
             bin_end[ii] = len(R23_sort0)-1
         else:
-            log.info(galinbin[ii] + bin_start[ii])
-            bin_end[ii] = galinbin[ii]+bin_start[ii]-1   
+            bin_end[ii] = galinbin[ii]+bin_start[ii]-1
 
         log.info(f"Bin Start: {bin_start[ii]}  Bin end: {bin_end[ii]}")
 

@@ -3,32 +3,39 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+from ..log_commons import log_stdout
 
-def single_grid_o32(fitspath, pdf_pages, outfile, R23, O32, galinbin):
+
+def single_grid_o32(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
     """
-    This file holds the function to bin data for one dimensional binning along O32
-    Not used in current analysis
+    Purpose:
+      This file holds the function to bin data for one dimensional binning along
+      log(O32) Not used in current analysis
 
-    Inputs:
-    fitspath  -> path where files are called from and saved to
-    pdf_pages -> name of outputted pdf file
-    outfile   -> name of the npz file produced by the function
-    galinbin  -> array of numbers that specifies how many spectra go in each bin
-    Other variables -> emission file values of spectra that come from the get_det3 function
+    :param pdf_pages: name of outputted pdf file
+    :param npz_outfile: name of the npz file produced by the function
+    :param R23: np.array. R23 measurements
+    :param O32: np.array. O32 measurements
+    :param galinbin: np.array. Number of spectra in each bin
+    :param log: LogClass or logging object
     """
 
-    pdf_pages = PdfPages(pdf_pages)
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
+    pp = PdfPages(pdf_pages)
 
     # One_dimensional binning for O32
-
     sort0 = np.argsort(O32)
     y_sort0 = O32[sort0]
 
     # 200 galaxies per bin
     n_bins = np.int(len(O32)/galinbin)
-    print(n_bins)
+    log.info(f"n_bins: {n_bins}")
 
-    # Initializing Arrays for outfile later
+    # Initializing Arrays for npz_outfile later
     N_arr0 = np.zeros((1, n_bins))
     T_arr = np.zeros((1, n_bins), dtype=object)
 
@@ -51,28 +58,33 @@ def single_grid_o32(fitspath, pdf_pages, outfile, R23, O32, galinbin):
 
     # Plotting
     fig, ax = plt.subplots()
-    x = R23
-    y = O32
-    finite0 = np.where((np.isfinite(x)) & (np.isfinite(y)))[0]
-    x1 = x[finite0]
-    y1 = y[finite0]
-    x = np.log10(x1)
-    y = np.log10(y1)
-    hlines = np.log10(bin_start)
-    hlines_end = np.log10(bin_end)
-    ax.scatter(x, y, 1.5, facecolor='r', edgecolor='face', marker='*', alpha=1)
+
+    finite0 = np.where((np.isfinite(R23)) & (np.isfinite(O32)))[0]
+    x = np.log10(R23[finite0])
+    y = np.log10(O32[finite0])
+
+    h_lines = np.log10(bin_start)
+    h_lines_end = np.log10(bin_end)
+    ax.scatter(x, y, 1.5, facecolor='r', edgecolor='face', marker='*',
+               alpha=1)
     ax.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for DEEP2')
     ax.set_xlabel(r'log($R_{23}$)')
     ax.set_ylabel(r'log($O_{32}$)')
-    for pp in range(len(bin_start)):
-        plt.axhline(y=hlines[pp], linewidth=0.3, color='k')
-    for ll in range(len(bin_end)):
-        plt.axhline(y=hlines_end[ll], linewidth=0.3, color='g')
-    fig.savefig(pdf_pages, format='pdf')
-    pdf_pages.close()
+    for val in h_lines:
+        plt.axhline(y=val, linewidth=0.3, color='k')
+    for val_end in h_lines_end:
+        plt.axhline(y=val_end, linewidth=0.3, color='g')
+
+    fig.savefig(pp, format='pdf')
+    log.info(f"Writing: {pdf_pages}")
+    pp.close()
 
     R23_grid = [np.min(R23)]
-    
-    np.savez(outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=bin_start, N_arr0=N_arr0)
+
+    log.info(f"Writing: {npz_outfile}")
+    np.savez(npz_outfile, T_arr=T_arr, R23_grid=R23_grid, O32_grid=bin_start,
+             N_arr0=N_arr0)
 
     fig.clear()
+
+    log.info("finished.")

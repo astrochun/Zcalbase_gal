@@ -22,6 +22,7 @@ from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
+from . import name_dict
 from .log_commons import log_stdout
 
 con1 = 3728.91 / 3726.16
@@ -424,7 +425,7 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
 
-    out_ascii_single = join(fitspath, '_Average_R23_O32_Values.tbl')
+    out_ascii_single = join(fitspath, name_dict['Average_Bin_Value'])
 
     n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
     tab1 = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)

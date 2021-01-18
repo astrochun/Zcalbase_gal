@@ -167,7 +167,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     """
 
     fitspath_ini = get_user()
-    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/')
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/', dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
 
     # Define logging function
@@ -195,8 +195,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         galinbin = [400, 400, 400, 400, 400, 400, 409]
     log.info(f"# of Gal in Bin: {galinbin}")
 
-    bin_pdf_pages = join(fitspath, dataset + name_dict['gridpdf_suffix'])
-    bin_outfile = join(fitspath, dataset + name_dict['gridnpz_suffix'])
+    bin_pdf_pages = join(fitspath, name_dict['gridpdf_suffix'])
+    bin_outfile = join(fitspath, name_dict['gridnpz_suffix'])
 
     if dataset == 'O32_Grid':
         single_grid_o32.single_grid_o32(bin_pdf_pages, bin_outfile,
@@ -257,7 +257,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                                       dispersion, y_correction=y_correction,
                                       tab=binning_avg_asc, log=log)
 
-    log.info(f"finished gaussian fitting: {fitspath}_{dataset}_Zoomed_Gauss_*" +
+    log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")
     log.info("combine_flux_table created")
     # combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
@@ -307,7 +307,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     log.info("finished.")
 
 
-def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
+def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                    revised=False, individual=False):
     """
     Purpose
@@ -319,7 +319,7 @@ def run_grid_plots(fitspath, fitspath_ini, dataset, raw=False, apply_dust=False,
 
     """
 
-    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/')
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/' + dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
 
     # Define logging function
@@ -407,9 +407,9 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                                             data3, galinbin, log=log)
         # Starting Stacking
         if mask:
-            stack_name = dataset + name_dict['Stackname']
+            stack_name = name_dict['Stackname']
         else:
-            stack_name = dataset + name_dict['Stackname_nomask']
+            stack_name = name_dict['Stackname_nomask']
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
                                              bin_outfile, stack_name,
                                              mask=mask, log=log)

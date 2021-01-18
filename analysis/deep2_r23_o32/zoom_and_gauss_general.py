@@ -22,12 +22,13 @@ from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
+from . import name_dict
 from .log_commons import log_stdout
 
 con1 = 3728.91 / 3726.16
 
 
-def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
+def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr, log=None):
     """
     Purpose
@@ -42,7 +43,7 @@ def line_flag_check(dataset, fitspath, working_wave, lineflag, wave, y_norm,
     log.debug("starting ...")
 
     # New plots for line flagging
-    out_pdf = join(fitspath, f"{dataset}_lineflag_check_{line_name0}.pdf")
+    out_pdf = join(fitspath, f"_lineflag_check_{line_name0}.pdf")
     pdf_pages2 = PdfPages(out_pdf)
 
     t_ax2 = ax_arr[row, col]
@@ -295,7 +296,7 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
                                         lineflag)
 
             # Line Flag Checking Plots
-            # line_flag_check(dataset, fitspath,working_wave, lineflag, wave, y_norm, stack2d,
+            # line_flag_check(fitspath, working_wave, lineflag, wave, y_norm, stack2d,
             #                line_name, row, col, fig, ax_arr, log=log)
 
             # Array Population
@@ -424,7 +425,7 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
 
-    out_ascii_single = join(fitspath, dataset + '_Average_R23_O32_Values.tbl')
+    out_ascii_single = join(fitspath, name_dict['Average_Bin_Value'])
 
     n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
     tab1 = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
@@ -454,37 +455,15 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
     s2 = 5.0  # a fitting requirement
 
     for ii in range(len(lambda0)):
-        out_pdf = join(fitspath, f"{dataset}_Zoomed_Gauss_{line_name[ii]}.pdf")
+        out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
         log.info(f"out_pdf: {out_pdf}")
 
-        # Single Gaussian Fit
-        if line_type[ii] == 'Single':
-            em_tab, R_23_array, O_32_array, N_gal_array, \
-                id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
-                                     wave, lambda0[ii], lineflag,
-                                     y_correction=y_correction,
-                                     line_type=line_type[ii],
-                                     out_pdf=out_pdf, line_name=line_name[ii],
-                                     log=log)
-
-        if line_type[ii] == 'Balmer':
-            em_tab, R_23_array, O_32_array, N_gal_array, \
-                id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
-                                     wave, lambda0[ii], lineflag,
-                                     y_correction=y_correction,
-                                     line_type=line_type[ii],
-                                     out_pdf=out_pdf, line_name=line_name[ii],
-                                     log=log)
-
-        # Oxy2 Line Fit
-        if line_type[ii] == 'Oxy2':
-            em_tab, R_23_array, O_32_array, N_gal_array, \
-                id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
-                                     wave, lambda0[ii], lineflag,
-                                     y_correction=y_correction,
-                                     line_type=line_type[ii],
-                                     out_pdf=out_pdf, line_name=line_name[ii],
-                                     log=log)
+        em_tab, R_23_array, O_32_array, N_gal_array, \
+            id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
+                                 wave, lambda0[ii], lineflag,
+                                 y_correction=y_correction, line_type=line_type[ii],
+                                 out_pdf=out_pdf, line_name=line_name[ii],
+                                 log=log)
 
         if ii == 0:
             n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')

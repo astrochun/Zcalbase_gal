@@ -105,11 +105,10 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     comp_derived = asc.read(temperature_table)
 
     if revised:
-        verify_table_file = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
+        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
     else:
-        verify_table_file = asc.read(join(fitspath, filename_dict['bin_valid']))
-    log.info(f"Reading: {verify_table_file}")
-    verification = asc.read(verify_table_file)
+        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
+    log.info(f"Reading: {verification}")
 
     # Individual Measurements
     if individual:

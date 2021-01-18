@@ -223,9 +223,9 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Option to Change: Masking the night sky emission lines
 
     if mask:
-        stack_name = join(name_dict['Stackname'])
+        stack_name = name_dict['Stackname']
     else:
-        stack_name = join(name_dict['Stackname_nomask'])
+        stack_name = name_dict['Stackname_nomask']
 
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
                                          bin_outfile, stack_name, mask=mask,

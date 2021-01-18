@@ -13,7 +13,7 @@ from os.path import join
 from .log_commons import log_stdout
 
 
-def main(path0, silent=False, log=None):
+def main(path0, log=None):
     """
     Combine 1-D DEEP2 spectra and de-redshift to rest-frame wavelength
 
@@ -21,8 +21,6 @@ def main(path0, silent=False, log=None):
     ----------
     path0:
       path to data (ie '/Users/cly/data/DEEP2/DR4/')
-    silent : boolean
-      Turns off stdout messages. Default: False
     log : LogClass or logging object
 
     Returns

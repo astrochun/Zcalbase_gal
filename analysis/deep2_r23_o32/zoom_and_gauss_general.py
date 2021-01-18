@@ -167,7 +167,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
 def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
-                    working_wave, lineflag,  y_correction='', line_type='',
+                    working_wave, lineflag, y_correction='', line_type='',
                     out_pdf='', line_name='', log=None):
     """
     Purpose

@@ -112,7 +112,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
 
     # Individual Measurements
     if individual:
-        indv_all_file = join(fitspath, filename_dict['indv_bin_info'])
+        indv_all_file = join(fitspath, filename_dict['indv_derived_prop'])
         log.info(f"Reading: {indv_all_file}")
         indv_all = asc.read(indv_all_file)
 

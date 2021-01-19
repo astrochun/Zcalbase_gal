@@ -49,7 +49,6 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     :param fitspath_ini: str. save location of all of Zcalbase
     :param dataset: str. keyword used to define binning method
     :param grid_data_file: str. npz file that holds the information from the binning process
-    :param name: str. name of the outputted pdf file with graphs
     :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
     :param log: LogClass. Default use log_stdout()
     """

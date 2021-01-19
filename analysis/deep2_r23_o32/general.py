@@ -221,15 +221,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Stackboth_MasterGrid
     # Option to Change: Bin size
     # Option to Change: Masking the night sky emission lines
-
-    if mask:
-        stack_name = name_dict['Stackname']
-    else:
-        stack_name = name_dict['Stackname_nomask']
-
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                         bin_outfile, stack_name, mask=mask,
-                                         log=log)
+                                         bin_outfile, mask=mask, log=log)
 
     # Outfile and pdf both use name
     log.info(f"finished with stacking, {stack_name} pdf and fits files created")
@@ -405,13 +398,8 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                                             individual_ID, R23, O32, SNR3,
                                             data3, galinbin, log=log)
         # Starting Stacking
-        if mask:
-            stack_name = name_dict['Stackname']
-        else:
-            stack_name = name_dict['Stackname_nomask']
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                             bin_outfile, stack_name,
-                                             mask=mask, log=log)
+                                             bin_outfile, mask=mask, log=log)
 
     if want == 'zoom':
         outfile_grid = join(fitspath, filename_dict['comp_spec'])

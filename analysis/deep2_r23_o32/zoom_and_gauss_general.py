@@ -167,8 +167,9 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # For each individual stack
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
-def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
-                    working_wave, lineflag, y_correction='', line_type='',
+def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
+                    working_wave, lineflag, bin_info_tab,
+                    y_correction='', line_type='',
                     out_pdf='', line_name='', log=None):
     """
     Purpose
@@ -187,9 +188,6 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
 
     log.debug("starting ...")
 
-    log.info(f"Reading: {tab}")
-    asc_tab = asc.read(tab)
-
     pdf_pages = PdfPages(out_pdf)
 
     nrows = 4
@@ -199,7 +197,7 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
     x0 = wave
     scalefact = 1e-17
 
-    id = asc_tab['bin_ID'].data
+    bin_id = bin_info_tab['bin_ID'].data
 
     # Initializing Arrays
     flux_g_array = np.zeros(stack2d.shape[0])
@@ -210,9 +208,6 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
     norm_array = np.zeros(stack2d.shape[0])
     rms_array = np.zeros(stack2d.shape[0])
     SN_array = np.zeros(stack2d.shape[0])
-    N_gal_array = np.zeros(stack2d.shape[0])
-    R_23_array = np.zeros(stack2d.shape[0])
-    O_32_array = np.zeros(stack2d.shape[0])
 
     # Initializing Arrays for Balmer Graphing
     xbar_array = np.zeros(stack2d.shape[0])
@@ -320,10 +315,6 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
                 sig2_array[rr] = o1[4]
                 neg_amp_array[rr] = o1[5]
 
-            N_gal_array[rr] = asc_tab['N_stack'][rr]
-            R_23_array[rr] = asc_tab['logR23_avg'][rr]
-            O_32_array[rr] = asc_tab['logO32_avg'][rr]
-
             # Residuals
             if line_type == 'Oxy2':
                 x_sigsnip_2 = np.where(np.abs(x0 - 3727)/o1[1] <= 4.0)[0]
@@ -349,8 +340,10 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
 
             if dataset in ['Grid', 'O32_Grid', 'R23_Grid', 'Double_Bin', 'n_Bins']:
                 txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
-                       (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
-                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (rms_tot, rms_pix, N_gal_array[rr])
+                       (o1[0], bin_id[rr], bin_info_tab['logR23_min'][rr],
+                        bin_info_tab['logO32_min'][rr]) + '\n'
+                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (rms_tot, rms_pix,
+                                                              bin_info_tab['N_stack'][rr])
                 if line_type == 'Balmer':
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
@@ -361,14 +354,17 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
                 txt0 += 'S/N: %.3f' % (SN_array[rr])
             else:
                 txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % \
-                       (o1[0], id[rr], asc_tab['logR23_min'][rr], asc_tab['logO32_min'][rr]) + '\n'
-                txt0 += 'R_23: %.3f O_32: %.3f\n' % (asc_tab['logR23_avg'][rr], asc_tab['logO32_avg'][rr])
-                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot, rms_pix, N_gal_array[rr])
+                       (o1[0], bin_id[rr], bin_info_tab['logR23_min'][rr],
+                        bin_info_tab['logO32_min'][rr]) + '\n'
+                txt0 += 'R_23: %.3f O_32: %.3f\n' % (bin_info_tab['logR23_avg'][rr],
+                                                     bin_info_tab['logO32_avg'][rr])
+                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot, rms_pix, bin_info_tab['N_stack'][rr])
                 if line_type == 'Balmer':
                     txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
                     txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
                 if line_type in ['Single', 'Oxy2']:
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % (o1[3], o1[1], max0, o1[2]) + '\n'
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % \
+                            (o1[3], o1[1], max0, o1[2]) + '\n'
                 txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
                 txt0 += 'S/N: %.3f' % (SN_array[rr])
 
@@ -425,22 +421,16 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
 
-    out_ascii_single = join(fitspath, name_dict['Average_Bin_Value'])
-
-    n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
-    tab1 = Table([id, R_23_array, O_32_array, N_gal_array], names=n2)
-    asc.write(tab1, out_ascii_single, format='fixed_width_two_line')
-
     pdf_pages.close()
     # pdfpages3.close() # Add back in equivalent width plots are added
     fig.clear()
 
     log.debug("finished.")
-    return tab0, R_23_array, O_32_array, N_gal_array, id
+    return tab0
 
 
 def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
-               y_correction, tab, log=None):
+               y_correction, log=None):
     """
     Purpose
     ----------
@@ -454,25 +444,25 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
 
     s2 = 5.0  # a fitting requirement
 
+    # Importing Bins Values
+    bin_info_file = join(fitspath, filename_dict['bin_info'])
+    log.info(f"Reading: {bin_info_file}")
+    bin_info_tab = asc.read(bin_info_file)
+
+    n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
+    table_stack = bin_info_tab[n2]
+
     for ii in range(len(lambda0)):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
         log.info(f"out_pdf: {out_pdf}")
 
-        em_tab, R_23_array, O_32_array, N_gal_array, \
-            id = zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2,
-                                 wave, lambda0[ii], lineflag,
+        em_tab = zoom_gauss_plot(dataset, stack2d, dispersion, s2,
+                                 wave, lambda0[ii], lineflag, bin_info_tab,
                                  y_correction=y_correction, line_type=line_type[ii],
                                  out_pdf=out_pdf, line_name=line_name[ii],
                                  log=log)
 
-        if ii == 0:
-            n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
-            avg_tab = Table([id, R_23_array, O_32_array, N_gal_array],
-                            names=n2)
-
-            table_stack = hstack([avg_tab, em_tab])
-        else:
-            table_stack = hstack([table_stack, em_tab])
+        table_stack = hstack([table_stack, em_tab])
 
     out_ascii = join(fitspath, filename_dict['bin_fit'])
     log.info(f"Writing: {out_ascii}")

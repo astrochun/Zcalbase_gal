@@ -25,7 +25,7 @@ from matplotlib.gridspec import GridSpec
 from os.path import exists, join
 from astropy.convolution import Box1DKernel, convolve
 
-from . import general
+from . import general, name_dict
 from .log_commons import log_stdout
 
 from Metallicity_Stack_Commons import lambda0
@@ -38,10 +38,9 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
     return smooth
 
 
-def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
+def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
                     mask=True, log=None):
     """
-
     Purpose
     Function stacks all spectra in a given bin and produces tables of properties of that bin
 
@@ -50,7 +49,6 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     :param fitspath_ini: str. save location of all of Zcalbase
     :param dataset: str. keyword used to define binning method
     :param grid_data_file: str. npz file that holds the information from the binning process
-    :param name: str. name of the outputted pdf file with graphs
     :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
     :param log: LogClass. Default use log_stdout()
     """
@@ -60,12 +58,17 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     log.debug("starting ...")
 
+    if mask:
+        stack_name = name_dict['Stackname']
+    else:
+        stack_name = name_dict['Stackname_nomask']
+
     RestframeMaster = join(fitspath_ini, 'DEEP2_Commons/Images/Master_Grid.fits')
     log.info(f"Reading: {RestframeMaster}")
     image2D, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
 
-    pdf_pages = PdfPages(join(fitspath, name))  # open pdf document
+    pdf_pages = PdfPages(join(fitspath, stack_name))  # open pdf document
 
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
         data3 = general.get_det3(fitspath, fitspath_ini, log=log)
@@ -192,7 +195,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 pdf_pages.savefig(fig)
                 count += 1
 
-    log.info(f"Writing: {join(fitspath, name)}")
+    log.info(f"Writing: {join(fitspath, stack_name)}")
     pdf_pages.close()
 
     # Writing fits file

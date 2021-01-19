@@ -188,7 +188,6 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
     log.debug("starting ...")
 
     log.info(f"Reading: {tab}")
-    asc_tab = asc.read(tab)
 
     pdf_pages = PdfPages(out_pdf)
 
@@ -199,7 +198,7 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
     x0 = wave
     scalefact = 1e-17
 
-    id = asc_tab['bin_ID'].data
+    # id = asc_tab['bin_ID'].data
 
     # Initializing Arrays
     flux_g_array = np.zeros(stack2d.shape[0])
@@ -320,9 +319,9 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
                 sig2_array[rr] = o1[4]
                 neg_amp_array[rr] = o1[5]
 
-            N_gal_array[rr] = asc_tab['N_stack'][rr]
-            R_23_array[rr] = asc_tab['logR23_avg'][rr]
-            O_32_array[rr] = asc_tab['logO32_avg'][rr]
+            # N_gal_array[rr] = asc_tab['N_stack'][rr]
+            # R_23_array[rr] = asc_tab['logR23_avg'][rr]
+            # O_32_array[rr] = asc_tab['logO32_avg'][rr]
 
             # Residuals
             if line_type == 'Oxy2':
@@ -454,6 +453,9 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
 
     s2 = 5.0  # a fitting requirement
 
+    id, N_gal_array, R23_array, O32_array, \
+    logR23_min, logO32_min, logR23_avg, logO32_avg = import_bin_information(tab)
+
     for ii in range(len(lambda0)):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
         log.info(f"out_pdf: {out_pdf}")
@@ -480,3 +482,18 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
               overwrite=True)
 
     log.debug("finished.")
+
+
+def import_bin_information(bin_tab):
+    asc_tab = asc.read(bin_tab)
+
+    id = asc_tab['bin_ID'].data
+    N_gal_array = asc_tab['N_stack']
+    R23_array = asc_tab['logR23_avg']
+    O32_array = asc_tab['logO32_avg']
+    logR23_min = asc_tab['logR23_min']
+    logO32_min = asc_tab['logO32_min']
+    logR23_avg = asc_tab['logR23_avg']
+    logO32_avg = asc_tab['logO32_avg']
+
+    return id, N_gal_array, R23_array, O32_array, logR23_min, logO32_min, logR23_avg, logO32_avg

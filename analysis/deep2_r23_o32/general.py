@@ -403,7 +403,6 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
         stack2D, header = fits.getdata(outfile_grid, header=True)
         wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
         dispersion = header['CDELT1']
-        binning_avg_asc = join(fitspath, filename_dict['bin_info'])
 
         lineflag = np.zeros(len(wave))
         for ii in lambda0:   

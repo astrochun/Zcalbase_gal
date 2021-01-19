@@ -448,8 +448,8 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, bin_tab,
     logO32_avg_bin = asc_tab['logO32_avg']
 
     n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
-    avg_tab = Table([bin_id, logR23_avg_bin, logO32_avg_bin, number_galaxy_bin],
-                    names=n2)
+    table_stack = Table([bin_id, logR23_avg_bin, logO32_avg_bin, number_galaxy_bin],
+                        names=n2)
 
     for ii in range(len(lambda0)):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
@@ -463,10 +463,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion, bin_tab,
                                  out_pdf=out_pdf, line_name=line_name[ii],
                                  log=log)
 
-        if ii == 0:
-            table_stack = hstack([avg_tab, em_tab])
-        else:
-            table_stack = hstack([table_stack, em_tab])
+        table_stack = hstack([table_stack, em_tab])
 
     out_ascii = join(fitspath, filename_dict['bin_fit'])
     log.info(f"Writing: {out_ascii}")

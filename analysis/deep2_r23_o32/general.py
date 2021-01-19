@@ -254,8 +254,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Option to change: Constants used as initial guesses for gaussian fit
 
     zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
-                                      dispersion, y_correction=y_correction,
-                                      tab=binning_avg_asc, log=log)
+                                      dispersion, binning_avg_asc, y_correction=y_correction, log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")

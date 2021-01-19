@@ -1,15 +1,3 @@
-"""
-THIS FUNCTION DOES THE STACKING FOR THE ALL BINNING METHODS EXCEPT VORNOI
-
-In this file, I define the stacking code in a function that runs over the master grid
-Creates a pdf and a fits file
-fits file for this code is given the name of the PDF file
-
-Emission lines in spectrum (not all being used currently in study) See MSC for subset
-[3726.16, 3728.91, 3797.90, 3835.38, 3868.74, 3889.05, 3888.65, 3967.51, 3970.07, 4340.46,
-4363.21, 4471.5, 4958.91, 5006.84, 4101.73, 4363.21, 4861.32]
-"""
-
 import numpy as np
 import numpy.ma as ma
 
@@ -41,11 +29,13 @@ def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
 def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                     mask=True, log=None):
     """
-
     Purpose
+    ----------
     Function stacks all spectra in a given bin and produces tables of properties of that bin
+    This function does the stacking for all binning methods except Vornoi
 
     Parameters
+    ----------
     :param fitspath: str. save location of the current run
     :param fitspath_ini: str. save location of all of Zcalbase
     :param dataset: str. keyword used to define binning method
@@ -53,6 +43,11 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     :param name: str. name of the outputted pdf file with graphs
     :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
     :param log: LogClass. Default use log_stdout()
+
+    Output Files
+    --------------
+    PDF
+    FITS File
     """
 
     if log is None:

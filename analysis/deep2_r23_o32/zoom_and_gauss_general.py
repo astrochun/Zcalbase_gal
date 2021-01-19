@@ -32,9 +32,10 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr, log=None):
     """
     Purpose
-      Plots a zoomed in plot of emission lines to check visually if the
-      emission lines are excluded in the line flag.
-      Note: Call is currently commented out
+    --------
+    Plots a zoomed in plot of emission lines to check visually if the
+    emission lines are excluded in the line flag.
+    Note: Call is currently commented out
     """
 
     if log is None:
@@ -62,10 +63,12 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
 def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
                      line_type0, log=None):
     """
-    Purpose:
-      Calculates the gaussian to fit each emission line using curve_fit
+    Purpose
+    --------
+    Calculates the gaussian to fit each emission line using curve_fit
 
-    Debugging Note:
+    Debugging Note
+    ---------------
     If 'x0' is infeasible error occurs, check the para_bound values to
     make sure the expected values are within the range set up upper and
     lower limits.
@@ -143,19 +146,20 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
 
 def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
     """
-    Purpose:
-      Equivalent width correction/computation
+    Purpose
+    --------
+    Equivalent width correction/computation
 
+    Notes
+    --------
+    bottom side of the iceburg / continuum
+    take negative component of gauss and subtract off the positive component
 
-    Notes:
-      bottom side of the iceburg / continuum
-      take negative component of gauss and subtract off the positive component
-
-      total gauss - the positive component?
-      x = double gaussian of o1[0,1,2] = 0
-      x-o1[3] from [-2.5sigma to 2.5 sigma]
-      equivalent width in terms of Angstroms
-      update plots
+    total gauss - the positive component?
+    x = double gaussian of o1[0,1,2] = 0
+    x-o1[3] from [-2.5sigma to 2.5 sigma]
+    equivalent width in terms of Angstroms
+    update plots
     """
 
     plt.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
@@ -176,7 +180,25 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
     Main function that is called by run function (zm_general). Gets the data, fits a gaussian curve
     to each emission line, plots emission lines for each bin, and saves off .tbl files with curve information.
 
-    Debugging Note:
+    Parameters
+    -----------
+    :param fitspath: str.
+    :param dataset: str.
+    :param tab: str.
+    :param stack2d:
+    :param dispersion:
+    :param s2:
+    :param wave:
+    :param working_wave:
+    :param lineflag:
+    :param y_correction:
+    :param line_type:
+    :param out_pdf:
+    :param line_name:
+    :param log:
+
+    Debugging Note
+    --------------
     If 'x0' is infeasible error occurs, check the para_bound values to
     make sure the expected values are within the range set up upper and
     lower limits.
@@ -445,6 +467,18 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
     Purpose
     ----------
     Run function for gaussian fitting step
+
+    Parameters
+    -----------
+    :param dataset: str.
+    :param fitspath: str.
+    :param stack2d:
+    :param wave:
+    :param lineflag:
+    :param dispersion:
+    :param y_correction:
+    :param tab:
+    :param log:
     """
 
     if log is None:

@@ -316,7 +316,13 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
 
     Parameters
     ----------
-
+    :param fitspath: str. Path to the location of files saved for each run
+    :param dataset: str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param raw: bool.
+    :param apply_dust: bool. Apply dust correction. Default: False
+    :param revised: bool.
+    :param individual: bool.
     """
 
     fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/' + dataset)
@@ -365,7 +371,8 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                              apply_dust=False, mask=True):
     """
     Purpose
-      To run individual codes to test changes or edits plots
+    ---------
+    To run individual codes to test changes or edits plots
 
     Parameters
     ----------

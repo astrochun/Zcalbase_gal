@@ -1,4 +1,3 @@
-# Calibrating my data to other work
 
 import numpy as np
 from astropy.io import ascii as asc
@@ -13,18 +12,21 @@ from .log_commons import log_stdout
 def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
                   apply_dust=False, revised=False, individual=False, log=None):
     """
-    Purpose:
-      Call function for calculating and plotting data points based with the green_pea_calibration
-      and the local_analog_calibration.
+    Purpose
+    ----------
+    Call function for calculating and plotting data points based with the green_pea_calibration
+    and the local_analog_calibration.
 
-    Parameters:
-      fitspath -> save location of the current run
-      fitspath_ini -> '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
-      dataset  -> indicates the type of binning being used
-      revised  -> indicates that revised verification table is being used
-      individual -> used if individual detections from Zcalbase_gal are used
+    Parameters
+    -----------
+    :param fitspath: str. save location of the current run
+    :param fitspath_ini: str.
+    :param dataset: str. indicates the type of binning being used
+    :param revised: bool. indicates that revised verification table is being used
+    :param individual: bool.used if individual detections from Zcalbase_gal are used
 
-    Outputs:
+    Outputs
+    ----------
       pdf_files
     """
 

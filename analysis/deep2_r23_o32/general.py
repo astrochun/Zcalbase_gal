@@ -9,7 +9,6 @@ from astropy.table import vstack
 from astropy.table import Table
 from os.path import join
 
-
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
     calibration_plots, name_dict
 from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
@@ -224,9 +223,6 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
                                          bin_outfile, mask=mask, log=log)
 
-    # Outfile and pdf both use name
-    log.info(f"finished with stacking, {stack_name} pdf and fits files created")
-
     # Zoom_and_gauss_general
     outfile_grid = join(fitspath, filename_dict['comp_spec'])
     log.info(f"outfile_grid : {outfile_grid}")
@@ -234,7 +230,6 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     stack2D, header = fits.getdata(outfile_grid, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']
-    binning_avg_asc = join(fitspath, filename_dict['bin_info'])
 
     # used to be 'n_Bins_2d_binning_datadet3.tbl'
     indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])
@@ -246,8 +241,9 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
             lineflag[idx] = 1
     # Option to change: Constants used as initial guesses for gaussian fit
 
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave, lineflag,
-                                      dispersion, binning_avg_asc, y_correction=y_correction, log=log)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
+                                      lineflag, dispersion,
+                                      y_correction, log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")
@@ -418,7 +414,7 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
         zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
                                           lineflag, dispersion,
                                           y_correction=y_correction,
-                                          tab=binning_avg_asc, log=log)
+                                          log=log)
 
     if want == 'R_cal_temp':
         # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC

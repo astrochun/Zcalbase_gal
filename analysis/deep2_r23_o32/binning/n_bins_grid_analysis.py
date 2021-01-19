@@ -14,16 +14,17 @@ from ..log_commons import log_stdout
 def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
                    R23, O32, SNR3, data3, galinbin, log=None):
     """
-    Purpose:
-      This file holds the function to bin data adaptively based on the entered
-      number of galaxies for each bin.
-      First, it bins in the R23 direction and then in the O32 direction
+    This file holds the function to bin data adaptively based on the entered
+    number of galaxies for each bin.
+    First, it bins in the R23 direction and then in the O32 direction
 
-      This is used in current analysis.
+    This is used in current analysis.
 
     :param fitspath: str. Absolute path for working directory
     :param pdf_pages: str. name of outputted pdf file
+                        fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
+                        fitspath + name_dict['gridnpz_suffix']
     :param n_split: int. the number of times each R23 bin will be split
     :param galinbin: np.array. Number of spectra in each bin
     :param individual_ID: np.array. Individual IDs for each spectra
@@ -32,6 +33,8 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     :param SNR3: np.array. Signal to noise of the OIII emission lines of each spectra
     :param data3: np.array. From get_det3 - indicates if spectra can be used
     :param log: LogClass or logging object
+
+    No returns
     """
 
     if log is None:

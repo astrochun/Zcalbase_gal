@@ -8,17 +8,20 @@ from ..log_commons import log_stdout
 
 def single_grid_r23(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
     """
-    Purpose:
-      This file holds the function to bin data for one dimensional binning
-      along R23.
-      Note: Not used in current analysis
+    This file holds the function to bin data for one dimensional binning
+    along R23.
+    Note: Not used in current analysis
 
-    :param pdf_pages: name of outputted pdf file
-    :param npz_outfile: name of the npz file produced by the function
+    :param pdf_pages: str. name of outputted pdf file
+                        fitspath + name_dict['gridpdf_suffix']
+    :param npz_outfile: str. name of the npz file produced by the function
+                        fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. R23 measurements
     :param O32: np.array. O32 measurements
     :param galinbin: np.array. Number of spectra in each bin
     :param log: LogClass or logging object
+
+    No returns
     """
 
     if log is None:

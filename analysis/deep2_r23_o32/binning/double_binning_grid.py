@@ -12,21 +12,24 @@ from ..log_commons import log_stdout
 def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
                      galinbin, log=None):
     """
-    Purpose:
-      One_dimensional binning for R23 followed by each bin being split in
-      half one with high O32 and one with low O32
+    One_dimensional binning for R23 followed by each bin being split in
+    half one with high O32 and one with low O32
 
     Followed by plotting the spectra in their R23-O32 bins for visual
 
     :param fitspath: str. Path where files are retrieved and saved to
     :param pdf_pages: str. Name of outputted pdf file
+                        fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. Name of the npz file produced by the function
-    :param R23: Array of R23 from the get_det3 function
-    :param O32: Array of O32 from the get_det3 function
-    :param SNR3: Array of SNR3 from the get_det3 function
-    :param data3: ???
+                        fitspath + name_dict['gridnpz_suffix']
+    :param R23: np.array. Array of R23 from the get_det3 function
+    :param O32: np.array. Array of O32 from the get_det3 function
+    :param SNR3: np.array. Array of SNR3 from the get_det3 function
+    :param data3: np.array. From get_det3 - indicates if spectra can be used
     :param galinbin: str. Array that specifies how many spectra in each bin
     :param log: LogClass or logging object
+
+    No returns
     """
 
     if log is None:

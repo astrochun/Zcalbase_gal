@@ -20,22 +20,12 @@ from Metallicity_Stack_Commons import lambda0
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 
-def movingaverage_box1d(values, width, boundary='fill', fill_value=0.0):
-    box_kernel = Box1DKernel(width)
-    smooth = convolve(values, box_kernel, boundary=boundary, fill_value=fill_value)
-    return smooth
-
-
 def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                     mask=True, log=None):
     """
-    Purpose
-    ----------
     Function stacks all spectra in a given bin and produces tables of properties of that bin
     This function does the stacking for all binning methods except Vornoi
 
-    Parameters
-    ----------
     :param fitspath: str. save location of the current run
     :param fitspath_ini: str. save location of all of Zcalbase
     :param dataset: str. keyword used to define binning method
@@ -44,10 +34,11 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
     :param log: LogClass. Default use log_stdout()
 
-    Output Files
-    --------------
-    PDF
-    FITS File
+    PDF File: fitspath + stack_name
+    TBL File: fitspath + filename_dict['bin_info']
+    FITS File: fitspath + filename_dict['comp_spec']
+
+    No returns
     """
 
     if log is None:

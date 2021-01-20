@@ -1,7 +1,4 @@
 """
-PERFORMS THE GAUSSIAN FITTING ON ALL EMISSIONS LINES
-CALLED EVERY TIME THE GENERAL FUNCTIONS ARE RUN
-
 Debugging Note:
    If 'x0' is infeasible error occurs, check the para_bound values to
    make sure the expected values are within the range set up upper and
@@ -31,8 +28,6 @@ con1 = 3728.91 / 3726.16
 def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr, log=None):
     """
-    Purpose
-    --------
     Plots a zoomed in plot of emission lines to check visually if the
     emission lines are excluded in the line flag.
     Note: Call is currently commented out
@@ -63,12 +58,9 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
 def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
                      line_type0, log=None):
     """
-    Purpose
-    --------
     Calculates the gaussian to fit each emission line using curve_fit
+    Used in zoom_gauss_plot()
 
-    Debugging Note
-    ---------------
     If 'x0' is infeasible error occurs, check the para_bound values to
     make sure the expected values are within the range set up upper and
     lower limits.
@@ -146,12 +138,10 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
 
 def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
     """
-    Purpose
-    --------
     Equivalent width correction/computation
+    Used in zoom_gauss_plot()
 
     Notes
-    --------
     bottom side of the iceburg / continuum
     take negative component of gauss and subtract off the positive component
 
@@ -175,33 +165,36 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
                     working_wave, lineflag, y_correction='', line_type='',
                     out_pdf='', line_name='', log=None):
     """
-    Purpose
-    ----------
     Main function that is called by run function (zm_general). Gets the data, fits a gaussian curve
     to each emission line, plots emission lines for each bin, and saves off .tbl files with curve information.
 
-    Parameters
-    -----------
-    :param fitspath: str.
-    :param dataset: str.
-    :param tab: str.
-    :param stack2d:
-    :param dispersion:
-    :param s2:
-    :param wave:
-    :param working_wave:
-    :param lineflag:
-    :param y_correction:
-    :param line_type:
-    :param out_pdf:
-    :param line_name:
-    :param log:
+    :param fitspath: str. str. save location of the current run
+    :param dataset: str. str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param tab: tbl. table of stack properties
+    :param stack2d: array. composite spectra of stack
+    :param dispersion: int. header['CDELT1']
+    :param s2: int. guess parameter for fits
+    :param wave: array. wavelength
+    :param working_wave: int. the wavelength we want to fit
+    :param lineflag: array. of 0 and 1 for masking
+    :param y_correction: str. to determine if smoothing in the y-axis occurs
+    :param line_type: str. defines the type of emission line
+                        'Single', 'Balmer', 'Oxy2'
+    :param out_pdf: str. name of outputted pdf file
+    :param line_name: str. name of the line we are fitting
+                    'OII_3727', 'HDELTA', 'HGAMMA', 'OIII_4363',
+                    'HBETA', 'OIII_4958', 'OIII_5007'
+    :param log: LogClass. Default use log_stdout()
 
     Debugging Note
-    --------------
     If 'x0' is infeasible error occurs, check the para_bound values to
     make sure the expected values are within the range set up upper and
     lower limits.
+
+    PDF File: out_pdf
+
+    :returns table of emission line properties for each stack for each emission line
     """
 
     if log is None:
@@ -464,21 +457,21 @@ def zoom_gauss_plot(fitspath, dataset, tab, stack2d, dispersion, s2, wave,
 def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
                y_correction, tab, log=None):
     """
-    Purpose
-    ----------
     Run function for gaussian fitting step
 
-    Parameters
-    -----------
-    :param dataset: str.
-    :param fitspath: str.
-    :param stack2d:
-    :param wave:
-    :param lineflag:
-    :param dispersion:
-    :param y_correction:
-    :param tab:
-    :param log:
+    :param dataset: str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param fitspath: str.  save location of the current run
+    :param stack2d: array. composite spectra of stack
+    :param wave: array. wavelength
+    :param lineflag: array. of 0 and 1 for masking
+    :param dispersion: int. header['CDELT1']
+    :param y_correction: str. to determine if smoothing in the y-axis occurs
+    :param tab: tbl. table of stack properties
+    :param log: LogClass. Default use log_stdout()
+
+    TABLE: fitspath + filename_dict['bin_fit']
+    No returns
     """
 
     if log is None:

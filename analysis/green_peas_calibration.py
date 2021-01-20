@@ -1,10 +1,3 @@
-"""
-green_peas_calibration
-====
-
-Plots R23 and O32 line ratios and compare it to Jiang et al. (2018)
-calibration that is based on green pea galaxies
-"""
 
 from chun_codes import match_nosort_str
 from astropy.io import ascii as asc
@@ -22,12 +15,10 @@ jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 def O32_OH_fit(xy, a, b, c, d, e):
     """
     Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
-
-    Parameters
-    ----------
-     x : 12+log(O/H)
-     y : log([OIII]/[OII])
-     a, b, c, d, e, : Jiang coefficients
+    Used by main() function
+    :param x: 12+log(O/H)
+    :param y: log([OIII]/[OII])
+    :param a, b, c, d, e,:  Jiang coefficients
     """
 
     x = xy[0]
@@ -41,11 +32,10 @@ def O32_OH_fit(xy, a, b, c, d, e):
 def jiang18(x, y):
     """
     Function to return log(R23) based on metallicity and [OIII]/[OII] flux ratio
+    Used by main() function
 
-    Parameters
-    ----------
-     x : 12+log(O/H)
-     y : log([OIII]/[OII])
+    :param x: array. 12+log(O/H)
+    :param y: array. log([OIII]/[OII])
     """
 
     logR23 = O32_OH_fit(xy, * jiang18_coeffs)
@@ -58,6 +48,7 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
                      dR23_range=[], marker=[], label=[], IDs=[], log=None):
     """
     Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
+    Used by main() function
     """
 
     if log is None:
@@ -166,30 +157,30 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
          marker=[], edgecolors=[], alpha=[], label=[], dR23_range=[-0.3, 0.3],
          IDs=[], include_Rlimit=True, fit=False, log=None):
     """
+    Plots R23 and O32 line ratios and compare it to Jiang et al. (2018)
+    calibration that is based on green pea galaxies
     Main function to plot dataset against Jiang+ (2018) calibration
 
-    Parameters
-    ----------
-    lR23 : log(R_23)
-    lO32 : log([OIII]/[OII])
-    OH   : 12+log(O/H)
+    :param lR23: array. log(R_23)
+    :param lO32: array. log([OIII]/[OII])
+    :param OH: array. 12+log(O/H)
+    :param out_pdf: str. full path for output PDF
+    :param n_bins: int. number of bins to bin data
+    :param lR23_err: array. error on x-axis (logR23)
+    :param OH_err: array. error on y-axis (logR23)
+    :param xra: array. x-axis plotting range
+    :param yra: array. y-axis plotting range
+    :param marker: list. list of markers
+    :param edgecolors: list. list of edge colors
+    :param alpha: list. list of alpha (transparency)
+    :param label: list. list of string labels
+    :param dR23_range: array. for annotation
+    :param IDs: array. list of list of ID's
+    :param include_Rlimit: Bool. to plot cases with R-limits
+    :param fit: bool. Turn on fitting. Default: False -> Uses Jiang+2018 relation
+    :param log: LogClass or logging object
 
-    out_pdf : full path for output PDF
-    n_bins : number of bins to bin data
-    lR23_err : error on x-axis (logR23)
-    OH_err : error on y-axis (logR23)
-    xra : x-axis plotting range
-    yra : y-axis plotting range
-    marker : list of markers
-    edgecolors : list of edge colors
-    alpha : list of alpha (transparency)
-    label : list of string labels
-    dR23_range : for annotation
-    IDs : list of list of ID's
-    include_Rlimit : Boolean to plot cases with R-limits
-    fit : boolean
-      Turn on fitting. Default: False -> Uses Jiang+2018 relation
-    log: LogClass or logging object
+    No returns
 
     Notes
     -----

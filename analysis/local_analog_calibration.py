@@ -1,10 +1,3 @@
-"""
-local_analog_calibration
-====
-
-Plots R23 and O32 line ratios and compare it to Bian et al. (2018)
-calibration that is based on local analogs to z~2 galaxies
-"""
 
 from astropy.io import ascii as asc
 import numpy as np
@@ -18,10 +11,9 @@ from .green_peas_calibration import get_zcalbase_sample
 def bian18_R23(OH):
     """
     Function to return log(R23) given metallicity
+    Used in main()
 
-    Parameters
-    ----------
-     OH : 12+log(O/H)
+    :param OH: array. 12+log(O/H)
     """
 
     R23_coeff = [-0.32293, 7.2954, -54.8284, 138.0430]
@@ -33,10 +25,9 @@ def bian18_R23(OH):
 def bian18_O32(O32):
     """
     Function to return metallicity given log(O32)
+    Used in main()
 
-    Parameters
-    ----------
-     O32 : log([OIII]/[OII])
+    :param O32: array. log([OIII]/[OII])
     """
 
     OH = 8.54 - 0.59 * O32
@@ -47,23 +38,28 @@ def bian18_O32(O32):
 def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
          OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''],
          marker=[], log=None):
-
     """
+    Plots R23 and O32 line ratios and compare it to Bian et al. (2018)
+    calibration that is based on local analogs to z~2 galaxies
     Main function to plot dataset against Bian+ (2018) calibration
 
-    Parameters
-    ----------
-    lR23 : log(R_23)
-    lO32 : log([OIII]/[OII])
-    OH   : 12+log(O/H)
+    :param lR23: array. log(R_23)
+    :param lO32: array. log([OIII]/[OII])
+    :param OH: array. 12+log(O/H)
+    :param out_pdf: str. full path for output PDF
+    :param ID: array. list of list of ID's
+    :param lR23_err: array. error on x-axis (logR23)
+    :param lO32_err: array. error on x-axis (logO32)
+    :param OH_err: array. metallicity error on y-axis
+    :param R23_xra: array. x-axis plotting range
+    :param O32_xra: array. x-axis plotting range
+    :param yra: array. y-axis plotting range
+    :param ctype: list. list of colors
+    :param marker: list. list of markers
+    :param label: list. list of string labels
+    :param log: LogClass or logging object
 
-    out_pdf : full path for output PDF
-
-    ID   : ID of source
-      Provide if plots should be annotated
-
-    Returns
-    -------
+    No returns
 
     Notes
     -----
@@ -184,7 +180,7 @@ def get_measurements(data, log=None):
     """
     Used in get_DEEP2 and get_MACT to pull data and return it to
     DEEP2_OIII4363 and MACT_OIII4363
-
+    Used in main()
     """
 
     if log is None:
@@ -213,6 +209,7 @@ def get_measurements(data, log=None):
 def get_DEEP2(path0, log=None):
     """
     Called by DEEP2_OIII4363 and returns data to main function
+    Used in main()
     """
     infile = path0 + 'DEEP2_R23_O32_derived.tbl'
 
@@ -233,6 +230,7 @@ def get_DEEP2(path0, log=None):
 def get_MACT(path0, log=None):
     """
     Called by MACT_OIII4363 and returns data to main function
+    Used in main()
     """
 
     if log is None:
@@ -254,7 +252,7 @@ def get_MACT(path0, log=None):
 
 def DEEP2_OIII4363():
     """
-    Run function for DEEP2 dataset for hardcoded path (line 241) 
+    Run function for DEEP2 dataset for hardcoded path (line 241)
     """
 
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'

@@ -26,19 +26,15 @@ from Metallicity_Stack_Commons.analysis import error_prop
 
 def get_det3(fitspath, fitspath_ini, log=None):
     """
-    Purpose
-    ----------
     Function is called to collect data for binning from DEEP2 data files
-
-    Parameters
-    ----------
-    fitspath -> path to the location of files saved for each run
-    fitspath_ini -> path to the location of entire project
-
-    Returns
-    -------
     Data for run
-    Creates "individual_properties.tbl"
+
+    :param fitspath: str. path to the location of files saved for each run
+    :param fitspath_ini: str. path to the location of entire project
+    :param log: LogClass or logging object
+
+    TABLE: fitspath + filename_dict['indv_prop']
+    Returns calculated properties: individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
     """
     if log is None:
         log = log_stdout()
@@ -150,8 +146,7 @@ def get_det3(fitspath, fitspath_ini, log=None):
 def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                               adaptive=True, apply_dust=False, mask=True):
     """
-    Purpose
-      Function runs the entire analysis
+    Function runs the entire analysis
 
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
@@ -164,6 +159,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     :param apply_dust: bool. Apply dust correction. Default: False
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
+
+    No returns
     """
 
     fitspath_ini = get_user()
@@ -310,19 +307,18 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
 def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                    revised=False, individual=False):
     """
-    Purpose
-    --------
     This function will be run to make plots of the final results
 
-    Parameters
-    ----------
-    :param fitspath: str. Path to the location of files saved for each run
+    :param fitspath_ini: str. Path to the location of whole project
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
-    :param raw: bool.
+    :param raw: bool. to do a simple calculation, no randomization. Default: False
     :param apply_dust: bool. Apply dust correction. Default: False
-    :param revised: bool.
-    :param individual: bool.
+    :param revised: bool. indicates whether to use revised bin properties
+                    (e.g., *.revised.tbl files) Default: False
+    :param individual: bool. indicates whether individual galaxies are included Default: False
+
+    No returns
     """
 
     fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/' + dataset)
@@ -370,12 +366,8 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                              adaptive=True, y_correction=False,
                              apply_dust=False, mask=True):
     """
-    Purpose
-    ---------
     To run individual codes to test changes or edits plots
 
-    Parameters
-    ----------
     :param fitspath: str. Path to the location of files saved for each run
     :param want: str. Keyword to determine what part of the process needs to be run
           Options are: "binning_and_graphing", "stack_mastergrid", "zoom", "R_cal_temp"
@@ -390,6 +382,8 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
     :param apply_dust: bool. Apply dust correction. Default: False
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
+
+    No returns
     """
 
     log = LogClass(fitspath, 'run_individual_functions.log').get_logger()

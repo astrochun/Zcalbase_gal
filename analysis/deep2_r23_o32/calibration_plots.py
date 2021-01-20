@@ -12,22 +12,22 @@ from .log_commons import log_stdout
 def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
                   apply_dust=False, revised=False, individual=False, log=None):
     """
-    Purpose
-    ----------
     Call function for calculating and plotting data points based with the green_pea_calibration
     and the local_analog_calibration.
 
-    Parameters
-    -----------
     :param fitspath: str. save location of the current run
     :param fitspath_ini: str.
     :param dataset: str. indicates the type of binning being used
     :param revised: bool. indicates that revised verification table is being used
     :param individual: bool.used if individual detections from Zcalbase_gal are used
+    :param log: LogClass or logging object
 
-    Outputs
-    ----------
-      pdf_files
+    PDF Files:
+        fitspath + GPC{suffix}.pdf
+        fitspath + LAC{suffix}.pdf
+        fitspath + GPC{suffix}.diff.pdf
+        fitspath + LAC{suffix}.diff.pdf
+    No returns
     """
 
     if log is None:
@@ -45,8 +45,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     if apply_dust:
         suffix += '.dustcorr'
 
-    pea_out_pdf = join(fitspath, f"{dataset}_GPC{suffix}.pdf")
-    LAC_out_pdf = join(fitspath, f"{dataset}_LAC{suffix}.pdf")
+    pea_out_pdf = join(fitspath, f"GPC{suffix}.pdf")
+    LAC_out_pdf = join(fitspath, f"LAC{suffix}.pdf")
 
     # Validation Table Call
     if revised:
@@ -193,6 +193,15 @@ def individual_gpc(individual_ascii, validation_table, log=None):
     This function is currently repetitive of the function above for the individual detection cases.
     However, I am going to keep it here in the case that we want to plot the individual detections against
     the binned detections.
+
+    :param individual_ascii: str. location of table with data
+    :param validation_table: str. location of validaition table
+    :param log LogClass or logging object
+
+    PDF Files:
+        fitspath + GPC{suffix}.pdf
+        fitspath + GPC{suffix}.diff.pdf
+    No returns
     """
 
     if log is None:

@@ -15,21 +15,20 @@ from Metallicity_Stack_Commons.column_names import temp_metal_names0, bin_names0
 
 def histogram(path, data_all, table_path, pdf_name,  verification_table, table_key='', sharex=False):
     """
-    Purpose
     Plots histograms for inputted values
 
-    Parameters
-    path            -> location of where the outputted pdf_file will be saved
-    data_all        -> big dictionary of all the error propagation data that will be put into
-                        histogram plot; created in run_histogram_TM
-    table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal
-                        functions; can also be the combine_flux_table created by
-                        zoom_and_gauss_general
-    pdf_name        -> name of the outputted pdf file
-    table_key       -> name of one of the columns of the table inputted by table_path
-                        used to call the binned data
+    :param path: str. location of where the outputted pdf_file will be saved
+    :param data_all: dict. dictionary of all the error propagation data that will be put into
+                    histogram plot; created in run_histogram_TM
+    :param table_path: str. location of the temperature_metallicity table outputted
+                            functions; can also be the combine_flux_table created by
+                            zoom_and_gauss_general
+    :param pdf_name: str. name of the outputted pdf file
+    :param table_key: keyword. name of one of the columns of the table inputted
+                        by table_path used to call the binned data
 
-    Output: pdf file with all the histograms plotted
+    PDF File: path + pdf_name
+    No returns
     """
     pdf_pages = PdfPages(join(path, pdf_name))
     tab1 = asc.read(table_path)
@@ -114,8 +113,7 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
             calculated_value = O5007_O4958[detection]
         if hist_name == 'R23_pdf':
             calculated_value = R23_combine[detection]
-        
-        
+
         if len(calculated_value) % 2 == 0:
             nrows = len(calculated_value)//2
         else:
@@ -170,17 +168,15 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
 
 def run_histogram_tm(path, table_path, dict_list, verification_table, sharex=False):
     """
-    Purpose
     Call run_histogram to combine all dictionaries into one large dictionary
     that gets passed into histogram and from there is plotted
 
-    Input variables
-    path            -> name of where you are working and location of where the
-                        outputted pdf_file will be saved
-    table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal
-                        functions; can also be the combine_flux_table created by
+    :param path: str. name of where you are working and location of where the
+                outputted pdf_file will be saved
+    :param table_path: str. location of the temperature_metallicity table outputted by
+                        the error_prop functions; can also be the combine_flux_table created by
                         zoom_and_gauss_general
-    dict_list       -> list of dictionaries whose data we want to plot in a histogram
+    :param dict_list: ls. list of dictionaries whose data we want to plot in a histogram
 
     Example :
              dict_list = [Te_pdf_dict,Te_xpeak_dict,
@@ -188,6 +184,7 @@ def run_histogram_tm(path, table_path, dict_list, verification_table, sharex=Fal
              xpeak_key = ['Te_xpeak','O_s_ion_xpeak',
                          'O_d_ion_xpeak', 'com_O_log_xpeak']
 
+    No Returns
     """
     if path[-1] != "/":
         path += "/"
@@ -203,20 +200,21 @@ def run_histogram_tm(path, table_path, dict_list, verification_table, sharex=Fal
 
 def run_histogram_fr(path, table_path, dict_list, verification_table, sharex=False):
     """
-    Purpose
     This function takes the flux_pdf distributions computed in error_prop and calculates the flux ratios.
     Then it calls compute_onesig_pdf from chun_codes for the flux ratios.
-    Finally it create the compute dictionary of ratios, xpeaks, and low/high limits and passes it all into histogram
+    Finally it create the compute dictionary of ratios, xpeaks,
+    and low/high limits and passes it all into histogram
 
-    Input Variables
-    path            -> name of where you are working and location of where the
+    :param path: str. name of where you are working and location of where the
                         outputted pdf_file will be saved
-    table_path      -> location of the flux_ratio table outputted by the R_temp_cal
+    :param table_path: str. location of the flux_ratio table outputted by the R_temp_cal
                         functions; can also be the combine_flux_table created by
                         zoom_and_gauss_general
-    dict_list       -> list of dictionaries whose data we want to plot in a histogram
-    verification_table -> table created independently of this code that tells us whether or not each bin is a detection
+    :param dict_list: ls. list of dictionaries whose data we want to plot in a histogram
+    :param verification_table: str. table created independently of this code that
+                                tells us whether or not each bin is a detection
 
+    No returns
     """
     if path[-1] != "/":
         path += "/"

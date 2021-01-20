@@ -24,16 +24,15 @@ bian_coeff = [138.0430, -54.8284, 7.2954, -0.32293]
 
 def jiang_calibration(metal_det, lo32):
     """
-    Purpose
     Calculating the Jiang calibration for the metallicity and O32 measurements enter
-
-    Parameters
-    metal_det -> dictionary of 12+log(O/H)
-    lO32 -> log(O32) value
-
     Jiang Calibration:
     jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det) \
     + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+
+    param: metal_det: dict. dictionary of 12+log(O/H)
+    param: lO32: np.array. log(O32) value
+
+    Returns Jiang's expected R23 value given metallicity and O32
     """
 
     p_jiang = np.poly1d([jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]])
@@ -44,15 +43,14 @@ def jiang_calibration(metal_det, lo32):
 
 def bian_calibration_r23(metal_det):
     """
-    Purpose
     Calculating the R23 of Bian calibration for the metallicity measurements enter
-
-    Parameters
-    metal_det -> dictionary of 12+log(O/H)
-
     Bian R23 Calibration:
     bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
                        + bian_coeff[3] * metal_det * metal_det * metal_det
+
+    param: metal_det: dict. dictionary of 12+log(O/H)
+
+    Returns Bian's expected R23 value given metallicity
     """
     p_bian = np.poly1d([bian_coeff[::-1]])
     shortcut = p_bian(metal_det)
@@ -61,11 +59,11 @@ def bian_calibration_r23(metal_det):
 
 def bian_calibration_o32(metal_det):
     """
-    Purpose
     Calculating the O32 of Bian calibration for the metallicity measurements enter
 
-    Parameters
-    metal_det -> dictionary of 12+log(O/H)
+    param: metal_det: dict. dictionary of 12+log(O/H)
+
+    Returns Bian's expected O32 values given metallicity
     """
     return (-1 / 0.59) * (metal_det - 8.54)
 
@@ -73,14 +71,20 @@ def bian_calibration_o32(metal_det):
 def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
                       revised=False, individual=False, log=None):
     """
-    Purpose
     Plotting metallicity, temperature, R23, and O32 for different datasets
 
-    Parameters
-    fitspath -> path where files are called from and saved to
-    revised -> keyword (automatically set to False) to determine what data is used
-            -> refers to if using the bin_derived_prop_revised temperature
-                     and metallicity measurements which right now implement dust attenuation
+    param: fitspath: str. path where files are called from and saved to
+    param: fitspath_ini: str. path where whole project is stored
+    param: raw: bool.
+    param: apply_dust: bool.
+    param: revised: bool. keyword (automatically set to False) to determine what data is used
+                        refers to if using the bin_derived_prop_revised temperature
+                        and metallicity measurements which right now implement dust attenuation
+    param: individual: bool.
+    param: log: LogClass. Default use log_stdout()
+
+    PDF File: fitspath + temperature_metallicity_plots{suffix}.pdf"
+    No returns
     """
 
     if log is None:
@@ -309,24 +313,25 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
 
 def jiang_comparison(fitspath, fitspath_ini, log=None):
     """
-    Purpose
     To calculate the difference between the predicted Jiang calibration and the measured values 
     for composite spectra
-
     Jiang Calibration fron Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145
-    
-    Parameters
-    fitspath -> path to where files come and are saved to
-    
+    Jiang Calibration
+    log(R23) = a +bx+cx^2 - d(e+x)y
+    x = 12+log(O/H)
+    y = log(O32)
+
+    param: fitspath: str. path to where files come and are saved to
+    param: fitspath_ini: str. path where whole project is stored
+    param: log: LogClass. Default use log_stdout()
+
     Still trying to decide if this is necessary: 
     revised -> keyword (automatically set to False) to determine what data is used
             -> refers to if using the bin_derived_prop_revised temperature
                      and metallicity measurements which right now implement dust attenuation
 
-    Jiang Calibration
-    log(R23) = a +bx+cx^2 - d(e+x)y
-    x = 12+log(O/H)
-    y = log(O32)
+    PDF File: fitspath + 'comparsion_Jiang_Zcal.pdf'
+    No returns
     """
 
     if log is None:
@@ -435,15 +440,16 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
 
 def bian_comparison(fitspath, fitspath_ini, log=None):
     """
-    Purpose 
     To calculate the difference between the predicted Bian calibration and the measured values 
     for composite spectra
-
     Bian Calibration from Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175
-    
-    Parameters
-    fitspath -> path to where files come and are saved to 
-    
+
+    param: fitspath: str. path to where files come and are saved to
+    param: fitspath_ini: str. path where whole project is stored
+    param: log: LogClass. Default use log_stdout()
+
+    PDF File: fitspath + 'comparsion_Bian_Zcal.pdf'
+    No Return
     """
 
     if log is None:

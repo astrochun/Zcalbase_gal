@@ -1,17 +1,4 @@
 
-"""
-PLOTTING RESULTS FROM ANALYSIS
-Some were written before MSC and are now in MSC
-
-Functions:
--R23 vs O32 Color Map
--Histogram plots for each bin
--Dust attenuation plots (old version before implementing MSC)
--Plotting Individual Spectra over a Wavelength range for Balmer line viewing
--Gaussian Curve Plotting
--Calculating Oxygen II Gaussian
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -24,14 +11,15 @@ from Zcalbase_gal.analysis.deep2_r23_o32 import zoom_and_gauss_general
 
 def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     """
-    Purpose
     Plotting function for R23 and O32 color mapping plots
 
-    Parameters
-    fitspath -> path where files are called from and saved to
-    asc_table   -> combine_flux_ascii
-    temp_table  -> derived_properties
-    verif_table -> bin_validation_revised
+    :param fitspath: str. path where files are called from and saved to
+    :param asc_table: str. name of table combine_flux_ascii
+    :param temp_table: str. name of table with temperature and metallicity measurements derived_properties
+    :param verif_table: str. name of verification table bin_validation_revised
+
+    PDF File: fitspath + 'R23_vs_O32_colormapping.pdf'
+    No Returns
     """
 
     pdf_pages = PdfPages(join(fitspath, 'R23_vs_O32_colormapping.pdf'))
@@ -83,18 +71,19 @@ def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     
 def hist_for_bin(fitspath, dataset, asc_table_det3):
     """
-    Purpose
     Produces a pdf file with plots of histograms to check the distribution
     of individual galaxies in bins based on R23 and O32
 
-    Parameters
-    fitspath -> path where files are called from and saved to
-    dataset -> keyword that specifies which binning method is used
-    asc_table_det3 -> ascii table created by binning code (ie. bin_info.tbl)
+    :param fitspath: str. path where files are called from and saved to
+    :param dataset: str. keyword that specifies which binning method is used
+    :param asc_table_det3: str. ascii table created by binning code (ie. bin_info.tbl)
+
+    PDF File: fitspath + 'bin_histograms.pdf'
+    No Returns
     """
     asc_tab = asc.read(asc_table_det3)
 
-    pdf_pages = PdfPages(join(fitspath, dataset + '_histograms.pdf'))
+    pdf_pages = PdfPages(join(fitspath, 'bin_histograms.pdf'))
 
     R23 = asc_tab['logR23_avg'].data
     O32 = asc_tab['logO32_avg'].data
@@ -127,10 +116,17 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
     
 def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spectra=False):
     """
-    Purpose
     Produces pdf file of spectra plots for either the binned data or individual data.
     Names commented out to refer to in future for what files are required.
     Responsible for the plots for Stacking Spectra Figure (from thesis)
+
+    :param RestframeMaster: str. master grid file
+    :param pdf_name: str. name of outputted file
+    :stack_spectra: bool. Default = False determines if plotting
+                    individual spectra (False) or stacked spectra (True)
+
+    PDF File: pdf_name
+    No returns
     """
     if not stack_spectra:
         # name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
@@ -176,8 +172,9 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
 
 def plotting_gaussian_curves():
     """
-    Purpose
     Plots the single, double, and oxygen gaussian curves used to fit the binned spectra.
+
+    No returns
     """
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
     x = np.arange(1, 100)
@@ -251,12 +248,12 @@ def plotting_gaussian_curves():
 
 def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
     """
-    Purpose
     Calculates the gaussian curve used to fit the OII emission.
 
-    Parameters
-    x -> the emission line that is being fitted
-    the rest -> guess parameters for the fit
+    :param x: array. the emission line that is being fitted
+    :param xbar, s1, a1, c, s2, a2 : int. guess parameters for the fit
+
+    Returns Oxygen II gaussian fit
     """
 
     con1 = 72.0/45.0

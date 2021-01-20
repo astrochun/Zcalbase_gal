@@ -7,28 +7,22 @@ from os.path import join
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 
-def graph_bins(fitspath, n_split, bin_info, individual_info, pdf_file):
+def graph_bins(fitspath, n_split):
     """
-    Purpose: This function takes inputed grid parameters and graphs them on the log(R23)--log(O32) plane 
-    Inputs:
-           n_split    -> from general.py input used for calculating bins
-           ascii_file -> file with the minimum, maximum, and average R23 and O32 value
-           pdf_file   -> name of pdf file made by code
-
-    Returns:
-           none
-    Outputs:
-        pdf_file with the saved figure (possible naming convention 'manual_binning_shading.pdf'
-
+    This function takes inputed grid parameters and graphs them on the log(R23)--log(O32) plane
     Currently works for manual binning with an n_split (see general function) of 3. More updates would
-    need to be made for a different n_split to correct indexing through arrays. 
+    need to be made for a different n_split to correct indexing through arrays.
+
+    :param fitspath: str. path to where files come and are saved to
+    :param n_split: int. from general.py input used for calculating bins
+
+    PDF File: fitspath + 'manual_binning_shading.pdf'
+    No returns
     """
 
     bin_info = join(fitspath, filename_dict['bin_info'])
     individual_info = join(fitspath, filename_dict['individual_prop'])
-    pdf_file = join(fitspath, 'manual_binning_shading.pdf')
-
-    pdf_pages = PdfPages(pdf_file)
+    pdf_pages = PdfPages(join(fitspath, 'manual_binning_shading.pdf'))
 
     tab = asc.read(bin_info)
     idv_tab = asc.read(individual_info)

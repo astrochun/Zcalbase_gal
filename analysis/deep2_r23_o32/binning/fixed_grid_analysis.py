@@ -85,8 +85,9 @@ def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
     tabmastergrid = Table([x0, y0])
     tabmastergrid_name = join(fitspath, 'testmastergrid.tbl')
     log.info(f"Writing: {tabmastergrid_name}")
+    # log.info(f"Overwriting : {tabmastergrid_name}")
     asc.write(tabmastergrid, tabmastergrid_name,
-              format='fixed_width_two_line')
+              format='fixed_width_two_line', overwrite=True)
 
     # Colorbar and hexbin plotting
     hb0 = ax2.hexbin(x0, y0, gridsize=(len(R23_grid), len(O32_grid)), cmap=cm)

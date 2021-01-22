@@ -22,7 +22,7 @@ from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-from . import name_dict
+from . import name_dict, general
 from .log_commons import log_stdout
 
 con1 = 3728.91 / 3726.16
@@ -429,8 +429,7 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
     return tab0
 
 
-def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
-               y_correction, log=None):
+def zm_general(dataset, fitspath,  outfile_grid, y_correction, log=None):
     """
     Purpose
     ----------
@@ -444,6 +443,13 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
 
     s2 = 5.0  # a fitting requirement
 
+    # Import Stacking Dictionaries
+    log.info(f"Reading: {outfile_grid}")
+    fits_dict = general.read_fitsfiles(outfile_grid)
+    stack2d = fits_dict['fits_data']
+    wave = fits_dict['wave']
+    dispersion = fits_dict['dispersion']
+
     # Importing Bins Values
     bin_info_file = join(fitspath, filename_dict['bin_info'])
     log.info(f"Reading: {bin_info_file}")
@@ -451,6 +457,13 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
 
     n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
     table_stack = bin_info_tab[n2]
+
+    # Create lineflag
+    lineflag = np.zeros(len(wave))
+    for ii in lambda0:
+        idx = np.where(np.absolute(wave - ii) <= 5)[0]
+        if len(idx) > 0:
+            lineflag[idx] = 1
 
     for ii in range(len(lambda0)):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")

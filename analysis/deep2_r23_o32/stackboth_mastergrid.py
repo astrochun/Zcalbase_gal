@@ -65,8 +65,10 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
 
     RestframeMaster = join(fitspath_ini, 'DEEP2_Commons/Images/Master_Grid.fits')
     log.info(f"Reading: {RestframeMaster}")
-    image2D, header = fits.getdata(RestframeMaster, header=True)
-    wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
+    fits_dict = general.read_fitsfiles(RestframeMaster)
+    image2D = fits_dict['fits_data']
+    header = fits_dict['header']
+    wave = fits_dict['wave']
 
     pdf_pages = PdfPages(join(fitspath, stack_name))  # open pdf document
 

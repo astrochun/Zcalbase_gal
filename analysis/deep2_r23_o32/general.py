@@ -23,6 +23,22 @@ from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import error_prop
 
 
+def read_fitsfiles(fits_file_path):
+    fits_data, header = fits.getdata(fits_file_path, header=True)
+    wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
+    dispersion = header['CDELT1']
+
+    # Initialize Dictionary
+    fits_dict = dict()
+    # Fill in Dictionary
+    fits_dict['fits_data'] = fits_data
+    fits_dict['header'] = header
+    fits_dict['wave'] = wave
+    fits_dict['dispersion'] = dispersion
+
+    return fits_dict
+
+
 def get_det3(fitspath, fitspath_ini, log=None):
     """
     Purpose
@@ -225,25 +241,12 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
 
     # Zoom_and_gauss_general
     outfile_grid = join(fitspath, filename_dict['comp_spec'])
-    log.info(f"outfile_grid : {outfile_grid}")
-    log.info(f"Reading: {outfile_grid}")
-    stack2D, header = fits.getdata(outfile_grid, header=True)
-    wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
-    dispersion = header['CDELT1']
 
     # used to be 'n_Bins_2d_binning_datadet3.tbl'
     indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])
 
-    lineflag = np.zeros(len(wave))
-    for ii in lambda0:   
-        idx = np.where(np.absolute(wave - ii) <= 5)[0]
-        if len(idx) > 0:
-            lineflag[idx] = 1
     # Option to change: Constants used as initial guesses for gaussian fit
-
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
-                                      lineflag, dispersion,
-                                      y_correction, log=log)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, outfile_grid, y_correction, log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")
@@ -399,19 +402,7 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
 
     if want == 'zoom':
         outfile_grid = join(fitspath, filename_dict['comp_spec'])
-        log.info(f"Reading: {outfile_grid}")
-        stack2D, header = fits.getdata(outfile_grid, header=True)
-        wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-        dispersion = header['CDELT1']
-
-        lineflag = np.zeros(len(wave))
-        for ii in lambda0:   
-            idx = np.where(np.absolute(wave - ii) <= 5)[0]
-            if len(idx) > 0:
-                lineflag[idx] = 1
-
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
-                                          lineflag, dispersion,
+        zoom_and_gauss_general.zm_general(dataset, fitspath, outfile_grid,
                                           y_correction=y_correction,
                                           log=log)
 

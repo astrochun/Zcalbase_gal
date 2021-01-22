@@ -138,7 +138,8 @@ def get_det3(fitspath, fitspath_ini, log=None):
     # used to be get_det3_table.tbl
     outfile = join(fitspath, filename_dict['indv_prop'])
     log.info(f"Writing: {outfile}")
-    asc.write(tab1, outfile, format='fixed_width_two_line')
+    # log.info(f"Overwriting: {outfile}")
+    asc.write(tab1, outfile, format='fixed_width_two_line', overwrite=True)
     # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
     log.info("finished.")

@@ -466,6 +466,7 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
 
     out_ascii = join(fitspath, filename_dict['bin_fit'])
     log.info(f"Writing: {out_ascii}")
+    # log.info(f"Overwriting: {out_ascii}")
     asc.write(table_stack, out_ascii, format='fixed_width_two_line',
               overwrite=True)
 

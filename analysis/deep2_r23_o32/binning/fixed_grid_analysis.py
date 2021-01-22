@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from astropy.table import Table
-from os.path import join
+from os.path import join, exists
 
 from ..log_commons import log_stdout
 
@@ -84,8 +84,10 @@ def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
     # Write table
     tabmastergrid = Table([x0, y0])
     tabmastergrid_name = join(fitspath, 'testmastergrid.tbl')
-    log.info(f"Writing: {tabmastergrid_name}")
-    # log.info(f"Overwriting : {tabmastergrid_name}")
+    if not exists(tabmastergrid_name):
+        log.info(f"Writing: {tabmastergrid_name}")
+    else:
+        log.info(f"Overwriting : {tabmastergrid_name}")
     asc.write(tabmastergrid, tabmastergrid_name,
               format='fixed_width_two_line', overwrite=True)
 

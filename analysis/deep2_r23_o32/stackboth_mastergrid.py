@@ -218,8 +218,10 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
 
     tab0 = Table([ID, R23_node, O32_node, avg_R23, avg_O32, R23_med, O32_med, N_gal],
                  names=n)
-    log.info(f"Writing: {out_ascii}")
-    # log.info(f"Overwriting: {out_ascii}")
+    if not exists(out_ascii):
+        log.info(f"Writing: {out_ascii}")
+    else:
+        log.info(f"Overwriting: {out_ascii}")
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line', overwrite=True)
 
     fig.clear()

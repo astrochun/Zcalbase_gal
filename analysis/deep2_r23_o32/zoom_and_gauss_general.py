@@ -444,7 +444,6 @@ def zm_general(dataset, fitspath,  outfile_grid, y_correction, log=None):
     s2 = 5.0  # a fitting requirement
 
     # Import Stacking Dictionaries
-    log.info(f"Reading: {outfile_grid}")
     fits_dict = general.read_fitsfiles(outfile_grid)
     stack2d = fits_dict['fits_data']
     wave = fits_dict['wave']

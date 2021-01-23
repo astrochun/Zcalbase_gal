@@ -64,7 +64,6 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
         stack_name = name_dict['Stackname_nomask']
 
     RestframeMaster = join(fitspath_ini, 'DEEP2_Commons/Images/Master_Grid.fits')
-    log.info(f"Reading: {RestframeMaster}")
     fits_dict = general.read_fitsfiles(RestframeMaster)
     image2D = fits_dict['fits_data']
     header = fits_dict['header']

@@ -23,7 +23,11 @@ from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import error_prop
 
 
-def read_fitsfiles(fits_file_path):
+def read_fitsfiles(fits_file_path, log=None):
+    if log is None:
+        log = log_stdout()
+
+    log.info(f"Reading: {fits_file_path}")
     fits_data, header = fits.getdata(fits_file_path, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
     dispersion = header['CDELT1']

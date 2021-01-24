@@ -22,13 +22,13 @@ from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-from . import name_dict, general
+from . import name_dict, read_fitsfiles
 from .log_commons import log_stdout
 
 con1 = 3728.91 / 3726.16
 
 
-def line_flag_check(fitspath, working_wave, lineflag, fits_dict['wave'], y_norm,
+def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr, log=None):
     """
     Purpose
@@ -47,9 +47,9 @@ def line_flag_check(fitspath, working_wave, lineflag, fits_dict['wave'], y_norm,
     pdf_pages2 = PdfPages(out_pdf)
 
     t_ax2 = ax_arr[row, col]
-    t_ax2.plot(fits_dict['wave'], y_norm, 'k', linewidth=0.4, label='Emission')
+    t_ax2.plot(wave, y_norm, 'k', linewidth=0.4, label='Emission')
     t_ax2.set_xlim([working_wave + 150, working_wave - 45])
-    t_ax2.plot(fits_dict['wave'], lineflag, 'g', linestyle='dashed', label='Lineflag')
+    t_ax2.plot(wave, lineflag, 'g', linestyle='dashed', label='Lineflag')
 
     fig.set_size_inches(8, 8)
     log.debug(f"Writing: {out_pdf}")
@@ -141,7 +141,7 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
     return o1, med0, max0
 
 
-def equi_width_func(pos_comp, neg0, gauss0, x0, fits_dict['wave'], y_norm):
+def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
     """
     Purpose:
       Equivalent width correction/computation
@@ -158,7 +158,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, fits_dict['wave'], y_norm):
       update plots
     """
 
-    plt.plot(fits_dict['wave'], y_norm, 'k', linewidth=0.3, label='Emission')
+    plt.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
     plt.plot(x0, neg0, 'b', linewidth=0.25, label='Negative Component')
     plt.plot(x0, pos_comp, 'r', linewidth=0.25, label='Positive Component')
     plt.plot(x0, gauss0, 'g', linewidth=0.25, label='Gauss Fit')
@@ -287,7 +287,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                 flux_s = np.sum(y_norm_diff * dx)
 
             # Calculating rms
-            rms_tot, rms_pix = rms_func(wave, fits_dict['dispersion'], working_wave, y0, o1[1],
+            rms_tot, rms_pix = rms_func(fits_dict['wave'], fits_dict['dispersion'], working_wave, y0, o1[1],
                                         lineflag)
 
             # Line Flag Checking Plots
@@ -444,7 +444,7 @@ def zm_general(dataset, fitspath, y_correction, log=None):
 
     # Import Stacking Dictionaries
     outfile_grid = join(fitspath, filename_dict['comp_spec'])
-    fits_dict = general.read_fitsfiles(outfile_grid)
+    fits_dict = read_fitsfiles(outfile_grid)
 
     # Importing Bins Values
     bin_info_file = join(fitspath, filename_dict['bin_info'])
@@ -455,9 +455,9 @@ def zm_general(dataset, fitspath, y_correction, log=None):
     table_stack = bin_info_tab[n2]
 
     # Create lineflag
-    lineflag = np.zeros(len(wave))
+    lineflag = np.zeros(len(fits_dict['wave']))
     for ii in lambda0:
-        idx = np.where(np.absolute(wave - ii) <= 5)[0]
+        idx = np.where(np.absolute(fits_dict['wave'] - ii) <= 5)[0]
         if len(idx) > 0:
             lineflag[idx] = 1
 

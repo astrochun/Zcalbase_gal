@@ -142,7 +142,6 @@ def get_det3(fitspath, fitspath_ini, log=None):
     else:
         log.info(f"Overwriting: {outfile}")
     asc.write(tab1, outfile, format='fixed_width_two_line', overwrite=True)
-    # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
 
     log.info("finished.")
 

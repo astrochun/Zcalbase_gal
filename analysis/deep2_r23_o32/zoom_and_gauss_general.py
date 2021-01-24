@@ -28,7 +28,7 @@ from .log_commons import log_stdout
 con1 = 3728.91 / 3726.16
 
 
-def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
+def line_flag_check(fitspath, working_wave, lineflag, fits_dict['wave'], y_norm,
                     line_name0, row, col, fig, ax_arr, log=None):
     """
     Purpose
@@ -47,9 +47,9 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
     pdf_pages2 = PdfPages(out_pdf)
 
     t_ax2 = ax_arr[row, col]
-    t_ax2.plot(wave, y_norm, 'k', linewidth=0.4, label='Emission')
+    t_ax2.plot(fits_dict['wave'], y_norm, 'k', linewidth=0.4, label='Emission')
     t_ax2.set_xlim([working_wave + 150, working_wave - 45])
-    t_ax2.plot(wave, lineflag, 'g', linestyle='dashed', label='Lineflag')
+    t_ax2.plot(fits_dict['wave'], lineflag, 'g', linestyle='dashed', label='Lineflag')
 
     fig.set_size_inches(8, 8)
     log.debug(f"Writing: {out_pdf}")
@@ -141,7 +141,7 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
     return o1, med0, max0
 
 
-def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
+def equi_width_func(pos_comp, neg0, gauss0, x0, fits_dict['wave'], y_norm):
     """
     Purpose:
       Equivalent width correction/computation
@@ -158,7 +158,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
       update plots
     """
 
-    plt.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
+    plt.plot(fits_dict['wave'], y_norm, 'k', linewidth=0.3, label='Emission')
     plt.plot(x0, neg0, 'b', linewidth=0.25, label='Negative Component')
     plt.plot(x0, pos_comp, 'r', linewidth=0.25, label='Positive Component')
     plt.plot(x0, gauss0, 'g', linewidth=0.25, label='Gauss Fit')
@@ -167,7 +167,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # For each individual stack
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
-def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
+def zoom_gauss_plot(dataset, fits_dict, s2,
                     working_wave, lineflag, bin_info_tab,
                     y_correction='', line_type='',
                     out_pdf='', line_name='', log=None):
@@ -192,31 +192,31 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
 
     nrows = 4
     ncols = 4
-    x_idx = np.where((wave >= (working_wave-100)) &
-                     (wave <= (working_wave+100)))[0]
-    x0 = wave
+    x_idx = np.where((fits_dict['wave'] >= (working_wave-100)) &
+                     (fits_dict['wave'] <= (working_wave+100)))[0]
+    x0 = fits_dict['wave']
     scalefact = 1e-17
 
     bin_id = bin_info_tab['bin_ID'].data
 
     # Initializing Arrays
-    flux_g_array = np.zeros(stack2d.shape[0])
-    flux_s_array = np.zeros(stack2d.shape[0])
-    flux_neg_array = np.zeros(stack2d.shape[0])
-    sigma1_array = np.zeros(stack2d.shape[0])
-    median_array = np.zeros(stack2d.shape[0])
-    norm_array = np.zeros(stack2d.shape[0])
-    rms_array = np.zeros(stack2d.shape[0])
-    SN_array = np.zeros(stack2d.shape[0])
+    flux_g_array = np.zeros(fits_dict['fits_data'].shape[0])
+    flux_s_array = np.zeros(fits_dict['fits_data'].shape[0])
+    flux_neg_array = np.zeros(fits_dict['fits_data'].shape[0])
+    sigma1_array = np.zeros(fits_dict['fits_data'].shape[0])
+    median_array = np.zeros(fits_dict['fits_data'].shape[0])
+    norm_array = np.zeros(fits_dict['fits_data'].shape[0])
+    rms_array = np.zeros(fits_dict['fits_data'].shape[0])
+    SN_array = np.zeros(fits_dict['fits_data'].shape[0])
 
     # Initializing Arrays for Balmer Graphing
-    xbar_array = np.zeros(stack2d.shape[0])
-    pos_amp_array = np.zeros(stack2d.shape[0])
-    sig2_array = np.zeros(stack2d.shape[0])
-    neg_amp_array = np.zeros(stack2d.shape[0])
+    xbar_array = np.zeros(fits_dict['fits_data'].shape[0])
+    pos_amp_array = np.zeros(fits_dict['fits_data'].shape[0])
+    sig2_array = np.zeros(fits_dict['fits_data'].shape[0])
+    neg_amp_array = np.zeros(fits_dict['fits_data'].shape[0])
 
-    for rr in range(stack2d.shape[0]):
-        y0 = stack2d[rr]
+    for rr in range(fits_dict['fits_data'].shape[0]):
+        y0 = fits_dict['fits_data'][rr]
         y_norm = y0/scalefact
 
         row = rr // nrows % ncols
@@ -232,7 +232,7 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
 
         y_smooth = movingaverage_box1D(y_norm, 4, boundary='extend')
 
-        rms_ang = rms_func(wave, dispersion, working_wave, y0, 0, lineflag)
+        rms_ang = rms_func(fits_dict['wave'], fits_dict['dispersion'], working_wave, y0, 0, lineflag)
 
         if y_correction:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
@@ -267,7 +267,7 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
 
                 # Keeping this here for possible later use. Might belong in MSC balmer module
                 # pdfpages3 = PdfPages(fitspath + '/' + dataset + '_PlottingBalmer_' + line_name+'.pdf')
-                # equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0, wave,
+                # equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0, fits_dict['wave'],
                 # y_norm, line_type, pdfpages3)
 
             if line_type == 'Oxy2':
@@ -287,11 +287,11 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
                 flux_s = np.sum(y_norm_diff * dx)
 
             # Calculating rms
-            rms_tot, rms_pix = rms_func(wave, dispersion, working_wave, y0, o1[1],
+            rms_tot, rms_pix = rms_func(wave, fits_dict['dispersion'], working_wave, y0, o1[1],
                                         lineflag)
 
             # Line Flag Checking Plots
-            # line_flag_check(fitspath, working_wave, lineflag, wave, y_norm, stack2d,
+            # line_flag_check(fitspath, working_wave, lineflag, fits_dict['wave'], y_norm, fits_dict['fits_data'],
             #                line_name, row, col, fig, ax_arr, log=log)
 
             # Array Population
@@ -325,10 +325,10 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
 
             # Plotting
             if y_correction:
-                t_ax.plot(wave, y_smooth, 'k', linewidth=0.3, label='Emission')
+                t_ax.plot(fits_dict['wave'], y_smooth, 'k', linewidth=0.3, label='Emission')
                 t_ax.plot(x0, gauss0, 'm', linewidth=0.25, label='Gauss Fit')
             else:
-                t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
+                t_ax.plot(fits_dict['wave'], y_norm, 'k', linewidth=0.3, label='Emission')
                 t_ax.plot(x0, gauss0, 'b', linewidth=0.25, label='Gauss Fit')
 
             t_ax.plot(x0[x_sigsnip_2], resid, 'r', linestyle='dashed',
@@ -381,13 +381,13 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
             else:
                 t_ax.set_yticklabels([])  # sets y-tick labels
 
-            if row != nrows-1 and rr != stack2d.shape[0]-1:
+            if row != nrows-1 and rr != fits_dict['fits_data'].shape[0]-1:
                 t_ax.set_xticklabels([])
         else:
-            t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
+            t_ax.plot(fits_dict['wave'], y_norm, 'k', linewidth=0.3, label='Emission')
             t_ax.set_xlim(x1 + 50, x2 - 50)
 
-        if (rr % (nrows * ncols) == nrows * ncols - 1) or rr == stack2d.shape[0] - 1:
+        if (rr % (nrows * ncols) == nrows * ncols - 1) or rr == fits_dict['fits_data'].shape[0] - 1:
             subplots_adjust(left=0.1, right=0.98, bottom=0.06, top=0.97,
                             hspace=0.05)
 
@@ -429,7 +429,7 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
     return tab0
 
 
-def zm_general(dataset, fitspath,  outfile_grid, y_correction, log=None):
+def zm_general(dataset, fitspath, y_correction, log=None):
     """
     Purpose
     ----------
@@ -440,14 +440,11 @@ def zm_general(dataset, fitspath,  outfile_grid, y_correction, log=None):
         log = log_stdout()
 
     log.debug("starting ...")
-
     s2 = 5.0  # a fitting requirement
 
     # Import Stacking Dictionaries
+    outfile_grid = join(fitspath, filename_dict['comp_spec'])
     fits_dict = general.read_fitsfiles(outfile_grid)
-    stack2d = fits_dict['fits_data']
-    wave = fits_dict['wave']
-    dispersion = fits_dict['dispersion']
 
     # Importing Bins Values
     bin_info_file = join(fitspath, filename_dict['bin_info'])
@@ -468,9 +465,10 @@ def zm_general(dataset, fitspath,  outfile_grid, y_correction, log=None):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
         log.info(f"out_pdf: {out_pdf}")
 
-        em_tab = zoom_gauss_plot(dataset, stack2d, dispersion, s2,
-                                 wave, lambda0[ii], lineflag, bin_info_tab,
-                                 y_correction=y_correction, line_type=line_type[ii],
+        em_tab = zoom_gauss_plot(dataset, fits_dict, s2, lambda0[ii],
+                                 lineflag, bin_info_tab,
+                                 y_correction=y_correction,
+                                 line_type=line_type[ii],
                                  out_pdf=out_pdf, line_name=line_name[ii],
                                  log=log)
 

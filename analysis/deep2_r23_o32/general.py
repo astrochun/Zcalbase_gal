@@ -244,8 +244,6 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                                          bin_outfile, mask=mask, log=log)
 
     # Zoom_and_gauss_general
-    outfile_grid = join(fitspath, filename_dict['comp_spec'])
-
     # used to be 'n_Bins_2d_binning_datadet3.tbl'
     indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])
 
@@ -405,8 +403,7 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                                              bin_outfile, mask=mask, log=log)
 
     if want == 'zoom':
-        outfile_grid = join(fitspath, filename_dict['comp_spec'])
-        zoom_and_gauss_general.zm_general(dataset, fitspath, outfile_grid,
+        zoom_and_gauss_general.zm_general(dataset, fitspath,
                                           y_correction=y_correction,
                                           log=log)
 

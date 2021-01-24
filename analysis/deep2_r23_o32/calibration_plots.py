@@ -196,11 +196,12 @@ def individual_gpc(individual_ascii, validation_table, log=None):
 
     :param individual_ascii: str. location of table with data
     :param validation_table: str. location of validaition table
-    :param log LogClass or logging object
+    :param log: LogClass or logging object
 
     PDF Files:
         fitspath + GPC{suffix}.pdf
         fitspath + GPC{suffix}.diff.pdf
+
     No returns
     """
 

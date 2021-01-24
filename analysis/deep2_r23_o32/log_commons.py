@@ -26,7 +26,7 @@ class LogClass:
     :param log_dir: Relative path for exported logfile directory
     :param logfile: Filename for exported log file
 
-    :return log
+    :return log: LogClass object
     """
 
     def __init__(self, log_dir, logfile):

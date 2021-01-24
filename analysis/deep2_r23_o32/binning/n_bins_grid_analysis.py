@@ -22,7 +22,7 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
 
     :param fitspath: str. Absolute path for working directory
     :param pdf_pages: str. name of outputted pdf file
-                        fitspath + name_dict['gridpdf_suffix']
+                      fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param n_split: int. the number of times each R23 bin will be split

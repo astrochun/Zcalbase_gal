@@ -12,7 +12,7 @@ def single_grid_o32(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
     log(O32) Not used in current analysis
 
     :param pdf_pages: str. name of outputted pdf file
-                        fitspath + name_dict['gridpdf_suffix']
+                      fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. R23 measurements

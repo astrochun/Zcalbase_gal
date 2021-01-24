@@ -18,7 +18,7 @@ def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
 
     :param fitspath: str. Path where files are retrieved and saved to
     :param pdf_pages: str. PdfPages object
-                        fitspath + name_dict['gridpdf_suffix']
+                      fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. log(R23) measurements of each spectra

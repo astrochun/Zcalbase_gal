@@ -19,7 +19,7 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
 
     :param fitspath: str. Path where files are retrieved and saved to
     :param pdf_pages: str. Name of outputted pdf file
-                        fitspath + name_dict['gridpdf_suffix']
+                      fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. Name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. Array of R23 from the get_det3 function

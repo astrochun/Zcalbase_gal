@@ -15,7 +15,8 @@ def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
 
     :param fitspath: str. path where files are called from and saved to
     :param asc_table: str. name of table combine_flux_ascii
-    :param temp_table: str. name of table with temperature and metallicity measurements derived_properties
+    :param temp_table: str. name of table with temperature and metallicity
+                        measurements derived_properties
     :param verif_table: str. name of verification table bin_validation_revised
 
     PDF File: fitspath + 'R23_vs_O32_colormapping.pdf'
@@ -40,12 +41,15 @@ def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     edge_rlimit = np.where(detect == 0.5)[0]
 
     fig1, ax1 = plt.subplots()
-    p1 = ax1.scatter(R23[edge_det], O32[edge_det], marker='o', c=T_e[edge_det], cmap=cm)
-    ax1.scatter(R23[edge_rlimit], O32[edge_rlimit], marker='^', c=T_e[edge_rlimit], cmap=cm)
+    p1 = ax1.scatter(R23[edge_det], O32[edge_det], marker='o',
+                     c=T_e[edge_det], cmap=cm)
+    ax1.scatter(R23[edge_rlimit], O32[edge_rlimit], marker='^',
+                c=T_e[edge_rlimit], cmap=cm)
     cb = fig1.colorbar(p1)
     cb.set_label('Temperature')
     for aa in range(len(edge_det)):
-        ax1.annotate(ID[edge_det][aa], (R23[edge_det][aa], O32[edge_det][aa]), fontsize='6')
+        ax1.annotate(ID[edge_det][aa], (R23[edge_det][aa], O32[edge_det][aa]),
+                     fontsize='6')
     ax1.set_xlabel('R23')
     ax1.set_ylabel('O32')
     ax1.set_title('R23 vs. O32 Colormap= Temperature')
@@ -54,8 +58,10 @@ def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     fig1.clear()
 
     fig2, ax2 = plt.subplots()
-    p2 = ax2.scatter(R23[edge_det], O32[edge_det], marker='o', c=com_O[edge_det])
-    ax2.scatter(R23[edge_rlimit], O32[edge_rlimit], marker='^', c=com_O[edge_rlimit])
+    p2 = ax2.scatter(R23[edge_det], O32[edge_det], marker='o',
+                     c=com_O[edge_det])
+    ax2.scatter(R23[edge_rlimit], O32[edge_rlimit], marker='^',
+                c=com_O[edge_rlimit])
     cb = fig2.colorbar(p2)
     cb.set_label('Metallicity')
     for bb in range(len(ID)):
@@ -76,7 +82,8 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
 
     :param fitspath: str. path where files are called from and saved to
     :param dataset: str. keyword that specifies which binning method is used
-    :param asc_table_det3: str. ascii table created by binning code (ie. bin_info.tbl)
+    :param asc_table_det3: str. ascii table created by binning code
+                            (ie. bin_info.tbl)
 
     PDF File: fitspath + 'bin_histograms.pdf'
     No Returns
@@ -114,9 +121,11 @@ def hist_for_bin(fitspath, dataset, asc_table_det3):
     pdf_pages2.close()
 
     
-def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spectra=False):
+def plotting_individual_for_stacking_image(RestframeMaster, pdf_name,
+                                           stack_spectra=False):
     """
-    Produces pdf file of spectra plots for either the binned data or individual data.
+    Produces pdf file of spectra plots for either the binned data or
+    individual data.
     Names commented out to refer to in future for what files are required.
     Responsible for the plots for Stacking Spectra Figure (from thesis)
 
@@ -129,16 +138,15 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
     No returns
     """
     if not stack_spectra:
-        # name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/individual_plots_for_stacking_image.pdf'
-        # RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/Master_Grid.fits'
+        # name = fitspath_ini + 'individual_plots_for_stacking_image.pdf'
+        # RestframeMaster = fitspath_ini + '/Master_Grid.fits'
         spec_range = range(100, 120)
         y_lim = (-2, 2)
         y_text = 1.95
         left = 0.13
     else:
-        # RestframeMaster = '/Users/reagenleimbach/Desktop/Zcalbase_gal/
-        #                   R23O32_Manual_0417/Stacking_Masked_MasterGrid_n_Bins.fits'
-        # name = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0417/composite_plots_data_viz.pdf'
+        # RestframeMaster = fitspath + 'Stacking_Masked_MasterGrid_n_Bins.fits'
+        # name = fitspath + 'composite_plots_data_viz.pdf'
         spec_range = range(27)
         y_lim = (0, 1)
         y_text = 0.95
@@ -149,7 +157,8 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
 
     pdf_pages = PdfPages(pdf_name)
 
-    txt0 = r'Intensity ($10^{-17}~{\rm erg}~{\rm s}^{-1}~{\rm cm}^{-2}~\AA^{-1}$)'
+    txt0 = r'Intensity ($10^{-17}~{\rm erg}~' \
+           r'{\rm s}^{-1}~{\rm cm}^{-2}~\AA^{-1}$)'
     scalefactor = 1e-17
     image2d = image2DM/scalefactor
     for ii in spec_range:
@@ -161,8 +170,10 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
         ax.set_ylim(y_lim)
         ax.axvline(x=4363.21, linewidth=1.0, color='r', linestyle=':')
         ax.axvline(x=4340.544, linewidth=1.0, color='r', linestyle=':')
-        ax.text(4363.21, y_text, r'[OIII]$\lambda$4363', va='top', ha='center', rotation=90)
-        ax.text(4340.46, y_text, r'H$\gamma$', va='top', ha='center', rotation=90)
+        ax.text(4363.21, y_text, r'[OIII]$\lambda$4363', va='top', ha='center',
+                rotation=90)
+        ax.text(4340.46, y_text, r'H$\gamma$', va='top', ha='center',
+                rotation=90)
         fig.set_size_inches(6, 6)
         plt.subplots_adjust(left=left, right=0.97, bottom=0.1, top=0.97)
         pdf_pages.savefig()
@@ -172,7 +183,8 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_name, stack_spec
 
 def plotting_gaussian_curves():
     """
-    Plots the single, double, and oxygen gaussian curves used to fit the binned spectra.
+    Plots the single, double, and oxygen gaussian curves used
+    to fit the binned spectra.
 
     No returns
     """
@@ -193,7 +205,8 @@ def plotting_gaussian_curves():
     a2 = -2.0
     c = 0.0
 
-    doublecurve = zoom_and_gauss_general.double_gauss(x, xbar, s1, a1, c, s2, a2)
+    doublecurve = zoom_and_gauss_general.double_gauss(x, xbar,
+                                                      s1, a1, c, s2, a2)
 
     positive = zoom_and_gauss_general.gauss(x, xbar, s1, a1, doublecurve[0])
     negative = zoom_and_gauss_general.gauss(x, xbar, s2, a2, c)
@@ -239,9 +252,12 @@ def plotting_gaussian_curves():
     txt1 = '(A)'
     txt2 = '(B)'
     txt3 = '(C)'
-    ax1.annotate(txt1, [0.95, 0.95], xycoords='axes fraction', va='top', ha='right', fontsize='10')
-    ax2.annotate(txt2, [0.95, 0.95], xycoords='axes fraction', va='top', ha='right', fontsize='10')
-    ax3.annotate(txt3, [0.95, 0.95], xycoords='axes fraction', va='top', ha='right', fontsize='10')
+    ax1.annotate(txt1, [0.95, 0.95], xycoords='axes fraction', va='top',
+                 ha='right', fontsize='10')
+    ax2.annotate(txt2, [0.95, 0.95], xycoords='axes fraction', va='top',
+                 ha='right', fontsize='10')
+    ax3.annotate(txt3, [0.95, 0.95], xycoords='axes fraction', va='top',
+                 ha='right', fontsize='10')
 
     plt.show()
 
@@ -257,4 +273,5 @@ def oxy2_gauss(x, xbar, s1, a1, c, s2, a2):
     """
 
     con1 = 72.0/45.0
-    return a1 * np.exp(-(x - xbar)**2/(2 * s1**2)) + c + a2 * np.exp(-(x - (xbar * con1))**2/(2 * s2**2))
+    return a1 * np.exp(-(x - xbar)**2/(2 * s1**2)) + c + a2 * \
+           np.exp(-(x - (xbar * con1))**2/(2 * s2**2))

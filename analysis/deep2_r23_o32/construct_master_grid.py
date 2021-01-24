@@ -30,7 +30,8 @@ def main(path0, log=None):
 
     files_2D = glob.glob(join(path0, 'DEEP2_2D_Field?.f3.fits'))
 
-    cat_files = glob.glob(join(path0, 'f_current/DEEP2_Field?_all_line_fit.fits'))
+    cat_files = glob.glob(join(path0,
+                               'f_current/DEEP2_Field?_all_line_fit.fits'))
 
     n_fields = len(files_2D)
 

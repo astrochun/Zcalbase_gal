@@ -8,7 +8,8 @@ from os.path import join
 
 def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     """
-    Plots measurements to check to make sure that data follows a one-to-one line
+    Plots measurements to check to make sure that data follows
+    a one-to-one line
 
     :param fitspath: str. path where files are called from and saved to
     :param dataset: str.  keyword used to define binning method
@@ -52,8 +53,8 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
                 print('equal', binnum[rr], binnum_raw[rr])
 
     fig, ax_arr = plt.subplots()
-    ax_arr.scatter(R23_raw, R23_composite, marker='o', facecolor='none', edgecolor='b',
-                   label='R23 Ratio: Vornoi Raw vs. Composite')
+    ax_arr.scatter(R23_raw, R23_composite, marker='o', facecolor='none',
+                   edgecolor='b', label='R23 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset + ' Raw vs. Composite for R23')
     for rr in range(len(ID)):
@@ -65,8 +66,8 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     fig.savefig(pdf_pages, format='pdf')
 
     fig, ax_arr = plt.subplots()
-    ax_arr.scatter(O32_raw, O32_composite, marker='o', facecolor='none', edgecolor='b',
-                   label='O32 Ratio: Vornoi Raw vs. Composite')
+    ax_arr.scatter(O32_raw, O32_composite, marker='o', facecolor='none',
+                   edgecolor='b', label='O32 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset + 'Raw vs. Composite for O32')
     for oo in range(len(ID)):

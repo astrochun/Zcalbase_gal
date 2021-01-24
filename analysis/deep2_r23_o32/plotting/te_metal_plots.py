@@ -1,12 +1,6 @@
-# Graphs the temperature, metallicities, R23 and O32 and errors for the individual and
+# Graphs the temperature, metallicities,
+# R23 and O32 and errors for the individual and
 # composite spectra by importing pre-existing tables and dictionaries
-
-"""
-Keywords:
-        fitspath -> path to where files come and are saved to
-         revised  -> refers to if using the bin_derived_prop_revised temperature
-                     and metallicity measurements which right now implement dust attenuation
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,10 +18,12 @@ bian_coeff = [138.0430, -54.8284, 7.2954, -0.32293]
 
 def jiang_calibration(metal_det, lo32):
     """
-    Calculating the Jiang calibration for the metallicity and O32 measurements enter
+    Calculating the Jiang calibration for the metallicity
+    and O32 measurements enter
     Jiang Calibration:
-    jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2] * (metal_det * metal_det) \
-    + jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+    jiang_coeff[0] + jiang_coeff[1] * metal_det + jiang_coeff[2]
+    * (metal_det * metal_det) + jiang_coeff[3]
+    * (jiang_coeff[4] + metal_det) * lo32
 
     param: metal_det: dict. dictionary of 12+log(O/H)
     param: lO32: np.array. log(O32) value
@@ -43,10 +39,12 @@ def jiang_calibration(metal_det, lo32):
 
 def bian_calibration_r23(metal_det):
     """
-    Calculating the R23 of Bian calibration for the metallicity measurements enter
+    Calculating the R23 of Bian calibration for the
+    metallicity measurements enter
     Bian R23 Calibration:
-    bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]*metal_det*metal_det\
-                       + bian_coeff[3] * metal_det * metal_det * metal_det
+    bian_coeff[0] + bian_coeff[1] * metal_det + bian_coeff[2]
+            *metal_det*metal_det+ bian_coeff[3]
+            * metal_det * metal_det * metal_det
 
     param: metal_det: dict. dictionary of 12+log(O/H)
 
@@ -59,7 +57,8 @@ def bian_calibration_r23(metal_det):
 
 def bian_calibration_o32(metal_det):
     """
-    Calculating the O32 of Bian calibration for the metallicity measurements enter
+    Calculating the O32 of Bian calibration for
+    the metallicity measurements enter
 
     param: metal_det: dict. dictionary of 12+log(O/H)
 
@@ -77,9 +76,10 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     param: fitspath_ini: str. path where whole project is stored
     param: raw: bool.
     param: apply_dust: bool.
-    param: revised: bool. keyword (automatically set to False) to determine what data is used
-                        refers to if using the bin_derived_prop_revised temperature
-                        and metallicity measurements which right now implement dust attenuation
+    param: revised: bool. keyword (automatically set to False) to determine
+                        what data is used refers to if using the
+                        bin_derived_prop_revised temperature and metallicity
+                        measurements which right now implement dust attenuation
     param: individual: bool.
     param: log: LogClass. Default use log_stdout()
 
@@ -256,7 +256,8 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
         ax3.annotate(ID_composite[zz], (R23_composite[zz],
                                         metal_composite[zz]), fontsize='6')
 
-    ax3.scatter(der_R23, der_OH, s=20, marker='*', color='k', edgecolors='None')
+    ax3.scatter(der_R23, der_OH, s=20, marker='*', color='k',
+                edgecolors='None')
     for gg in range(len(ID_der)):
         ax3.annotate(ID_der[gg], (der_R23[gg], der_OH[gg]), fontsize='2')
     ax3.scatter(der_R23_MACT, der_OH_MACT, s=20, marker='P', color='r',
@@ -281,10 +282,12 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
                 marker='^', s=35, color='b')
 
     for ww in ver_detect:
-        ax4.annotate(ID_composite[ww], (O32_composite[ww], metal_composite[ww]),
+        ax4.annotate(ID_composite[ww], (O32_composite[ww],
+                                        metal_composite[ww]),
                      fontsize='6')
     for ww in ver_rlimit:
-        ax4.annotate(ID_composite[ww], (O32_composite[ww], metal_composite[ww]),
+        ax4.annotate(ID_composite[ww], (O32_composite[ww],
+                                        metal_composite[ww]),
                      fontsize='6')
 
     ax4.scatter(der_O32, der_OH, s=20, marker='*', color='k',
@@ -313,9 +316,10 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
 
 def jiang_comparison(fitspath, fitspath_ini, log=None):
     """
-    To calculate the difference between the predicted Jiang calibration and the measured values 
-    for composite spectra
-    Jiang Calibration fron Jiang, T., Malhotra, S., Rhoads, J. E., et al. 2019, ApJ, 872, 145
+    To calculate the difference between the predicted Jiang calibration
+    and the measured values  for composite spectra
+    Jiang Calibration fron Jiang, T., Malhotra, S., Rhoads,
+    J. E., et al. 2019, ApJ, 872, 145
     Jiang Calibration
     log(R23) = a +bx+cx^2 - d(e+x)y
     x = 12+log(O/H)
@@ -326,9 +330,7 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
     param: log: LogClass. Default use log_stdout()
 
     Still trying to decide if this is necessary: 
-    revised -> keyword (automatically set to False) to determine what data is used
-            -> refers to if using the bin_derived_prop_revised temperature
-                     and metallicity measurements which right now implement dust attenuation
+    revised -> keyword (automatically False) to determine what data is used
 
     PDF File: fitspath + 'comparsion_Jiang_Zcal.pdf'
     No returns
@@ -440,9 +442,11 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
 
 def bian_comparison(fitspath, fitspath_ini, log=None):
     """
-    To calculate the difference between the predicted Bian calibration and the measured values 
+    To calculate the difference between the predicted Bian calibration
+    and the measured values
     for composite spectra
-    Bian Calibration from Bian, F., Kewley, L. J., & Dopita, M. A. 2018, ApJ, 859, 175
+    Bian Calibration from Bian, F., Kewley, L. J., & Dopita,
+    M. A. 2018, ApJ, 859, 175
 
     param: fitspath: str. path to where files come and are saved to
     param: fitspath_ini: str. path where whole project is stored

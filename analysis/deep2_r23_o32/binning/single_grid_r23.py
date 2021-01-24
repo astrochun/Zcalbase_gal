@@ -67,7 +67,8 @@ def single_grid_r23(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
         R23_grid[ii, 0] = R23_sort0[bin_start[ii]]
         N_arr0[ii, 0] += len(idx_arr)
         T_arr[ii, 0] = idx_arr
-        log.info(f"Start: {R23_grid[ii]}")  # This could be incorrect so I need to check this again
+        # This could be incorrect so I need to check this again
+        log.info(f"Start: {R23_grid[ii]}")
 
     # Plotting
     fig, ax = plt.subplots()

@@ -257,11 +257,13 @@ def DEEP2_OIII4363():
 
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    log = LogClass(path0, 'local_analog_calibration_deep2_oiii4363.log').get_logger()
+    log = LogClass(path0,
+                   'local_analog_calibration_deep2_oiii4363.log').get_logger()
 
     log.info("starting ...")
 
-    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_DEEP2(path0, log=log)
+    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_DEEP2(
+        path0, log=log)
 
     ID = data['ID']
 
@@ -280,7 +282,8 @@ def MACT_OIII4363():
     """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    log = LogClass(path0, 'local_analog_calibration_mact_oiii4363.log').get_logger()
+    log = LogClass(path0,
+                   'local_analog_calibration_mact_oiii4363.log').get_logger()
 
     log.info("starting ...")
 
@@ -299,11 +302,13 @@ def MACT_OIII4363():
 
 def DEEP2_MACT_OIII4363():
     """
-    Run function for DEEP2 and MACT (combined) dataset for hardcoded path (line 277) 
+    Run function for DEEP2 and MACT (combined) dataset for hardcoded path
+    (line 277)
     """
     path0 = '/Users/cly/Google Drive/Zcalbase_gal/dataset/'
 
-    log = LogClass(path0, 'local_analog_calibration_deep2_mact_oiii4363.log').get_logger()
+    log = LogClass(path0,
+                   'local_analog_calibration_deep2_mact_oiii4363.log').get_logger()
 
     log.info("starting ...")
 
@@ -329,7 +334,8 @@ def DEEP2_MACT_OIII4363():
 
     out_pdf = path0 + 'DEEP2_MACT_R23_O32_Bian18.pdf'
 
-    labels = [r'DEEP2 [OIII]$\lambda$4363-detected', r'$\mathcal{MACT}$  (Ly+2016)']
+    labels = [r'DEEP2 [OIII]$\lambda$4363-detected',
+              r'$\mathcal{MACT}$  (Ly+2016)']
     main(lR23, lO32, OH, out_pdf, ID=ID, lR23_err=lR23_err, lO32_err=lO32_err,
          OH_err=OH_err, R23_xra=[0.6, 1.15], O32_xra=[-0.55, 2.1],
          yra=[7.1, 8.85], ctype=['blue', 'green'], label=labels, log=log)

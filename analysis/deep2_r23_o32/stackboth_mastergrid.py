@@ -23,15 +23,18 @@ from Metallicity_Stack_Commons.column_names import filename_dict
 def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                     mask=True, log=None):
     """
-    Function stacks all spectra in a given bin and produces tables of properties of that bin
+    Function stacks all spectra in a given bin and produces tables of
+    properties of that bin
     This function does the stacking for all binning methods except Vornoi
 
     :param fitspath: str. save location of the current run
     :param fitspath_ini: str. save location of all of Zcalbase
     :param dataset: str. keyword used to define binning method
-    :param grid_data_file: str. npz file that holds the information from the binning process
+    :param grid_data_file: str. npz file that holds the information
+                            from the binning process
     :param name: str. name of the outputted pdf file with graphs
-    :param mask: bool. optional input used to mask the night sky lines if inputted (default: None)
+    :param mask: bool. optional input used to mask the night sky lines
+                if inputted (default: None)
     :param log: LogClass. Default use log_stdout()
 
     PDF File: fitspath + stack_name
@@ -46,7 +49,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     log.debug("starting ...")
 
-    RestframeMaster = join(fitspath_ini, 'DEEP2_Commons/Images/Master_Grid.fits')
+    RestframeMaster = join(fitspath_ini,
+                           'DEEP2_Commons/Images/Master_Grid.fits')
     log.info(f"Reading: {RestframeMaster}")
     image2D, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
@@ -57,7 +61,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
         data3 = general.get_det3(fitspath, fitspath_ini, log=log)
 
     log.info(f"Reading: {grid_data_file}")
-    grid_data = np.load(grid_data_file, allow_pickle=True)  # This is the npz file
+    # This is the npz file
+    grid_data = np.load(grid_data_file, allow_pickle=True)
     R23_minimum = grid_data['R23_minimum']
     O32_minimum = grid_data['O32_minimum']
 
@@ -79,13 +84,20 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
         log.info(f"Reading: {outfile}")
         stack_2d = fits.getdata(outfile)
 
-    avg_R23 = np.zeros(len(R23_minimum) * len(O32_minimum))   # Same as xBar
-    avg_O32 = np.zeros(len(R23_minimum) * len(O32_minimum))   # Same as yBar
-    R23_node = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as R23_minimum
-    O32_node = np.zeros(len(R23_minimum) * len(O32_minimum))  # Same as O32_minimum
-    R23_med = np.zeros(len(R23_minimum) * len(O32_minimum))   # median R23 value
-    O32_med = np.zeros(len(R23_minimum) * len(O32_minimum))   # median O32 value
-    N_gal = np.zeros(len(R23_minimum) * len(O32_minimum))     # Same as Number_inbin
+    # Same as xBar
+    avg_R23 = np.zeros(len(R23_minimum) * len(O32_minimum))
+    # Same as yBar
+    avg_O32 = np.zeros(len(R23_minimum) * len(O32_minimum))
+    # Same as R23_minimum
+    R23_node = np.zeros(len(R23_minimum) * len(O32_minimum))
+    # Same as O32_minimum
+    O32_node = np.zeros(len(R23_minimum) * len(O32_minimum))
+    # median R23 value
+    R23_med = np.zeros(len(R23_minimum) * len(O32_minimum))
+    # median O32 value
+    O32_med = np.zeros(len(R23_minimum) * len(O32_minimum))
+    # Same as Number_inbin
+    N_gal = np.zeros(len(R23_minimum) * len(O32_minimum))
 
     n_N = R23_minimum.shape[0]
     if dataset in ['n_Bins', 'Double_Bin']:
@@ -111,7 +123,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 subgrid = image2DM[index]
 
                 log.info(f"R23: {R23_node[count]} O32: {O32_node[count]} " +
-                         f"avg_R23: {avg_R23[count]} avg_O32: {avg_O32[count]}")
+                         f"avg_R23: {avg_R23[count]} "
+                         f"avg_O32: {avg_O32[count]}")
 
                 if exists(outfile):
                     Spect1D = stack_2d[count]
@@ -192,15 +205,17 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
     fits.writeto(outfile, stack_2d[0:count], header, overwrite=True)
 
     # Writing Ascii Tables and Fits Tables
-    out_ascii = join(fitspath, filename_dict['bin_info'])  # Used to be 'binning_averages.tbl'
+    # Used to be 'binning_averages.tbl'
+    out_ascii = join(fitspath, filename_dict['bin_info'])
 
     ID = np.arange(0, len(R23_node), 1, dtype=int)
     n = ('bin_ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
          'logR23_med', 'logO32_med', 'N_stack')
-    # for n_split xnode and ynode are the lowest values of the bin while xBar and yBar are the averages
+    # for n_split xnode and ynode are the lowest values
+    # of the bin while xBar and yBar are the averages
 
-    tab0 = Table([ID, R23_node, O32_node, avg_R23, avg_O32, R23_med, O32_med, N_gal],
-                 names=n)
+    tab0 = Table([ID, R23_node, O32_node, avg_R23,
+                  avg_O32, R23_med, O32_med, N_gal], names=n)
     log.info(f"Writing: {out_ascii}")
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
 

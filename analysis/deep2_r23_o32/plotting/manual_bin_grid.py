@@ -9,8 +9,10 @@ from Metallicity_Stack_Commons.column_names import filename_dict
 
 def graph_bins(fitspath, n_split):
     """
-    This function takes inputed grid parameters and graphs them on the log(R23)--log(O32) plane
-    Currently works for manual binning with an n_split (see general function) of 3. More updates would
+    This function takes inputed grid parameters and graphs them
+    on the log(R23)--log(O32) plane
+    Currently works for manual binning with an n_split (see general function)
+    of 3. More updates would
     need to be made for a different n_split to correct indexing through arrays.
 
     :param fitspath: str. path to where files come and are saved to
@@ -75,7 +77,8 @@ def graph_bins(fitspath, n_split):
     finite0 = np.where((np.isfinite(lR23)) & (np.isfinite(lO32)))[0]
     x1 = lR23[finite0]
     y1 = lO32[finite0]
-    ax.scatter(x1, y1, 0.75, facecolor='b', edgecolor='face', marker='*', alpha=1)
+    ax.scatter(x1, y1, 0.75, facecolor='b', edgecolor='face', marker='*',
+               alpha=1)
     ax.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for Manual Binning')
     ax.set_xlabel(r'log($R_{23}$)')
     ax.set_ylabel(r'log($O_{32}$)')

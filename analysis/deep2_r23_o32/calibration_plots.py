@@ -67,18 +67,23 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     # print('Begin Local analog Calibration')
 
     # Tables of individual detections from DEEP2 and MACT samples
-    derived = asc.read(join(
-        fitspath_ini, 'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl'))
-    derived_MACT = asc.read(join(
-        fitspath_ini, 'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl'))
+    deep2_file = join(fitspath_ini,
+                      'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl')
+    log.info(f"Reading: {deep2_file}")
+    derived_deep2 = asc.read(deep2_file)
+
+    mact_file = join(fitspath_ini,
+                     'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl')
+    log.info(f"Reading: {mact_file}")
+    derived_MACT = asc.read(mact_file)
 
     # DEEP2 Derived
-    er_R23 = derived['R23'].data
-    er_O32 = derived['O32'].data
+    er_R23 = derived_deep2['R23'].data
+    er_O32 = derived_deep2['O32'].data
     der_R23 = np.log10(er_R23)
     der_O32 = np.log10(er_O32)
-    der_OH = derived['OH'].data
-    
+    der_OH = derived_deep2['OH'].data
+
     # MACT Derived
     er_R23_MACT = derived_MACT['R23'].data
     er_O32_MACT = derived_MACT['O32'].data

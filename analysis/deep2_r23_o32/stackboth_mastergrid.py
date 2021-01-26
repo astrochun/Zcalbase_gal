@@ -25,7 +25,7 @@ from matplotlib.gridspec import GridSpec
 from os.path import exists, join
 from astropy.convolution import Box1DKernel, convolve
 
-from . import general, name_dict
+from . import name_dict, read_fitsfiles, general
 from .log_commons import log_stdout
 
 from Metallicity_Stack_Commons import lambda0
@@ -64,9 +64,10 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
         stack_name = name_dict['Stackname_nomask']
 
     RestframeMaster = join(fitspath_ini, 'DEEP2_Commons/Images/Master_Grid.fits')
-    log.info(f"Reading: {RestframeMaster}")
-    image2D, header = fits.getdata(RestframeMaster, header=True)
-    wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
+    fits_dict = read_fitsfiles(RestframeMaster)
+    image2D = fits_dict['fits_data']
+    header = fits_dict['header']
+    wave = fits_dict['wave']
 
     pdf_pages = PdfPages(join(fitspath, stack_name))  # open pdf document
 

@@ -22,7 +22,7 @@ from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-from . import name_dict
+from . import name_dict, read_fitsfiles
 from .log_commons import log_stdout
 
 con1 = 3728.91 / 3726.16
@@ -167,7 +167,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 # For each individual stack
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
-def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
+def zoom_gauss_plot(dataset, fits_dict, s2,
                     working_wave, lineflag, bin_info_tab,
                     y_correction='', line_type='',
                     out_pdf='', line_name='', log=None):
@@ -190,32 +190,36 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
 
     pdf_pages = PdfPages(out_pdf)
 
+    stack2d = fits_dict['fits_data']
+    number_stacks = stack2d.shape[0]
+    wave = fits_dict['wave']
+    dispersion = fits_dict['dispersion']
+
     nrows = 4
     ncols = 4
     x_idx = np.where((wave >= (working_wave-100)) &
                      (wave <= (working_wave+100)))[0]
-    x0 = wave
     scalefact = 1e-17
 
     bin_id = bin_info_tab['bin_ID'].data
 
     # Initializing Arrays
-    flux_g_array = np.zeros(stack2d.shape[0])
-    flux_s_array = np.zeros(stack2d.shape[0])
-    flux_neg_array = np.zeros(stack2d.shape[0])
-    sigma1_array = np.zeros(stack2d.shape[0])
-    median_array = np.zeros(stack2d.shape[0])
-    norm_array = np.zeros(stack2d.shape[0])
-    rms_array = np.zeros(stack2d.shape[0])
-    SN_array = np.zeros(stack2d.shape[0])
+    flux_g_array = np.zeros(number_stacks)
+    flux_s_array = np.zeros(number_stacks)
+    flux_neg_array = np.zeros(number_stacks)
+    sigma1_array = np.zeros(number_stacks)
+    median_array = np.zeros(number_stacks)
+    norm_array = np.zeros(number_stacks)
+    rms_array = np.zeros(number_stacks)
+    SN_array = np.zeros(number_stacks)
 
     # Initializing Arrays for Balmer Graphing
-    xbar_array = np.zeros(stack2d.shape[0])
-    pos_amp_array = np.zeros(stack2d.shape[0])
-    sig2_array = np.zeros(stack2d.shape[0])
-    neg_amp_array = np.zeros(stack2d.shape[0])
+    xbar_array = np.zeros(number_stacks)
+    pos_amp_array = np.zeros(number_stacks)
+    sig2_array = np.zeros(number_stacks)
+    neg_amp_array = np.zeros(number_stacks)
 
-    for rr in range(stack2d.shape[0]):
+    for rr in range(number_stacks):
         y0 = stack2d[rr]
         y_norm = y0/scalefact
 
@@ -235,27 +239,27 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
         rms_ang = rms_func(wave, dispersion, working_wave, y0, 0, lineflag)
 
         if y_correction:
-            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
+            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, wave,
                                               y_smooth, x_idx, rms_ang, line_type,
                                               log=log)
         else:
-            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
+            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, wave,
                                               y_norm, x_idx, rms_ang, line_type,
                                               log=log)
 
         # Calculating Flux: Signal Line Fit
         if o1 is not None:
-            dx = x0[2]-x0[1]
+            dx = wave[2] - wave[1]
             if line_type == 'Single':
-                x_sigsnip = np.where((np.abs((x0 - working_wave))/o1[1]) <= 2.5)[0]
-                gauss0 = gauss(x0, *o1)
+                x_sigsnip = np.where((np.abs((wave - working_wave))/o1[1]) <= 2.5)[0]
+                gauss0 = gauss(wave, *o1)
 
             if line_type == 'Balmer':
-                x_sigsnip = np.where(np.abs((x0 - working_wave))/o1[1] <= 2.5)[0]
-                gauss0 = double_gauss(x0, *o1)
+                x_sigsnip = np.where(np.abs((wave - working_wave))/o1[1] <= 2.5)[0]
+                gauss0 = double_gauss(wave, *o1)
 
                 o1_neg = [o1[0], o1[4], o1[5], o1[3]]
-                neg0 = gauss(x0, *o1_neg)
+                neg0 = gauss(wave, *o1_neg)
                 gauss0_diff = gauss0 - neg0
                 y_norm_diff = y_norm[x_sigsnip] - neg0[x_sigsnip]
 
@@ -271,9 +275,9 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
                 # y_norm, line_type, pdfpages3)
 
             if line_type == 'Oxy2':
-                x_sigsnip = np.where(((x0-working_wave)/o1[1] >= -2.5) &
-                                     ((x0-working_wave*con1)/o1[4] <= 2.5))[0]
-                gauss0 = oxy2_gauss(x0, *o1)
+                x_sigsnip = np.where(((wave-working_wave)/o1[1] >= -2.5) &
+                                     ((wave-working_wave*con1)/o1[4] <= 2.5))[0]
+                gauss0 = oxy2_gauss(wave, *o1)
 
             # Get fluxes
             if line_type in ['Single', 'Oxy2']:
@@ -317,21 +321,21 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
 
             # Residuals
             if line_type == 'Oxy2':
-                x_sigsnip_2 = np.where(np.abs(x0 - 3727)/o1[1] <= 4.0)[0]
+                x_sigsnip_2 = np.where(np.abs(wave - 3727)/o1[1] <= 4.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
             else:
-                x_sigsnip_2 = np.where(np.abs((x0 - working_wave))/o1[1] <= 3.0)[0]
+                x_sigsnip_2 = np.where(np.abs((wave - working_wave))/o1[1] <= 3.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
 
             # Plotting
             if y_correction:
                 t_ax.plot(wave, y_smooth, 'k', linewidth=0.3, label='Emission')
-                t_ax.plot(x0, gauss0, 'm', linewidth=0.25, label='Gauss Fit')
+                t_ax.plot(wave, gauss0, 'm', linewidth=0.25, label='Gauss Fit')
             else:
                 t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
-                t_ax.plot(x0, gauss0, 'b', linewidth=0.25, label='Gauss Fit')
+                t_ax.plot(wave, gauss0, 'b', linewidth=0.25, label='Gauss Fit')
 
-            t_ax.plot(x0[x_sigsnip_2], resid, 'r', linestyle='dashed',
+            t_ax.plot(wave[x_sigsnip_2], resid, 'r', linestyle='dashed',
                       linewidth=0.2, label='Residuals')
             t_ax.set_xlim(x1 + 50, x2 - 50)
 
@@ -381,13 +385,13 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
             else:
                 t_ax.set_yticklabels([])  # sets y-tick labels
 
-            if row != nrows-1 and rr != stack2d.shape[0]-1:
+            if row != nrows-1 and rr != number_stacks-1:
                 t_ax.set_xticklabels([])
         else:
             t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
             t_ax.set_xlim(x1 + 50, x2 - 50)
 
-        if (rr % (nrows * ncols) == nrows * ncols - 1) or rr == stack2d.shape[0] - 1:
+        if (rr % (nrows * ncols) == nrows * ncols - 1) or rr == number_stacks:
             subplots_adjust(left=0.1, right=0.98, bottom=0.06, top=0.97,
                             hspace=0.05)
 
@@ -407,8 +411,8 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
                      names=n)
 
     if line_type in ['Balmer', 'Oxy2']:
-        n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
-              'S/N', 'Center', 'Pos_Amp', 'Abs_Sigma', 'Abs_Norm')
+        n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm',
+             'RMS', 'S/N', 'Center', 'Pos_Amp', 'Abs_Sigma', 'Abs_Norm')
         n = tuple([f"{line_name}_{val}" for val in n])
 
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,
@@ -429,8 +433,7 @@ def zoom_gauss_plot(dataset, stack2d, dispersion, s2, wave,
     return tab0
 
 
-def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
-               y_correction, log=None):
+def zm_general(dataset, fitspath, y_correction, log=None):
     """
     Purpose
     ----------
@@ -441,8 +444,11 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
         log = log_stdout()
 
     log.debug("starting ...")
-
     s2 = 5.0  # a fitting requirement
+
+    # Import Stacking Dictionaries
+    outfile_grid = join(fitspath, filename_dict['comp_spec'])
+    fits_dict = read_fitsfiles(outfile_grid)
 
     # Importing Bins Values
     bin_info_file = join(fitspath, filename_dict['bin_info'])
@@ -452,13 +458,21 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
     n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
     table_stack = bin_info_tab[n2]
 
+    # Create lineflag
+    lineflag = np.zeros(len(fits_dict['wave']))
+    for ii in lambda0:
+        idx = np.where(np.absolute(fits_dict['wave'] - ii) <= 5)[0]
+        if len(idx) > 0:
+            lineflag[idx] = 1
+
     for ii in range(len(lambda0)):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
         log.info(f"out_pdf: {out_pdf}")
 
-        em_tab = zoom_gauss_plot(dataset, stack2d, dispersion, s2,
-                                 wave, lambda0[ii], lineflag, bin_info_tab,
-                                 y_correction=y_correction, line_type=line_type[ii],
+        em_tab = zoom_gauss_plot(dataset, fits_dict, s2, lambda0[ii],
+                                 lineflag, bin_info_tab,
+                                 y_correction=y_correction,
+                                 line_type=line_type[ii],
                                  out_pdf=out_pdf, line_name=line_name[ii],
                                  log=log)
 

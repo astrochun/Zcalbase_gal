@@ -199,7 +199,6 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
     ncols = 4
     x_idx = np.where((wave >= (working_wave-100)) &
                      (wave <= (working_wave+100)))[0]
-    x0 = wave
     scalefact = 1e-17
 
     bin_id = bin_info_tab['bin_ID'].data
@@ -240,27 +239,27 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
         rms_ang = rms_func(wave, dispersion, working_wave, y0, 0, lineflag)
 
         if y_correction:
-            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
+            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, wave,
                                               y_smooth, x_idx, rms_ang, line_type,
                                               log=log)
         else:
-            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, x0,
+            o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, wave,
                                               y_norm, x_idx, rms_ang, line_type,
                                               log=log)
 
         # Calculating Flux: Signal Line Fit
         if o1 is not None:
-            dx = x0[2]-x0[1]
+            dx = wave[2] - wave[1]
             if line_type == 'Single':
-                x_sigsnip = np.where((np.abs((x0 - working_wave))/o1[1]) <= 2.5)[0]
-                gauss0 = gauss(x0, *o1)
+                x_sigsnip = np.where((np.abs((wave - working_wave))/o1[1]) <= 2.5)[0]
+                gauss0 = gauss(wave, *o1)
 
             if line_type == 'Balmer':
-                x_sigsnip = np.where(np.abs((x0 - working_wave))/o1[1] <= 2.5)[0]
-                gauss0 = double_gauss(x0, *o1)
+                x_sigsnip = np.where(np.abs((wave - working_wave))/o1[1] <= 2.5)[0]
+                gauss0 = double_gauss(wave, *o1)
 
                 o1_neg = [o1[0], o1[4], o1[5], o1[3]]
-                neg0 = gauss(x0, *o1_neg)
+                neg0 = gauss(wave, *o1_neg)
                 gauss0_diff = gauss0 - neg0
                 y_norm_diff = y_norm[x_sigsnip] - neg0[x_sigsnip]
 
@@ -276,9 +275,9 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                 # y_norm, line_type, pdfpages3)
 
             if line_type == 'Oxy2':
-                x_sigsnip = np.where(((x0-working_wave)/o1[1] >= -2.5) &
-                                     ((x0-working_wave*con1)/o1[4] <= 2.5))[0]
-                gauss0 = oxy2_gauss(x0, *o1)
+                x_sigsnip = np.where(((wave-working_wave)/o1[1] >= -2.5) &
+                                     ((wave-working_wave*con1)/o1[4] <= 2.5))[0]
+                gauss0 = oxy2_gauss(wave, *o1)
 
             # Get fluxes
             if line_type in ['Single', 'Oxy2']:
@@ -322,21 +321,21 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
             # Residuals
             if line_type == 'Oxy2':
-                x_sigsnip_2 = np.where(np.abs(x0 - 3727)/o1[1] <= 4.0)[0]
+                x_sigsnip_2 = np.where(np.abs(wave - 3727)/o1[1] <= 4.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
             else:
-                x_sigsnip_2 = np.where(np.abs((x0 - working_wave))/o1[1] <= 3.0)[0]
+                x_sigsnip_2 = np.where(np.abs((wave - working_wave))/o1[1] <= 3.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
 
             # Plotting
             if y_correction:
                 t_ax.plot(wave, y_smooth, 'k', linewidth=0.3, label='Emission')
-                t_ax.plot(x0, gauss0, 'm', linewidth=0.25, label='Gauss Fit')
+                t_ax.plot(wave, gauss0, 'm', linewidth=0.25, label='Gauss Fit')
             else:
                 t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
-                t_ax.plot(x0, gauss0, 'b', linewidth=0.25, label='Gauss Fit')
+                t_ax.plot(wave, gauss0, 'b', linewidth=0.25, label='Gauss Fit')
 
-            t_ax.plot(x0[x_sigsnip_2], resid, 'r', linestyle='dashed',
+            t_ax.plot(wave[x_sigsnip_2], resid, 'r', linestyle='dashed',
                       linewidth=0.2, label='Residuals')
             t_ax.set_xlim(x1 + 50, x2 - 50)
 
@@ -412,8 +411,8 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                      names=n)
 
     if line_type in ['Balmer', 'Oxy2']:
-        n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
-              'S/N', 'Center', 'Pos_Amp', 'Abs_Sigma', 'Abs_Norm')
+        n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm',
+             'RMS', 'S/N', 'Center', 'Pos_Amp', 'Abs_Sigma', 'Abs_Norm')
         n = tuple([f"{line_name}_{val}" for val in n])
 
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,

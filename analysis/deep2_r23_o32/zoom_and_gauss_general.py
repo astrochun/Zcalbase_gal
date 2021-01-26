@@ -15,7 +15,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table, Column, hstack
 from pylab import subplots_adjust
 from scipy.optimize import curve_fit
-from os.path import join
+from os.path import join, exists
 
 from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
 from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
@@ -465,7 +465,10 @@ def zm_general(dataset, fitspath, stack2d, wave, lineflag, dispersion,
         table_stack = hstack([table_stack, em_tab])
 
     out_ascii = join(fitspath, filename_dict['bin_fit'])
-    log.info(f"Writing: {out_ascii}")
+    if not exists(out_ascii):
+        log.info(f"Writing: {out_ascii}")
+    else:
+        log.info(f"Overwriting: {out_ascii}")
     asc.write(table_stack, out_ascii, format='fixed_width_two_line',
               overwrite=True)
 

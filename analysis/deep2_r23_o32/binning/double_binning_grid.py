@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, exists
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -141,13 +141,19 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
     tab1 = Table([n_bins_range, R23_values, O32_values, xBar, yBar, area],
                  names=n1)
     out_table_file = join(fitspath, "Double_Bin_binning_averages.tbl")
-    log.info(f"Writing: {out_table_file}")
-    asc.write(tab1, out_table_file, format='fixed_width_two_line')
+    if not exists(out_table_file):
+        log.info(f"Writing: {out_table_file}")
+    else:
+        log.info(f"Overwriting : {out_table_file}")
+    asc.write(tab1, out_table_file, format='fixed_width_two_line', overwrite=True)
 
     n2 = ('R23', 'O32', 'SN_5007', 'N_bin')
     tab2 = Table([R23, O32, SNR3, N_bin], names=n2)
     out_table_file3 = join(fitspath, "Double_Bin_2d_binning_datadet3.tbl")
-    log.info(f"Writing: {out_table_file3}")
-    asc.write(tab2, out_table_file3, format='fixed_width_two_line')
+    if not exists(out_table_file3):
+        log.info(f"Writing: {out_table_file3}")
+    else:
+        log.info(f"Overwriting : {out_table_file3}")
+    asc.write(tab2, out_table_file3, format='fixed_width_two_line', overwrite=True)
 
     log.debug("finished.")

@@ -7,7 +7,7 @@ from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack
 from astropy.table import Table
-from os.path import join
+from os.path import join, exists
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
     calibration_plots, name_dict
@@ -137,9 +137,11 @@ def get_det3(fitspath, fitspath_ini, log=None):
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
     outfile = join(fitspath, filename_dict['indv_prop'])
-    log.info(f"Writing: {outfile}")
-    asc.write(tab1, outfile, format='fixed_width_two_line')
-    # tab1.write(fitspath_ini+'get_det3_table.fit', format = 'fits', overwrite = True)
+    if not exists(outfile):
+        log.info(f"Writing: {outfile}")
+    else:
+        log.info(f"Overwriting: {outfile}")
+    asc.write(tab1, outfile, format='fixed_width_two_line', overwrite=True)
 
     log.info("finished.")
 

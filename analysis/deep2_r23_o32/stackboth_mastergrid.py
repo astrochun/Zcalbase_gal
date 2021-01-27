@@ -13,14 +13,14 @@ from matplotlib.gridspec import GridSpec
 from os.path import exists, join
 from astropy.convolution import Box1DKernel, convolve
 
-from . import general
+from . import name_dict, read_fitsfiles, general
 from .log_commons import log_stdout
 
 from Metallicity_Stack_Commons import lambda0
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 
-def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
+def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
                     mask=True, log=None):
     """
     Function stacks all spectra in a given bin and produces tables of
@@ -49,13 +49,20 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     log.debug("starting ...")
 
+    if mask:
+        stack_name = name_dict['Stackname']
+    else:
+        stack_name = name_dict['Stackname_nomask']
+
     RestframeMaster = join(fitspath_ini,
                            'DEEP2_Commons/Images/Master_Grid.fits')
     log.info(f"Reading: {RestframeMaster}")
-    image2D, header = fits.getdata(RestframeMaster, header=True)
-    wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
+    fits_dict = read_fitsfiles(RestframeMaster)
+    image2D = fits_dict['fits_data']
+    header = fits_dict['header']
+    wave = fits_dict['wave']
 
-    pdf_pages = PdfPages(join(fitspath, name))  # open pdf document
+    pdf_pages = PdfPages(join(fitspath, stack_name))  # open pdf document
 
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
         data3 = general.get_det3(fitspath, fitspath_ini, log=log)
@@ -191,7 +198,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
                 pdf_pages.savefig(fig)
                 count += 1
 
-    log.info(f"Writing: {join(fitspath, name)}")
+    log.info(f"Writing: {join(fitspath, stack_name)}")
     pdf_pages.close()
 
     # Writing fits file
@@ -216,7 +223,10 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file, name,
 
     tab0 = Table([ID, R23_node, O32_node, avg_R23,
                   avg_O32, R23_med, O32_med, N_gal], names=n)
-    log.info(f"Writing: {out_ascii}")
+    if not exists(out_ascii):
+        log.info(f"Writing: {out_ascii}")
+    else:
+        log.info(f"Overwriting: {out_ascii}")
     asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
 
     fig.clear()

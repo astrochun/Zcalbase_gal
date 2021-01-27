@@ -7,8 +7,7 @@ from astropy.io import fits
 from astropy.io import ascii as asc
 from astropy.table import vstack
 from astropy.table import Table
-from os.path import join
-
+from os.path import join, exists
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
     calibration_plots, name_dict
@@ -138,10 +137,11 @@ def get_det3(fitspath, fitspath_ini, log=None):
     # here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
     outfile = join(fitspath, filename_dict['indv_prop'])
-    log.info(f"Writing: {outfile}")
-    asc.write(tab1, outfile, format='fixed_width_two_line')
-    # tab1.write(fitspath_ini+'get_det3_table.fit',
-    # format = 'fits', overwrite = True)
+    if not exists(outfile):
+        log.info(f"Writing: {outfile}")
+    else:
+        log.info(f"Overwriting: {outfile}")
+    asc.write(tab1, outfile, format='fixed_width_two_line', overwrite=True)
 
     log.info("finished.")
 
@@ -227,43 +227,21 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Stackboth_MasterGrid
     # Option to Change: Bin size
     # Option to Change: Masking the night sky emission lines
-
-    if mask:
-        stack_name = name_dict['Stackname']
-    else:
-        stack_name = name_dict['Stackname_nomask']
-
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                         bin_outfile, stack_name, mask=mask,
-                                         log=log)
+                                         bin_outfile, mask=mask, log=log)
 
     # Outfile and pdf both use name
     log.info(f"finished with stacking, {stack_name} "
              f"pdf and fits files created")
 
     # Zoom_and_gauss_general
-    outfile_grid = join(fitspath, filename_dict['comp_spec'])
-    log.info(f"outfile_grid : {outfile_grid}")
-    log.info(f"Reading: {outfile_grid}")
-    stack2D, header = fits.getdata(outfile_grid, header=True)
-    wave = header['CRVAL1'] + header['CDELT1'] * np.arange(header['NAXIS1'])
-    dispersion = header['CDELT1']
-    binning_avg_asc = join(fitspath, filename_dict['bin_info'])
-
     # used to be 'n_Bins_2d_binning_datadet3.tbl'
     indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])
 
-    lineflag = np.zeros(len(wave))
-    for ii in lambda0:   
-        idx = np.where(np.absolute(wave - ii) <= 5)[0]
-        if len(idx) > 0:
-            lineflag[idx] = 1
     # Option to change: Constants used as initial guesses for gaussian fit
 
-    zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
-                                      lineflag, dispersion,
-                                      y_correction=y_correction,
-                                      tab=binning_avg_asc, log=log)
+    zoom_and_gauss_general.zm_general(dataset, fitspath, y_correction, 
+                                      log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")
@@ -436,32 +414,13 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                                             individual_ID, R23, O32, SNR3,
                                             data3, galinbin, log=log)
         # Starting Stacking
-        if mask:
-            stack_name = name_dict['Stackname']
-        else:
-            stack_name = name_dict['Stackname_nomask']
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                             bin_outfile, stack_name,
-                                             mask=mask, log=log)
+                                             bin_outfile, mask=mask, log=log)
 
     if want == 'zoom':
-        outfile_grid = join(fitspath, filename_dict['comp_spec'])
-        log.info(f"Reading: {outfile_grid}")
-        stack2D, header = fits.getdata(outfile_grid, header=True)
-        wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
-        dispersion = header['CDELT1']
-        binning_avg_asc = join(fitspath, filename_dict['bin_info'])
-
-        lineflag = np.zeros(len(wave))
-        for ii in lambda0:   
-            idx = np.where(np.absolute(wave - ii) <= 5)[0]
-            if len(idx) > 0:
-                lineflag[idx] = 1
-
-        zoom_and_gauss_general.zm_general(dataset, fitspath, stack2D, wave,
-                                          lineflag, dispersion,
+        zoom_and_gauss_general.zm_general(dataset, fitspath,
                                           y_correction=y_correction,
-                                          tab=binning_avg_asc, log=log)
+                                          log=log)
 
     if want == 'R_cal_temp':
         # Calculating R, Temperature, Metallicity, Dust Attenuation,

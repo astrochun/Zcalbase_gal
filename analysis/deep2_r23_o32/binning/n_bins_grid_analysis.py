@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
-from os.path import join
+from os.path import join, exists
 
 from Metallicity_Stack_Commons.column_names import filename_dict
 
@@ -242,8 +242,11 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
 
     # Used to be called +dataset+'_binning_averages.tbl
     bin_outfile = join(fitspath, filename_dict['bin_info'])
-    log.info(f"Writing: {bin_outfile}")
-    asc.write(tab1, bin_outfile, format='fixed_width_two_line')
+    if not exists(bin_outfile):
+        log.info(f"Writing: {bin_outfile}")
+    else:
+        log.info(f"Overwriting : {bin_outfile}")
+    asc.write(tab1, bin_outfile, format='fixed_width_two_line', overwrite=True)
 
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min',
           'logO32_min', 'logR23_avg', 'logO32_avg',
@@ -254,13 +257,17 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
 
     # Used to be + dataset+'_2d_binning_datadet3.tbl
     indv_outfile = join(fitspath, filename_dict['indv_bin_info'])
-    log.info(f"Writing: {indv_outfile}")
-    asc.write(tab2, indv_outfile, format='fixed_width_two_line')
+    if not exists(indv_outfile):
+        log.info(f"Writing: {indv_outfile}")
+    else:
+        log.info(f"Overwriting : {indv_outfile}")
+    asc.write(tab2, indv_outfile, format='fixed_width_two_line', overwrite=True)
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')
     tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)
-    asc.write(tab1, fitspath+'/Double_Bin_grid_values.tbl', 
-    format='fixed_width_two_line')'''
-    # Create another asc table with the R23_grid and O32_grid values for plots
+    log.info(f"Writing: {fitspath+'/Double_Bin_grid_values.tbl'}")
+    log.info(f"Overwriting : {fitspath+'/Double_Bin_grid_values.tbl'}")
+    asc.write(tab1, fitspath+'/Double_Bin_grid_values.tbl', format='fixed_width_two_line', overwrite=True)'''
+    # Create another ascii table with the R23_grid and O32_grid values for plots
 
     log.debug("finished.")

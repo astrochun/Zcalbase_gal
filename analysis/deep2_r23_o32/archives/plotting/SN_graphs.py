@@ -7,10 +7,12 @@ from os.path import join
 
 from Zcalbase_gal.Analysis.DEEP2_R23_O32 import general
 
+import analysis.deep2_r23_o32
+
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
 def all_spectra():
-    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data = general.get_det3()
+    R23, O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data = analysis.deep2_r23_o32.get_det3()
 
     x = np.log10(R23)
     y = np.log10(O32)

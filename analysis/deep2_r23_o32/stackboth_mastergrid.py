@@ -25,7 +25,7 @@ from matplotlib.gridspec import GridSpec
 from os.path import exists, join
 from astropy.convolution import Box1DKernel, convolve
 
-from . import name_dict, read_fitsfiles, general
+from . import name_dict, read_fitsfiles, get_det3
 from .log_commons import log_stdout
 
 from Metallicity_Stack_Commons import lambda0
@@ -72,7 +72,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     pdf_pages = PdfPages(join(fitspath, stack_name))  # open pdf document
 
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
-        data3 = general.get_det3(fitspath, fitspath_ini, log=log)
+        data3 = get_det3(fitspath, fitspath_ini, log=log)
 
     log.info(f"Reading: {grid_data_file}")
     grid_data = np.load(grid_data_file, allow_pickle=True)  # This is the npz file

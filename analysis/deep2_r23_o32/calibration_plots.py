@@ -204,7 +204,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     log.info("finished.")
 
 
-def individual_gpc(individual_ascii, validation_table, log=None):
+def individual_gpc(individual_ascii, validation_table, name, log=None):
     """
     This function is currently repetitive of the function above
     for the individual detection cases.
@@ -214,6 +214,7 @@ def individual_gpc(individual_ascii, validation_table, log=None):
 
     :param individual_ascii: str. location of table with data
     :param validation_table: str. location of validaition table
+    :param name: str. name of the outputted pdf file
     :param log: LogClass or logging object
 
     PDF Files:
@@ -228,8 +229,6 @@ def individual_gpc(individual_ascii, validation_table, log=None):
 
     log.info("starting ...")
 
-    pea_out_pdf_ind = '/Users/reagenleimbach/Desktop/Zcalbase_gal/' \
-                       'R23O32_Manual_0417/jiang_plot_individual.pdf'
     individual = asc.read(individual_ascii)
     logR23 = individual['logR23']
     logO32 = individual['logO32']
@@ -249,7 +248,7 @@ def individual_gpc(individual_ascii, validation_table, log=None):
     OH = [com_log]
     Id = [ID_detect]
 
-    green_peas_calibration.main(lR23, lO32, OH, pea_out_pdf_ind, n_bins=6,
+    green_peas_calibration.main(lR23, lO32, OH, name, n_bins=6,
                                 xra=[0.3, 1.15], yra=[6.5, 9.10],
                                 marker=['3'], label=['Individual Detection'],
                                 ID=Id, fit=False, log=log)

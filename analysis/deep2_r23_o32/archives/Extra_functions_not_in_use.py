@@ -391,7 +391,6 @@ def average_vals_bin2():
     Hb = data0['HB_FLUX_MOD']'''
 
     O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
-    #O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= get_det3()
 
     O2_det3=O2[det3]
     O3_det3=O3[det3]
@@ -963,4 +962,3 @@ def linear_gradient(start_hex, finish_hex="#FFFFFF", n=10):
     #plt.set_ylabel('Spectra')
     plt.title('Preliminary Temperatures')
     pdf_pages.savefig()'''
-

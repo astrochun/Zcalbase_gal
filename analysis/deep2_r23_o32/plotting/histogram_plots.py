@@ -21,10 +21,10 @@ def histogram(path, data_all, table_path, pdf_name,
 
     :param path: str. location of where the outputted pdf_file will be saved
     :param data_all: dict. dictionary of all the error propagation data that
-                will be put into histogram plot; created in run_histogram_TM
+                     will be put into histogram plot; created in run_histogram_TM
     :param table_path: str. location of the temperature_metallicity table
-                            outputted functions; can also be the
-                            combine_flux_table created zoom_and_gauss_general
+                       outputted functions; can also be the
+                       combine_flux_table created zoom_and_gauss_general
     :param pdf_name: str. name of the outputted pdf file
     :param table_key: keyword. name of one of the columns of the table inputted
                         by table_path used to call the binned data
@@ -188,11 +188,11 @@ def run_histogram_tm(path, table_path, dict_list,
     :param path: str. name of where you are working and location of where the
                 outputted pdf_file will be saved
     :param table_path: str. location of the temperature_metallicity table
-                        outputted by the error_prop functions;
-                        can also be the combine_flux_table created by
+                       outputted by the error_prop functions;
+                       can also be the combine_flux_table created by
                         zoom_and_gauss_general
     :param dict_list: ls. list of dictionaries whose data we want to plot
-                        in a histogram
+                      in a histogram
 
     Example :
              dict_list = [Te_pdf_dict,Te_xpeak_dict,

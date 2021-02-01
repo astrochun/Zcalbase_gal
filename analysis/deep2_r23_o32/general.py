@@ -308,18 +308,18 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
     :param raw: bool. to do a simple calculation, no randomization.
-                    Default: False
+                Default: False
     :param apply_dust: bool. Apply dust correction. Default: False
     :param revised: bool. indicates whether to use revised bin properties
                     (e.g., *.revised.tbl files) Default: False
     :param individual: bool. indicates whether individual galaxies are included
-                        Default: False
+                       Default: False
 
     No returns
     """
 
-    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/'
-                               + dataset)
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',
+                               dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
 
     # Define logging function
@@ -342,17 +342,15 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     ###Making More Plots###
     #asc_table = combine_flux_ascii
     #temp_table = temp_met_ascii
-    #asc_table_det3 = asc_table2 = join(fitspath, 
-                                        'Double_Bin_2d_binning_datadet3.tbl')
     
     temp_m_gascii = join(fitspath, 'bin_derived_properties.tbl')
     
     
 
     more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, 
-                            verification_table)
+                           verification_table)
     more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, 
-                            verification_table)
+                           verification_table)
     more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, 
                                 verification_table)
     more_plots.hist_for_bin(dataset, asc_table2)
@@ -375,9 +373,9 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
 
     :param fitspath: str. Path to the location of files saved for each run
     :param want: str. Keyword to determine what part of the process
-                        needs to be run
+                      needs to be run
           Options are: "binning_and_graphing", "stack_mastergrid",
-                        "zoom", "R_cal_temp"
+                       "zoom", "R_cal_temp"
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
     :param n_split: int. Number of times the log(R23) bins are split.

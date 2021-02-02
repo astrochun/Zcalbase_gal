@@ -1,8 +1,10 @@
-
+from Zcalbase_gal.analysis.deep2_r23_o32 import get_det3
 #run_Stacking_Master_mask()
 #run_Stacking_Master()
 
 #Plotting Zoomed in on 4363
+
+
 def zoom_plot_4363():
     image2DM, header = fits.getdata(RestframeMaster, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
@@ -14,13 +16,13 @@ def zoom_plot_4363():
     R23_grid = grid_data['R23_grid']
     O32_grid = grid_data['O32_grid']
     #index= grid_data['T_arr'][rr,rr]
-    print Spect_1D.shape
+    print(Spect_1D.shape)
     
     for rr in range(Spect_1D.shape[0]):
 
         row = rr / nrows % ncols
         col = rr % ncols
-        print row, col
+        print(row, col)
         if rr % (nrows*ncols) == 0:
             fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols, squeeze = False)
                 #endif
@@ -388,8 +390,7 @@ def average_vals_bin2():
     O3 = 1.33*data0['OIIIR_FLUX_MOD']
     Hb = data0['HB_FLUX_MOD']'''
 
-    O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = general.get_det3()
-    #O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3= general.get_det3()
+    O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3, O2_det3, O3_det3, Hb_det3 = get_det3()
 
     O2_det3=O2[det3]
     O3_det3=O3[det3]
@@ -961,4 +962,3 @@ def linear_gradient(start_hex, finish_hex="#FFFFFF", n=10):
     #plt.set_ylabel('Spectra')
     plt.title('Preliminary Temperatures')
     pdf_pages.savefig()'''
-

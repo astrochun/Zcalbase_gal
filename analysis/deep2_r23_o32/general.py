@@ -1,6 +1,5 @@
 # This function runs the entire process start to finish
 # EW values:equival width
-
 from . import name_dict, get_det3
 import numpy as np
 from astropy.io import fits

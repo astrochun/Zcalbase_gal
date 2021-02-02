@@ -105,7 +105,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                                          bin_outfile, mask=mask, log=log)
 
     # Outfile and pdf both use name
-    log.info(f"finished with stacking, {stack_name} "
+    log.info(f"finished with stacking, Stacking_Masked_MasterGrid "
              f"pdf and fits files created")
 
     # Zoom_and_gauss_general

@@ -25,8 +25,7 @@ from Metallicity_Stack_Commons.analysis import error_prop
 def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                               adaptive=True, apply_dust=False, mask=True):
     """
-    Purpose
-      Function runs the entire analysis
+    Function runs the entire analysis
 
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
@@ -39,10 +38,13 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     :param apply_dust: bool. Apply dust correction. Default: False
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
+
+    No returns
     """
 
     fitspath_ini = get_user()
-    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/', dataset)
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/',
+                               dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
 
     # Define logging function
@@ -83,14 +85,17 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         R23_bin = 0.25
         O32_bin = 0.25
         fixed_grid_analysis.making_grid(fitspath, bin_pdf_pages, bin_outfile,
-                                        R23, O32, det3, R23_bin, O32_bin, log=log)
+                                        R23, O32, det3, R23_bin, O32_bin,
+                                        log=log)
 
     if dataset == 'n_Bins':
-        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages, bin_outfile,
-                                            n_split, individual_ID, R23, O32,
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
+                                            bin_outfile, n_split,
+                                            individual_ID, R23, O32,
                                             SNR3, data3, galinbin, log=log)
 
-    log.info("made npz, pdf files, testmastergrid (need to find if this is used anywhere)")
+    log.info("made npz, pdf files, testmastergrid "
+             "(need to find if this is used anywhere)")
     log.info("finished Binning_and_Graphing_MasterGrid")
 
     # Stackboth_MasterGrid
@@ -99,12 +104,18 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
                                          bin_outfile, mask=mask, log=log)
 
+    # Outfile and pdf both use name
+    log.info(f"finished with stacking, {stack_name} "
+             f"pdf and fits files created")
+
     # Zoom_and_gauss_general
     # used to be 'n_Bins_2d_binning_datadet3.tbl'
     indv_bin_info = join(fitspath, filename_dict['indv_bin_info'])
 
     # Option to change: Constants used as initial guesses for gaussian fit
-    zoom_and_gauss_general.zm_general(dataset, fitspath, y_correction, log=log)
+
+    zoom_and_gauss_general.zm_general(dataset, fitspath, y_correction, 
+                                      log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")
@@ -112,8 +123,10 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # combine_flux_ascii = join(fitspath, filename_dict['bin_fit'])
 
     # FIX THIS CODE: line_ratio_plotting
-    # I need to go back through and figure out what is the average and what is the composite
-    # line_ratio_plotting.Plotting_Data1(fitspath, dataset, combine_flux_ascii, binning_avg_asc)
+    # I need to go back through and figure out
+    # what is the average and what is the composite
+    # line_ratio_plotting.Plotting_Data1(fitspath,
+    # dataset, combine_flux_ascii, binning_avg_asc)
 
     # Verification Table
     valid_table.make_validation_table(fitspath)
@@ -122,12 +135,14 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     valid_table.compare_to_by_eye(fitspath, dataset)
     verification_table_revised = join(fitspath, filename_dict['bin_valid_rev'])
 
-    # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
+    # Calculating R, Temperature, Metallicity,
+    # Dust Attenuation, and Errors using MSC
     if apply_dust:
         balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',
                            use_revised=False, log=log)
 
-    # Run raw data derived properties calculations (option to apply dust correction)
+    # Run raw data derived properties calculations
+    # (option to apply dust correction)
     error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
                                    apply_dust=False, revised=False, log=log)
     error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
@@ -138,7 +153,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
                                        apply_dust=True, revised=True, log=log)
 
-    # Run Monte Carlo randomization calculations (option to apply dust correction)
+    # Run Monte Carlo randomization calculations
+    # (option to apply dust correction)
     error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
                                    apply_dust=False, revised=False, log=log)
     error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
@@ -150,7 +166,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                                        apply_dust=True, revised=True, log=log)
 
     # Individual Detections
-    # composite_indv_detect.main(fitspath, dataset= '', revised = False, det3=True)
+    # composite_indv_detect.main(fitspath,
+    # dataset= '', revised = False, det3=True)
     # print('Individual Detections Complete')
 
     log.info("finished.")
@@ -159,16 +176,24 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
 def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                    revised=False, individual=False):
     """
-    Purpose
-    --------
     This function will be run to make plots of the final results
 
-    Parameters
-    ----------
+    :param fitspath_ini: str. Path to the location of whole project
+    :param dataset: str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param raw: bool. to do a simple calculation, no randomization.
+                Default: False
+    :param apply_dust: bool. Apply dust correction. Default: False
+    :param revised: bool. indicates whether to use revised bin properties
+                    (e.g., *.revised.tbl files) Default: False
+    :param individual: bool. indicates whether individual galaxies are included
+                       Default: False
 
+    No returns
     """
 
-    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs/' + dataset)
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',
+                               dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
 
     # Define logging function
@@ -177,7 +202,8 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     log.info("starting ...")
 
     # Te_metal Plots
-    te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw, apply_dust=apply_dust,
+    te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw,
+                                     apply_dust=apply_dust,
                                      revised=revised, individual=individual)
 
     # Calibration Plots
@@ -190,37 +216,40 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     ###Making More Plots###
     #asc_table = combine_flux_ascii
     #temp_table = temp_met_ascii
-    #asc_table_det3 = asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
     
     temp_m_gascii = join(fitspath, 'bin_derived_properties.tbl')
     
     
 
-    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
-    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, verification_table)
-    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, verification_table)
+    more_plots.ew_plot_R23(fitspath, combine_flux_ascii, temp_m_gascii, 
+                           verification_table)
+    more_plots.ew_plot_O32(fitspath, combine_flux_ascii, temp_m_gascii, 
+                           verification_table)
+    more_plots.R23_vs_O32_color(fitspath, combine_flux_ascii, temp_met_gascii, 
+                                verification_table)
     more_plots.hist_for_bin(dataset, asc_table2)
     '''
 
     log.info("finished.")
 
 
-# Below function will run the individual functions in the codes above that produce graphs
+# Below function will run the individual functions in
+# the codes above that produce graphs
 # Enter a keyword for want to indictate what function you want to run
 # This will ease the reproduction process
-# CHECK: function defaults to put new graphs in fitspath. Make sure you don't over write something you need
+# CHECK: function defaults to put new graphs in fitspath.
+# Make sure you don't over write something you need
 def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                              adaptive=True, y_correction=False,
                              apply_dust=False, mask=True):
     """
-    Purpose
-      To run individual codes to test changes or edits plots
+    To run individual codes to test changes or edits plots
 
-    Parameters
-    ----------
     :param fitspath: str. Path to the location of files saved for each run
-    :param want: str. Keyword to determine what part of the process needs to be run
-          Options are: "binning_and_graphing", "stack_mastergrid", "zoom", "R_cal_temp"
+    :param want: str. Keyword to determine what part of the process
+                      needs to be run
+          Options are: "binning_and_graphing", "stack_mastergrid",
+                       "zoom", "R_cal_temp"
     :param dataset: str. Define binning method options:
                     'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
     :param n_split: int. Number of times the log(R23) bins are split.
@@ -232,6 +261,8 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
     :param apply_dust: bool. Apply dust correction. Default: False
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
+
+    No returns
     """
 
     log = LogClass(fitspath, 'run_individual_functions.log').get_logger()
@@ -264,31 +295,44 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
                                           log=log)
 
     if want == 'R_cal_temp':
-        # Calculating R, Temperature, Metallicity, Dust Attenuation, and Errors using MSC
+        # Calculating R, Temperature, Metallicity, Dust Attenuation,
+        # and Errors using MSC
         if apply_dust:
             balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',
                                use_revised=False, log=log)
 
-        # Run raw data derived properties calculations (option to apply dust correction)
+        # Run raw data derived properties calculations
+        # (option to apply dust correction)
         error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                       apply_dust=False, revised=False, log=log)
+                                       apply_dust=False, revised=False,
+                                       log=log)
         error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
                                        apply_dust=False, revised=True, log=log)
         if apply_dust:
-            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                           apply_dust=True, revised=False, log=log)
-            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                           apply_dust=True, revised=True, log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=True,
+                                           binned_data=True,
+                                           apply_dust=True, revised=False,
+                                           log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=True,
+                                           binned_data=True,
+                                           apply_dust=True, revised=True,
+                                           log=log)
 
-        # Run Monte Carlo randomization calculations (option to apply dust correction)
+        # Run Monte Carlo randomization calculations
+        # (option to apply dust correction)
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                       apply_dust=False, revised=False, log=log)
+                                       apply_dust=False, revised=False,
+                                       log=log)
         error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
                                        apply_dust=False, revised=True, log=log)
         if apply_dust:
-            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                           apply_dust=True, revised=False, log=log)
-            error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                           apply_dust=True, revised=True, log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=False,
+                                           binned_data=True,
+                                           apply_dust=True, revised=False,
+                                           log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=False,
+                                           binned_data=True,
+                                           apply_dust=True, revised=True,
+                                           log=log)
 
     log.info("finished.")

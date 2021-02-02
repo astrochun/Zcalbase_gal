@@ -14,24 +14,28 @@ from ..log_commons import log_stdout
 def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
                    R23, O32, SNR3, data3, galinbin, log=None):
     """
-    Purpose:
-      This file holds the function to bin data adaptively based on the entered
-      number of galaxies for each bin.
-      First, it bins in the R23 direction and then in the O32 direction
+    This file holds the function to bin data adaptively based on the entered
+    number of galaxies for each bin.
+    First, it bins in the R23 direction and then in the O32 direction
 
-      This is used in current analysis.
+    This is used in current analysis.
 
     :param fitspath: str. Absolute path for working directory
     :param pdf_pages: str. name of outputted pdf file
+                      fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
+                        fitspath + name_dict['gridnpz_suffix']
     :param n_split: int. the number of times each R23 bin will be split
     :param galinbin: np.array. Number of spectra in each bin
     :param individual_ID: np.array. Individual IDs for each spectra
     :param R23: np.array. log(R23) measurements of each spectra
     :param O32: np.array. log(O32) measurements of each spectra
-    :param SNR3: np.array. Signal to noise of the OIII emission lines of each spectra
+    :param SNR3: np.array. Signal to noise of the OIII emission lines
+                            of each spectra
     :param data3: np.array. From get_det3 - indicates if spectra can be used
     :param log: LogClass or logging object
+
+    No returns
     """
 
     if log is None:
@@ -92,19 +96,24 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
         R23_idx = np.where((R23 >= R23_sort0[bin_start[ii]]) &
                            (R23 <= R23_sort0[bin_end[ii]]))[0]
 
-        O32_inbins = O32[R23_idx]           # O32 relative to the R23_index/ O32 sorted into the R23 bins
-        O32_index = np.argsort(O32_inbins)  # Sort the O32 in their bins so that we have their locations
-        sortO32 = O32_inbins[O32_index]     # Take O32 in each bin & organizes them based on the index in previous line
+        # O32 relative to the R23_index/ O32 sorted into the R23 bins
+        O32_inbins = O32[R23_idx]
+        # Sort the O32 in their bins so that we have their locations
+        O32_index = np.argsort(O32_inbins)
+        # Take O32 in each bin & organizes them based on index in previous line
+        sortO32 = O32_inbins[O32_index]
 
-        # The following lines could go into a definition called "evenSplit( ... )" therefore
-        # allowing you to create a different splitting method definition called "optimalSplit( ... )"
+        # The following lines could go into a definition called
+        # "evenSplit( ... )" therefore allowing you to create a different
+        # splitting method definition called "optimalSplit( ... )"
         # or something to that effect if so desired.
         n_subbins = np.int(np.floor(float(len(sortO32))/n_split))
         subbin_arr = np.ones(n_split, dtype=int) * n_subbins
         n_remainder = len(sortO32) - n_subbins*n_split
         backwardsIdx = -1
 
-        # Sorting all the remainders into the correct bins: Use backwardsIdx or forwardsIdx to start adding spectra
+        # Sorting all the remainders into the correct bins:
+        # Use backwardsIdx or forwardsIdx to start adding spectra
         # from the front or the back of the list of bins
         for rr in range(n_remainder):
             subbin_arr[backwardsIdx] = n_subbins + 1
@@ -127,21 +136,24 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
 
             # Now let's start sorting our data into variables to use later
 
-            # First two map minimum R23 and O32 measure to all individual spectra in bin
+            # First two map minimum R23 and O32 measure
+            # to all individual spectra in bin
             # Second two values give the lowest O32 and R23 value set for each bin
             R23_minall[N_bin_idx] = R23_sort0[bin_start[ii]]
             O32_minall[N_bin_idx] = O32_values_perbin[0]
             R23_minimum[ii, jj] = R23_sort0[bin_start[ii]]
             O32_minimum[ii, jj] = O32_values_perbin[0]
 
-            # First two map median R23 and O32 measure to all individual spectra in bin
+            # First two map median R23 and O32 measure
+            # to all individual spectra in bin
             # Second two give the median R23 and O32 value for each bin
             R23_medall[N_bin_idx] = np.median(R23[N_bin_idx])
             O32_medall[N_bin_idx] = np.median(O32_values_perbin)
             R23_median[ii, jj] = np.median(R23[N_bin_idx])
             O32_median[ii, jj] = np.median(O32_values_perbin)
 
-            # First two map maximum R23 and O32 measure to all individual spectra in bin
+            # First two map maximum R23 and O32 measure
+            # to all individual spectra in bin
             # Second two give the maximum R23 and O32 value for each bin
             R23_maxall[N_bin_idx] = np.max(R23[N_bin_idx])
             O32_maxall[N_bin_idx] = np.max(O32[N_bin_idx])
@@ -168,7 +180,8 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
             # Gives the number of galaxies in each bin
             area[(ii*n_split)+jj] = len(O32_values_perbin)
 
-            # Now we can shift our window over for the next split like the counting index the Stacking code
+            # Now we can shift our window over for the next split
+            # like the counting index the Stacking code
             startIdx = endIdx
             endIdx = startIdx+subbin_arr[jj] + 1
 

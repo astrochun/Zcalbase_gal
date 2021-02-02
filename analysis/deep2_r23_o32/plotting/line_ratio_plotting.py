@@ -1,7 +1,4 @@
 
-# CREATES LINE PLOTS FOR CHECKING RESULTS
-# CALLED EVERYTIME GENERAL FUNCTIONS ARE CALLED
-
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
@@ -11,17 +8,19 @@ from os.path import join
 
 def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     """
-    Purpose:
-      Plots measurements to check to make sure that data follows a one-to-one line
+    Plots measurements to check to make sure that data follows
+    a one-to-one line
 
-    Parameters:
-      fitspath -> path where files are called from and saved to
-      dataset  -> keyword used to define binning method
-      combine_flux_ascii -> table of data calculated for emission line
-      bin_info -> table of averages calculated in binning code
+    :param fitspath: str. path where files are called from and saved to
+    :param dataset: str.  keyword used to define binning method
+    :param combine_flux_ascii: str. table of data calculated for emission line
+    :param bin_info: str. table of averages calculated in binning code
+
+    PDF File: fitspath + 'line_ratio_plots.pdf'
+    No returns
     """
 
-    line_plot = join(fitspath, dataset +'_line_ratio_plots.pdf')
+    line_plot = join(fitspath, 'line_ratio_plots.pdf')
     print("### combine_flux_ascii : " + combine_flux_ascii)
     fitted_data = asc.read(combine_flux_ascii)
 
@@ -54,8 +53,8 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
                 print('equal', binnum[rr], binnum_raw[rr])
 
     fig, ax_arr = plt.subplots()
-    ax_arr.scatter(R23_raw, R23_composite, marker='o', facecolor='none', edgecolor='b',
-                   label='R23 Ratio: Vornoi Raw vs. Composite')
+    ax_arr.scatter(R23_raw, R23_composite, marker='o', facecolor='none',
+                   edgecolor='b', label='R23 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset + ' Raw vs. Composite for R23')
     for rr in range(len(ID)):
@@ -67,8 +66,8 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     fig.savefig(pdf_pages, format='pdf')
 
     fig, ax_arr = plt.subplots()
-    ax_arr.scatter(O32_raw, O32_composite, marker='o', facecolor='none', edgecolor='b',
-                   label='O32 Ratio: Vornoi Raw vs. Composite')
+    ax_arr.scatter(O32_raw, O32_composite, marker='o', facecolor='none',
+                   edgecolor='b', label='O32 Ratio: Vornoi Raw vs. Composite')
     ax_arr.legend(loc=0)
     ax_arr.set_title(dataset + 'Raw vs. Composite for O32')
     for oo in range(len(ID)):

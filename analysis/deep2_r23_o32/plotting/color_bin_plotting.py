@@ -1,4 +1,4 @@
-# NOT CALLED IN GENERAL FUNCTIONS
+
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
@@ -10,13 +10,15 @@ from ..log_commons import log_stdout
 
 def color_for_bin(fitspath, bin_info, pdf_file):
     """
-    Purpose:
-      Plots for R23 and O32 for Voronoi analysis for each bin
+    Plots for R23 and O32 for Voronoi analysis for each bin
+    NOT CALLED IN GENERAL FUNCTIONS
 
-    Parameters:
-      fitspath -> path where files are called from and saved to
-      bin_info -> table created by binning code
-      pdf_file -> name of pdf file produced
+    param: fitspath: str. path where files are called from and saved to
+    param: bin_info: str. table created by binning code
+    param: pdf_file: str. name of pdf file produced
+
+    PDF File: fitspath + pdf_file
+    No returns
     """
 
     pdf_pages = PdfPages(join(fitspath, pdf_file))
@@ -32,7 +34,8 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     plt.clf()
     plt.subplot(211)
     rnd = np.argsort(np.random.random(xnode.size))  # Randomize bin colors
-    plt.plot(xnode, ynode, '+w', scalex=False, scaley=False)  # do not rescale after imshow()
+    # do not rescale after imshow()
+    plt.plot(xnode, ynode, '+w', scalex=False, scaley=False)
     plt.xlabel('R (arcsec)')
     plt.ylabel('R (arcsec)')
     plt.title('Map of Voronoi bins')
@@ -54,15 +57,18 @@ def color_for_bin(fitspath, bin_info, pdf_file):
 
 def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
     """
-    Purpose:
-      Plotting R23 vs O32 with a color map for metallicity and then for temperature
+    Plotting R23 vs O32 with a color map for
+    metallicity and then for temperature
 
-    Parameters
-    :param fitspath: path where files are called from and saved to
-    :param bin_info: table created by binning code
-    :param temp_tab: table holding metallicity and temperature measurements
-    :param pdf_name: name of pdf file produced
+    :param fitspath: str. path where files are called from and saved to
+    :param bin_info: str. table created by binning code
+    :param temp_tab: str. table holding metallicity and
+                     temperature measurements
+    :param pdf_name: str. name of pdf file produced
     :param log: LogClass or logging object
+
+    PDF File: fitspath + pdf_name
+    No returns
     """
 
     if log is None:
@@ -99,7 +105,8 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
     plt.scatter(R23_com, O32_com, c=c, vmin=vmin, vmax=vmax,
                 marker='*', cmap=cm)
     cax = plt.axes([0.9, 0.15, 0.8, 0.75])
-    plt.colorbar(scat, cax=cax, orientation='vertical', label='Oxygen Abundance')
+    plt.colorbar(scat, cax=cax, orientation='vertical',
+                 label='Oxygen Abundance')
     for rr in range(len(n_gal)):
         ax1.annotate(str(n_gal[rr]), (xBar[rr], yBar[rr]), xycoords='data',
                      fontsize=5)

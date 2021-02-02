@@ -1,10 +1,3 @@
-"""
-green_peas_calibration
-====
-
-Plots R23 and O32 line ratios and compare it to Jiang et al. (2018)
-calibration that is based on green pea galaxies
-"""
 
 from chun_codes import match_nosort_str
 from astropy.io import ascii as asc
@@ -22,12 +15,10 @@ jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 def O32_OH_fit(xy, a, b, c, d, e):
     """
     Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
-
-    Parameters
-    ----------
-     x : 12+log(O/H)
-     y : log([OIII]/[OII])
-     a, b, c, d, e, : Jiang coefficients
+    Used by main() function
+    :param x: 12+log(O/H)
+    :param y: log([OIII]/[OII])
+    :param a, b, c, d, e,:  Jiang coefficients
     """
 
     x = xy[0]
@@ -40,12 +31,12 @@ def O32_OH_fit(xy, a, b, c, d, e):
 
 def jiang18(x, y):
     """
-    Function to return log(R23) based on metallicity and [OIII]/[OII] flux ratio
+    Function to return log(R23) based on metallicity
+    and [OIII]/[OII] flux ratio
+    Used by main() function
 
-    Parameters
-    ----------
-     x : 12+log(O/H)
-     y : log([OIII]/[OII])
+    :param x: array. 12+log(O/H)
+    :param y: array. log([OIII]/[OII])
     """
 
     logR23 = O32_OH_fit(xy, * jiang18_coeffs)
@@ -57,7 +48,9 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
                      bin_end, n_bins=4, lR23_err=[], OH_err=[], OH_range=[],
                      dR23_range=[], marker=[], label=[], IDs=[], log=None):
     """
-    Plot differences between Jiang18 R23 vs observed R23 as a function of metallicity
+    Plot differences between Jiang18 R23 vs observed R23 as
+    a function of metallicity
+    Used by main() function
     """
 
     if log is None:
@@ -89,9 +82,11 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
         # Label in upper left the points
         if len(label) != 0:
             x1 = OH_range[0] + 0.025*(OH_range[1]-OH_range[0])
-            y1 = dR23_range[1] - (nn*0.035 + 0.05)*(dR23_range[1]-dR23_range[0])
+            y1 = dR23_range[1] - (nn*0.035 + 0.05)\
+                 *(dR23_range[1]-dR23_range[0])
             x2 = OH_range[0] + 0.035*(OH_range[1]-OH_range[0])
-            y2 = dR23_range[1] - (nn*0.035 + 0.0525)*(dR23_range[1]-dR23_range[0])
+            y2 = dR23_range[1] - (nn*0.035 + 0.0525)\
+                 *(dR23_range[1]-dR23_range[0])
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
             ax.plot([x1], [y1], marker=marker[nn], color='black')
 
@@ -102,28 +97,35 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
 
             ii_label = ''
             if nn == 0:  # n_sample-1:
-                idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
+                idx_all = np.where((lO32_all >= y_ii_min) &
+                                   (lO32_all <= y_ii_max))[0]
                 ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
                            fr"< {y_ii_max:.2f}, N = {len(idx_all):d}"
 
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - jiang_R23[idx]
-                ax.scatter(OH[nn][idx], i_diff, color=ctype[ii], marker=marker[nn],
-                           edgecolor='none', alpha=0.5, label=ii_label)
+                ax.scatter(OH[nn][idx], i_diff, color=ctype[ii],
+                           marker=marker[nn], edgecolor='none',
+                           alpha=0.5, label=ii_label)
 
                 diff0 += list(lR23[nn][idx] - jiang_R23[idx])
 
-                # Added if statement so that only data points on the OH_err[0] place will be plotted
+                # Added if statement so that only data points
+                # on the OH_err[0] place will be plotted
                 if nn == 0: 
                     if len(OH_err) != 0:
-                        ax.errorbar(OH[nn][idx], i_diff, xerr=np.transpose(OH_err[nn][idx]),
-                                    mfc='none', ecolor=ctype[ii], capsize=0, alpha=0.25,
-                                    fmt='None', label=None, ls='none')
+                        ax.errorbar(OH[nn][idx], i_diff,
+                                    xerr=np.transpose(OH_err[nn][idx]),
+                                    mfc='none', ecolor=ctype[ii], capsize=0,
+                                    alpha=0.25, fmt='None', label=None,
+                                    ls='none')
 
                     if len(lR23_err) != 0:
-                        ax.errorbar(OH[nn][idx], i_diff, yerr=np.transpose(lR23_err[nn][idx]),
-                                    mfc='none', ecolor=ctype[ii], capsize=0, alpha=0.25,
-                                    fmt='None', label=None, ls='none')
+                        ax.errorbar(OH[nn][idx], i_diff,
+                                    yerr=np.transpose(lR23_err[nn][idx]),
+                                    mfc='none', ecolor=ctype[ii], capsize=0,
+                                    alpha=0.25, fmt='None', label=None,
+                                    ls='none')
 
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
@@ -138,8 +140,8 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
     an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
-    ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction', va='bottom', ha='right',
-                fontsize=10)
+    ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction',
+                va='bottom', ha='right', fontsize=10)
 
     if len(OH_range) != 0:
         ax.set_xlim(OH_range)
@@ -147,10 +149,12 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
         ax.set_ylim(dR23_range)
 
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
-    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) - \log(R_{23})_{\rm GPC}$')
+    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
+                  r'- \log(R_{23})_{\rm GPC}$')
     ax.minorticks_on()
 
-    leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8, framealpha=0.5)
+    leg = ax.legend(loc='upper right', scatterpoints=1, fontsize=8,
+                    framealpha=0.5)
     for lh in leg.legendHandles:
         lh.set_alpha(0.5)
 
@@ -162,34 +166,36 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
     log.info("finished.")
 
 
-def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=[],
-         marker=[], edgecolors=[], alpha=[], label=[], dR23_range=[-0.3, 0.3],
-         IDs=[], include_Rlimit=True, fit=False, log=None):
+def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
+         yra=[], marker=[], edgecolors=[], alpha=[], label=[],
+         dR23_range=[-0.3, 0.3], IDs=[], include_Rlimit=True, fit=False,
+         log=None):
     """
+    Plots R23 and O32 line ratios and compare it to Jiang et al. (2018)
+    calibration that is based on green pea galaxies
     Main function to plot dataset against Jiang+ (2018) calibration
 
-    Parameters
-    ----------
-    lR23 : log(R_23)
-    lO32 : log([OIII]/[OII])
-    OH   : 12+log(O/H)
+    :param lR23: array. log(R_23)
+    :param lO32: array. log([OIII]/[OII])
+    :param OH: array. 12+log(O/H)
+    :param out_pdf: str. full path for output PDF
+    :param n_bins: int. number of bins to bin data
+    :param lR23_err: array. error on x-axis (logR23)
+    :param OH_err: array. error on y-axis (logR23)
+    :param xra: array. x-axis plotting range
+    :param yra: array. y-axis plotting range
+    :param marker: list. list of markers
+    :param edgecolors: list. list of edge colors
+    :param alpha: list. list of alpha (transparency)
+    :param label: list. list of string labels
+    :param dR23_range: array. for annotation
+    :param IDs: array. list of list of ID's
+    :param include_Rlimit: Bool. to plot cases with R-limits
+    :param fit: bool. Turn on fitting.
+                Default: False -> Uses Jiang+2018 relation
+    :param log: LogClass or logging object
 
-    out_pdf : full path for output PDF
-    n_bins : number of bins to bin data
-    lR23_err : error on x-axis (logR23)
-    OH_err : error on y-axis (logR23)
-    xra : x-axis plotting range
-    yra : y-axis plotting range
-    marker : list of markers
-    edgecolors : list of edge colors
-    alpha : list of alpha (transparency)
-    label : list of string labels
-    dR23_range : for annotation
-    IDs : list of list of ID's
-    include_Rlimit : Boolean to plot cases with R-limits
-    fit : boolean
-      Turn on fitting. Default: False -> Uses Jiang+2018 relation
-    log: LogClass or logging object
+    No returns
 
     Notes
     -----
@@ -279,27 +285,32 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
             ii_label = ''
             if nn == 0:  # n_sample-1:
-                idx_all = np.where((lO32_all >= y_ii_min) & (lO32_all <= y_ii_max))[0]
+                idx_all = np.where((lO32_all >= y_ii_min) &
+                                   (lO32_all <= y_ii_max))[0]
                 ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
                            f"< {y_ii_max:.2f}, N = {len(idx_all):d}"
             if len(idx) > 0:
-                ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii], marker=marker[nn],
-                           alpha=alpha[nn], label=ii_label, edgecolors=edgecolors[nn])
+                ax.scatter(lR23[nn][idx], OH[nn][idx], color=ctype[ii],
+                           marker=marker[nn], alpha=alpha[nn], label=ii_label,
+                           edgecolors=edgecolors[nn])
 
                 # Pushed Error bars under idx requirement
-                # Added if statement so that only data points on the OH_err[0] place will be plotted
+                # Added if statement so that only data points
+                # on the OH_err[0] place will be plotted
                 if nn == 0:
                     if len(OH_err) != 0:
                         log.info(f"OH: {OH[nn][idx]}")
                         log.info(f"OH_err: {OH_err[nn][idx]}")
-                        ax.errorbar(lR23[nn][idx], OH[nn][idx], yerr=np.transpose(OH_err[nn][idx]),
-                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5,
-                                    fmt='', label=None, ls='none')
+                        ax.errorbar(lR23[nn][idx], OH[nn][idx],
+                                    yerr=np.transpose(OH_err[nn][idx]),
+                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0,
+                                    alpha=0.5, fmt='', label=None, ls='none')
 
                     if len(lR23_err) != 0:
-                        ax.errorbar(lR23[nn][idx], OH[nn][idx], xerr=np.transpose(lR23_err[nn][idx]),
-                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0, alpha=0.5, fmt=None,
-                                    label=None, ls='none')
+                        ax.errorbar(lR23[nn][idx], OH[nn][idx],
+                                    xerr=np.transpose(lR23_err[nn][idx]),
+                                    mec=ctype[ii], ecolor=ctype[ii], capsize=0,
+                                    alpha=0.5, fmt=None, label=None, ls='none')
 
             if nn == 0:  # n_sample-1:
                 lO32_avg = np.average(lO32_all[idx_all])
@@ -308,7 +319,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
 
                 mod_logR23 = O32_OH_fit((x_arr, lO32_avg), *opt)
                 ax.annotate(f"{lO32_avg:.2f}", [mod_logR23[-1], x_arr[-1]],
-                            xytext=xytext_location[ii], textcoords='offset points',
+                            xytext=xytext_location[ii],
+                            textcoords='offset points',
                             color=ctype[ii], xycoords='data', ha='center',
                             va='bottom', fontsize=8)
                 ax.plot(mod_logR23, x_arr, color=ctype[ii], linestyle='dashed')
@@ -334,7 +346,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.97)
     fig.savefig(out_pdf)
 
-    # Because we do not want to include the Robust limits into the statistical calculations
+    # Because we do not want to include the Robust limits
+    # into the statistical calculations
     # in plot_differences, this options allows to redefine lR23, lO32, OH
     if include_Rlimit:
         nR23 = [lR23[0], lR23[2], lR23[3]]
@@ -353,7 +366,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[], yra=
     # Plot differences between model and data
     if not fit:
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
-        plot_differences(nR23, nO32, nOH, lO32_all, out_diff_pdf, bin_start, bin_end,
+        plot_differences(nR23, nO32, nOH, lO32_all, out_diff_pdf,
+                         bin_start, bin_end,
                          n_bins=n_bins, lR23_err=lR23_err, OH_err=OH_err,
                          OH_range=yra, dR23_range=dR23_range, marker=marker,
                          label=label, IDs=nIDs, log=log)
@@ -413,7 +427,8 @@ def get_zcalbase_sample(prefix, dir_path='', log=None):
     data0 = fits.getdata(flux_file)
     data1 = fits.getdata(Te_file)
 
-    lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX) / data0.H_BETA_FLUX)
+    lR23 = np.log10((data0.OII_3727_FLUX + data0.OIII_5007_FLUX)
+                    / data0.H_BETA_FLUX)
     lO32 = np.log10(data0.OIII_5007_FLUX / data0.OII_3727_FLUX)
 
     OH = data1.OH_gas
@@ -477,7 +492,8 @@ def DEEP2_OIII4363(log_dir):
     Run function for DEEP2 dataset for hardcoded path (line 442)
     """
 
-    log = LogClass(log_dir, 'green_peas_calibration_deep2_oiii4363.log').get_logger()
+    log = LogClass(log_dir,
+                   'green_peas_calibration_deep2_oiii4363.log').get_logger()
 
     log.debug("starting ...")
 
@@ -502,7 +518,8 @@ def MACT_OIII4363(log_dir):
     Run function for MACT dataset for hardcoded path (line 462)
     """
 
-    log = LogClass(log_dir, 'green_peas_calibration_mact_oiii4363.log').get_logger()
+    log = LogClass(log_dir,
+                   'green_peas_calibration_mact_oiii4363.log').get_logger()
 
     log.debug("starting ...")
 
@@ -524,10 +541,12 @@ def MACT_OIII4363(log_dir):
 
 def DEEP2_MACT_OIII4363(log_dir, include_stack=False, fit=False):
     """
-    Run function for DEEP2 and MACT (combined) dataset for hardcoded path (line 481)
+    Run function for DEEP2 and MACT (combined) dataset for hardcoded path
+    (line 481)
     """
 
-    log = LogClass(log_dir, 'green_peas_calibration_deep2_mact_oiii4363.log').get_logger()
+    log = LogClass(log_dir,
+                   'green_peas_calibration_deep2_mact_oiii4363.log').get_logger()
 
     log.debug("starting ...")
 
@@ -590,9 +609,9 @@ def DEEP2_MACT_OIII4363(log_dir, include_stack=False, fit=False):
 
     if fit:
         out_pdf = join(path0, 'MACT_DEEP2_R23_O32_Jiang18.fit.pdf')
-        main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err, OH_err=OH_err,
-             xra=[0.45, 1.15], yra=yra, marker=['*', 'o'], label=label,
-             fit=True, log=log)
+        main(lR23, lO32, OH, out_pdf, n_bins=6, lR23_err=lR23_err,
+             OH_err=OH_err, xra=[0.45, 1.15], yra=yra, marker=['*', 'o'],
+             label=label, fit=True, log=log)
 
     log.debug("finished.")
 

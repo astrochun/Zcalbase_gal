@@ -1,7 +1,4 @@
 """
-PERFORMS THE GAUSSIAN FITTING ON ALL EMISSIONS LINES
-CALLED EVERY TIME THE GENERAL FUNCTIONS ARE RUN
-
 Debugging Note:
    If 'x0' is infeasible error occurs, check the para_bound values to
    make sure the expected values are within the range set up upper and
@@ -17,8 +14,10 @@ from pylab import subplots_adjust
 from scipy.optimize import curve_fit
 from os.path import join, exists
 
-from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, oxy2_gauss
-from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, rms_func
+from Metallicity_Stack_Commons.analysis.fitting import gauss, double_gauss, \
+    oxy2_gauss
+from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, \
+    rms_func
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
@@ -31,10 +30,9 @@ con1 = 3728.91 / 3726.16
 def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr, log=None):
     """
-    Purpose
-      Plots a zoomed in plot of emission lines to check visually if the
-      emission lines are excluded in the line flag.
-      Note: Call is currently commented out
+    Plots a zoomed in plot of emission lines to check visually if the
+    emission lines are excluded in the line flag.
+    Note: Call is currently commented out
     """
 
     if log is None:
@@ -62,10 +60,9 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
 def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
                      line_type0, log=None):
     """
-    Purpose:
-      Calculates the gaussian to fit each emission line using curve_fit
+    Calculates the gaussian to fit each emission line using curve_fit
+    Used in zoom_gauss_plot()
 
-    Debugging Note:
     If 'x0' is infeasible error occurs, check the para_bound values to
     make sure the expected values are within the range set up upper and
     lower limits.
@@ -83,10 +80,12 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
     fail = 0
     o1 = None
 
-    # curve_fit(gauss function, x0 ,y0, initial_guesses, sigma, parameter_bounds)
+    # curve_fit(gauss function, x0 ,y0,
+    # initial_guesses, sigma, parameter_bounds)
     # Single Emission Line
     if line_type0 == 'Single':
-        p0 = [working_wave, 1.0, max0, med0]  # must have some reasonable values
+        # must have some reasonable values
+        p0 = [working_wave, 1.0, max0, med0]
 
         para_bound = ((working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0)),
                       (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0)))
@@ -100,8 +99,9 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
 
     # Double Balmer Emission Line
     if line_type0 == 'Balmer':
-        para_bound = (working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0), 0.0, -med0), \
-                     (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0), 30.0, 0.0)
+        para_bound = (working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0),
+                      0.0, -med0), (working_wave + 3.0, 10.0, 100.0,
+                      med0 + 0.05 * np.abs(med0), 30.0, 0.0)
         if dataset in ['R23_Grid', 'O32_Grid']:
             # must have some reasonable values
             p0 = [working_wave, 1.0, max0, med0, s2, -0.05*max0]
@@ -125,9 +125,12 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
 
     # OxygenII Emission Line
     if line_type0 == 'Oxy2':
-        p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0]  # must have some reasonable values
-        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0), 0.0, 0.0),\
-                     (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0), 10.0, 100.0)
+        # must have some reasonable values
+        p0 = [working_wave, 1.0, 0.75*max0, med0, 1.0, max0]
+        para_bound = (working_wave-3.0, 0.0, 0.0, med0-0.05*np.abs(med0),
+                      0.0, 0.0), \
+                     (working_wave+3.0, 10.0, 100.0, med0+0.05*np.abs(med0),
+                      10.0, 100.0)
 
         try:
             o1, o2 = curve_fit(oxy2_gauss, x0[x_idx], y_norm[x_idx],
@@ -143,19 +146,18 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
 
 def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
     """
-    Purpose:
-      Equivalent width correction/computation
+    Equivalent width correction/computation
+    Used in zoom_gauss_plot()
 
+    Notes
+    bottom side of the iceburg / continuum
+    take negative component of gauss and subtract off the positive component
 
-    Notes:
-      bottom side of the iceburg / continuum
-      take negative component of gauss and subtract off the positive component
-
-      total gauss - the positive component?
-      x = double gaussian of o1[0,1,2] = 0
-      x-o1[3] from [-2.5sigma to 2.5 sigma]
-      equivalent width in terms of Angstroms
-      update plots
+    total gauss - the positive component?
+    x = double gaussian of o1[0,1,2] = 0
+    x-o1[3] from [-2.5sigma to 2.5 sigma]
+    equivalent width in terms of Angstroms
+    update plots
     """
 
     plt.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
@@ -172,15 +174,39 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                     y_correction='', line_type='',
                     out_pdf='', line_name='', log=None):
     """
-    Purpose
-    ----------
-    Main function that is called by run function (zm_general). Gets the data, fits a gaussian curve
-    to each emission line, plots emission lines for each bin, and saves off .tbl files with curve information.
+    Main function that is called by run function (zm_general).
+    Gets the data, fits a gaussian curve
+    to each emission line, plots emission lines for each bin, and saves off
+    .tbl files with curve information.
 
-    Debugging Note:
+    :param fitspath: str. str. save location of the current run
+    :param dataset: str. str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param tab: tbl. table of stack properties
+    :param stack2d: array. composite spectra of stack
+    :param dispersion: int. header['CDELT1']
+    :param s2: int. guess parameter for fits
+    :param wave: array. wavelength
+    :param working_wave: int. the wavelength we want to fit
+    :param lineflag: array. of 0 and 1 for masking
+    :param y_correction: str. to determine if smoothing in the y-axis occurs
+    :param line_type: str. defines the type of emission line
+                        'Single', 'Balmer', 'Oxy2'
+    :param out_pdf: str. name of outputted pdf file
+    :param line_name: str. name of the line we are fitting
+                    'OII_3727', 'HDELTA', 'HGAMMA', 'OIII_4363',
+                    'HBETA', 'OIII_4958', 'OIII_5007'
+    :param log: LogClass. Default use log_stdout()
+
+    Debugging Note
     If 'x0' is infeasible error occurs, check the para_bound values to
     make sure the expected values are within the range set up upper and
     lower limits.
+
+    PDF File: out_pdf
+
+    :returns table of emission line properties for each stack for
+            each emission line
     """
 
     if log is None:
@@ -240,22 +266,24 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
         if y_correction:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, wave,
-                                              y_smooth, x_idx, rms_ang, line_type,
-                                              log=log)
+                                              y_smooth, x_idx, rms_ang,
+                                              line_type, log=log)
         else:
             o1, med0, max0 = get_gaussian_fit(dataset, s2, working_wave, wave,
-                                              y_norm, x_idx, rms_ang, line_type,
-                                              log=log)
+                                              y_norm, x_idx, rms_ang,
+                                              line_type, log=log)
 
         # Calculating Flux: Signal Line Fit
         if o1 is not None:
             dx = wave[2] - wave[1]
             if line_type == 'Single':
-                x_sigsnip = np.where((np.abs((wave - working_wave))/o1[1]) <= 2.5)[0]
+                x_sigsnip = np.where(
+                  (np.abs((wave - working_wave))/o1[1]) <= 2.5)[0]
                 gauss0 = gauss(wave, *o1)
 
             if line_type == 'Balmer':
-                x_sigsnip = np.where(np.abs((wave - working_wave))/o1[1] <= 2.5)[0]
+                x_sigsnip = np.where(
+                  np.abs((wave - working_wave))/o1[1] <= 2.5)[0]
                 gauss0 = double_gauss(wave, *o1)
 
                 o1_neg = [o1[0], o1[4], o1[5], o1[3]]
@@ -269,9 +297,12 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                 flux_neg = np.sum(neg_comp*dx)
                 equiv_wid = flux_neg/o1[3]
 
-                # Keeping this here for possible later use. Might belong in MSC balmer module
-                # pdfpages3 = PdfPages(fitspath + '/' + dataset + '_PlottingBalmer_' + line_name+'.pdf')
-                # equi_width_func(fitspath, dataset, working_wave, pos_comp, neg0, gauss0, x0, wave,
+                # Keeping this here for possible later use.
+                # Might belong in MSC balmer module
+                # pdfpages3 = PdfPages(fitspath + '/' + dataset
+                # + '_PlottingBalmer_' + line_name+'.pdf')
+                # equi_width_func(fitspath, dataset, working_wave,
+                # pos_comp, neg0, gauss0, x0, wave,
                 # y_norm, line_type, pdfpages3)
 
             if line_type == 'Oxy2':
@@ -283,7 +314,8 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             if line_type in ['Single', 'Oxy2']:
                 # Flux from gaussian distribution
                 flux_g = np.sum((gauss0-o1[3])*dx)
-                # Flux from snipping method (spectral flux)where snip off sigma > 2.5
+                # Flux from snipping method (spectral flux)
+                # where snip off sigma > 2.5
                 flux_s = np.sum((y_norm[x_sigsnip] - o1[3]) * dx)
 
             if line_type == 'Balmer':
@@ -295,8 +327,9 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                                         lineflag)
 
             # Line Flag Checking Plots
-            # line_flag_check(fitspath, working_wave, lineflag, wave, y_norm, stack2d,
-            #                line_name, row, col, fig, ax_arr, log=log)
+            # line_flag_check(fitspath, working_wave, lineflag,
+            #                 wave, y_norm, stack2d,
+            #                 line_name, row, col, fig, ax_arr, log=log)
 
             # Array Population
             norm_array[rr] = max0
@@ -324,7 +357,9 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                 x_sigsnip_2 = np.where(np.abs(wave - 3727)/o1[1] <= 4.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
             else:
-                x_sigsnip_2 = np.where(np.abs((wave - working_wave))/o1[1] <= 3.0)[0]
+
+                x_sigsnip_2 = np.where(np.abs((wave - working_wave))/o1[1]
+                                       <= 3.0)[0]
                 resid = y_norm[x_sigsnip_2] - gauss0[x_sigsnip_2] + o1[3]
 
             # Plotting
@@ -342,33 +377,45 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             if line_name == 'OIII_4363':
                 t_ax.set_ylim(0, 1)
 
-            if dataset in ['Grid', 'O32_Grid', 'R23_Grid', 'Double_Bin', 'n_Bins']:
+            if dataset in ['Grid', 'O32_Grid', 'R23_Grid', 'Double_Bin',
+                           'n_Bins']:
                 txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
-                       (o1[0], bin_id[rr], bin_info_tab['logR23_min'][rr],
+                       (o1[0], id[rr], bin_info_tab['logR23_min'][rr],
                         bin_info_tab['logO32_min'][rr]) + '\n'
                 txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (rms_tot, rms_pix,
                                                               bin_info_tab['N_stack'][rr])
+                
                 if line_type == 'Balmer':
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
-                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' \
+                            % (o1[3], o1[1], max0) + '\n'
+                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' \
+                            % (o1[2], o1[4], o1[5]) + '\n'
                 if line_type in ['Single', 'Oxy2']:
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % (o1[3], o1[1], max0, o1[2]) + '\n'
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  ' \
+                            r'Norm: %.3f o1[2]: %.3f' \
+                            % (o1[3], o1[1], max0, o1[2]) + '\n'
 
                 txt0 += 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
                 txt0 += 'S/N: %.3f' % (SN_array[rr])
             else:
                 txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % \
-                       (o1[0], bin_id[rr], bin_info_tab['logR23_min'][rr],
+                       (o1[0], id[rr], bin_info_tab['logR23_min'][rr],
                         bin_info_tab['logO32_min'][rr]) + '\n'
                 txt0 += 'R_23: %.3f O_32: %.3f\n' % (bin_info_tab['logR23_avg'][rr],
                                                      bin_info_tab['logO32_avg'][rr])
-                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot, rms_pix, bin_info_tab['N_stack'][rr])
+                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot,
+                                                               rms_pix,
+                                                               bin_info_tab['N_stack'][rr])
+
                 if line_type == 'Balmer':
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' % (o1[3], o1[1], max0) + '\n'
-                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' % (o1[2], o1[4], o1[5]) + '\n'
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' \
+                            % (o1[3], o1[1], max0) + '\n'
+                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' \
+                            % (o1[2], o1[4], o1[5]) + '\n'
                 if line_type in ['Single', 'Oxy2']:
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f o1[2]: %.3f' % \
-                            (o1[3], o1[1], max0, o1[2]) + '\n'
+                    txt0 += r'Median: %.3f $\sigma$: %.3f  ' \
+                            r'Norm: %.3f o1[2]: %.3f' \
+                            % (o1[3], o1[1], max0, o1[2]) + '\n'
                 txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
                 txt0 += 'S/N: %.3f' % (SN_array[rr])
 
@@ -391,7 +438,9 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             t_ax.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
             t_ax.set_xlim(x1 + 50, x2 - 50)
 
-        if (rr % (nrows * ncols) == nrows * ncols - 1) or rr == number_stacks:
+        if (rr % (nrows * ncols) == nrows * ncols - 1) or \
+                rr == number_stacks - 1:
+
             subplots_adjust(left=0.1, right=0.98, bottom=0.06, top=0.97,
                             hspace=0.05)
 
@@ -399,16 +448,17 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             fig.savefig(pdf_pages, format='pdf')
             fig.clear()
 
-    # Repetitive Columns have been added: The last four to six columns will be used for individual graphing
+    # Repetitive Columns have been added:
+    # The last four to six columns will be used for individual graphing
 
     if line_type == 'Single':
-        n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm', 'RMS',
-             'S/N', 'Center', 'Pos_Amp')
+        n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm',
+             'RMS', 'S/N', 'Center', 'Pos_Amp')
 
         n = tuple([f"{line_name}_{val}" for val in n])
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,
-                      norm_array, rms_array, SN_array, xbar_array, pos_amp_array],
-                     names=n)
+                      norm_array, rms_array, SN_array, xbar_array,
+                      pos_amp_array], names=n)
 
     if line_type in ['Balmer', 'Oxy2']:
         n = ('Flux_Gaussian', 'Flux_Observed', 'Sigma', 'Median', 'Norm',
@@ -435,9 +485,21 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
 def zm_general(dataset, fitspath, y_correction, log=None):
     """
-    Purpose
-    ----------
     Run function for gaussian fitting step
+
+    :param dataset: str. Define binning method options:
+                    'Grid', 'O32_Grid', 'R23_Grid', 'n_Bins'
+    :param fitspath: str.  save location of the current run
+    :param stack2d: array. composite spectra of stack
+    :param wave: array. wavelength
+    :param lineflag: array. of 0 and 1 for masking
+    :param dispersion: int. header['CDELT1']
+    :param y_correction: str. to determine if smoothing in the y-axis occurs
+    :param tab: tbl. table of stack properties
+    :param log: LogClass. Default use log_stdout()
+
+    TABLE: fitspath + filename_dict['bin_fit']
+    No returns
     """
 
     if log is None:
@@ -468,7 +530,6 @@ def zm_general(dataset, fitspath, y_correction, log=None):
     for ii in range(len(lambda0)):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
         log.info(f"out_pdf: {out_pdf}")
-
         em_tab = zoom_gauss_plot(dataset, fits_dict, s2, lambda0[ii],
                                  lineflag, bin_info_tab,
                                  y_correction=y_correction,

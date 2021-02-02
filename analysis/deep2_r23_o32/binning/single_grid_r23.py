@@ -8,17 +8,20 @@ from ..log_commons import log_stdout
 
 def single_grid_r23(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
     """
-    Purpose:
-      This file holds the function to bin data for one dimensional binning
-      along R23.
-      Note: Not used in current analysis
+    This file holds the function to bin data for one dimensional binning
+    along R23.
+    Note: Not used in current analysis
 
-    :param pdf_pages: name of outputted pdf file
-    :param npz_outfile: name of the npz file produced by the function
+    :param pdf_pages: str. name of outputted pdf file
+                      fitspath + name_dict['gridpdf_suffix']
+    :param npz_outfile: str. name of the npz file produced by the function
+                        fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. R23 measurements
     :param O32: np.array. O32 measurements
     :param galinbin: np.array. Number of spectra in each bin
     :param log: LogClass or logging object
+
+    No returns
     """
 
     if log is None:
@@ -64,7 +67,8 @@ def single_grid_r23(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
         R23_grid[ii, 0] = R23_sort0[bin_start[ii]]
         N_arr0[ii, 0] += len(idx_arr)
         T_arr[ii, 0] = idx_arr
-        log.info(f"Start: {R23_grid[ii]}")  # This could be incorrect so I need to check this again
+        # This could be incorrect so I need to check this again
+        log.info(f"Start: {R23_grid[ii]}")
 
     # Plotting
     fig, ax = plt.subplots()

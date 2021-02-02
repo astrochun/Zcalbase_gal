@@ -7,28 +7,24 @@ from os.path import join
 from Metallicity_Stack_Commons.column_names import filename_dict
 
 
-def graph_bins(fitspath, n_split, bin_info, individual_info, pdf_file):
+def graph_bins(fitspath, n_split):
     """
-    Purpose: This function takes inputed grid parameters and graphs them on the log(R23)--log(O32) plane 
-    Inputs:
-           n_split    -> from general.py input used for calculating bins
-           ascii_file -> file with the minimum, maximum, and average R23 and O32 value
-           pdf_file   -> name of pdf file made by code
+    This function takes inputed grid parameters and graphs them
+    on the log(R23)--log(O32) plane
+    Currently works for manual binning with an n_split (see general function)
+    of 3. More updates would
+    need to be made for a different n_split to correct indexing through arrays.
 
-    Returns:
-           none
-    Outputs:
-        pdf_file with the saved figure (possible naming convention 'manual_binning_shading.pdf'
+    :param fitspath: str. path to where files come and are saved to
+    :param n_split: int. from general.py input used for calculating bins
 
-    Currently works for manual binning with an n_split (see general function) of 3. More updates would
-    need to be made for a different n_split to correct indexing through arrays. 
+    PDF File: fitspath + 'manual_binning_shading.pdf'
+    No returns
     """
 
     bin_info = join(fitspath, filename_dict['bin_info'])
     individual_info = join(fitspath, filename_dict['individual_prop'])
-    pdf_file = join(fitspath, 'manual_binning_shading.pdf')
-
-    pdf_pages = PdfPages(pdf_file)
+    pdf_pages = PdfPages(join(fitspath, 'manual_binning_shading.pdf'))
 
     tab = asc.read(bin_info)
     idv_tab = asc.read(individual_info)
@@ -81,7 +77,8 @@ def graph_bins(fitspath, n_split, bin_info, individual_info, pdf_file):
     finite0 = np.where((np.isfinite(lR23)) & (np.isfinite(lO32)))[0]
     x1 = lR23[finite0]
     y1 = lO32[finite0]
-    ax.scatter(x1, y1, 0.75, facecolor='b', edgecolor='face', marker='*', alpha=1)
+    ax.scatter(x1, y1, 0.75, facecolor='b', edgecolor='face', marker='*',
+               alpha=1)
     ax.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for Manual Binning')
     ax.set_xlabel(r'log($R_{23}$)')
     ax.set_ylabel(r'log($O_{32}$)')

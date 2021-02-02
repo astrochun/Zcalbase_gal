@@ -1,4 +1,3 @@
-
 from astropy.io import ascii as asc
 import numpy as np
 import matplotlib.pyplot as plt
@@ -262,8 +261,8 @@ def DEEP2_OIII4363():
 
     log.info("starting ...")
 
-    data, lR23, lO32, OH, OH_err, lR23_err, lO32_err = get_DEEP2(
-        path0, log=log)
+    data, lR23, lO32, OH, OH_err, lR23_err, \
+        lO32_err = get_DEEP2(path0, log=log)
 
     ID = data['ID']
 

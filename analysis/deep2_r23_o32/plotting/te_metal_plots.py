@@ -25,8 +25,8 @@ def jiang_calibration(metal_det, lo32):
     * (metal_det * metal_det) + jiang_coeff[3]
     * (jiang_coeff[4] + metal_det) * lo32
 
-    param: metal_det: dict. dictionary of 12+log(O/H)
-    param: lO32: np.array. log(O32) value
+    :param metal_det: dict. dictionary of 12+log(O/H)
+    :param lO32: np.array. log(O32) value
 
     Returns Jiang's expected R23 value given metallicity and O32
     """
@@ -46,7 +46,7 @@ def bian_calibration_r23(metal_det):
             *metal_det*metal_det+ bian_coeff[3]
             * metal_det * metal_det * metal_det
 
-    param: metal_det: dict. dictionary of 12+log(O/H)
+    :param metal_det: dict. dictionary of 12+log(O/H)
 
     Returns Bian's expected R23 value given metallicity
     """
@@ -60,7 +60,7 @@ def bian_calibration_o32(metal_det):
     Calculating the O32 of Bian calibration for
     the metallicity measurements enter
 
-    param: metal_det: dict. dictionary of 12+log(O/H)
+    :param metal_det: dict. dictionary of 12+log(O/H)
 
     Returns Bian's expected O32 values given metallicity
     """
@@ -72,16 +72,16 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     """
     Plotting metallicity, temperature, R23, and O32 for different datasets
 
-    param: fitspath: str. path where files are called from and saved to
-    param: fitspath_ini: str. path where whole project is stored
-    param: raw: bool.
-    param: apply_dust: bool.
-    param: revised: bool. keyword (automatically set to False) to determine
+    :param fitspath: str. path where files are called from and saved to
+    :param fitspath_ini: str. path where whole project is stored
+    :param raw: bool.
+    :param apply_dust: bool.
+    :param revised: bool. keyword (automatically set to False) to determine
                         what data is used refers to if using the
                         bin_derived_prop_revised temperature and metallicity
                         measurements which right now implement dust attenuation
-    param: individual: bool.
-    param: log: LogClass. Default use log_stdout()
+    :param individual: bool.
+    :param log: LogClass. Default use log_stdout()
 
     PDF File: fitspath + temperature_metallicity_plots{suffix}.pdf"
     No returns
@@ -325,9 +325,9 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
     x = 12+log(O/H)
     y = log(O32)
 
-    param: fitspath: str. path to where files come and are saved to
-    param: fitspath_ini: str. path where whole project is stored
-    param: log: LogClass. Default use log_stdout()
+    :param fitspath: str. path to where files come and are saved to
+    :param fitspath_ini: str. path where whole project is stored
+    :param log: LogClass. Default use log_stdout()
 
     Still trying to decide if this is necessary: 
     revised -> keyword (automatically False) to determine what data is used
@@ -448,9 +448,9 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
     Bian Calibration from Bian, F., Kewley, L. J., & Dopita,
     M. A. 2018, ApJ, 859, 175
 
-    param: fitspath: str. path to where files come and are saved to
-    param: fitspath_ini: str. path where whole project is stored
-    param: log: LogClass. Default use log_stdout()
+    :param fitspath: str. path to where files come and are saved to
+    :param fitspath_ini: str. path where whole project is stored
+    :param log: LogClass. Default use log_stdout()
 
     PDF File: fitspath + 'comparsion_Bian_Zcal.pdf'
     No Return

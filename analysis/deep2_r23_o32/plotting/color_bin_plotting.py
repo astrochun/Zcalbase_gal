@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
@@ -13,9 +12,9 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     Plots for R23 and O32 for Voronoi analysis for each bin
     NOT CALLED IN GENERAL FUNCTIONS
 
-    param: fitspath: str. path where files are called from and saved to
-    param: bin_info: str. table created by binning code
-    param: pdf_file: str. name of pdf file produced
+    :param fitspath: str. path where files are called from and saved to
+    :param bin_info: str. table created by binning code
+    :param pdf_file: str. name of pdf file produced
 
     PDF File: fitspath + pdf_file
     No returns

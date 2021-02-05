@@ -388,7 +388,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
                 if line_type == 'Balmer':
                     txt0 += f"Median: {o1[3]:.3f}  " \
-                            f"$\sigma$: {o1[1]:.3f}  " \
+                            rf"$\sigma$: {o1[1]:.3f}  " \
                             f"Norm: {max0:.3f}\n" 
 
                     txt0 += f"o1[2]: {o1[2]:.3f}  o1[4]: {o1[4]:.3f}" \
@@ -396,7 +396,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
                 if line_type in ['Single', 'Oxy2']:
                     txt0 += f"Median: {o1[3]:.3f}  " \
-                            f"$\sigma$: {o1[1]:.3f}" \
+                            rf"$\sigma$: {o1[1]:.3f}" \
                             f"Norm: {max0:.3f}  o1[2]: {o1[2]:.3f}\n"
 
                 txt0 += f"F_G: {flux_g:.3f} F_S: {flux_s:.3f}"
@@ -413,13 +413,13 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
                 if line_type == 'Balmer':
                     txt0 += f"Median: {o1[3]:.3f}  " \
-                            f"$\sigma$: {o1[1]:.3f}  " \
+                            rf"$\sigma$: {o1[1]:.3f}  " \
                             f"Norm: {max0:.3f}\n"
                     txt0 += f"o1[2]: {o1[2]:.3f}  o1[4]: {o1[4]:.3f}" \
                             f"o1[5]: {o1[5]:.3f}\n"
                 if line_type in ['Single', 'Oxy2']:
                     txt0 += f"Median: {o1[3]:.3f}  " \
-                            f"$\sigma$: {o1[1]:.3f}" \
+                            rf"$\sigma$: {o1[1]:.3f}" \
                             f"Norm: {max0: .3f}  o1[2]: {o1[2]:.3f}\n"
                 txt0 += f"F_G: {flux_g:.3f} F_S: {flux_s:.3f}"
                 # 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'

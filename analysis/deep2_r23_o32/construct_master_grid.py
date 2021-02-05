@@ -1,10 +1,3 @@
-"""
-construct_master_grid
-=====================
-
-Construct the DEEP2 rest-frame master grid
-"""
-
 from astropy.io import fits
 import numpy as np
 import glob
@@ -16,15 +9,12 @@ from .log_commons import log_stdout
 def main(path0, log=None):
     """
     Combine 1-D DEEP2 spectra and de-redshift to rest-frame wavelength
+    Construct the DEEP2 rest-frame master grid
 
-    Parameters
-    ----------
-    path0:
-      path to data (ie '/Users/cly/data/DEEP2/DR4/')
-    log : LogClass or logging object
+    :param path0: str. path to data (ie '/Users/cly/data/DEEP2/DR4/')
+    :param log: LogClass or logging object
 
-    Returns
-    -------
+    No returns
 
     Notes
     -----
@@ -39,7 +29,8 @@ def main(path0, log=None):
 
     files_2D = glob.glob(join(path0, 'DEEP2_2D_Field?.f3.fits'))
 
-    cat_files = glob.glob(join(path0, 'f_current/DEEP2_Field?_all_line_fit.fits'))
+    cat_files = glob.glob(join(path0,
+                               'f_current/DEEP2_Field?_all_line_fit.fits'))
 
     n_fields = len(files_2D)
 

@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from astropy.table import Table
-from os.path import join
+from os.path import join, exists
 
 from ..log_commons import log_stdout
 
@@ -13,16 +13,22 @@ from ..log_commons import log_stdout
 def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
                 O32_bin, log=None):
     """
-    Purpose:
-      This file holds the function to bin data in a bin of fixed size entered
-      as an input. Not used in current analysis
+    This file holds the function to bin data in a bin of fixed size entered
+    as an input. Not used in current analysis
 
     :param fitspath: str. Path where files are retrieved and saved to
-    :param pdf_pages: PdfPages object
-    :param npz_outfile: name of the npz file produced by the function
-    :param R23_bin: set size of the bin in the R23 direction
-    :param O32_bin: set size of the bin in the O32 direction
+    :param pdf_pages: str. PdfPages object
+                      fitspath + name_dict['gridpdf_suffix']
+    :param npz_outfile: str. name of the npz file produced by the function
+                        fitspath + name_dict['gridnpz_suffix']
+    :param R23: np.array. log(R23) measurements of each spectra
+    :param O32: np.array. log(O32) measurements of each spectra
+    :param det3: np.array. From get_det3 - indicates if spectra can be used
+    :param R23_bin: int. set size of the bin in the R23 direction
+    :param O32_bin: int. set size of the bin in the O32 direction
     :param log: LogClass or logging object
+
+    No returns
     """
 
     if log is None:
@@ -84,9 +90,12 @@ def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
     # Write table
     tabmastergrid = Table([x0, y0])
     tabmastergrid_name = join(fitspath, 'testmastergrid.tbl')
-    log.info(f"Writing: {tabmastergrid_name}")
+    if not exists(tabmastergrid_name):
+        log.info(f"Writing: {tabmastergrid_name}")
+    else:
+        log.info(f"Overwriting : {tabmastergrid_name}")
     asc.write(tabmastergrid, tabmastergrid_name,
-              format='fixed_width_two_line')
+              format='fixed_width_two_line', overwrite=True)
 
     # Colorbar and hexbin plotting
     hb0 = ax2.hexbin(x0, y0, gridsize=(len(R23_grid), len(O32_grid)), cmap=cm)

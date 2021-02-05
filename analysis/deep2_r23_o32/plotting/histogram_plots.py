@@ -10,31 +10,33 @@ from datetime import date
 from os.path import join
 
 from chun_codes import compute_onesig_pdf
-from Metallicity_Stack_Commons.column_names import temp_metal_names0, bin_names0
+from Metallicity_Stack_Commons.column_names import temp_metal_names0, \
+    bin_names0
 
 
-def histogram(path, data_all, table_path, pdf_name,  verification_table, table_key='', sharex=False):
+def histogram(path, data_all, table_path, pdf_name,
+              verification_table, table_key='', sharex=False):
     """
-    Purpose
     Plots histograms for inputted values
 
-    Parameters
-    path            -> location of where the outputted pdf_file will be saved
-    data_all        -> big dictionary of all the error propagation data that will be put into
-                        histogram plot; created in run_histogram_TM
-    table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal
-                        functions; can also be the combine_flux_table created by
-                        zoom_and_gauss_general
-    pdf_name        -> name of the outputted pdf file
-    table_key       -> name of one of the columns of the table inputted by table_path
-                        used to call the binned data
+    :param path: str. location of where the outputted pdf_file will be saved
+    :param data_all: dict. dictionary of all the error propagation data that
+                     will be put into histogram plot; created in run_histogram_TM
+    :param table_path: str. location of the temperature_metallicity table
+                       outputted functions; can also be the
+                       combine_flux_table created zoom_and_gauss_general
+    :param pdf_name: str. name of the outputted pdf file
+    :param table_key: keyword. name of one of the columns of the table inputted
+                        by table_path used to call the binned data
 
-    Output: pdf file with all the histograms plotted
+    PDF File: path + pdf_name
+    No returns
     """
     pdf_pages = PdfPages(join(path, pdf_name))
     tab1 = asc.read(table_path)
 
-    # Importing verification table that is always used to get the values for just the detections
+    # Importing verification table that is always used
+    # to get the values for just the detections
     verify = asc.read(verification_table)
     detect = verify[bin_names0[2]]
     ID = verify[bin_names0[0]]
@@ -71,9 +73,11 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
         histo_keys = list(histo_keys)
 
     # Making our lists we will use for plotting using the histogram keys
-    xpeak_list = [histo_keys[xx] for xx in range(len(histo_keys)) if ('xpeak' in histo_keys[xx])]
+    xpeak_list = [histo_keys[xx] for xx in
+                  range(len(histo_keys)) if ('xpeak' in histo_keys[xx])]
     pdf_list = [str0.replace('_xpeak', '_pdf') for str0 in xpeak_list]
-    error_list = [str0.replace('xpeak', 'lowhigh_error') for str0 in xpeak_list]
+    error_list = [str0.replace('xpeak', 'lowhigh_error')
+                  for str0 in xpeak_list]
 
     # For loop organizes data then starts the histogram plotting
     for ii in range(len(pdf_list)):
@@ -114,8 +118,7 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
             calculated_value = O5007_O4958[detection]
         if hist_name == 'R23_pdf':
             calculated_value = R23_combine[detection]
-        
-        
+
         if len(calculated_value) % 2 == 0:
             nrows = len(calculated_value)//2
         else:
@@ -131,7 +134,8 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
             row = rows[aa//2]
             col = aa % ncols
             if aa % (nrows * ncols) == 0:
-                fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols,  sharex=sharex, squeeze=False)
+                fig, ax_arr = plt.subplots(nrows=nrows, ncols=ncols,
+                                           sharex=sharex, squeeze=False)
 
             ax = ax_arr[row, col]
             print(row, col)
@@ -147,17 +151,24 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
             
             title = 'Bin: ', ID_detect[aa]
             ax.hist(data_hist[aa][non_inf], bins=bin_arr)
-            ax.axvline(x=data_xpeak[aa], color='r', label='compute_one_sig_xpeak', linewidth=0.5)
-            ax.axvline(x=calculated_value[aa], color='m', label='stacked metallicities', linewidth=0.5)
-            # ax.axvline(x=lowerr, color = 'g', label='Lower Limit', linewidth=0.5)
-            # ax.axvline(x=higherr, color = 'k', label='Upper Limit', linewidth=0.5)
+            ax.axvline(x=data_xpeak[aa], color='r',
+                       label='compute_one_sig_xpeak', linewidth=0.5)
+            ax.axvline(x=calculated_value[aa], color='m',
+                       label='stacked metallicities', linewidth=0.5)
+            # ax.axvline(x=lowerr, color = 'g',
+            #            label='Lower Limit', linewidth=0.5)
+            # ax.axvline(x=higherr, color = 'k',
+            #            label='Upper Limit', linewidth=0.5)
 
             # ax.set_xlim(min_val, max_val)
-            ax.annotate(title, [0.95, 0.5], xycoords='axes fraction', va='center', ha='right', fontsize=6)
+            ax.annotate(title, [0.95, 0.5], xycoords='axes fraction',
+                        va='center', ha='right', fontsize=6)
             if sharex:
-                plt.subplots_adjust(left=0.07, bottom=0.10, right=0.97, top=0.97, wspace=0.15, hspace=0.15)
+                plt.subplots_adjust(left=0.07, bottom=0.10, right=0.97,
+                                    top=0.97, wspace=0.15, hspace=0.15)
             else:
-                plt.subplots_adjust(left=0.07, bottom=0.05, right=0.97, top=0.97, wspace=0.15, hspace=0.2)
+                plt.subplots_adjust(left=0.07, bottom=0.05, right=0.97,
+                                    top=0.97, wspace=0.15, hspace=0.2)
                 for tick in ax.xaxis.get_major_ticks():
                     tick.label.set_fontsize(7) 
             if aa % (nrows * ncols) == 0:
@@ -168,19 +179,20 @@ def histogram(path, data_all, table_path, pdf_name,  verification_table, table_k
     pdf_pages.close()
 
 
-def run_histogram_tm(path, table_path, dict_list, verification_table, sharex=False):
+def run_histogram_tm(path, table_path, dict_list,
+                     verification_table, sharex=False):
     """
-    Purpose
     Call run_histogram to combine all dictionaries into one large dictionary
     that gets passed into histogram and from there is plotted
 
-    Input variables
-    path            -> name of where you are working and location of where the
-                        outputted pdf_file will be saved
-    table_path      -> location of the temperature_metallicity table outputted by the R_temp_cal
-                        functions; can also be the combine_flux_table created by
+    :param path: str. name of where you are working and location of where the
+                outputted pdf_file will be saved
+    :param table_path: str. location of the temperature_metallicity table
+                       outputted by the error_prop functions;
+                       can also be the combine_flux_table created by
                         zoom_and_gauss_general
-    dict_list       -> list of dictionaries whose data we want to plot in a histogram
+    :param dict_list: ls. list of dictionaries whose data we want to plot
+                      in a histogram
 
     Example :
              dict_list = [Te_pdf_dict,Te_xpeak_dict,
@@ -188,35 +200,45 @@ def run_histogram_tm(path, table_path, dict_list, verification_table, sharex=Fal
              xpeak_key = ['Te_xpeak','O_s_ion_xpeak',
                          'O_d_ion_xpeak', 'com_O_log_xpeak']
 
+    No Returns
     """
     if path[-1] != "/":
         path += "/"
-    histo_dict = OrderedDict()     # will have all the data and xpeaks for all histograms wanted
+    # will have all the data and xpeaks for all histograms wanted
+    histo_dict = OrderedDict()
     for bb in range(len(dict_list)):
-        dic0 = np.load(dict_list[bb])  # dictionary = np.load(path of the dictionary)
-        histo_dict.update(dic0)       # Adding small dictionary into big dictionary
+        # dictionary = np.load(path of the dictionary)
+        dic0 = np.load(dict_list[bb])
+        # Adding small dictionary into big dictionary
+        histo_dict.update(dic0)
 
     today = date.today()
-    pdf_name = 'Te_M_histogram_plots_' + "%02i%02i" % (today.month, today.day) + '.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key='T_e', sharex=sharex)
+    pdf_name = 'Te_M_histogram_plots_' + "%02i%02i" \
+               % (today.month, today.day) + '.pdf'
+    histogram(path, histo_dict, table_path, pdf_name, verification_table,
+              table_key='T_e', sharex=sharex)
 
 
-def run_histogram_fr(path, table_path, dict_list, verification_table, sharex=False):
+def run_histogram_fr(path, table_path, dict_list, verification_table,
+                     sharex=False):
     """
-    Purpose
-    This function takes the flux_pdf distributions computed in error_prop and calculates the flux ratios.
+    This function takes the flux_pdf distributions computed in error_prop
+    and calculates the flux ratios.
     Then it calls compute_onesig_pdf from chun_codes for the flux ratios.
-    Finally it create the compute dictionary of ratios, xpeaks, and low/high limits and passes it all into histogram
+    Finally it create the compute dictionary of ratios, xpeaks,
+    and low/high limits and passes it all into histogram
 
-    Input Variables
-    path            -> name of where you are working and location of where the
+    :param path: str. name of where you are working and location of where the
                         outputted pdf_file will be saved
-    table_path      -> location of the flux_ratio table outputted by the R_temp_cal
-                        functions; can also be the combine_flux_table created by
-                        zoom_and_gauss_general
-    dict_list       -> list of dictionaries whose data we want to plot in a histogram
-    verification_table -> table created independently of this code that tells us whether or not each bin is a detection
+    :param table_path: str. location of the flux_ratio table outputted by
+                            the R_temp_cal functions; can also be
+                            combine_flux_table created zoom_and_gauss_general
+    :param dict_list: ls. list of dictionaries whose data we want to plot
+                            in a histogram
+    :param verification_table: str. table created independently of this code
+                        that tells us whether or not each bin is a detection
 
+    No returns
     """
     if path[-1] != "/":
         path += "/"
@@ -252,9 +274,12 @@ def run_histogram_fr(path, table_path, dict_list, verification_table, sharex=Fal
     R23 = (c3727_HBETA + c5007_HBETA * (1 + 1/3.1))
     c5007_c3727 = flux_dict['OIII_5007_pdf'] / flux_dict['OII_3727_pdf']
 
-    pdf_list = ['3727/HBETA', '5007/HBETA', '4363/5007', '5007/4959',  '5007/3727', 'R23']
-    data_list = [c3727_HBETA, c5007_HBETA, c4363_c5007, c5007_c4958, c5007_c3727, R23]
-    ratio_list = [O3727_HBETA, O5007_HBETA, O4363_O5007, O5007_O4958, O5007_O3727, R23_combine]
+    pdf_list = ['3727/HBETA', '5007/HBETA', '4363/5007', '5007/4959',
+                '5007/3727', 'R23']
+    data_list = [c3727_HBETA, c5007_HBETA, c4363_c5007, c5007_c4958,
+                 c5007_c3727, R23]
+    ratio_list = [O3727_HBETA, O5007_HBETA, O4363_O5007, O5007_O4958,
+                  O5007_O3727, R23_combine]
 
     flux_ratio_dict = {}
     fr_xpeak_dict = {}
@@ -263,17 +288,23 @@ def run_histogram_fr(path, table_path, dict_list, verification_table, sharex=Fal
     for ii in range(len(pdf_list)):
         flux_ratio_dict[pdf_list[ii] + '_pdf'] = data_list[ii]
 
-        error, xpeak = compute_onesig_pdf(data_list[ii], ratio_list[ii], usepeak=True, silent=True, verbose=True)
+        error, xpeak = compute_onesig_pdf(data_list[ii], ratio_list[ii],
+                                          usepeak=True, silent=True, verbose=True)
         
         fr_xpeak_dict[pdf_list[ii]+'_xpeak'] = xpeak
         fr_error_dict[pdf_list[ii]+'_lowhigh_error'] = error
 
     new_dict_list = [flux_ratio_dict, fr_xpeak_dict, fr_error_dict]
-    histo_dict = OrderedDict()  # will have all the data and xpeaks for all histograms wanted
+    # will have all the data and xpeaks for all histograms wanted
+    histo_dict = OrderedDict()
     for bb in range(len(new_dict_list)):
-        dic0 = new_dict_list[bb]   # dictionary = np.load(path of the dictionary)
-        histo_dict.update(dic0)    # Added small dictionary to big dictionary
+        # dictionary = np.load(path of the dictionary)
+        dic0 = new_dict_list[bb]
+        # Added small dictionary to big dictionary
+        histo_dict.update(dic0)
 
     today = date.today()
-    pdf_name = 'Flux_Ratio histogram_plots_' + "%02i%02i" % (today.month, today.day)+'.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, verification_table, table_key='bin_ID', sharex=sharex)
+    pdf_name = 'Flux_Ratio histogram_plots_' + "%02i%02i" \
+               % (today.month, today.day)+'.pdf'
+    histogram(path, histo_dict, table_path, pdf_name, verification_table,
+              table_key='bin_ID', sharex=sharex)

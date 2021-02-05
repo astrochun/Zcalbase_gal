@@ -11,6 +11,8 @@ from os.path import join
 from Metallicity_Stack_Commons.analysis.fitting import gauss
 import general
 
+from Zcalbase_gal.analysis.deep2_r23_o32 import get_det3
+
 fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 O2_Histograms = join(fitspath, 'O2_Histograms.pdf')
 
@@ -94,7 +96,7 @@ def histogram_composite_plotting():
     scalefact = 1e-17
     binNum = voronoi[:, 4]
     
-    O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = general.get_det3()
+    O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3 = get_det3()
     binNum0 = list(set(binNum))
 
     OII = data1['OII_3727_Flux_Observed'].data

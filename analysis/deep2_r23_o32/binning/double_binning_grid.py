@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, exists
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,21 +12,24 @@ from ..log_commons import log_stdout
 def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
                      galinbin, log=None):
     """
-    Purpose:
-      One_dimensional binning for R23 followed by each bin being split in
-      half one with high O32 and one with low O32
+    One_dimensional binning for R23 followed by each bin being split in
+    half one with high O32 and one with low O32
 
     Followed by plotting the spectra in their R23-O32 bins for visual
 
     :param fitspath: str. Path where files are retrieved and saved to
     :param pdf_pages: str. Name of outputted pdf file
+                      fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. Name of the npz file produced by the function
-    :param R23: Array of R23 from the get_det3 function
-    :param O32: Array of O32 from the get_det3 function
-    :param SNR3: Array of SNR3 from the get_det3 function
-    :param data3: ???
+                        fitspath + name_dict['gridnpz_suffix']
+    :param R23: np.array. Array of R23 from the get_det3 function
+    :param O32: np.array. Array of O32 from the get_det3 function
+    :param SNR3: np.array. Array of SNR3 from the get_det3 function
+    :param data3: np.array. From get_det3 - indicates if spectra can be used
     :param galinbin: str. Array that specifies how many spectra in each bin
     :param log: LogClass or logging object
+
+    No returns
     """
 
     if log is None:
@@ -141,13 +144,19 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
     tab1 = Table([n_bins_range, R23_values, O32_values, xBar, yBar, area],
                  names=n1)
     out_table_file = join(fitspath, "Double_Bin_binning_averages.tbl")
-    log.info(f"Writing: {out_table_file}")
-    asc.write(tab1, out_table_file, format='fixed_width_two_line')
+    if not exists(out_table_file):
+        log.info(f"Writing: {out_table_file}")
+    else:
+        log.info(f"Overwriting : {out_table_file}")
+    asc.write(tab1, out_table_file, format='fixed_width_two_line', overwrite=True)
 
     n2 = ('R23', 'O32', 'SN_5007', 'N_bin')
     tab2 = Table([R23, O32, SNR3, N_bin], names=n2)
     out_table_file3 = join(fitspath, "Double_Bin_2d_binning_datadet3.tbl")
-    log.info(f"Writing: {out_table_file3}")
-    asc.write(tab2, out_table_file3, format='fixed_width_two_line')
+    if not exists(out_table_file3):
+        log.info(f"Writing: {out_table_file3}")
+    else:
+        log.info(f"Overwriting : {out_table_file3}")
+    asc.write(tab2, out_table_file3, format='fixed_width_two_line', overwrite=True)
 
     log.debug("finished.")

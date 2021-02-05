@@ -23,7 +23,7 @@ import glob
 from datetime import date
 
 from . import R_temp_calcul
-from . import general
+from . import general, get_det3
 
 fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 
@@ -31,7 +31,7 @@ def individual_galaxy_detections_plots(fitspath,project, dataset):
     #fitspath = '/Users/reagenleimbach/Desktop/Zcalbase_gal/practice/'
 
     ###Get the indexing statements
-    general.get_det3(fitspath, individual_detect = True)
+    get_det3(fitspath, individual_detect = True)
     
 
     ###Import Table

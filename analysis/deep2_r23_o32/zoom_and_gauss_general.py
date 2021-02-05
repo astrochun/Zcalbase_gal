@@ -379,46 +379,52 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
             if dataset in ['Grid', 'O32_Grid', 'R23_Grid', 'Double_Bin',
                            'n_Bins']:
-                txt0 = 'Line: %.3f, ID: %i, R_23: %.3f O_32: %.3f\n' % \
-                       (o1[0], id[rr], bin_info_tab['logR23_min'][rr],
-                        bin_info_tab['logO32_min'][rr]) + '\n'
-                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i\n' % (rms_tot, rms_pix,
-                                                              bin_info_tab['N_stack'][rr])
-                
-                if line_type == 'Balmer':
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' \
-                            % (o1[3], o1[1], max0) + '\n'
-                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' \
-                            % (o1[2], o1[4], o1[5]) + '\n'
-                if line_type in ['Single', 'Oxy2']:
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  ' \
-                            r'Norm: %.3f o1[2]: %.3f' \
-                            % (o1[3], o1[1], max0, o1[2]) + '\n'
+                txt0 = f"Line: {o1[0]:.3f}  ID: {bin_id[rr]}  " \
+                       f"R_23: {bin_info_tab['logR23_min'][rr]:.3f}  " \
+                       f"O_32: {bin_info_tab['logO32_min'][rr]:.3f}\n"
 
-                txt0 += 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
-                txt0 += 'S/N: %.3f' % (SN_array[rr])
+                txt0 += f"RMS: {rms_tot:.3f}  RMS/pix: {rms_pix:.3f} "\
+                        f"N: {bin_info_tab['N_stack'][rr]}\n"
+
+                if line_type == 'Balmer':
+                    txt0 += f"Median: {o1[3]:.3f}  " \
+                            f"$\sigma$: {o1[1]:.3f}  " \
+                            f"Norm: {max0:.3f}\n" 
+
+                    txt0 += f"o1[2]: {o1[2]:.3f}  o1[4]: {o1[4]:.3f}" \
+                            f"o1[5]: {o1[5]:.3f}\n"
+
+                if line_type in ['Single', 'Oxy2']:
+                    txt0 += f"Median: {o1[3]:.3f}  " \
+                            f"$\sigma$: {o1[1]:.3f}" \
+                            f"Norm: {max0:.3f}  o1[2]: {o1[2]:.3f}\n"
+
+                txt0 += f"F_G: {flux_g:.3f} F_S: {flux_s:.3f}"
+                txt0 += f"S/N: {SN_array[rr]:.3f}"
+            
             else:
-                txt0 = r'Line: %.3f, ID: %i  xnode=%.3f  ynode=%.3f' % \
-                       (o1[0], id[rr], bin_info_tab['logR23_min'][rr],
-                        bin_info_tab['logO32_min'][rr]) + '\n'
-                txt0 += 'R_23: %.3f O_32: %.3f\n' % (bin_info_tab['logR23_avg'][rr],
-                                                     bin_info_tab['logO32_avg'][rr])
-                txt0 += 'RMS: %.3f RMS/pix: %.3f, N: %i \n' % (rms_tot,
-                                                               rms_pix,
-                                                               bin_info_tab['N_stack'][rr])
+                txt0 = f"Line: {o1[0]:.3f}  ID: {bin_id[rr]}  " \
+                       f"R_23: {bin_info_tab['logR23_min'][rr]:.3f}  " \
+                       f"O_32: {bin_info_tab['logO32_min'][rr]:.3f}\n"
+                txt0 += f"R_23: {bin_info_tab['logR23_avg'][rr]:.3f}" \
+                        f"O_32: {bin_info_tab['logO32_avg'][rr]:.3f}"
+                txt0 += f"RMS: {rms_tot:.3f}  RMS/pix: {rms_pix:.3f} "\
+                        f"N: {bin_info_tab['N_stack'][rr]}\n"
 
                 if line_type == 'Balmer':
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  Norm: %.3f' \
-                            % (o1[3], o1[1], max0) + '\n'
-                    txt0 += 'o1[2]: %.3f o1[4]: %.3f  o1[5]: %.3f' \
-                            % (o1[2], o1[4], o1[5]) + '\n'
+                    txt0 += f"Median: {o1[3]:.3f}  " \
+                            f"$\sigma$: {o1[1]:.3f}  " \
+                            f"Norm: {max0:.3f}\n"
+                    txt0 += f"o1[2]: {o1[2]:.3f}  o1[4]: {o1[4]:.3f}" \
+                            f"o1[5]: {o1[5]:.3f}\n"
                 if line_type in ['Single', 'Oxy2']:
-                    txt0 += r'Median: %.3f $\sigma$: %.3f  ' \
-                            r'Norm: %.3f o1[2]: %.3f' \
-                            % (o1[3], o1[1], max0, o1[2]) + '\n'
-                txt0 += 'Flux_G: %.3f Flux_S: %.3f' % (flux_g, flux_s) + '\n'
-                txt0 += 'S/N: %.3f' % (SN_array[rr])
-
+                    txt0 += f"Median: {o1[3]:.3f}  " \
+                            f"$\sigma$: {o1[1]:.3f}" \
+                            f"Norm: {max0: .3f}  o1[2]: {o1[2]:.3f}\n"
+                txt0 += f"F_G: {flux_g:.3f} F_S: {flux_s:.3f}"
+                # 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
+                txt0 += f"S/N: {SN_array[rr]:.3f}"
+               
             t_ax.annotate(txt0, [0.95, 0.95], xycoords='axes fraction',
                           va='top', ha='right', fontsize='5')
 

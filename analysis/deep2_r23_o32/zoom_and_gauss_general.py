@@ -424,7 +424,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                 txt0 += f"F_G: {flux_g:.3f} F_S: {flux_s:.3f}"
                 # 'F_G: %.3f F_S: %.3f' % (flux_g, flux_s) + '\n'
                 txt0 += f"S/N: {SN_array[rr]:.3f}"
-               
+                
             t_ax.annotate(txt0, [0.95, 0.95], xycoords='axes fraction',
                           va='top', ha='right', fontsize='5')
 

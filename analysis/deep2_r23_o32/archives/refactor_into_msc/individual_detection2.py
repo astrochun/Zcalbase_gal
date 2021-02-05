@@ -257,7 +257,7 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table, ou
     #individual_combine_table = /Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0902/Individual_ratio_temperature.tbl'
     #out_ascii = fitspath+'Individual_temp_metal.tbl'
     #out_fits = fitspath+'Individual_temp_metal.fits'
-    #pdf_name = fitspath+'Individual_temp_metal.pdf'
+    #pdf_file = fitspath+'Individual_temp_metal.pdf'
     #dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
 
     R_temp_calcul.run_function(fitspath, dataset, out_ascii, out_fits, temp_pdf, individual_combine_table, dust_ascii, dustatt=False)

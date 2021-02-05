@@ -6,7 +6,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 
 
-def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O32,
+def n_times_binned(fitspath, pdf_file, outfile, n_split, individual_ID, R23, O32,
                    SNR3, data3, galinbin):
     """
     Purpose:
@@ -21,13 +21,13 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
     Inputs:
       fitspath  -> path where files are called from and saved to
       dataset   -> gives the name of the analysis being run
-      pdf_pages -> name of outputted pdf file
+      pdf_file -> name of outputted pdf file
       outfile   -> name of the npz file produced by the function
       galinbin  -> array of numbers that specifies how many spectra go in each bin
       Other variables -> emission file values of spectra that come from the get_det3 function
     """
 
-    pdf_pages = PdfPages(pdf_pages)
+    pp = PdfPages(pdf_file)
     # One_dimensional binning for R23
     sortR23 = np.argsort(R23)
     R23_sort0 = R23[sortR23]
@@ -193,8 +193,8 @@ def n_times_binned(fitspath, pdf_pages, outfile, n_split, individual_ID, R23, O3
         plt.plot(x_value, y_value, linewidth=0.3, color='b')
         plt.plot(x_value, y_average, linewidth=0.3, color='g')
 
-    fig.savefig(pdf_pages, format='pdf')
-    pdf_pages.close()
+    fig.savefig(pp, format='pdf')
+    pp.close()
 
     np.savez(outfile, locator=locator, R23_minimum=R23_minimum, O32_minimum=O32_minimum, Number_inbin=number_inbin)
     

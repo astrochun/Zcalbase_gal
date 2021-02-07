@@ -102,7 +102,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     if apply_dust:
         suffix += '.dustcorr'
 
-    out_pdf = join(fitspath, f"temperature_metallicity_plots{suffix}.pdf")
+    pdf_file = join(fitspath, f"temperature_metallicity_plots{suffix}.pdf")
 
     temperature_table = join(fitspath, f"bin_derived_properties{suffix}.tbl")
     log.info(f"Reading: {temperature_table}")
@@ -169,14 +169,14 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ver_detect = np.where((ver_detection == 1))[0]
     ver_rlimit = np.where((ver_detection == 0.5))[0]
 
-    pdf_pages = PdfPages(out_pdf)
+    pp = PdfPages(pdf_file)
     if individual:
         fig, ax = plt.subplots()
         ax.scatter(iR23_idv, iO32_idv, marker='.', s=35, color='g')
         ax.set_title(r'$R_{23}$ vs. $O_{32}$')
         ax.set_xlabel(r'log($R_{23}$)')
         ax.set_ylabel(r'log($O_{32}$)')
-        fig.savefig(pdf_pages, format='pdf')
+        fig.savefig(pp, format='pdf')
         fig.clear()
 
     # ########################################################################
@@ -208,7 +208,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax1.set_ylabel(r'$R_{23}$')
     ax1.set_title(r'Temperatures vs $R_{23}$ Temperature')
 
-    fig1.savefig(pdf_pages, format='pdf')
+    fig1.savefig(pp, format='pdf')
     fig1.clear()
 
     # ########################################################################
@@ -240,7 +240,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax2.set_ylabel(r'$O_{32}$')
     ax2.set_title(r'Temperatures vs $O_{32}$ Temperature')
 
-    fig2.savefig(pdf_pages, format='pdf')
+    fig2.savefig(pp, format='pdf')
     fig2.clear()
 
     # ########################################################################
@@ -271,7 +271,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax3.set_ylabel('12+log(O/H)')
     ax3.set_title(r'$R_{23}$ vs. Composite Metallicity')
 
-    fig3.savefig(pdf_pages, format='pdf')
+    fig3.savefig(pp, format='pdf')
     fig3.clear()
 
     # ########################################################################
@@ -304,12 +304,12 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax4.set_xlabel(r'$O_{32}$')
     ax4.set_ylabel('12+log(O/H)')
     ax4.set_title(r'$O_{32}$ vs. Composite Metallicity')
-    fig4.savefig(pdf_pages, format='pdf')
+    fig4.savefig(pp, format='pdf')
     fig4.clear()
 
     # ########################################################################
-    log.info(f"Writing: {out_pdf}")
-    pdf_pages.close()
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     log.info("finished.")
 
@@ -349,8 +349,8 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
     log.info(f"Reading: {temp_file}")
     temp_tab = asc.read(temp_file)
 
-    out_pdf = join(fitspath, 'comparsion_Jiang_Zcal.pdf')
-    pdf_pages = PdfPages(out_pdf)
+    pdf_file = join(fitspath, 'comparsion_Jiang_Zcal.pdf')
+    pp = PdfPages(pdf_file)
 
     bin_id = temp_tab['bin_ID'].data
     lr23_comp = temp_tab['logR23_Composite'].data
@@ -433,9 +433,9 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
     ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction', va='bottom',
                 ha='right', fontsize=10)
 
-    fig.savefig(pdf_pages, format='pdf')
-    log.info(f"Writing: {out_pdf}")
-    pdf_pages.close()
+    fig.savefig(pp, format='pdf')
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     log.info("finished.")
 
@@ -470,8 +470,8 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
     log.info(f"Reading; {temp_file}")
     temp_tab = asc.read(temp_file)
 
-    out_pdf = join(fitspath, 'comparsion_Bian_Zcal.pdf')
-    pdf_pages = PdfPages(out_pdf)
+    pdf_file = join(fitspath, 'comparsion_Bian_Zcal.pdf')
+    pp = PdfPages(pdf_file)
 
     bin_ID = temp_tab['bin_ID']
     lR23_comp = temp_tab['logR23_Composite']
@@ -557,7 +557,7 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
     ax.annotate(an_txt, [0.2, 0.85], xycoords='axes fraction', va='bottom',
                 ha='right', fontsize=10)
 
-    fig.savefig(pdf_pages, format='pdf')
+    fig.savefig(pp, format='pdf')
     fig.clear()
 
     arr_sum1 = np.concatenate((AO_comparison, BO_comparison, CO_comparison),
@@ -588,8 +588,8 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
     ax.annotate(an_txt, [0.2, 0.85], xycoords='axes fraction', va='bottom',
                 ha='right', fontsize=10)
 
-    fig.savefig(pdf_pages, format='pdf')
-    log.info(f"Writing: {out_pdf}")
-    pdf_pages.close()
+    fig.savefig(pp, format='pdf')
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     log.info("finished.")

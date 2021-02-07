@@ -14,7 +14,7 @@ from Metallicity_Stack_Commons.column_names import temp_metal_names0, \
     bin_names0
 
 
-def histogram(path, data_all, table_path, pdf_name,
+def histogram(path, data_all, table_path, pdf_file,
               verification_table, table_key='', sharex=False):
     """
     Plots histograms for inputted values
@@ -25,14 +25,14 @@ def histogram(path, data_all, table_path, pdf_name,
     :param table_path: str. location of the temperature_metallicity table
                        outputted functions; can also be the
                        combine_flux_table created zoom_and_gauss_general
-    :param pdf_name: str. name of the outputted pdf file
+    :param pdf_file: str. name of the outputted pdf file
     :param table_key: keyword. name of one of the columns of the table inputted
                         by table_path used to call the binned data
 
-    PDF File: path + pdf_name
+    PDF File: path + pdf_file
     No returns
     """
-    pdf_pages = PdfPages(join(path, pdf_name))
+    pp = PdfPages(join(path, pdf_file))
     tab1 = asc.read(table_path)
 
     # Importing verification table that is always used
@@ -174,9 +174,9 @@ def histogram(path, data_all, table_path, pdf_name,
             if aa % (nrows * ncols) == 0:
                 ax.legend(title=hist_name, fontsize=3)
                 # if row == 3: plt.xlabel(pdf_list[ii])
-        fig.savefig(pdf_pages, format='pdf')
+        fig.savefig(pp, format='pdf')
         
-    pdf_pages.close()
+    pp.close()
 
 
 def run_histogram_tm(path, table_path, dict_list,
@@ -213,9 +213,9 @@ def run_histogram_tm(path, table_path, dict_list,
         histo_dict.update(dic0)
 
     today = date.today()
-    pdf_name = 'Te_M_histogram_plots_' + "%02i%02i" \
+    pdf_file = 'Te_M_histogram_plots_' + "%02i%02i" \
                % (today.month, today.day) + '.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, verification_table,
+    histogram(path, histo_dict, table_path, pdf_file, verification_table,
               table_key='T_e', sharex=sharex)
 
 
@@ -304,7 +304,7 @@ def run_histogram_fr(path, table_path, dict_list, verification_table,
         histo_dict.update(dic0)
 
     today = date.today()
-    pdf_name = 'Flux_Ratio histogram_plots_' + "%02i%02i" \
+    pdf_file = 'Flux_Ratio histogram_plots_' + "%02i%02i" \
                % (today.month, today.day)+'.pdf'
-    histogram(path, histo_dict, table_path, pdf_name, verification_table,
+    histogram(path, histo_dict, table_path, pdf_file, verification_table,
               table_key='bin_ID', sharex=sharex)

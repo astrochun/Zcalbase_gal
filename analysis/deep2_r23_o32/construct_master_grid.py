@@ -27,12 +27,12 @@ def main(path0, log=None):
 
     log.info("starting ...")
 
-    files_2D = glob.glob(join(path0, 'DEEP2_2D_Field?.f3.fits'))
+    twod_files = glob.glob(join(path0, 'DEEP2_2D_Field?.f3.fits'))
 
     cat_files = glob.glob(join(path0,
                                'f_current/DEEP2_Field?_all_line_fit.fits'))
 
-    n_fields = len(files_2D)
+    n_fields = len(twod_files)
 
     crval1 = np.zeros(n_fields)
     cdelt1 = np.zeros(n_fields)
@@ -44,18 +44,20 @@ def main(path0, log=None):
     x0_max = np.zeros(n_fields)
 
     for ii in range(n_fields):
-        hdr = fits.getheader(files_2D[ii])
+        log.info(f"Reading: {twod_files[ii]}")
+        hdr = fits.getheader(twod_files[ii])
 
         crval1[ii] = hdr['CRVAL1']
         cdelt1[ii] = hdr['CDELT1']
         naxis1[ii] = hdr['NAXIS1']
 
-        cdata = fits.getdata(cat_files[ii])
-        zspec = np.append(zspec, cdata.ZSPEC)
+        log.info(f"Reading: {cat_files[ii]}")
+        cat_tab = fits.getdata(cat_files[ii])
+        zspec = np.append(zspec, cat_tab.ZSPEC)
 
         cdelt0 = np.append(cdelt0, cdelt1[ii]/(1+zspec))
-        x0_min[ii] = np.min(cdata.LMIN0)
-        x0_max[ii] = np.max(cdata.LMAX0)
+        x0_min[ii] = np.min(cat_tab.LMIN0)
+        x0_max[ii] = np.max(cat_tab.LMAX0)
 
     avg_cdelt = np.average(cdelt0)
     log.info(f"## avg_cdelt : {avg_cdelt:%.3f}")

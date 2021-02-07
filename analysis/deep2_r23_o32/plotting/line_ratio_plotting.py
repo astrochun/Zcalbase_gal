@@ -20,11 +20,11 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     No returns
     """
 
-    line_plot = join(fitspath, 'line_ratio_plots.pdf')
+    pdf_file = join(fitspath, 'line_ratio_plots.pdf')
     print("### combine_flux_ascii : " + combine_flux_ascii)
     fitted_data = asc.read(combine_flux_ascii)
 
-    print("### asc_table1 : "+bin_info)
+    print("### asc_table1 : " + bin_info)
     raw_data = asc.read(bin_info)
     OII = fitted_data['OII_3727_Flux_Observed']
     OIII5007 = fitted_data['OIII_5007_Flux_Observed']
@@ -32,7 +32,8 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     binnum = fitted_data['N_stack']
     ID = fitted_data['bin_ID']
     print('binnum:', binnum, len(binnum))
-    pdf_pages = PdfPages(line_plot)
+
+    pp = PdfPages(pdf_file)
 
     R23_composite = np.zeros(binnum.shape[0])
     O32_composite = np.zeros(binnum.shape[0]) 
@@ -63,7 +64,7 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     ax_arr.set_ylabel(r'Composite log($R_{23}$)')
     ax_arr.plot([0.0, 1.3], [0.0, 1.3], 'k-')
     
-    fig.savefig(pdf_pages, format='pdf')
+    fig.savefig(pp, format='pdf')
 
     fig, ax_arr = plt.subplots()
     ax_arr.scatter(O32_raw, O32_composite, marker='o', facecolor='none',
@@ -76,8 +77,8 @@ def plotting_data1(fitspath, dataset, combine_flux_ascii, bin_info):
     ax_arr.set_ylabel(r'Composite log($O_{32}$)')
 
     ax_arr.plot([-1, 1.2], [-1, 1.2], 'k-')
-    fig.savefig(pdf_pages, format='pdf')
+    fig.savefig(pp, format='pdf')
 
-    pdf_pages.close()
+    pp.close()
 
     fig.clear()

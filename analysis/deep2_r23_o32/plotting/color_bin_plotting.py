@@ -20,7 +20,7 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     No returns
     """
 
-    pdf_pages = PdfPages(join(fitspath, pdf_file))
+    pp = PdfPages(join(fitspath, pdf_file))
     asc_table = asc.read(join(fitspath, bin_info))
     targetSN = 14
     xBar = asc_table['logR23_avg']
@@ -38,7 +38,7 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     plt.xlabel('R (arcsec)')
     plt.ylabel('R (arcsec)')
     plt.title('Map of Voronoi bins')
-    
+
     plt.subplot(212)
     rad = np.sqrt(xBar**2 + yBar**2)  # Use centroids, NOT generators
     plt.plot(rad[~w], sn[~w], 'or')
@@ -50,11 +50,11 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     plt.axhline(targetSN)
     plt.legend()
     plt.pause(1)
-    pdf_pages.savefig()
-    pdf_pages.close()
+    pp.savefig()
+    pp.close()
 
 
-def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
+def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_file, log=None):
     """
     Plotting R23 vs O32 with a color map for
     metallicity and then for temperature
@@ -63,10 +63,10 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
     :param bin_info: str. table created by binning code
     :param temp_tab: str. table holding metallicity and
                      temperature measurements
-    :param pdf_name: str. name of pdf file produced
+    :param pdf_file: str. name of pdf file produced
     :param log: LogClass or logging object
 
-    PDF File: fitspath + pdf_name
+    PDF File: fitspath + pdf_file
     No returns
     """
 
@@ -75,8 +75,8 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
 
     log.info("starting ...")
 
-    # pdf_name = 'R23vsO32_color_comandavg.pdf'
-    pdf_pages = PdfPages(join(fitspath, pdf_name))
+    # pp = 'R23vsO32_color_comandavg.pdf'
+    pp = PdfPages(join(fitspath, pdf_file))
 
     asc_table1 = asc.read(bin_info)
     temp_table = asc.read(temp_tab)
@@ -116,8 +116,7 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
     ax1.set_xlabel(r'log($R_{23}$)')
     ax1.set_ylabel(r'log($O_{32}$)')
 
-
-    pdf_pages.savefig()
-    pdf_pages.close()
+    pp.savefig()
+    pp.close()
 
     log.info("finished.")

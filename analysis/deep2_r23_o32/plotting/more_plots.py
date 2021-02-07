@@ -137,7 +137,7 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_file,
     :stack_spectra: bool. Default = False determines if plotting
                     individual spectra (False) or stacked spectra (True)
 
-    PDF File: pdf_name
+    PDF File: pdf_file
     No returns
     """
     if not stack_spectra:

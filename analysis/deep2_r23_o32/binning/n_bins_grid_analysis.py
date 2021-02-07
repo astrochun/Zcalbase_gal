@@ -235,18 +235,20 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
     n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg',
           'logO32_avg', 'logR23_median', 'logO32_median', 'logR23_max',
           'logO32_max')
-    tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit),
-                  np.log10(O32_lowlimit), np.log10(xBar), np.log10(yBar),
-                  np.log10(R23_medians), np.log10(O32_medians),
-                  np.log10(R23_maxval), np.log10(O32_maxval)], names=n1)
+    bin_info_tab = Table([n_bins_range, area, np.log10(R23_lowlimit),
+                          np.log10(O32_lowlimit), np.log10(xBar),
+                          np.log10(yBar), np.log10(R23_medians),
+                          np.log10(O32_medians), np.log10(R23_maxval),
+                          np.log10(O32_maxval)], names=n1)
 
     # Used to be called +dataset+'_binning_averages.tbl
-    bin_outfile = join(fitspath, filename_dict['bin_info'])
-    if not exists(bin_outfile):
-        log.info(f"Writing: {bin_outfile}")
+    bin_info_file = join(fitspath, filename_dict['bin_info'])
+    if not exists(bin_info_file):
+        log.info(f"Writing: {bin_info_file}")
     else:
-        log.info(f"Overwriting : {bin_outfile}")
-    asc.write(tab1, bin_outfile, format='fixed_width_two_line', overwrite=True)
+        log.info(f"Overwriting : {bin_info_file}")
+    asc.write(bin_info_tab, bin_info_file, format='fixed_width_two_line',
+              overwrite=True)
 
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min',
           'logO32_min', 'logR23_avg', 'logO32_avg',
@@ -256,12 +258,13 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
                  R23_medall, O32_medall, R23_maxall, O32_maxall], names=n2)
 
     # Used to be + dataset+'_2d_binning_datadet3.tbl
-    indv_outfile = join(fitspath, filename_dict['indv_bin_info'])
-    if not exists(indv_outfile):
-        log.info(f"Writing: {indv_outfile}")
+    indv_bin_info_file = join(fitspath, filename_dict['indv_bin_info'])
+    if not exists(indv_bin_info_file):
+        log.info(f"Writing: {indv_bin_info_file}")
     else:
-        log.info(f"Overwriting : {indv_outfile}")
-    asc.write(tab2, indv_outfile, format='fixed_width_two_line', overwrite=True)
+        log.info(f"Overwriting : {indv_bin_info_file}")
+    asc.write(tab2, indv_bin_info_file, format='fixed_width_two_line',
+              overwrite=True)
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')
     tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)

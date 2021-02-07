@@ -88,13 +88,13 @@ def making_grid(fitspath, pp, npz_outfile, R23, O32, det3, R23_bin,
     cm = plt.cm.get_cmap('Blues')
 
     # Write table
-    tabmastergrid = Table([x0, y0])
-    tabmastergrid_name = join(fitspath, 'testmastergrid.tbl')
-    if not exists(tabmastergrid_name):
-        log.info(f"Writing: {tabmastergrid_name}")
+    mastergrid_tab = Table([x0, y0])
+    mastergrid_file = join(fitspath, 'mastergrid.tbl')
+    if not exists(mastergrid_file):
+        log.info(f"Writing: {mastergrid_file}")
     else:
-        log.info(f"Overwriting : {tabmastergrid_name}")
-    asc.write(tabmastergrid, tabmastergrid_name,
+        log.info(f"Overwriting : {mastergrid_file}")
+    asc.write(mastergrid_tab, mastergrid_file,
               format='fixed_width_two_line', overwrite=True)
 
     # Colorbar and hexbin plotting

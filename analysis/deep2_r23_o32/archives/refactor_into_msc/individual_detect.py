@@ -177,7 +177,7 @@ def individual_detection_MSC(fitspath, dataset, pdf_file, revised = False, det3=
         ax2.set_title(r'$O_{32}$ vs. $T_e$')
         ax2.set_xlabel(r'log($R_{23}$)')
         ax2.set_ylabel('T_e')
-        fig2.savefig(pdf_file, format ='pdf')
+        fig2.savefig(pp, format ='pdf')
         fig2.clear()'''
 
         fig3,ax3 = plt.subplots()

@@ -71,25 +71,25 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         galinbin = [400, 400, 400, 400, 400, 400, 409]
     log.info(f"# of Gal in Bin: {galinbin}")
 
-    bin_pdf_pages = join(fitspath, name_dict['gridpdf_suffix'])
-    bin_outfile = join(fitspath, name_dict['gridnpz_suffix'])
+    bin_pdf_file = join(fitspath, name_dict['gridpdf_suffix'])
+    bin_npz_file = join(fitspath, name_dict['gridnpz_suffix'])
 
     if dataset == 'O32_Grid':
-        single_grid_o32.single_grid_o32(bin_pdf_pages, bin_outfile,
+        single_grid_o32.single_grid_o32(bin_pdf_file, bin_npz_file,
                                         R23, O32, galinbin, log=log)
     if dataset == 'R23_Grid':
-        single_grid_r23.single_grid_r23(bin_pdf_pages, bin_outfile,
+        single_grid_r23.single_grid_r23(bin_pdf_file, bin_npz_file,
                                         R23, O32, galinbin, log=log)
     if dataset == 'Grid':
         R23_bin = 0.25
         O32_bin = 0.25
-        fixed_grid_analysis.making_grid(fitspath, bin_pdf_pages, bin_outfile,
+        fixed_grid_analysis.making_grid(fitspath, bin_pdf_file, bin_npz_file,
                                         R23, O32, det3, R23_bin, O32_bin,
                                         log=log)
 
     if dataset == 'n_Bins':
-        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
-                                            bin_outfile, n_split,
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_file,
+                                            bin_npz_file, n_split,
                                             individual_ID, R23, O32,
                                             SNR3, data3, galinbin, log=log)
 
@@ -101,7 +101,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Option to Change: Bin size
     # Option to Change: Masking the night sky emission lines
     stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                         bin_outfile, mask=mask, log=log)
+                                         bin_npz_file, mask=mask, log=log)
 
     # Outfile and pdf both use name
     log.info(f"finished with stacking, Stacking_Masked_MasterGrid "
@@ -129,10 +129,10 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
 
     # Verification Table
     valid_table.make_validation_table(fitspath)
-    verification_table = join(fitspath, filename_dict['bin_valid'])
+    bin_valid_file = join(fitspath, filename_dict['bin_valid'])
 
     valid_table.compare_to_by_eye(fitspath, dataset)
-    verification_table_revised = join(fitspath, filename_dict['bin_valid_rev'])
+    bin_valid_rev_file = join(fitspath, filename_dict['bin_valid_rev'])
 
     # Calculating R, Temperature, Metallicity,
     # Dust Attenuation, and Errors using MSC
@@ -278,15 +278,15 @@ def run_individual_functions(fitspath, want, dataset='n_Bins', n_split=3,
             galinbin = [458, 450, 400, 300, 300, 275, 250, 200, 176]
         else:
             galinbin = [400, 400, 400, 400, 400, 400, 409]
-        bin_pdf_pages = join(fitspath, name_dict['gridpdf_suffix'])
-        bin_outfile = join(fitspath, name_dict['gridnpz_suffix'])
-        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
-                                            bin_outfile, n_split,
+        bin_pdf_file = join(fitspath, name_dict['gridpdf_suffix'])
+        bin_npz_file = join(fitspath, name_dict['gridnpz_suffix'])
+        n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_file,
+                                            bin_npz_file, n_split,
                                             individual_ID, R23, O32, SNR3,
                                             data3, galinbin, log=log)
         # Starting Stacking
         stackboth_mastergrid.master_stacking(fitspath, fitspath_ini, dataset,
-                                             bin_outfile, mask=mask, log=log)
+                                             bin_npz_file, mask=mask, log=log)
 
     if want == 'zoom':
         zoom_and_gauss_general.zm_general(dataset, fitspath,

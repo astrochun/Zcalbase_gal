@@ -525,7 +525,7 @@ def zm_general(dataset, fitspath, y_correction, log=None):
     bin_info_tab = asc.read(bin_info_file)
 
     n2 = ('bin_ID', 'logR23_avg', 'logO32_avg', 'N_stack')
-    table_stack = bin_info_tab[n2]
+    bin_fit_tab = bin_info_tab[n2]
 
     # Create lineflag
     lineflag = np.zeros(len(fits_dict['wave']))
@@ -544,14 +544,14 @@ def zm_general(dataset, fitspath, y_correction, log=None):
                                  pdf_file=pdf_file, line_name=line_name[ii],
                                  log=log)
 
-        table_stack = hstack([table_stack, em_tab])
+        bin_fit_tab = hstack([bin_fit_tab, em_tab])
 
-    out_ascii = join(fitspath, filename_dict['bin_fit'])
-    if not exists(out_ascii):
-        log.info(f"Writing: {out_ascii}")
+    bin_fit_file = join(fitspath, filename_dict['bin_fit'])
+    if not exists(bin_fit_file):
+        log.info(f"Writing: {bin_fit_file}")
     else:
-        log.info(f"Overwriting: {out_ascii}")
-    asc.write(table_stack, out_ascii, format='fixed_width_two_line',
+        log.info(f"Overwriting: {bin_fit_file}")
+    asc.write(bin_fit_tab, bin_fit_file, format='fixed_width_two_line',
               overwrite=True)
 
     log.debug("finished.")

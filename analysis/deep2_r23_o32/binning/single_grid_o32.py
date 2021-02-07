@@ -6,12 +6,12 @@ from matplotlib.backends.backend_pdf import PdfPages
 from ..log_commons import log_stdout
 
 
-def single_grid_o32(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
+def single_grid_o32(pdf_file, npz_outfile, R23, O32, galinbin, log=None):
     """
     This file holds the function to bin data for one dimensional binning along
     log(O32) Not used in current analysis
 
-    :param pdf_pages: str. name of outputted pdf file
+    :param pdf_file: str. name of outputted pdf file
                       fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
@@ -28,7 +28,7 @@ def single_grid_o32(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
 
     log.info("starting ...")
 
-    pp = PdfPages(pdf_pages)
+    pp = PdfPages(pdf_file)
 
     # One_dimensional binning for O32
     sort0 = np.argsort(O32)
@@ -79,7 +79,7 @@ def single_grid_o32(pdf_pages, npz_outfile, R23, O32, galinbin, log=None):
         plt.axhline(y=val_end, linewidth=0.3, color='g')
 
     fig.savefig(pp, format='pdf')
-    log.info(f"Writing: {pdf_pages}")
+    log.info(f"Writing: {pdf_file}")
     pp.close()
 
     R23_grid = [np.min(R23)]

@@ -11,7 +11,7 @@ from Metallicity_Stack_Commons.column_names import filename_dict
 from ..log_commons import log_stdout
 
 
-def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
+def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
                    R23, O32, SNR3, data3, galinbin, log=None):
     """
     This file holds the function to bin data adaptively based on the entered
@@ -21,8 +21,8 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     This is used in current analysis.
 
     :param fitspath: str. Absolute path for working directory
-    :param pdf_pages: str. name of outputted pdf file
-                      fitspath + name_dict['gridpdf_suffix']
+    :param pdf_file: str. name of outputted pdf file
+                     fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param n_split: int. the number of times each R23 bin will be split
@@ -43,7 +43,7 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
 
     log.debug("starting ...")
 
-    pp = PdfPages(pdf_pages)
+    pp = PdfPages(pdf_file)
 
     # One_dimensional binning for R23
     sortR23 = np.argsort(R23)
@@ -221,7 +221,7 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
         plt.plot(x_value, y_average, linewidth=0.3, color='g')
 
     fig.savefig(pp, format='pdf')
-    log.info(f"Writing: {pdf_pages}")
+    log.info(f"Writing: {pdf_file}")
     pp.close()
 
     # Writing as a dictionary

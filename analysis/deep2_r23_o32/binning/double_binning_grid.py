@@ -9,7 +9,7 @@ from astropy.table import Table
 from ..log_commons import log_stdout
 
 
-def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
+def two_times_binned(fitspath, pdf_file, npz_outfile, R23, O32, SNR3, data3,
                      galinbin, log=None):
     """
     One_dimensional binning for R23 followed by each bin being split in
@@ -18,8 +18,8 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
     Followed by plotting the spectra in their R23-O32 bins for visual
 
     :param fitspath: str. Path where files are retrieved and saved to
-    :param pdf_pages: str. Name of outputted pdf file
-                      fitspath + name_dict['gridpdf_suffix']
+    :param pdf_file: str. Name of outputted pdf file
+                     fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. Name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. Array of R23 from the get_det3 function
@@ -36,7 +36,7 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
         log = log_stdout()
 
     log.debug("starting ...")
-    pp = PdfPages(pdf_pages)
+    pp = PdfPages(pdf_file)
 
     # One_dimensional binning for R23
 
@@ -131,7 +131,7 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
         plt.axvline(x=h_lines[pp], linewidth=0.3, color='k')
     fig.savefig(pp, format='pdf')
 
-    log.info(f"Writing: {pdf_pages}")
+    log.info(f"Writing: {pdf_file}")
     pp.close()
     fig.clear()
 

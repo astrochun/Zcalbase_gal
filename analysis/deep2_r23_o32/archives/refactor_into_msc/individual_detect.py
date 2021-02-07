@@ -123,7 +123,7 @@ def individual_galaxy_table_stacking(fitspath,dataset, new_name):
 
 
 
-def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=True, graphs=False):
+def individual_detection_MSC(fitspath, dataset, pdf_file, revised = False, det3=True, graphs=False):
     '''
     Purpose: import all the required files to run composite_indv_detect.main from Metallicity Stack Commons 
     Out: ascii file: individual_derived_properties.tbl
@@ -154,14 +154,14 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
         R23_idv = logR23[idx]
         O32_idv = logO32[idx]
 
-        pdf_pages = PdfPages(fitspath+out_pdf)
+        pp = PdfPages(fitspath + pdf_file)
 
         fig, ax = plt.subplots()
         ax.scatter(R23_idv, O32_idv)
         ax.set_title(r'$R_{23}$ vs. $O_{32}$')
         ax.set_xlabel(r'log($R_{23}$)')
         ax.set_ylabel(r'log($O_{32}$)')
-        fig.savefig(pdf_pages, format ='pdf')
+        fig.savefig(pp, format='pdf')
         fig.clear()
 
         '''fig1,ax1 = plt.subplots()
@@ -169,7 +169,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
         ax1.set_title(r'$R_{23}$ vs. $T_e$')
         ax1.set_xlabel(r'log($R_{23}$)')
         ax1.set_ylabel('T_e')
-        fig1.savefig(pdf_pages, format ='pdf')
+        fig1.savefig(pp, format ='pdf')
         fig1.clear()
 
         fig2,ax2 = plt.subplots()
@@ -177,7 +177,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
         ax2.set_title(r'$O_{32}$ vs. $T_e$')
         ax2.set_xlabel(r'log($R_{23}$)')
         ax2.set_ylabel('T_e')
-        fig2.savefig(pdf_pages, format ='pdf')
+        fig2.savefig(pdf_file, format ='pdf')
         fig2.clear()'''
 
         fig3,ax3 = plt.subplots()
@@ -186,7 +186,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
 
         ax3.set_xlabel(r'log($R_{23}$)')
         ax3.set_ylabel('12+log(O/H)')
-        fig3.savefig(pdf_pages, format ='pdf')
+        fig3.savefig(pp, format='pdf')
         fig3.clear()
 
         fig4,ax4 = plt.subplots()
@@ -194,9 +194,7 @@ def individual_detection_MSC(fitspath, dataset, out_pdf, revised = False, det3=T
         ax4.set_title(r'$O_{32}$ vs. $12+log(O/H)$')
         ax4.set_xlabel(r'log($O_{32}$)')
         ax4.set_ylabel('12+log(O/H)')
-        fig4.savefig(pdf_pages, format ='pdf')
+        fig4.savefig(pp, format='pdf')
         fig4.clear()
-        
-        
-        pdf_pages.close()
-        
+
+        pp.close()

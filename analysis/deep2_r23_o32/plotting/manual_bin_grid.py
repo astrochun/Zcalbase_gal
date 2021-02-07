@@ -22,22 +22,27 @@ def graph_bins(fitspath, n_split):
     No returns
     """
 
-    bin_info = join(fitspath, filename_dict['bin_info'])
-    individual_info = join(fitspath, filename_dict['individual_prop'])
-    pdf_pages = PdfPages(join(fitspath, 'manual_binning_shading.pdf'))
+    bin_info_file = join(fitspath, filename_dict['bin_info'])
+    indv_prop_file = join(fitspath, filename_dict['indv_prop'])
 
-    tab = asc.read(bin_info)
-    idv_tab = asc.read(individual_info)
+    pdf_file = join(fitspath, 'manual_binning_shading.pdf')
+    pp = PdfPages(pdf_file)
 
-    lR23_min = tab['logR23_min'].data
-    lO32_min = tab['logO32_min'].data
-    lR23_avg = tab['logR23_avg'].data
-    lO32_avg = tab['logO32_avg'].data
-    lR23_max = tab['logR23_max'].data
-    lO32_max = tab['logO32_max'].data
+    print(f"Reading: {bin_info_file}")
+    bin_info_tab = asc.read(bin_info_file)
 
-    lR23 = idv_tab['logR23'].data
-    lO32 = idv_tab['logO32'].data
+    print(f"Reading: {indv_prop_file}")
+    indv_prop_tab = asc.read(indv_prop_file)
+
+    lR23_min = bin_info_tab['logR23_min'].data
+    lO32_min = bin_info_tab['logO32_min'].data
+    lR23_avg = bin_info_tab['logR23_avg'].data
+    lO32_avg = bin_info_tab['logO32_avg'].data
+    lR23_max = bin_info_tab['logR23_max'].data
+    lO32_max = bin_info_tab['logO32_max'].data
+
+    lR23 = indv_prop_tab['logR23'].data
+    lO32 = indv_prop_tab['logO32'].data
     
     fig, ax = plt.subplots()
 
@@ -82,5 +87,7 @@ def graph_bins(fitspath, n_split):
     ax.set_title(r'$R_{23}$ vs. $O_{32}$ Plot for Manual Binning')
     ax.set_xlabel(r'log($R_{23}$)')
     ax.set_ylabel(r'log($O_{32}$)')
-    fig.savefig(pdf_pages, format='pdf')
-    pdf_pages.close()
+    fig.savefig(pp, format='pdf')
+
+    print(f"Writing: {pdf_file}")
+    pp.close()

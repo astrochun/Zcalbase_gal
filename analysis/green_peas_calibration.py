@@ -506,7 +506,7 @@ def DEEP2_OIII4363(log_dir):
          xra=[0.75, 1.05], yra=[7.1, 8.65], log=log)
 
     # Got RuntimeError
-    # out_pdf = join(path0, 'DEEP2_R23_O32_Jiang18.fit.pdf')
+    # pdf_file = join(path0, 'DEEP2_R23_O32_Jiang18.fit.pdf')
     # main([lR23], [lO32], [OH], out_pdf, lR23_err=[lR23_err], OH_err=[OH_err],
     # xra=[0.75,1.05], yra=[7.1,8.65], fit=True)
 

@@ -62,7 +62,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     header = fits_dict['header']
     wave = fits_dict['wave']
 
-    pdf_pages = PdfPages(join(fitspath, stack_name))  # open pdf document
+    pdf_file = join(fitspath, stack_name)
+    pp = PdfPages(pdf_file)  # open pdf document
 
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
         data3 = get_det3(fitspath, fitspath_ini, log=log)
@@ -195,11 +196,11 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
 
                 fig.tight_layout()
                 plt.draw()
-                pdf_pages.savefig(fig)
+                pp.savefig(fig)
                 count += 1
 
-    log.info(f"Writing: {join(fitspath, stack_name)}")
-    pdf_pages.close()
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     # Writing fits file
     header['CTYPE1'] = 'LINEAR'

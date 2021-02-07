@@ -41,8 +41,8 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
     log.debug("starting ...")
 
     # New plots for line flagging
-    out_pdf = join(fitspath, f"_lineflag_check_{line_name0}.pdf")
-    pdf_pages2 = PdfPages(out_pdf)
+    pdf_file = join(fitspath, f"lineflag_check_{line_name0}.pdf")
+    pp = PdfPages(pdf_file)
 
     t_ax2 = ax_arr[row, col]
     t_ax2.plot(wave, y_norm, 'k', linewidth=0.4, label='Emission')
@@ -50,9 +50,9 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
     t_ax2.plot(wave, lineflag, 'g', linestyle='dashed', label='Lineflag')
 
     fig.set_size_inches(8, 8)
-    log.debug(f"Writing: {out_pdf}")
-    fig.savefig(pdf_pages2, format='pdf')
-    pdf_pages2.close()
+    log.debug(f"Writing: {pdf_file}")
+    fig.savefig(pp, format='pdf')
+    pp.close()
 
     log.debug("finished.")
 
@@ -172,7 +172,7 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
 def zoom_gauss_plot(dataset, fits_dict, s2,
                     working_wave, lineflag, bin_info_tab,
                     y_correction='', line_type='',
-                    out_pdf='', line_name='', log=None):
+                    pdf_file='', line_name='', log=None):
     """
     Main function that is called by run function (zm_general).
     Gets the data, fits a gaussian curve
@@ -192,7 +192,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
     :param y_correction: str. to determine if smoothing in the y-axis occurs
     :param line_type: str. defines the type of emission line
                         'Single', 'Balmer', 'Oxy2'
-    :param out_pdf: str. name of outputted pdf file
+    :param pdf_file: str. name of outputted pdf file
     :param line_name: str. name of the line we are fitting
                     'OII_3727', 'HDELTA', 'HGAMMA', 'OIII_4363',
                     'HBETA', 'OIII_4958', 'OIII_5007'
@@ -203,7 +203,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
     make sure the expected values are within the range set up upper and
     lower limits.
 
-    PDF File: out_pdf
+    PDF File: pdf_file
 
     :returns table of emission line properties for each stack for
             each emission line
@@ -214,7 +214,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
 
     log.debug("starting ...")
 
-    pdf_pages = PdfPages(out_pdf)
+    pp = PdfPages(pdf_file)
 
     stack2d = fits_dict['fits_data']
     number_stacks = stack2d.shape[0]
@@ -451,7 +451,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                             hspace=0.05)
 
             fig.set_size_inches(8, 8)
-            fig.savefig(pdf_pages, format='pdf')
+            fig.savefig(pp, format='pdf')
             fig.clear()
 
     # Repetitive Columns have been added:
@@ -481,7 +481,8 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             equ_add = Column(name=names, data=flux_neg_array)
             tab0.add_column(equ_add, 2)
 
-    pdf_pages.close()
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
     # pdfpages3.close() # Add back in equivalent width plots are added
     fig.clear()
 
@@ -534,13 +535,13 @@ def zm_general(dataset, fitspath, y_correction, log=None):
             lineflag[idx] = 1
 
     for ii in range(len(lambda0)):
-        out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
-        log.info(f"out_pdf: {out_pdf}")
+        pdf_file = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
+        log.info(f"pp: {pdf_file}")
         em_tab = zoom_gauss_plot(dataset, fits_dict, s2, lambda0[ii],
                                  lineflag, bin_info_tab,
                                  y_correction=y_correction,
                                  line_type=line_type[ii],
-                                 out_pdf=out_pdf, line_name=line_name[ii],
+                                 pdf_file=pdf_file, line_name=line_name[ii],
                                  log=log)
 
         table_stack = hstack([table_stack, em_tab])

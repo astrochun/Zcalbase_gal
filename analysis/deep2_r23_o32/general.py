@@ -1,21 +1,16 @@
 # This function runs the entire process start to finish
 # EW values:equival width
-from . import name_dict, get_det3
-import numpy as np
-from astropy.io import fits
-from astropy.io import ascii as asc
-from astropy.table import Table, vstack
-from os.path import join, exists
+from . import get_det3
+from os.path import join
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
     calibration_plots, name_dict
 from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from .plotting import more_plots, line_ratio_plotting, te_metal_plots
-from .log_commons import LogClass, log_stdout
+from .log_commons import LogClass
 
-from Metallicity_Stack_Commons import exclude_outliers, dir_date, lambda0, \
-    valid_table, get_user
+from Metallicity_Stack_Commons import dir_date, valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import error_prop

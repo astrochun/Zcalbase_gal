@@ -297,6 +297,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                 flux_neg = np.sum(neg_comp*dx)
                 equiv_wid = flux_neg/o1[3]
 
+                #paper = true
                 # Keeping this here for possible later use.
                 # Might belong in MSC balmer module
                 # pdfpages3 = PdfPages(fitspath + '/' + dataset
@@ -326,6 +327,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             rms_tot, rms_pix = rms_func(wave, dispersion, working_wave, y0, o1[1],
                                         lineflag)
 
+            #paper = true
             # Line Flag Checking Plots
             # line_flag_check(fitspath, working_wave, lineflag,
             #                 wave, y_norm, stack2d,

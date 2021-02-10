@@ -17,7 +17,8 @@ from Metallicity_Stack_Commons.analysis import error_prop
 
 
 def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
-                              adaptive=True, apply_dust=False, mask=True):
+                              adaptive=True, apply_dust=False, mask=True,
+                              paper=False):
     """
     Function runs the entire analysis
 
@@ -32,6 +33,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     :param apply_dust: bool. Apply dust correction. Default: False
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
+    :param paper: bool. Setting that creates documents necessary for paper
 
     No returns
     """
@@ -86,7 +88,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
                                             bin_outfile, n_split,
                                             individual_ID, R23, O32,
-                                            SNR3, data3, galinbin, log=log)
+                                            SNR3, data3, galinbin, paper=True,
+                                            log=log)
 
     log.info("made npz, pdf files, testmastergrid "
              "(need to find if this is used anywhere)")

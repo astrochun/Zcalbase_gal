@@ -13,3 +13,11 @@ general.run_grid_plots(fitspath_ini, dataset, raw=True, apply_dust=False,
                        revised=False, individual=False)
 general.run_grid_plots(fitspath_ini, dataset, raw=True, apply_dust=False,
                        revised=True, individual=False)
+general.run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=True,
+                       revised=False, individual=False)
+general.run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=True,
+                       revised=True, individual=False)
+general.run_grid_plots(fitspath_ini, dataset, raw=True, apply_dust=True,
+                       revised=False, individual=False)
+general.run_grid_plots(fitspath_ini, dataset, raw=True, apply_dust=True,
+                       revised=True, individual=False)

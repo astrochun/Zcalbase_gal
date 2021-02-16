@@ -14,52 +14,52 @@ from Metallicity_Stack_Commons.column_names import temp_metal_names0, \
     bin_names0
 
 
-def histogram(path, data_all, table_path, pdf_file,
-              verification_table, table_key='', sharex=False):
+def histogram(path, data_all, input_file, pdf_file,
+              verification_file, table_key='', sharex=False):
     """
     Plots histograms for inputted values
 
     :param path: str. location of where the outputted pdf_file will be saved
     :param data_all: dict. dictionary of all the error propagation data that
                      will be put into histogram plot; created in run_histogram_TM
-    :param table_path: str. location of the temperature_metallicity table
+    :param input_file: str. location of the temperature_metallicity table
                        outputted functions; can also be the
                        combine_flux_table created zoom_and_gauss_general
     :param pdf_file: str. name of the outputted pdf file
     :param table_key: keyword. name of one of the columns of the table inputted
-                        by table_path used to call the binned data
+                        by input_file used to call the binned data
 
     PDF File: path + pdf_file
     No returns
     """
     pp = PdfPages(join(path, pdf_file))
-    tab1 = asc.read(table_path)
+    input_tab = asc.read(input_file)
 
     # Importing verification table that is always used
     # to get the values for just the detections
-    verify = asc.read(verification_table)
-    detect = verify[bin_names0[2]]
-    ID = verify[bin_names0[0]]
+    verification_tab = asc.read(verification_file)
+    detect = verification_tab[bin_names0[2]]
+    ID = verification_tab[bin_names0[0]]
     detection = np.where((detect == 1))[0]
     ID_detect = ID[detection]
 
     # Importing calculated values from our stacked measures
     # For plotting Temperature and Metallicity Histograms
     if table_key == 'T_e':
-        calculated_com = tab1[temp_metal_names0[1]]
-        calculated_Te = tab1[temp_metal_names0[0]]
-        calculated_single = tab1[temp_metal_names0[4]]
-        calculated_double = tab1[temp_metal_names0[5]]
-        calculated_logs = tab1[temp_metal_names0[2]]
-        calculated_logd = tab1[temp_metal_names0[3]]
+        calculated_com = input_tab[temp_metal_names0[1]]
+        calculated_Te = input_tab[temp_metal_names0[0]]
+        calculated_single = input_tab[temp_metal_names0[4]]
+        calculated_double = input_tab[temp_metal_names0[5]]
+        calculated_logs = input_tab[temp_metal_names0[2]]
+        calculated_logd = input_tab[temp_metal_names0[3]]
 
     # For plotting Flux Ratio Histograms
     if table_key == 'bin_ID':
-        O5007 = tab1['OIII_5007_Flux_Observed']
-        O4363 = tab1['OIII_4363_Flux_Observed']
-        O4959 = tab1['OIII_4958_Flux_Observed']
-        HBETA = tab1['HBETA_Flux_Observed']
-        O3727 = tab1['OII_3727_Flux_Observed']
+        O5007 = input_tab['OIII_5007_Flux_Observed']
+        O4363 = input_tab['OIII_4363_Flux_Observed']
+        O4959 = input_tab['OIII_4958_Flux_Observed']
+        HBETA = input_tab['HBETA_Flux_Observed']
+        O3727 = input_tab['OII_3727_Flux_Observed']
 
         O3727_HBETA = O3727/HBETA
         O5007_HBETA = O5007/HBETA
@@ -179,15 +179,15 @@ def histogram(path, data_all, table_path, pdf_file,
     pp.close()
 
 
-def run_histogram_tm(path, table_path, dict_list,
-                     verification_table, sharex=False):
+def run_histogram_tm(path, input_file, dict_list,
+                     verification_file, sharex=False):
     """
     Call run_histogram to combine all dictionaries into one large dictionary
     that gets passed into histogram and from there is plotted
 
     :param path: str. name of where you are working and location of where the
                 outputted pdf_file will be saved
-    :param table_path: str. location of the temperature_metallicity table
+    :param input_file: str. location of the temperature_metallicity table
                        outputted by the error_prop functions;
                        can also be the combine_flux_table created by
                         zoom_and_gauss_general
@@ -215,11 +215,11 @@ def run_histogram_tm(path, table_path, dict_list,
     today = date.today()
     pdf_file = 'Te_M_histogram_plots_' + "%02i%02i" \
                % (today.month, today.day) + '.pdf'
-    histogram(path, histo_dict, table_path, pdf_file, verification_table,
+    histogram(path, histo_dict, input_file, pdf_file, verification_file,
               table_key='T_e', sharex=sharex)
 
 
-def run_histogram_fr(path, table_path, dict_list, verification_table,
+def run_histogram_fr(path, input_file, dict_list, verification_file,
                      sharex=False):
     """
     This function takes the flux_pdf distributions computed in error_prop
@@ -230,12 +230,12 @@ def run_histogram_fr(path, table_path, dict_list, verification_table,
 
     :param path: str. name of where you are working and location of where the
                         outputted pdf_file will be saved
-    :param table_path: str. location of the flux_ratio table outputted by
+    :param input_file: str. location of the flux_ratio table outputted by
                             the R_temp_cal functions; can also be
                             combine_flux_table created zoom_and_gauss_general
     :param dict_list: ls. list of dictionaries whose data we want to plot
                             in a histogram
-    :param verification_table: str. table created independently of this code
+    :param verification_file: str. table created independently of this code
                         that tells us whether or not each bin is a detection
 
     No returns
@@ -243,12 +243,12 @@ def run_histogram_fr(path, table_path, dict_list, verification_table,
     if path[-1] != "/":
         path += "/"
 
-    verify = asc.read(verification_table)
-    detect = verify['Detection']
+    verification_tab = asc.read(verification_file)
+    detect = verification_tab['Detection']
     detection = np.where((detect == 1))[0]
     
-    table1 = asc.read(table_path)
-    tab1 = table1[detection]
+    input_tab = asc.read(input_file)
+    tab1 = input_tab[detection]
     O5007 = tab1['OIII_5007_Flux_Observed']
     O4363 = tab1['OIII_4363_Flux_Observed']
     O4959 = tab1['OIII_4958_Flux_Observed']
@@ -289,7 +289,8 @@ def run_histogram_fr(path, table_path, dict_list, verification_table,
         flux_ratio_dict[pdf_list[ii] + '_pdf'] = data_list[ii]
 
         error, xpeak = compute_onesig_pdf(data_list[ii], ratio_list[ii],
-                                          usepeak=True, silent=True, verbose=True)
+                                          usepeak=True, silent=True,
+                                          verbose=True)
         
         fr_xpeak_dict[pdf_list[ii]+'_xpeak'] = xpeak
         fr_error_dict[pdf_list[ii]+'_lowhigh_error'] = error
@@ -306,5 +307,5 @@ def run_histogram_fr(path, table_path, dict_list, verification_table,
     today = date.today()
     pdf_file = 'Flux_Ratio histogram_plots_' + "%02i%02i" \
                % (today.month, today.day)+'.pdf'
-    histogram(path, histo_dict, table_path, pdf_file, verification_table,
+    histogram(path, histo_dict, input_file, pdf_file, verification_file,
               table_key='bin_ID', sharex=sharex)

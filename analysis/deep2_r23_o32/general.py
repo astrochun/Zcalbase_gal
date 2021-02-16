@@ -88,8 +88,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
                                             bin_outfile, n_split,
                                             individual_ID, R23, O32,
-                                            SNR3, data3, galinbin, thesis,
-                                            log=log)
+                                            SNR3, data3, galinbin,
+                                            thesis=thesis, log=log)
 
     log.info("made npz, pdf files, testmastergrid "
              "(need to find if this is used anywhere)")
@@ -112,7 +112,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Option to change: Constants used as initial guesses for gaussian fit
 
     zoom_and_gauss_general.zm_general(dataset, fitspath, y_correction, 
-                                      thesis, log=log)
+                                      thesis=thesis, log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")

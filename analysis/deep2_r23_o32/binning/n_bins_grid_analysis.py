@@ -266,13 +266,13 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     # Create another ascii table with the R23_grid and O32_grid values for plots
     if thesis:
         n3 = ('ID', 'R23_Average', 'O32_Average')
-        simple_tab = fitspath+'/grid_values.tbl'
+        grid_values_file = join(fitspath, 'grid_values.tbl')
         tab1 = Table([n_bins_range, np.log10(xBar), np.log10(yBar)], names=n3)
-        if not exists(simple_tab):
-            log.info(f"Writing: {simple_tab}")
+        if not exists(grid_values_file):
+            log.info(f"Writing: {grid_values_file}")
         else:
-            log.info(f"Overwriting : {simple_tab}")
-        asc.write(tab1, simple_tab, format='fixed_width_two_line',
+            log.info(f"Overwriting : {grid_values_file}")
+        asc.write(tab1, grid_values_file, format='fixed_width_two_line',
                   overwrite=True)
 
     log.debug("finished.")

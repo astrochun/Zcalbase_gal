@@ -71,29 +71,29 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     # print('Begin Local analog Calibration')
 
     # Tables of individual detections from DEEP2 and MACT samples
-    deep2_file = join(fitspath_ini,
-                      'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl')
-    log.info(f"Reading: {deep2_file}")
-    derived_deep2 = asc.read(deep2_file)
+    derived_deep_file = join(fitspath_ini, 'DEEP2_Commons/Catalogs/',
+                             'DEEP2_R23_O32_derived.tbl')
+    log.info(f"Reading: {derived_deep_file}")
+    derived_deep_tab = asc.read(derived_deep_file)
 
-    mact_file = join(fitspath_ini,
-                     'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl')
-    log.info(f"Reading: {mact_file}")
-    derived_MACT = asc.read(mact_file)
+    derived_mact_file = join(fitspath_ini, 'MACT_Commons/Catalogs/',
+                             'MACT_R23_O32_derived.tbl')
+    log.info(f"Reading: {derived_mact_file}")
+    derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
-    er_R23 = derived_deep2['R23'].data
-    er_O32 = derived_deep2['O32'].data
+    er_R23 = derived_deep_tab['R23'].data
+    er_O32 = derived_deep_tab['O32'].data
     der_R23 = np.log10(er_R23)
     der_O32 = np.log10(er_O32)
-    der_OH = derived_deep2['OH'].data
+    der_OH = derived_deep_tab['OH'].data
 
     # MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
+    er_R23_MACT = derived_mact_tab['R23'].data
+    er_O32_MACT = derived_mact_tab['O32'].data
     der_R23_MACT = np.log10(er_R23_MACT)
     der_O32_MACT = np.log10(er_O32_MACT)
-    der_OH_MACT = derived_MACT['OH'].data
+    der_OH_MACT = derived_mact_tab['OH'].data
 
     O32_all = bin_derived_prop_tab['logO32_composite']
     log.debug(O32_all)
@@ -211,7 +211,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     log.info("finished.")
 
 
-def individual_gpc(individual_ascii, validation_table, name, log=None):
+def individual_gpc(indv_file, valid_file, name, log=None):
     """
     This function is currently repetitive of the function above
     for the individual detection cases.
@@ -219,8 +219,8 @@ def individual_gpc(individual_ascii, validation_table, name, log=None):
     to plot the individual detections against
     the binned detections.
 
-    :param individual_ascii: str. location of table with data
-    :param validation_table: str. location of validaition table
+    :param indv_file: str. location of table with data
+    :param valid_file: str. location of validaition table
     :param name: str. name of the outputted pdf file
     :param log: LogClass or logging object
 
@@ -236,16 +236,18 @@ def individual_gpc(individual_ascii, validation_table, name, log=None):
 
     log.info("starting ...")
 
-    individual = asc.read(individual_ascii)
-    logR23 = individual['logR23']
-    logO32 = individual['logO32']
-    com_log = individual['12+log(O/H)']
+    log.info(f"Reading: {indv_file}")
+    indv_tab = asc.read(indv_file)
+    logR23 = indv_tab['logR23']
+    logO32 = indv_tab['logO32']
+    com_log = indv_tab['12+log(O/H)']
 
-    valid = asc.read(validation_table)
-    Detections = valid['Detection']
+    log.info(f"Reading: {valid_file}")
+    valid_tab = asc.read(valid_file)
+    Detections = valid_tab['Detection']
     detect = np.where((Detections == 1.0))[0]
     rlimit = np.where((Detections == 0.5))[0]
-    bins = valid['bin_ID']
+    bins = valid_tab['bin_ID']
 
     ID_detect = bins[detect]
     ID_rlimit = bins[rlimit]
@@ -258,6 +260,5 @@ def individual_gpc(individual_ascii, validation_table, name, log=None):
     green_peas_calibration.main(lR23, lO32, OH, name, n_bins=6,
                                 xra=[0.3, 1.15], yra=[6.5, 9.10],
                                 marker=['3'], label=['Individual Detection'],
-                                ID=ID, fit=False, log=log)
+                                ID=Id, fit=False, log=log)
 
-    log.info("finished.")

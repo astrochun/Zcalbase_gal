@@ -21,7 +21,7 @@ from Metallicity_Stack_Commons.analysis.fitting import movingaverage_box1D, \
 from Metallicity_Stack_Commons import lambda0, line_name, line_type
 from Metallicity_Stack_Commons.column_names import filename_dict
 
-from . import name_dict, read_fitsfiles
+from . import read_fitsfiles
 from .log_commons import log_stdout
 
 con1 = 3728.91 / 3726.16

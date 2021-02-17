@@ -11,7 +11,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.gridspec import GridSpec
 
 from os.path import exists, join
-from astropy.convolution import Box1DKernel, convolve
 
 from . import name_dict, read_fitsfiles, get_det3
 from .log_commons import log_stdout

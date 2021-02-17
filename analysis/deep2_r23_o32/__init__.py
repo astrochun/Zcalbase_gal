@@ -3,7 +3,9 @@ import numpy as np
 from astropy.io import ascii as asc
 from astropy.table import Table, vstack
 from os.path import join, exists
-from Zcalbase_gal.analysis.deep2_r23_o32.log_commons import log_stdout
+
+from .log_commons import log_stdout
+
 from Metallicity_Stack_Commons import exclude_outliers
 from Metallicity_Stack_Commons.column_names import filename_dict
 

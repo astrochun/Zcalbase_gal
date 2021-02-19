@@ -55,14 +55,15 @@ def color_for_bin(fitspath, bin_info_file, pdf_file):
     pp.close()
 
 
-def r23vso32_plot(fitspath, bin_info_file, temp_file, pdf_file, log=None):
+def r23vso32_plot(fitspath, bin_info_file, bin_derived_prop_file, pdf_file,
+                  log=None):
     """
     Plotting R23 vs O32 with a color map for
     metallicity and then for temperature
 
     :param fitspath: str. path where files are called from and saved to
     :param bin_info_file: str. table created by binning code
-    :param temp_file: str. table holding metallicity and
+    :param bin_derived_prop_file: str. table holding metallicity and
                      temperature measurements
     :param pdf_file: str. name of pdf file produced
     :param log: LogClass or logging object
@@ -81,14 +82,14 @@ def r23vso32_plot(fitspath, bin_info_file, temp_file, pdf_file, log=None):
 
     bin_info_tab = asc.read(join(fitspath, bin_info_file))
 
-    temp_tab = asc.read(temp_file)
+    bin_derived_prop_tab = asc.read(bin_derived_prop_file)
 
     # logR23 = asc_table['log(R23)']
     # logO32 = asc_table['log(O32)']
-    com_O_log = temp_tab['12+log(O/H)']
-    R23_com = temp_tab['R23_Composite']
-    O32_com = temp_tab['O32_Composite']
-    n_gal = temp_tab['N_Stack']
+    com_O_log = bin_derived_prop_tab['12+log(O/H)']
+    R23_com = bin_derived_prop_tab['R23_Composite']
+    O32_com = bin_derived_prop_tab['O32_Composite']
+    n_gal = bin_derived_prop_tab['N_Stack']
     
     xBar = bin_info_tab['logR23_avg']
     yBar = bin_info_tab['logO32_avg']

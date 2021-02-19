@@ -210,7 +210,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
 
     if not exists(stack_2d_file):
         log.info(f"Writing: {stack_2d_file}")
-        fits.writeto(stack_2d_file, stack_2d_tab[0:count], header, overwrite=True)
+        fits.writeto(stack_2d_file, stack_2d_tab[0:count], header,
+                     overwrite=True)
 
     # Writing Ascii Tables and Fits Tables
     # Used to be 'binning_averages.tbl'
@@ -222,13 +223,14 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     # for n_split xnode and ynode are the lowest values
     # of the bin while xBar and yBar are the averages
 
-    tab0 = Table([ID, R23_node, O32_node, avg_R23,
-                  avg_O32, R23_med, O32_med, N_gal], names=n)
+    bin_info_tab = Table([ID, R23_node, O32_node, avg_R23,
+                          avg_O32, R23_med, O32_med, N_gal], names=n)
     if not exists(bin_info_file):
         log.info(f"Writing: {bin_info_file}")
     else:
         log.info(f"Overwriting: {bin_info_file}")
-    asc.write(tab0[0:count], bin_info_file, format='fixed_width_two_line')
+    asc.write(bin_info_tab[0:count], bin_info_file,
+              format='fixed_width_two_line')
 
     fig.clear()
 

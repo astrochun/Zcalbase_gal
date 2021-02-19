@@ -9,15 +9,15 @@ from os.path import join
 from Zcalbase_gal.analysis.deep2_r23_o32 import zoom_and_gauss_general
 
 
-def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
+def r23_vs_o32_color(fitspath, ascii_file, bin_derived_prop_file, verify_file):
     """
     Plotting function for R23 and O32 color mapping plots
 
     :param fitspath: str. path where files are called from and saved to
-    :param asc_table: str. name of table combine_flux_ascii
-    :param temp_table: str. name of table with temperature and metallicity
-                        measurements derived_properties
-    :param verif_table: str. name of verification table bin_validation_revised
+    :param ascii_file: str. name of table combine_flux_ascii
+    :param bin_derived_prop_file: str. name of table with temperature and
+                                  metallicity measurements derived_properties
+    :param verify_file: str. name of verification table bin_validation_revised
 
     PDF File: fitspath + 'R23_vs_O32_colormapping.pdf'
     No Returns
@@ -26,16 +26,16 @@ def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     pdf_file = join(fitspath, 'R23_vs_O32_colormapping.pdf')
     pp = PdfPages(pdf_file)
 
-    asc_tab = asc.read(asc_table)
-    temp_tab = asc.read(temp_table)
-    ver_tab = asc.read(verif_table)
+    ascii_tab = asc.read(ascii_file)
+    bin_derived_prop_tab = asc.read(bin_derived_prop_file)
+    verify_tab = asc.read(verify_file)
 
-    R23 = asc_tab['logR23_avg'].data
-    O32 = asc_tab['logO32_avg'].data
-    T_e = temp_tab['T_e'].data
-    com_O = temp_tab['12+log(O/H)'].data
-    ID = temp_tab['bin_ID'].data
-    detect = ver_tab['Detection'].data
+    R23 = ascii_tab['logR23_avg'].data
+    O32 = ascii_tab['logO32_avg'].data
+    T_e = bin_derived_prop_tab['T_e'].data
+    com_O = bin_derived_prop_tab['12+log(O/H)'].data
+    ID = bin_derived_prop_tab['bin_ID'].data
+    detect = verify_tab['Detection'].data
 
     cm = plt.cm.get_cmap('Blues')
     edge_det = np.where(detect == 1)[0]
@@ -74,8 +74,8 @@ def r23_vs_o32_color(fitspath, asc_table, temp_table, verif_table):
     fig2.savefig(pp, format='pdf')
     fig2.clear()
     pp.close()
-    
-    
+
+
 def hist_for_bin(fitspath, dataset, asc_table_det3):
     """
     Produces a pdf file with plots of histograms to check the distribution
@@ -134,8 +134,8 @@ def plotting_individual_for_stacking_image(RestframeMaster, pdf_file,
 
     :param RestframeMaster: str. master grid file
     :param pdf_file: str. name of outputted file
-    :stack_spectra: bool. Default = False determines if plotting
-                    individual spectra (False) or stacked spectra (True)
+    :param stack_spectra: bool. Default = False determines if plotting
+                          individual spectra (False) or stacked spectra (True)
 
     PDF File: pdf_file
     No returns

@@ -6,8 +6,8 @@ fitspath_ini = '/Users/reagenleimbach/Desktop/Zcalbase_gal/'
 temp_met = '/Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0202/n_Bins_temperatures_metalicity.tbl'  #fitspath_ini+'R23O32_Manual_0202/n_Bins_temperature_metalicity.tbl'
 tm_table = asc.read(temp_met)
 
-verification_tab = fitspath_ini + 'verification_tables/n_Bins_verification_tab.tbl'
-v_tab = asc.read(verification_tab)
+valid_file = fitspath_ini + 'verification_tables/n_Bins_verification_tab.tbl'
+valid_tab = asc.read(valid_file)
 
 out_pdf = fitspath_ini+'green_pea_jiang.pdf'
 
@@ -19,7 +19,7 @@ R23_all = tm_table['R23_Composite']
 com_O_log = tm_table['com_O_log']  # This is the 12+log(OH) value
 ID = tm_table['ID']
 
-detect = v_tab['Detection']
+detect = valid_tab['Detection']
 
 det_4363 = np.where((detect == 1.0))[0]
 nan_det_4363 = np.where((detect == 0.0))[0]

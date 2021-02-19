@@ -9,7 +9,7 @@ from os.path import join
 from Zcalbase_gal.analysis.deep2_r23_o32 import zoom_and_gauss_general
 
 
-def r23_vs_o32_color(fitspath, ascii_file, bin_derived_prop_file, verify_file):
+def r23_vs_o32_color(fitspath, ascii_file, bin_derived_prop_file, valid_file):
     """
     Plotting function for R23 and O32 color mapping plots
 
@@ -17,7 +17,7 @@ def r23_vs_o32_color(fitspath, ascii_file, bin_derived_prop_file, verify_file):
     :param ascii_file: str. name of table combine_flux_ascii
     :param bin_derived_prop_file: str. name of table with temperature and
                                   metallicity measurements derived_properties
-    :param verify_file: str. name of verification table bin_validation_revised
+    :param valid_file: str. name of verification table bin_validation_revised
 
     PDF File: fitspath + 'R23_vs_O32_colormapping.pdf'
     No Returns
@@ -28,14 +28,14 @@ def r23_vs_o32_color(fitspath, ascii_file, bin_derived_prop_file, verify_file):
 
     ascii_tab = asc.read(ascii_file)
     bin_derived_prop_tab = asc.read(bin_derived_prop_file)
-    verify_tab = asc.read(verify_file)
+    valid_tab = asc.read(valid_file)
 
     R23 = ascii_tab['logR23_avg'].data
     O32 = ascii_tab['logO32_avg'].data
     T_e = bin_derived_prop_tab['T_e'].data
     com_O = bin_derived_prop_tab['12+log(O/H)'].data
     ID = bin_derived_prop_tab['bin_ID'].data
-    detect = verify_tab['Detection'].data
+    detect = valid_tab['Detection'].data
 
     cm = plt.cm.get_cmap('Blues')
     edge_det = np.where(detect == 1)[0]

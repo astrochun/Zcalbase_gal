@@ -235,11 +235,10 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
     n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg',
           'logO32_avg', 'logR23_median', 'logO32_median', 'logR23_max',
           'logO32_max')
-    bin_info_tab = Table([n_bins_range, area, np.log10(R23_lowlimit),
-                          np.log10(O32_lowlimit), np.log10(xBar),
-                          np.log10(yBar), np.log10(R23_medians),
-                          np.log10(O32_medians), np.log10(R23_maxval),
-                          np.log10(O32_maxval)], names=n1)
+    arr1 = [n_bins_range, area, np.log10(R23_lowlimit), np.log10(O32_lowlimit),
+            np.log10(xBar), np.log10(yBar), np.log10(R23_medians),
+            np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)]
+    bin_info_tab = Table(arr1, names=n1)
 
     # Used to be called +dataset+'_binning_averages.tbl
     bin_info_file = join(fitspath, filename_dict['bin_info'])
@@ -253,9 +252,10 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min',
           'logO32_min', 'logR23_avg', 'logO32_avg',
           'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
-    tab2 = Table([R23, O32, SNR3, bin_number, individual_ID,
-                 R23_minall, O32_minall, R23_avgall, O32_avgall,
-                 R23_medall, O32_medall, R23_maxall, O32_maxall], names=n2)
+    arr2 = [R23, O32, SNR3, bin_number, individual_ID,
+            R23_minall, O32_minall, R23_avgall, O32_avgall,
+            R23_medall, O32_medall, R23_maxall, O32_maxall]
+    indv_bin_info_tab = Table(arr2, names=n2)
 
     # Used to be + dataset+'_2d_binning_datadet3.tbl
     indv_bin_info_file = join(fitspath, filename_dict['indv_bin_info'])
@@ -263,7 +263,7 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
         log.info(f"Writing: {indv_bin_info_file}")
     else:
         log.info(f"Overwriting : {indv_bin_info_file}")
-    asc.write(tab2, indv_bin_info_file, format='fixed_width_two_line',
+    asc.write(indv_bin_info_tab, indv_bin_info_file, format='fixed_width_two_line',
               overwrite=True)
 
     '''n3 = ('ID' , 'R23_grid', 'O32_grid')

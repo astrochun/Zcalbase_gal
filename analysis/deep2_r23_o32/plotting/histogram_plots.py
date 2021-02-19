@@ -15,7 +15,7 @@ from Metallicity_Stack_Commons.column_names import temp_metal_names0, \
 
 
 def histogram(path, data_all, input_file, pdf_file,
-              verification_file, table_key='', sharex=False):
+              verify_file, table_key='', sharex=False):
     """
     Plots histograms for inputted values
 
@@ -37,9 +37,9 @@ def histogram(path, data_all, input_file, pdf_file,
 
     # Importing verification table that is always used
     # to get the values for just the detections
-    verification_tab = asc.read(verification_file)
-    detect = verification_tab[bin_names0[2]]
-    ID = verification_tab[bin_names0[0]]
+    verify_tab = asc.read(verify_file)
+    detect = verify_tab[bin_names0[2]]
+    ID = verify_tab[bin_names0[0]]
     detection = np.where((detect == 1))[0]
     ID_detect = ID[detection]
 
@@ -180,7 +180,7 @@ def histogram(path, data_all, input_file, pdf_file,
 
 
 def run_histogram_tm(path, input_file, dict_list,
-                     verification_file, sharex=False):
+                     verify_file, sharex=False):
     """
     Call run_histogram to combine all dictionaries into one large dictionary
     that gets passed into histogram and from there is plotted
@@ -215,11 +215,11 @@ def run_histogram_tm(path, input_file, dict_list,
     today = date.today()
     pdf_file = 'Te_M_histogram_plots_' + "%02i%02i" \
                % (today.month, today.day) + '.pdf'
-    histogram(path, histo_dict, input_file, pdf_file, verification_file,
+    histogram(path, histo_dict, input_file, pdf_file, verify_file,
               table_key='T_e', sharex=sharex)
 
 
-def run_histogram_fr(path, input_file, dict_list, verification_file,
+def run_histogram_fr(path, input_file, dict_list, verify_file,
                      sharex=False):
     """
     This function takes the flux_pdf distributions computed in error_prop
@@ -235,7 +235,7 @@ def run_histogram_fr(path, input_file, dict_list, verification_file,
                             combine_flux_table created zoom_and_gauss_general
     :param dict_list: ls. list of dictionaries whose data we want to plot
                             in a histogram
-    :param verification_file: str. table created independently of this code
+    :param verify_file: str. table created independently of this code
                         that tells us whether or not each bin is a detection
 
     No returns
@@ -243,8 +243,8 @@ def run_histogram_fr(path, input_file, dict_list, verification_file,
     if path[-1] != "/":
         path += "/"
 
-    verification_tab = asc.read(verification_file)
-    detect = verification_tab['Detection']
+    verify_tab = asc.read(verify_file)
+    detect = verify_tab['Detection']
     detection = np.where((detect == 1))[0]
     
     input_tab = asc.read(input_file)
@@ -307,5 +307,5 @@ def run_histogram_fr(path, input_file, dict_list, verification_file,
     today = date.today()
     pdf_file = 'Flux_Ratio histogram_plots_' + "%02i%02i" \
                % (today.month, today.day)+'.pdf'
-    histogram(path, histo_dict, input_file, pdf_file, verification_file,
+    histogram(path, histo_dict, input_file, pdf_file, verify_file,
               table_key='bin_ID', sharex=sharex)

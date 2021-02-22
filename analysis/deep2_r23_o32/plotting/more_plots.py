@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -6,7 +5,7 @@ from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import join
 
-from Zcalbase_gal.analysis.deep2_r23_o32 import zoom_and_gauss_general
+from .. import zoom_and_gauss_general
 
 
 def r23_vs_o32_color(fitspath, ascii_file, bin_derived_prop_file, valid_file):

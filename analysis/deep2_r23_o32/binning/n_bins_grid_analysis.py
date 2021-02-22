@@ -1,10 +1,11 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 from os.path import join, exists
+
+from ..plotting import manual_bin_grid
 
 from Metallicity_Stack_Commons.column_names import filename_dict
 
@@ -223,6 +224,9 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
     fig.savefig(pp, format='pdf')
     log.info(f"Writing: {pdf_file}")
     pp.close()
+
+    # New plotting function
+    manual_bin_grid.graph_bins(fitspath, n_split)
 
     # Writing as a dictionary
     avg_dict = {'locator': locator,

@@ -1,4 +1,3 @@
-
 import numpy as np
 from astropy.io import ascii as asc
 from os.path import exists, join

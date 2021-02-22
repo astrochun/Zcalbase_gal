@@ -30,7 +30,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
            Version for spectrum in zoom_and_gauss_general. Default: False
     :param adaptive: bool. Set to use adaptive binning, otherwise equal
            log(R23) bins. Default: True
-    :param apply_dust: bool. Apply dust correction. Default: False
+    :param apply_dust: bool. Apply dust correction. Default: True
+                    By setting apply_dust=true, all cases are run
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
     :param thesis: bool. Setting that creates documents for paper writing
@@ -52,6 +53,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         log.warning("Incorrect [dataset] input")
         raise ValueError("Warning!!!! Incorrect [dataset]")
 
+    log.info(f"Run has these parameters: y_correction={y_correction}, "
+             f"adaptive={adaptive}, apply_dust={apply_dust}, mask={mask}")
     log.info(f"fitspath_ini = {fitspath_ini}")
     log.info(f"fitspath = {fitspath}")
 

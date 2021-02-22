@@ -23,7 +23,7 @@ def graph_bins(fitspath, n_split):
     """
 
     bin_info = join(fitspath, filename_dict['bin_info'])
-    individual_info = join(fitspath, filename_dict['individual_prop'])
+    individual_info = join(fitspath, filename_dict['indv_prop'])
     pdf_pages = PdfPages(join(fitspath, 'manual_binning_shading.pdf'))
 
     tab = asc.read(bin_info)

@@ -1,6 +1,6 @@
 import sys
 from os.path import join
-from os import uname
+from platform import uname
 
 from getpass import getuser
 from socket import gethostname

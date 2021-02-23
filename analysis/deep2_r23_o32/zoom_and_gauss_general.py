@@ -41,7 +41,7 @@ def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
     log.debug("starting ...")
 
     # New plots for line flagging
-    out_pdf = join(fitspath, f"_lineflag_check_{line_name0}.pdf")
+    out_pdf = join(fitspath, f"lineflag_check_{line_name0}.pdf")
     pdf_pages2 = PdfPages(out_pdf)
 
     t_ax2 = ax_arr[row, col]
@@ -144,7 +144,8 @@ def get_gaussian_fit(dataset, s2, working_wave, x0, y_norm, x_idx, rms,
     return o1, med0, max0
 
 
-def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
+def equi_width_func(fitspath, pos_comp, neg0, gauss0, wave, y_norm, line_name,
+                    log):
     """
     Equivalent width correction/computation
     Used in zoom_gauss_plot()
@@ -159,20 +160,24 @@ def equi_width_func(pos_comp, neg0, gauss0, x0, wave, y_norm):
     equivalent width in terms of Angstroms
     update plots
     """
-
+    pdfpages3 = PdfPages(join(fitspath, f"PlottingBalmer{line_name}.pdf"))
+    fig, ax = plt.subplots()
     plt.plot(wave, y_norm, 'k', linewidth=0.3, label='Emission')
-    plt.plot(x0, neg0, 'b', linewidth=0.25, label='Negative Component')
-    plt.plot(x0, pos_comp, 'r', linewidth=0.25, label='Positive Component')
-    plt.plot(x0, gauss0, 'g', linewidth=0.25, label='Gauss Fit')
-
+    plt.plot(wave, neg0, 'b', linewidth=0.25, label='Negative Component')
+    plt.plot(wave, pos_comp, 'r', linewidth=0.25, label='Positive Component')
+    plt.plot(wave, gauss0, 'g', linewidth=0.25, label='Gauss Fit')
+    fig.set_size_inches(8, 8)
+    log.debug(f"Writing: PlottingBalmer{line_name}.pdf")
+    fig.savefig(pdfpages3, format='pdf')
+    pdfpages3.close()
 
 # For each individual stack
 # Electron temperature and the R23 and O32 values
 # Plotting Zoomed
-def zoom_gauss_plot(dataset, fits_dict, s2,
+def zoom_gauss_plot(fitspath, dataset, fits_dict, s2,
                     working_wave, lineflag, bin_info_tab,
                     y_correction='', line_type='',
-                    out_pdf='', line_name='', log=None):
+                    out_pdf='', line_name='', thesis=False, log=None):
     """
     Main function that is called by run function (zm_general).
     Gets the data, fits a gaussian curve
@@ -196,6 +201,7 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
     :param line_name: str. name of the line we are fitting
                     'OII_3727', 'HDELTA', 'HGAMMA', 'OIII_4363',
                     'HBETA', 'OIII_4958', 'OIII_5007'
+    :param thesis: bool. Setting that creates documents for paper writing
     :param log: LogClass. Default use log_stdout()
 
     Debugging Note
@@ -296,14 +302,9 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
                 neg_comp = neg0[x_sigsnip]
                 flux_neg = np.sum(neg_comp*dx)
                 equiv_wid = flux_neg/o1[3]
-
-                # Keeping this here for possible later use.
-                # Might belong in MSC balmer module
-                # pdfpages3 = PdfPages(fitspath + '/' + dataset
-                # + '_PlottingBalmer_' + line_name+'.pdf')
-                # equi_width_func(fitspath, dataset, working_wave,
-                # pos_comp, neg0, gauss0, x0, wave,
-                # y_norm, line_type, pdfpages3)
+                if thesis:
+                    equi_width_func(fitspath, pos_comp, neg0, gauss0, wave,
+                                    y_norm, line_name, log=log)
 
             if line_type == 'Oxy2':
                 x_sigsnip = np.where(((wave-working_wave)/o1[1] >= -2.5) &
@@ -326,10 +327,11 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             rms_tot, rms_pix = rms_func(wave, dispersion, working_wave, y0, o1[1],
                                         lineflag)
 
-            # Line Flag Checking Plots
-            # line_flag_check(fitspath, working_wave, lineflag,
-            #                 wave, y_norm, stack2d,
-            #                 line_name, row, col, fig, ax_arr, log=log)
+            if thesis:
+                # Line Flag Checking Plots
+                line_flag_check(fitspath, working_wave, lineflag,
+                                wave, y_norm, line_name, row, col, fig,
+                                ax_arr, log=log)
 
             # Array Population
             norm_array[rr] = max0
@@ -482,14 +484,13 @@ def zoom_gauss_plot(dataset, fits_dict, s2,
             tab0.add_column(equ_add, 2)
 
     pdf_pages.close()
-    # pdfpages3.close() # Add back in equivalent width plots are added
     fig.clear()
 
     log.debug("finished.")
     return tab0
 
 
-def zm_general(dataset, fitspath, y_correction, log=None):
+def zm_general(dataset, fitspath, y_correction, thesis=False, log=None):
     """
     Run function for gaussian fitting step
 
@@ -536,12 +537,12 @@ def zm_general(dataset, fitspath, y_correction, log=None):
     for ii in range(len(lambda0)):
         out_pdf = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
         log.info(f"out_pdf: {out_pdf}")
-        em_tab = zoom_gauss_plot(dataset, fits_dict, s2, lambda0[ii],
+        em_tab = zoom_gauss_plot(fitspath, dataset, fits_dict, s2, lambda0[ii],
                                  lineflag, bin_info_tab,
                                  y_correction=y_correction,
                                  line_type=line_type[ii],
                                  out_pdf=out_pdf, line_name=line_name[ii],
-                                 log=log)
+                                 thesis=thesis, log=log)
 
         table_stack = hstack([table_stack, em_tab])
 

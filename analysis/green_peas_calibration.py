@@ -15,9 +15,14 @@ def O32_OH_fit(xy, a, b, c, d, e):
     """
     Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
     Used by main() function
-    :param x: 12+log(O/H)
-    :param y: log([OIII]/[OII])
-    :param a, b, c, d, e,:  Jiang coefficients
+    :param xy: Array of 12+log(O/H), log([OIII]/[OII])
+
+    Jiang coefficients
+    :param a:
+    :param b:
+    :param c:
+    :param d:
+    :param e:
     """
 
     x = xy[0]
@@ -28,14 +33,13 @@ def O32_OH_fit(xy, a, b, c, d, e):
     return logR23
 
 
-def jiang18(x, y):
+def jiang18(xy):
     """
     Function to return log(R23) based on metallicity
     and [OIII]/[OII] flux ratio
     Used by main() function
 
-    :param x: array. 12+log(O/H)
-    :param y: array. log([OIII]/[OII])
+    :param xy: array. 12+log(O/H), log([OIII]/[OII])
     """
 
     logR23 = O32_OH_fit(xy, * jiang18_coeffs)

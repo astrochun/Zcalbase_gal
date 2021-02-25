@@ -226,9 +226,6 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     log.info(f"Writing: {pdf_pages}")
     pp.close()
 
-    # New plotting function
-    manual_bin_grid.graph_bins(fitspath, n_split)
-
     # Writing as a dictionary
     avg_dict = {'locator': locator,
                 'R23_minimum': R23_minimum,
@@ -279,5 +276,8 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
             log.info(f"Overwriting : {grid_values_file}")
         asc.write(tab1, grid_values_file, format='fixed_width_two_line',
                   overwrite=True)
+
+    # New plotting function
+    manual_bin_grid.graph_bins(fitspath, n_split)
 
     log.debug("finished.")

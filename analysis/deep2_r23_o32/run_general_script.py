@@ -26,7 +26,7 @@ params_list = [
 if __name__ == '__main__':
     dataset = 'n_Bins'
 
-    general.run_grid_r23_o32_analysis(dataset)
+    general.run_grid_r23_o32_analysis(dataset, apply_dust=True)
 
     fitspath_ini = get_user()
     for params in params_list:

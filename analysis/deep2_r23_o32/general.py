@@ -31,7 +31,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     :param adaptive: bool. Set to use adaptive binning, otherwise equal
            log(R23) bins. Default: True
     :param apply_dust: bool. Apply dust correction. Default: True
-                    By setting apply_dust=true, all cases are run
+                       By setting apply_dust=true, all cases are run
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
     :param thesis: bool. Setting that creates documents for paper writing

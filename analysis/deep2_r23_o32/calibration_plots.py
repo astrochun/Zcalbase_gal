@@ -131,7 +131,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
                                     xra=[0.3, 1.15], yra=[6.5, 9.10],
                                     marker=['D'],
                                     edgecolors=['face', 'face', 'none'],
-                                    alpha=alpha, ID=[bin_ID],
+                                    alpha=alpha, IDs=[bin_ID],
                                     label=['Individual Zcalbase_gal Detection'],
                                     fit=False)
 
@@ -259,5 +259,4 @@ def individual_gpc(indv_file, valid_file, name, log=None):
     green_peas_calibration.main(lR23, lO32, OH, name, n_bins=6,
                                 xra=[0.3, 1.15], yra=[6.5, 9.10],
                                 marker=['3'], label=['Individual Detection'],
-                                ID=Id, fit=False, log=log)
-
+                                IDs=Id, fit=False, log=log)

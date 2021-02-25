@@ -85,11 +85,11 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
         # Label in upper left the points
         if len(label) != 0:
             x1 = OH_range[0] + 0.025*(OH_range[1]-OH_range[0])
-            y1 = dR23_range[1] - (nn*0.035 + 0.05)\
-                 *(dR23_range[1]-dR23_range[0])
+            y1 = dR23_range[1] - (nn*0.035 + 0.05) \
+                * (dR23_range[1]-dR23_range[0])
             x2 = OH_range[0] + 0.035*(OH_range[1]-OH_range[0])
-            y2 = dR23_range[1] - (nn*0.035 + 0.0525)\
-                 *(dR23_range[1]-dR23_range[0])
+            y2 = dR23_range[1] - (nn*0.035 + 0.0525) \
+                * (dR23_range[1]-dR23_range[0])
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
             ax.plot([x1], [y1], marker=marker[nn], color='black')
 

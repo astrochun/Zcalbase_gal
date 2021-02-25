@@ -19,6 +19,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     :param fitspath: str. save location of the current run
     :param fitspath_ini: str.
     :param dataset: str. indicates the type of binning being used
+    :param apply_dust: bool. Apply dust correction. Default: False
     :param revised: bool. indicates that revised verification table
                     is being used
     :param individual: bool.used if individual detections

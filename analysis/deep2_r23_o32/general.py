@@ -1,28 +1,24 @@
 # This function runs the entire process start to finish
 # EW values:equival width
-from . import name_dict, get_det3
-import numpy as np
-from astropy.io import fits
-from astropy.io import ascii as asc
-from astropy.table import Table, vstack
-from os.path import join, exists
+from . import get_det3
+from os.path import join
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
     calibration_plots, name_dict
 from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from .plotting import more_plots, line_ratio_plotting, te_metal_plots
-from .log_commons import LogClass, log_stdout
+from .log_commons import LogClass
 
-from Metallicity_Stack_Commons import exclude_outliers, dir_date, lambda0, \
-    valid_table, get_user
+from Metallicity_Stack_Commons import dir_date, valid_table, get_user
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Metallicity_Stack_Commons.plotting import balmer
 from Metallicity_Stack_Commons.analysis import error_prop
 
 
 def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
-                              adaptive=True, apply_dust=False, mask=True):
+                              adaptive=True, apply_dust=False, mask=True,
+                              thesis=False):
     """
     Function runs the entire analysis
 
@@ -34,9 +30,11 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
            Version for spectrum in zoom_and_gauss_general. Default: False
     :param adaptive: bool. Set to use adaptive binning, otherwise equal
            log(R23) bins. Default: True
-    :param apply_dust: bool. Apply dust correction. Default: False
+    :param apply_dust: bool. Apply dust correction. Default: True
+                       By setting apply_dust=true, all cases are run
     :param mask: bool. Mask night sky mask in stackingboth_mastergrid.
            Default: True
+    :param thesis: bool. Setting that creates documents for paper writing
 
     No returns
     """
@@ -55,6 +53,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         log.warning("Incorrect [dataset] input")
         raise ValueError("Warning!!!! Incorrect [dataset]")
 
+    log.info(f"Run has these parameters: y_correction={y_correction}, "
+             f"adaptive={adaptive}, apply_dust={apply_dust}, mask={mask}")
     log.info(f"fitspath_ini = {fitspath_ini}")
     log.info(f"fitspath = {fitspath}")
 
@@ -91,7 +91,8 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
         n_bins_grid_analysis.n_times_binned(fitspath, bin_pdf_pages,
                                             bin_outfile, n_split,
                                             individual_ID, R23, O32,
-                                            SNR3, data3, galinbin, log=log)
+                                            SNR3, data3, galinbin,
+                                            thesis=thesis, log=log)
 
     log.info("made npz, pdf files, testmastergrid "
              "(need to find if this is used anywhere)")
@@ -114,7 +115,7 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # Option to change: Constants used as initial guesses for gaussian fit
 
     zoom_and_gauss_general.zm_general(dataset, fitspath, y_correction, 
-                                      log=log)
+                                      thesis=thesis, log=log)
 
     log.info(f"finished gaussian fitting: {fitspath}Zoomed_Gauss_*" +
              " pdfs and fits created")

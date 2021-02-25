@@ -13,7 +13,7 @@ from ..log_commons import log_stdout
 
 
 def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
-                   R23, O32, SNR3, data3, galinbin, log=None):
+                   R23, O32, SNR3, data3, galinbin, thesis=False, log=None):
     """
     This file holds the function to bin data adaptively based on the entered
     number of galaxies for each bin.
@@ -34,6 +34,7 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
     :param SNR3: np.array. Signal to noise of the OIII emission lines
                             of each spectra
     :param data3: np.array. From get_det3 - indicates if spectra can be used
+    :param thesis: bool. Setting that creates documents for paper writing
     :param log: LogClass or logging object
 
     No returns
@@ -270,11 +271,16 @@ def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
     asc.write(indv_bin_info_tab, indv_bin_info_file, format='fixed_width_two_line',
               overwrite=True)
 
-    '''n3 = ('ID' , 'R23_grid', 'O32_grid')
-    tab1 = Table([n_bins_range, R23_grid, O32_grid], names = n3)
-    log.info(f"Writing: {fitspath+'/Double_Bin_grid_values.tbl'}")
-    log.info(f"Overwriting : {fitspath+'/Double_Bin_grid_values.tbl'}")
-    asc.write(tab1, fitspath+'/Double_Bin_grid_values.tbl', format='fixed_width_two_line', overwrite=True)'''
     # Create another ascii table with the R23_grid and O32_grid values for plots
+    if thesis:
+        n3 = ('ID', 'R23_Average', 'O32_Average')
+        grid_values_file = join(fitspath, 'grid_values.tbl')
+        tab1 = Table([n_bins_range, np.log10(xBar), np.log10(yBar)], names=n3)
+        if not exists(grid_values_file):
+            log.info(f"Writing: {grid_values_file}")
+        else:
+            log.info(f"Overwriting : {grid_values_file}")
+        asc.write(tab1, grid_values_file, format='fixed_width_two_line',
+                  overwrite=True)
 
     log.debug("finished.")

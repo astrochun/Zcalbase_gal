@@ -226,9 +226,6 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     log.info(f"Writing: {pdf_pages}")
     pp.close()
 
-    # New plotting function
-    manual_bin_grid.graph_bins(fitspath, n_split)
-
     # Writing as a dictionary
     avg_dict = {'locator': locator,
                 'R23_minimum': R23_minimum,
@@ -247,11 +244,13 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
 
     # Used to be called +dataset+'_binning_averages.tbl
     bin_outfile = join(fitspath, filename_dict['bin_info'])
+    print(bin_outfile)
     if not exists(bin_outfile):
         log.info(f"Writing: {bin_outfile}")
     else:
         log.info(f"Overwriting : {bin_outfile}")
     asc.write(tab1, bin_outfile, format='fixed_width_two_line', overwrite=True)
+    print('wrote bin_outfile')
 
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min',
           'logO32_min', 'logR23_avg', 'logO32_avg',
@@ -279,5 +278,8 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
             log.info(f"Overwriting : {grid_values_file}")
         asc.write(tab1, grid_values_file, format='fixed_width_two_line',
                   overwrite=True)
+
+    # New plotting function
+    manual_bin_grid.graph_bins(fitspath, n_split)
 
     log.debug("finished.")

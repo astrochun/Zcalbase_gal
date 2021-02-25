@@ -16,7 +16,7 @@ jiang_coeff = [-24.135, 6.1532, -0.37866, -0.147, -7.071]
 bian_coeff = [138.0430, -54.8284, 7.2954, -0.32293]
 
 
-def jiang_calibration(metal_det, lo32):
+def jiang_calibration(metal_det, lO32):
     """
     Calculating the Jiang calibration for the metallicity
     and O32 measurements enter
@@ -33,7 +33,7 @@ def jiang_calibration(metal_det, lo32):
 
     p_jiang = np.poly1d([jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]])
     shortcut = p_jiang(metal_det) + \
-               jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+               jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lO32
     return shortcut
 
 

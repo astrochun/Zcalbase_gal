@@ -32,7 +32,8 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     name     -> name of the file produced (ie name = 'SN_each_bin.pdf')
     individual_properties -> table of all the spectra
     """
-    pdfpages = PdfPages(join(fitspath, name))
+    pdf_file = join(fitspath, name)
+    pp = PdfPages(pdf_file)
     ascii_tab = asc.read(individual_properties)
     R23_ini= ascii_tab['logR23']
     SN_5007 = ascii_tab['SN_5007']
@@ -77,7 +78,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax1.scatter(R23[c1], SN_5007[c1], 1.5, color='b', label='Low Ionization')
     ax1.legend(loc=0, fontsize=3)
     ax1.set_yscale("log")
-    fig1.savefig(pdfpages, format='pdf')
+    fig1.savefig(pp, format='pdf')
     fig1.clear()
 
     ax2.scatter(R23[g2], SN_5007[g2], 1.5, color='r', label='High Ionization')
@@ -88,7 +89,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax2.scatter(R23[c2], SN_5007[c2], 1.5, color='b')
     ax2.legend(loc=0, fontsize=3)
     ax2.set_yscale("log")
-    fig2.savefig(pdfpages, format='pdf')
+    fig2.savefig(pp, format='pdf')
     fig2.clear()
 
     ax3.scatter(R23[g3], SN_5007[g3], 1.5, color='r', label='High Ionization')
@@ -100,7 +101,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax3.scatter(R23[c3], SN_5007[c3], 1.5, color='b', label='Low Ionization')
     ax3.set_yscale("log")
     ax3.legend(loc=0, fontsize=3)
-    fig3.savefig(pdfpages, format='pdf')
+    fig3.savefig(pp, format='pdf')
     fig3.clear()
 
     ax4.scatter(R23[g4], SN_5007[g4], 1.5, color='r', label='High Ionization')
@@ -112,7 +113,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax4.scatter(R23[c4], SN_5007[c4], 1.5, color='b', label='Low Ionization')
     ax4.legend(loc=0, fontsize=3)
     ax4.set_yscale("log")
-    fig4.savefig(pdfpages, format='pdf')
+    fig4.savefig(pp, format='pdf')
     fig4.clear()
 
     ax5.scatter(R23[g5], SN_5007[g5], 1.5, color='r', label='High Ionization')
@@ -124,7 +125,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax5.scatter(R23[c5], SN_5007[c5], 1.5, color='b', label='Low Ionization')
     ax5.legend(loc=0, fontsize=3)
     ax5.set_yscale("log")
-    fig5.savefig(pdfpages, format='pdf')
+    fig5.savefig(pp, format='pdf')
     fig5.clear()
 
     ax6.scatter(R23[g6], SN_5007[g6], 1.5, color='r', label='High Ionization')
@@ -136,7 +137,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax6.scatter(R23[c6], SN_5007[c6], 1.5, color='b', label='Low Ionization')
     ax6.legend(loc=0, fontsize=3)
     ax6.set_yscale("log")
-    fig6.savefig(pdfpages, format='pdf')
+    fig6.savefig(pp, format='pdf')
     fig6.clear()
 
     ax7.scatter(R23[g7], SN_5007[g7], 1.5, color='r', label='High Ionization')
@@ -147,7 +148,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax7.scatter(R23[c7], SN_5007[c7], 1.5, color='b', label='Low Ionization')
     ax7.legend(loc=0, fontsize=3)
     ax7.set_yscale("log")
-    fig7.savefig(pdfpages, format='pdf')
+    fig7.savefig(pp, format='pdf')
     fig7.clear()
 
     ax8.scatter(R23[g8], SN_5007[g8], 1.5, color='r', label='High Ionization')
@@ -158,7 +159,7 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax8.scatter(R23[c8], SN_5007[c8], 1.5, color='b', label='Low Ionization')
     ax8.legend(loc=0, fontsize=3)
     ax8.set_yscale("log")
-    fig8.savefig(pdfpages, format='pdf')
+    fig8.savefig(pp, format='pdf')
     fig8.clear()
 
     ax9.scatter(R23[g9], SN_5007[g9], 1.5, color='r', label='High Ionization')
@@ -169,10 +170,10 @@ def SN_each_bin_firstdraft(fitspath, name, individual_properties):
     ax9.scatter(R23[c9], SN_5007[c9], 1.5, color='b', label='Low Ionization')
     ax9.legend(loc=0, fontsize=3)
     ax9.set_yscale("log")
-    fig9.savefig(pdfpages, format='pdf')
+    fig9.savefig(pp, format='pdf')
     fig9.clear()
 
-    pdfpages.close()
+    pp.close()
 
 
 def SN_each_bin(fitspath, name, individual_properties):
@@ -189,7 +190,8 @@ def SN_each_bin(fitspath, name, individual_properties):
     name     -> name of the file produced (ie name = 'SN_each_bin.pdf')
     individual_properties -> table of all the spectra
     """
-    pdfpages = PdfPages(join(fitspath, name))
+    pdf_file = join(fitspath, name)
+    pp = PdfPages(pdf_file)
     ascii_tab = asc.read(individual_properties)
     R23_ini = ascii_tab['logR23']
     O32_ini = ascii_tab['logO32']
@@ -231,16 +233,16 @@ def SN_each_bin(fitspath, name, individual_properties):
         ax1.set_ylabel('SN_5007')
         ax1.legend(loc=0, fontsize=3)
         ax1.set_yscale("log")
-        fig1.savefig(pdfpages, format='pdf')
+        fig1.savefig(pp, format='pdf')
         fig1.clear()
 
     n = ('Bin', 'SN_5007 Minimum', 'SN_5007 Maximum', 'Average', 'Median')
     tab = Table([bins, all_min, all_max, all_average, all_median], names=n)
     asc.write(tab, fitspath + '/SN_5007_values.tbl', format='fixed_width_two_line')
-    pdfpages.close()
-    
+    pp.close()
 
-def SN_5007_stats_plot(fitspath, name, out_pdf):
+
+def SN_5007_stats_plot(fitspath, name, pdf_file):
     """
     Purpose
     Plots O32 vs SN_5007
@@ -248,7 +250,7 @@ def SN_5007_stats_plot(fitspath, name, out_pdf):
     Parameters
     fitspath -> path where files are called from and saved to
     name -> '/SN_5007_values.tbl'
-    out_pdf -> 'SN_5007_stats_plots.pdf'
+    pdf_file -> 'SN_5007_stats_plots.pdf'
     """
     infile = join(fitspath, name)
 
@@ -269,4 +271,4 @@ def SN_5007_stats_plot(fitspath, name, out_pdf):
         t_ax.scatter(tab['Bin'][O32_idx1], tab[colname][O32_idx1], color='g', marker='.')
         t_ax.scatter(tab['Bin'][O32_idx2], tab[colname][O32_idx2], color='b', marker='.')
 
-    fig.savefig(join(fitspath, out_pdf))
+    fig.savefig(join(fitspath, pdf_file))

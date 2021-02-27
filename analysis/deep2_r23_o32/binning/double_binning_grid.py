@@ -9,7 +9,7 @@ from astropy.table import Table
 from ..log_commons import log_stdout
 
 
-def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
+def two_times_binned(fitspath, pdf_file, npz_outfile, R23, O32, SNR3, data3,
                      galinbin, log=None):
     """
     One_dimensional binning for R23 followed by each bin being split in
@@ -18,8 +18,8 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
     Followed by plotting the spectra in their R23-O32 bins for visual
 
     :param fitspath: str. Path where files are retrieved and saved to
-    :param pdf_pages: str. Name of outputted pdf file
-                      fitspath + name_dict['gridpdf_suffix']
+    :param pdf_file: str. Name of outputted pdf file
+                     fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. Name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. Array of R23 from the get_det3 function
@@ -36,7 +36,7 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
         log = log_stdout()
 
     log.debug("starting ...")
-    pp = PdfPages(pdf_pages)
+    pp = PdfPages(pdf_file)
 
     # One_dimensional binning for R23
 
@@ -131,7 +131,7 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
         plt.axvline(x=h_lines[pp], linewidth=0.3, color='k')
     fig.savefig(pp, format='pdf')
 
-    log.info(f"Writing: {pdf_pages}")
+    log.info(f"Writing: {pdf_file}")
     pp.close()
     fig.clear()
 
@@ -141,22 +141,26 @@ def two_times_binned(fitspath, pdf_pages, npz_outfile, R23, O32, SNR3, data3,
              N_arr0=N_arr0)
 
     n1 = ('ID', 'R23_value', 'O32_median', 'xBar', 'yBar', 'area')
-    tab1 = Table([n_bins_range, R23_values, O32_values, xBar, yBar, area],
-                 names=n1)
-    out_table_file = join(fitspath, "Double_Bin_binning_averages.tbl")
-    if not exists(out_table_file):
-        log.info(f"Writing: {out_table_file}")
+    arr1 = [n_bins_range, R23_values, O32_values, xBar, yBar, area]
+    binning_averages_tab = Table(arr1, names=n1)
+    binning_averages_file = join(fitspath, "Double_Bin_binning_averages.tbl")
+    if not exists(binning_averages_file):
+        log.info(f"Writing: {binning_averages_file}")
     else:
-        log.info(f"Overwriting : {out_table_file}")
-    asc.write(tab1, out_table_file, format='fixed_width_two_line', overwrite=True)
+        log.info(f"Overwriting : {binning_averages_file}")
+    asc.write(binning_averages_tab, binning_averages_file,
+              format='fixed_width_two_line',
+              overwrite=True)
 
     n2 = ('R23', 'O32', 'SN_5007', 'N_bin')
-    tab2 = Table([R23, O32, SNR3, N_bin], names=n2)
-    out_table_file3 = join(fitspath, "Double_Bin_2d_binning_datadet3.tbl")
-    if not exists(out_table_file3):
-        log.info(f"Writing: {out_table_file3}")
+    binning_datadet_tab = Table([R23, O32, SNR3, N_bin], names=n2)
+    binning_datadet3_file3 = join(fitspath,
+                                  "Double_Bin_2d_binning_datadet3.tbl")
+    if not exists(binning_datadet3_file3):
+        log.info(f"Writing: {binning_datadet3_file3}")
     else:
-        log.info(f"Overwriting : {out_table_file3}")
-    asc.write(tab2, out_table_file3, format='fixed_width_two_line', overwrite=True)
+        log.info(f"Overwriting : {binning_datadet3_file3}")
+    asc.write(binning_datadet_tab, binning_datadet3_file3,
+              format='fixed_width_two_line', overwrite=True)
 
     log.debug("finished.")

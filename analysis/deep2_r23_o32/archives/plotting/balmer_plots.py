@@ -10,7 +10,7 @@ from Zcalbase_gal.Analysis.DEEP2_R23_O32 import zoom_and_gauss_general as zm
 scalefact = 1e-17
 
 
-def balmer_graphs(fitspath, nrows, ncols, Stack_name, combine_flux_tab, out_pdf):
+def balmer_graphs(fitspath, nrows, ncols, Stack_name, combine_flux_tab, pdf_file):
     """
     Purpose
     This code generates a pdf file with all the balmer plots for a given bin
@@ -23,8 +23,8 @@ def balmer_graphs(fitspath, nrows, ncols, Stack_name, combine_flux_tab, out_pdf)
     Stack_name -> name of the file that is produced by the stacking code
                   that contains information about the stacks
     combine_flux_tab -> table that holds the information of the guassian curves from zoom_and_gauss_general
-    out_pdf  -> name of the outputted pdf file
-                (ie. out_pdf = fitspath + '/AllBalmer_line_fitting.pdf')
+    pdf_file  -> name of the outputted pdf file
+                (ie. pdf_file = fitspath + '/AllBalmer_line_fitting.pdf')
     """
     stack2D, header = fits.getdata(Stack_name, header=True)
     wave = header['CRVAL1'] + header['CDELT1']*np.arange(header['NAXIS1'])
@@ -55,7 +55,7 @@ def balmer_graphs(fitspath, nrows, ncols, Stack_name, combine_flux_tab, out_pdf)
     D_an = combine_asc['HDELTA_Neg_Amp']
 
     # Still need to incoorporate various working waves and importing xo, ynorm
-    pdfpages = PdfPages(out_pdf)
+    pdfpages = PdfPages(pdf_file)
 
     for ii in range(len(ID)):
    

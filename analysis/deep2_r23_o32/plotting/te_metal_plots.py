@@ -16,7 +16,7 @@ jiang_coeff = [-24.135, 6.1532, -0.37866, -0.147, -7.071]
 bian_coeff = [138.0430, -54.8284, 7.2954, -0.32293]
 
 
-def jiang_calibration(metal_det, lo32):
+def jiang_calibration(metal_det, lO32):
     """
     Calculating the Jiang calibration for the metallicity
     and O32 measurements enter
@@ -33,7 +33,7 @@ def jiang_calibration(metal_det, lo32):
 
     p_jiang = np.poly1d([jiang_coeff[2], jiang_coeff[1], jiang_coeff[0]])
     shortcut = p_jiang(metal_det) + \
-               jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lo32
+               jiang_coeff[3] * (jiang_coeff[4] + metal_det) * lO32
     return shortcut
 
 
@@ -102,27 +102,29 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     if apply_dust:
         suffix += '.dustcorr'
 
-    out_pdf = join(fitspath, f"temperature_metallicity_plots{suffix}.pdf")
+    pdf_file = join(fitspath, f"temperature_metallicity_plots{suffix}.pdf")
 
-    temperature_table = join(fitspath, f"bin_derived_properties{suffix}.tbl")
-    log.info(f"Reading: {temperature_table}")
-    comp_derived = asc.read(temperature_table)
+    bin_derived_prop_file = join(fitspath, f"bin_derived_properties{suffix}.tbl")
+    log.info(f"Reading: {bin_derived_prop_file}")
+    bin_derived_prop_tab = asc.read(bin_derived_prop_file)
 
     if revised:
-        verification = asc.read(join(fitspath, filename_dict['bin_valid_rev']))
+        valid_file = join(fitspath, filename_dict['bin_valid_rev'])
     else:
-        verification = asc.read(join(fitspath, filename_dict['bin_valid']))
-    log.info(f"Reading: {verification}")
+        valid_file = join(fitspath, filename_dict['bin_valid'])
+    log.info(f"Reading: {valid_file}")
+    valid_tab = asc.read(valid_file)
 
     # Individual Measurements
     if individual:
-        indv_all_file = join(fitspath, filename_dict['indv_derived_prop'])
-        log.info(f"Reading: {indv_all_file}")
-        indv_all = asc.read(indv_all_file)
+        indv_derived_prop_file = join(fitspath,
+                                      filename_dict['indv_derived_prop'])
+        log.info(f"Reading: {indv_derived_prop_file}")
+        indv_derived_prop_tab = asc.read(indv_derived_prop_file)
 
-        icom_log = indv_all['12+log(O/H)']
-        ilogR23 = indv_all['logR23']
-        ilogO32 = indv_all['logO32']
+        icom_log = indv_derived_prop_tab['12+log(O/H)']
+        ilogR23 = indv_derived_prop_tab['logR23']
+        ilogO32 = indv_derived_prop_tab['logO32']
         iidx = np.where((icom_log != 0.0))[0]
 
         iiR23_idv = ilogR23[iidx]
@@ -132,51 +134,51 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
         log.info(f"len: {len(iR23_idv)}")
 
     # DEEP2 and MACT Data
-    DEEP_table = join(fitspath_ini,
-                      'DEEP2_Commons/Catalogs/DEEP2_R23_O32_derived.tbl')
-    MACT_table = join(fitspath_ini,
-                      'MACT_Commons/Catalogs/MACT_R23_O32_derived.tbl')
-    log.info(f"Reading: {DEEP_table}")
-    derived_DEEP = asc.read(DEEP_table)
+    derived_deep2_file = join(fitspath_ini, 'DEEP2_Commons/Catalogs/',
+                              'DEEP2_R23_O32_derived.tbl')
+    derived_mact_file = join(fitspath_ini, 'MACT_Commons/Catalogs/',
+                             'MACT_R23_O32_derived.tbl')
+    log.info(f"Reading: {derived_deep2_file}")
+    derived_deep2_tab = asc.read(derived_deep2_file)
 
-    log.info(f"Reading: {MACT_table}")
-    derived_MACT = asc.read(MACT_table)
+    log.info(f"Reading: {derived_mact_file}")
+    derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
-    der_R23 = np.log10(derived_DEEP['R23'].data)
-    der_O32 = np.log10(derived_DEEP['O32'].data)
-    der_Te = derived_DEEP['Te'].data
-    der_OH = derived_DEEP['OH'].data
-    ID_der = derived_DEEP['ID'].data
+    der_R23 = np.log10(derived_deep2_tab['R23'].data)
+    der_O32 = np.log10(derived_deep2_tab['O32'].data)
+    der_Te = derived_deep2_tab['Te'].data
+    der_OH = derived_deep2_tab['OH'].data
+    ID_der = derived_deep2_tab['ID'].data
     # der_OH_log = np.log10(er_OH_log)
 
     # MACT Derived
-    der_R23_MACT = np.log10(derived_MACT['R23'].data)
-    der_O32_MACT = np.log10(derived_MACT['O32'].data)
-    der_Te_MACT = derived_MACT['Te'].data
-    der_OH_MACT = derived_MACT['OH'].data
-    ID_der_MACT = derived_MACT['ID'].data
+    der_R23_MACT = np.log10(derived_mact_tab['R23'].data)
+    der_O32_MACT = np.log10(derived_mact_tab['O32'].data)
+    der_Te_MACT = derived_mact_tab['Te'].data
+    der_OH_MACT = derived_mact_tab['OH'].data
+    ID_der_MACT = derived_mact_tab['ID'].data
 
     # Composite Measurements
-    R23_composite = comp_derived['logR23_composite'].data
-    O32_composite = comp_derived['logO32_composite'].data
-    ID_composite = comp_derived['bin_ID'].data
-    T_e_composite = comp_derived['T_e'].data
-    metal_composite = comp_derived['12+log(O/H)'].data
+    R23_composite = bin_derived_prop_tab['logR23_composite'].data
+    O32_composite = bin_derived_prop_tab['logO32_composite'].data
+    ID_composite = bin_derived_prop_tab['bin_ID'].data
+    T_e_composite = bin_derived_prop_tab['T_e'].data
+    metal_composite = bin_derived_prop_tab['12+log(O/H)'].data
 
     # Verification Table
-    ver_detection = verification['Detection'].data
+    ver_detection = valid_tab['Detection'].data
     ver_detect = np.where((ver_detection == 1))[0]
     ver_rlimit = np.where((ver_detection == 0.5))[0]
 
-    pdf_pages = PdfPages(out_pdf)
+    pp = PdfPages(pdf_file)
     if individual:
         fig, ax = plt.subplots()
         ax.scatter(iR23_idv, iO32_idv, marker='.', s=35, color='g')
         ax.set_title(r'$R_{23}$ vs. $O_{32}$')
         ax.set_xlabel(r'log($R_{23}$)')
         ax.set_ylabel(r'log($O_{32}$)')
-        fig.savefig(pdf_pages, format='pdf')
+        fig.savefig(pp, format='pdf')
         fig.clear()
 
     # ########################################################################
@@ -208,7 +210,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax1.set_ylabel(r'$R_{23}$')
     ax1.set_title(r'Temperatures vs $R_{23}$ Temperature')
 
-    fig1.savefig(pdf_pages, format='pdf')
+    fig1.savefig(pp, format='pdf')
     fig1.clear()
 
     # ########################################################################
@@ -240,7 +242,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax2.set_ylabel(r'$O_{32}$')
     ax2.set_title(r'Temperatures vs $O_{32}$ Temperature')
 
-    fig2.savefig(pdf_pages, format='pdf')
+    fig2.savefig(pp, format='pdf')
     fig2.clear()
 
     # ########################################################################
@@ -271,7 +273,7 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax3.set_ylabel('12+log(O/H)')
     ax3.set_title(r'$R_{23}$ vs. Composite Metallicity')
 
-    fig3.savefig(pdf_pages, format='pdf')
+    fig3.savefig(pp, format='pdf')
     fig3.clear()
 
     # ########################################################################
@@ -304,12 +306,12 @@ def plotting_te_metal(fitspath, fitspath_ini, raw=False, apply_dust=False,
     ax4.set_xlabel(r'$O_{32}$')
     ax4.set_ylabel('12+log(O/H)')
     ax4.set_title(r'$O_{32}$ vs. Composite Metallicity')
-    fig4.savefig(pdf_pages, format='pdf')
+    fig4.savefig(pp, format='pdf')
     fig4.clear()
 
     # ########################################################################
-    log.info(f"Writing: {out_pdf}")
-    pdf_pages.close()
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     log.info("finished.")
 
@@ -343,21 +345,21 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
 
     valid_file = join(fitspath, 'bin_validation.revised.tbl')
     log.info(f"Reading: {valid_file}")
-    validation = asc.read(valid_file)
+    valid_tab = asc.read(valid_file)
 
-    temp_file = join(fitspath, 'bin_derived_properties.tbl')
-    log.info(f"Reading: {temp_file}")
-    temp_tab = asc.read(temp_file)
+    bin_derived_prop_file = join(fitspath, 'bin_derived_properties.tbl')
+    log.info(f"Reading: {bin_derived_prop_file}")
+    bin_derived_prop_tab = asc.read(bin_derived_prop_file)
 
-    out_pdf = join(fitspath, 'comparsion_Jiang_Zcal.pdf')
-    pdf_pages = PdfPages(out_pdf)
+    pdf_file = join(fitspath, 'comparison_Jiang_Zcal.pdf')
+    pp = PdfPages(pdf_file)
 
-    bin_id = temp_tab['bin_ID'].data
-    lr23_comp = temp_tab['logR23_Composite'].data
-    lo32_comp = temp_tab['logO32_Composite'].data
-    zmetal = temp_tab['12+log(O/H)'].data
+    bin_id = bin_derived_prop_tab['bin_ID'].data
+    lr23_comp = bin_derived_prop_tab['logR23_Composite'].data
+    lo32_comp = bin_derived_prop_tab['logO32_Composite'].data
+    zmetal = bin_derived_prop_tab['12+log(O/H)'].data
 
-    valid = validation['Detection'].data
+    valid = valid_tab['Detection'].data
     detect = np.where(valid == 1.0)[0]
     rlimit = np.where(valid == 0.5)[0]
 
@@ -372,27 +374,29 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
     metal_det = zmetal[detect]
     metal_rl = zmetal[rlimit]
 
-    derived_deep2_file = join(fitspath_ini, 'DEEP2_R23_O32_derived.tbl')
+    derived_deep2_file = join(fitspath_ini, 'DEEP2_Commons/Catalogs/',
+                              'DEEP2_R23_O32_derived.tbl')
     log.info(f"Reading: {derived_deep2_file}")
-    derived_deep2 = asc.read(derived_deep2_file)
+    derived_deep2_tab = asc.read(derived_deep2_file)
 
-    derived_mact_file = join(fitspath_ini, 'MACT_R23_O32_derived.tbl')
+    derived_mact_file = join(fitspath_ini, 'MACT_Commons/Catalogs/',
+                             'MACT_R23_O32_derived.tbl')
     log.info(f"Reading: {derived_mact_file}")
-    derived_mact = asc.read(derived_mact_file)
+    derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
-    er_r23 = derived_deep2['R23'].data
-    er_o32 = derived_deep2['O32'].data
+    er_r23 = derived_deep2_tab['R23'].data
+    er_o32 = derived_deep2_tab['O32'].data
     der_r23 = np.log10(er_r23)
     der_o32 = np.log10(er_o32)
-    der_oh = derived_deep2['OH'].data
+    der_oh = derived_deep2_tab['OH'].data
 
     # MACT Derived
-    er_r23_mact = derived_mact['R23'].data
-    er_o32_mact = derived_mact['O32'].data
+    er_r23_mact = derived_mact_tab['R23'].data
+    er_o32_mact = derived_mact_tab['O32'].data
     der_r23_mact = np.log10(er_r23_mact)
     der_o32_mact = np.log10(er_o32_mact)
-    der_oh_mact = derived_mact['OH'].data
+    der_oh_mact = derived_mact_tab['OH'].data
 
     jR23_det = jiang_calibration(metal_det, lO32)
     A_comparison = (jR23_det - lR23)
@@ -433,9 +437,9 @@ def jiang_comparison(fitspath, fitspath_ini, log=None):
     ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction', va='bottom',
                 ha='right', fontsize=10)
 
-    fig.savefig(pdf_pages, format='pdf')
-    log.info(f"Writing: {out_pdf}")
-    pdf_pages.close()
+    fig.savefig(pp, format='pdf')
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     log.info("finished.")
 
@@ -464,21 +468,21 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
     # Do we need an option for revised?
     valid_file = join(fitspath, 'bin_validation.revised.tbl')
     log.info(f"Reading: {valid_file}")
-    validation = asc.read(valid_file)
+    valid_tab = asc.read(valid_file)
 
-    temp_file = join(fitspath, 'bin_derived_properties.tbl')
-    log.info(f"Reading; {temp_file}")
-    temp_tab = asc.read(temp_file)
+    bin_derived_prop_file = join(fitspath, 'bin_derived_properties.tbl')
+    log.info(f"Reading; {bin_derived_prop_file}")
+    bin_derived_prop_tab = asc.read(bin_derived_prop_file)
 
-    out_pdf = join(fitspath, 'comparsion_Bian_Zcal.pdf')
-    pdf_pages = PdfPages(out_pdf)
+    pdf_file = join(fitspath, 'comparison_Bian_Zcal.pdf')
+    pp = PdfPages(pdf_file)
 
-    bin_ID = temp_tab['bin_ID']
-    lR23_comp = temp_tab['logR23_Composite']
-    lO32_comp = temp_tab['logO32_Composite']
-    zmetal = temp_tab['12+log(O/H)']
+    bin_ID = bin_derived_prop_tab['bin_ID']
+    lR23_comp = bin_derived_prop_tab['logR23_Composite']
+    lO32_comp = bin_derived_prop_tab['logO32_Composite']
+    zmetal = bin_derived_prop_tab['12+log(O/H)']
 
-    valid = validation['Detection']
+    valid = valid_tab['Detection']
     detect = np.where((valid == 1.0))[0]
 
     valid_ID = bin_ID[detect]
@@ -488,20 +492,27 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
 
     metal_det = zmetal[detect]
 
-    derived = asc.read(join(fitspath_ini, 'DEEP2_R23_O32_derived.tbl'))
-    derived_MACT = asc.read(join(fitspath_ini, 'MACT_R23_O32_derived.tbl'))
+    derived_deep2_file = join(fitspath_ini, 'DEEP2_Commons/Catalogs/',
+                              'DEEP2_R23_O32_derived.tbl')
+    log.info(f"Reading: {derived_deep2_file}")
+    derived_deep2_tab = asc.read(derived_deep2_file)
+
+    derived_mact_file = join(fitspath_ini, 'MACT_Commons/Catalogs/',
+                             'MACT_R23_O32_derived.tbl')
+    log.info(f"Reading: {derived_mact_file}")
+    derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
-    deep2_r23 = np.log10(derived['R23'].data)
-    deep2_o32 = np.log10(derived['O32'].data)
-    deep2_oh = derived['OH'].data
+    deep2_r23 = np.log10(derived_deep2_tab['R23'].data)
+    deep2_o32 = np.log10(derived_deep2_tab['O32'].data)
+    deep2_oh = derived_deep2_tab['OH'].data
 
     # MACT Derived
-    er_R23_MACT = derived_MACT['R23'].data
-    er_O32_MACT = derived_MACT['O32'].data
+    er_R23_MACT = derived_mact_tab['R23'].data
+    er_O32_MACT = derived_mact_tab['O32'].data
     der_R23_MACT = np.log10(er_R23_MACT)
     der_O32_MACT = np.log10(er_O32_MACT)
-    der_OH_MACT = derived_MACT['OH'].data
+    der_OH_MACT = derived_mact_tab['OH'].data
 
     jR23_det = bian_calibration_r23(metal_det)
     jO32_det = bian_calibration_o32(metal_det)
@@ -557,7 +568,7 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
     ax.annotate(an_txt, [0.2, 0.85], xycoords='axes fraction', va='bottom',
                 ha='right', fontsize=10)
 
-    fig.savefig(pdf_pages, format='pdf')
+    fig.savefig(pp, format='pdf')
     fig.clear()
 
     arr_sum1 = np.concatenate((AO_comparison, BO_comparison, CO_comparison),
@@ -588,8 +599,8 @@ def bian_comparison(fitspath, fitspath_ini, log=None):
     ax.annotate(an_txt, [0.2, 0.85], xycoords='axes fraction', va='bottom',
                 ha='right', fontsize=10)
 
-    fig.savefig(pdf_pages, format='pdf')
-    log.info(f"Writing: {out_pdf}")
-    pdf_pages.close()
+    fig.savefig(pp, format='pdf')
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     log.info("finished.")

@@ -21,8 +21,8 @@ def redshift_graphs(fitspath, RestframeMaster, binning_grid_npz, DEEP2_all_files
     binning_grid_npz -> npz file produced by binning code
     DEEP2_all_files -> raw data files
     """
-    pdf_pages = PdfPages(fitspath + 'Redshift_Binning.pdf')
-    pdf_pages2 = PdfPages(fitspath + 'OH_masking_check.pdf')
+    pp = PdfPages(fitspath + 'Redshift_Binning.pdf')
+    pp2 = PdfPages(fitspath + 'OH_masking_check.pdf')
 
     maskM, maskHdr = fits.getdata(RestframeMaster, header=True)  # update header
 
@@ -82,8 +82,8 @@ def redshift_graphs(fitspath, RestframeMaster, binning_grid_npz, DEEP2_all_files
                                     hspace=0.0)
                     fig.set_size_inches(11, 8)
                     plt.draw()
-                    fig.savefig(pdf_pages, format='pdf')
-                    # pdf_pages.savefig(fig)
+                    fig.savefig(pp, format='pdf')
+                    # pdf_file.savefig(fig)
 
                 if count % nrows == 0:
                     fig2, ax_arr2 = plt.subplots(nrows=nrows, ncols=1)
@@ -101,7 +101,7 @@ def redshift_graphs(fitspath, RestframeMaster, binning_grid_npz, DEEP2_all_files
                     subplots_adjust(left=0.03, right=0.98, bottom=0.06, top=0.95, hspace=0.0)
                     fig2.set_size_inches(11, 8)
                     plt.draw()
-                    fig2.savefig(pdf_pages2, format='pdf')
+                    fig2.savefig(pp2, format='pdf')
 
                 count += 1
 
@@ -116,11 +116,11 @@ def redshift_graphs(fitspath, RestframeMaster, binning_grid_npz, DEEP2_all_files
             ax_arr[row, cc].set_xlabel('Redshift')
             fig.set_size_inches(11, 8)
             subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95)
-            pdf_pages.savefig(fig)
+            pp.savefig(fig)
 
         fig2.set_size_inches(11, 8)
         subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95)
-        pdf_pages2.savefig(fig2)
+        pp2.savefig(fig2)
 
-    pdf_pages.close()
-    pdf_pages2.close()
+    pp.close()
+    pp2.close()

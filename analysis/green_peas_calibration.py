@@ -15,9 +15,14 @@ def O32_OH_fit(xy, a, b, c, d, e):
     """
     Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
     Used by main() function
-    :param x: 12+log(O/H)
-    :param y: log([OIII]/[OII])
-    :param a, b, c, d, e,:  Jiang coefficients
+    :param xy: Array of 12+log(O/H), log([OIII]/[OII])
+
+    Jiang coefficients
+    :param a:
+    :param b:
+    :param c:
+    :param d:
+    :param e:
     """
 
     x = xy[0]
@@ -28,14 +33,13 @@ def O32_OH_fit(xy, a, b, c, d, e):
     return logR23
 
 
-def jiang18(x, y):
+def jiang18(xy):
     """
     Function to return log(R23) based on metallicity
     and [OIII]/[OII] flux ratio
     Used by main() function
 
-    :param x: array. 12+log(O/H)
-    :param y: array. log([OIII]/[OII])
+    :param xy: array. 12+log(O/H), log([OIII]/[OII])
     """
 
     logR23 = O32_OH_fit(xy, * jiang18_coeffs)
@@ -81,11 +85,11 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
         # Label in upper left the points
         if len(label) != 0:
             x1 = OH_range[0] + 0.025*(OH_range[1]-OH_range[0])
-            y1 = dR23_range[1] - (nn*0.035 + 0.05)\
-                 *(dR23_range[1]-dR23_range[0])
+            y1 = dR23_range[1] - (nn*0.035 + 0.05) \
+                * (dR23_range[1]-dR23_range[0])
             x2 = OH_range[0] + 0.035*(OH_range[1]-OH_range[0])
-            y2 = dR23_range[1] - (nn*0.035 + 0.0525)\
-                 *(dR23_range[1]-dR23_range[0])
+            y2 = dR23_range[1] - (nn*0.035 + 0.0525) \
+                * (dR23_range[1]-dR23_range[0])
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
             ax.plot([x1], [y1], marker=marker[nn], color='black')
 
@@ -505,7 +509,7 @@ def DEEP2_OIII4363(log_dir):
          xra=[0.75, 1.05], yra=[7.1, 8.65], log=log)
 
     # Got RuntimeError
-    # out_pdf = join(path0, 'DEEP2_R23_O32_Jiang18.fit.pdf')
+    # pdf_file = join(path0, 'DEEP2_R23_O32_Jiang18.fit.pdf')
     # main([lR23], [lO32], [OH], out_pdf, lR23_err=[lR23_err], OH_err=[OH_err],
     # xra=[0.75,1.05], yra=[7.1,8.65], fit=True)
 

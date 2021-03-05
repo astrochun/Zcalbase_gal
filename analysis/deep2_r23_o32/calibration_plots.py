@@ -34,10 +34,10 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     No returns
     """
 
-    if log is None:
-        log = log_stdout()
+    # if log is None:
+        # log = log_stdout()
 
-    log.info("starting ...")
+    # log.info("starting ...")
 
     suffix = ''
     if not revised:
@@ -57,11 +57,11 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         bin_valid_file = join(fitspath, filename_dict['bin_valid_rev'])
     else:
         bin_valid_file = join(fitspath, filename_dict['bin_valid'])
-    log.info(f"Reading: {bin_valid_file}")
+    # log.info(f"Reading: {bin_valid_file}")
     bin_valid_tab = asc.read(bin_valid_file)
 
     bin_derived_prop_file = join(fitspath, f"bin_derived_properties{suffix}.tbl")
-    log.info(f"Reading: {bin_derived_prop_file}")
+    # log.info(f"Reading: {bin_derived_prop_file}")
     bin_derived_prop_tab = asc.read(bin_derived_prop_file)
 
     detect = bin_valid_tab['Detection']
@@ -73,12 +73,12 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     # Tables of individual detections from DEEP2 and MACT samples
     derived_deep_file = join(fitspath_ini, 'DEEP2_Commons/Catalogs/',
                              'DEEP2_R23_O32_derived.tbl')
-    log.info(f"Reading: {derived_deep_file}")
+    # log.info(f"Reading: {derived_deep_file}")
     derived_deep_tab = asc.read(derived_deep_file)
 
     derived_mact_file = join(fitspath_ini, 'MACT_Commons/Catalogs/',
                              'MACT_R23_O32_derived.tbl')
-    log.info(f"Reading: {derived_mact_file}")
+    # log.info(f"Reading: {derived_mact_file}")
     derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
@@ -96,13 +96,13 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     der_OH_MACT = derived_mact_tab['OH'].data
 
     O32_all = bin_derived_prop_tab['logO32_composite']
-    log.debug(O32_all)
+    # log.debug(O32_all)
     R23_all = bin_derived_prop_tab['logR23_composite']
     com_O_log = bin_derived_prop_tab['12+log(O/H)']  # This is the 12+log(OH) value
     ID = bin_derived_prop_tab['bin_ID']
     
     det_O32 = O32_all[det_4363]
-    log.debug(f"det_O32: {det_O32}")
+    # log.debug(f"det_O32: {det_O32}")
     det_R23 = R23_all[det_4363]
     det_OH = com_O_log[det_4363]
     det_ID = ID[det_4363]
@@ -166,11 +166,16 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
-    local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file, yra=[7.0, 9.0],
+    R23_pdf_diff = fitspath + 'LAC_diff_R23.pdf'
+    O32_pdf_diff = fitspath + 'LAC_diff_O32.pdf'
+    local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file,
+                                  R23_pdf_diff, O32_pdf_diff,
+                                  yra=[7.0, 9.0],
                                   ctype=c_var, label=label, marker=marker,
-                                  log=log)
-    log.info('finished LAC plot')
+                                  log=None)
 
+    #log.info('finished LAC plot')
+    '''
     # For Green Pea Calibration
     lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
     lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
@@ -209,7 +214,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
                                         log=log)
 
     log.info("finished.")
-
+    '''
 
 def individual_gpc(indv_file, valid_file, name, log=None):
     """

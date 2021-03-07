@@ -45,8 +45,8 @@ def bian18_O32(OH):
     return O32
 
 
-def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[], OH_err=[],
-                     OH_range=[], data_range=[], marker=[], label=[],
+def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[],
+                     OH_err=[], OH_range=[], data_range=[], marker=[], label=[],
                      IDs=[], log=None):
     """
     Plot differences between LACR23 vs observed R23 as
@@ -100,7 +100,8 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[], OH_err=[]
         for ii in range(len(lR23_lO32)):
             y_ii_min = np.min(lR23_lO32[nn])
             y_ii_max = np.max(lR23_lO32[nn])
-            idx = np.where((lR23_lO32[nn] >= y_ii_min) & (lR23_lO32[nn] <= y_ii_max))[0]
+            idx = np.where((lR23_lO32[nn] >= y_ii_min) &
+                           (lR23_lO32[nn] <= y_ii_max))[0]
 
             if len(idx) >0:
                 i_diff = lR23_lO32[nn][idx] - LAC[idx]
@@ -137,15 +138,22 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[], OH_err=[]
     ax.axhline(y=avg0, c='r', linestyle='dotted')
     ax.axhline(y=med0, c='b', linestyle='dotted')
 
-
-    an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
-    an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
-    an_txt += r'$\sigma$ : %0.2f' % sig0
+    if data_input == 'R23':
+        an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
+        an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
+        an_txt += r'$\sigma$ : %0.2f' % sig0
+        ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
+                      r'- \log(R_{23})_{\rm LAC}$')
+    else:
+        an_txt = r'$<\Delta_{O_{32}}>$ : %0.2f' % avg0 + '\n'
+        an_txt += r'$\tilde\Delta_{O_{32}}$ : %0.2f' % med0 + '\n'
+        an_txt += r'$\sigma$ : %0.2f' % sig0
+        ax.set_ylabel(r'$\Delta_{O_{32}} \equiv \log(O_{32}) '
+                      r'- \log(O_{32})_{\rm LAC}$')
     ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction',
-                    va='bottom', ha='right', fontsize=10)
+                va='bottom', ha='right', fontsize=10)
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
-    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
-                  r'- \log(R_{23})_{\rm GPC}$')
+
     ax.minorticks_on()
 
     if len(OH_range) != 0:
@@ -166,9 +174,9 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[], OH_err=[]
     log.info("finished.")
 
 
-def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[], lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''],
-         marker=[], log=None):
+def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
+         lR23_err=[], lO32_err=[], OH_err=[], R23_xra=[], O32_xra=[],
+         yra=[], ctype=[], label=[''], marker=[], log=None):
     """
     Plots R23 and O32 line ratios and compare it to Bian et al. (2018)
     calibration that is based on local analogs to z~2 galaxies
@@ -242,7 +250,7 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[], lR23_err=[]
         ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], edgecolor='none',
                       marker=marker[nn], alpha=0.5, label=label[nn])
         if len(ID) != 0:
-            for ii in range(len(lR23[nn])):
+            for ii in range(len(lR23[nn]-2)):
                 ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],
                                xycoords='data', size=4, va='bottom', ha='left')
 
@@ -275,7 +283,7 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[], lR23_err=[]
         ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], edgecolor='none',
                       marker=marker[nn], alpha=0.5)
         if len(ID) != 0:
-            for ii in range(len(lO32[nn])):
+            for ii in range(len(lO32[nn]-2)):
                 ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],
                                xycoords='data', size=4, va='bottom', ha='left')
 
@@ -304,12 +312,12 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[], lR23_err=[]
     fig.set_size_inches(10, 5)
     fig.savefig(out_pdf, format='pdf')
 
-    plot_differences(lR23, OH, R23_pdf_file, data_input='R23', data_err=[],
-                     OH_err=[], OH_range=[], data_range=[], marker=[], label=[],
-                     IDs=[], log=None)
-    plot_differences(lO32, OH, O32_pdf_file, data_input='O32', data_err=[],
-                     OH_err=[], OH_range=[], data_range=[], marker=[], label=[],
-                     IDs=[], log=None)
+    plot_differences(lR23, OH, R23_pdf_file, data_input='R23', data_err=lR23_err,
+                     OH_err=OH_err, OH_range=yra, data_range=[-0.5, 0.5],
+                     marker=marker, label=label, IDs=ID, log=None)
+    plot_differences(lO32, OH, O32_pdf_file, data_input='O32', data_err=lO32_err,
+                     OH_err=OH_err, OH_range=yra, data_range=[-2.1, 1.0],
+                     marker=marker, label=label, IDs=ID, log=None)
 
     log.info("finished.")
 

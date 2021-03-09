@@ -84,20 +84,20 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
-    er_R23 = derived_deep_tab['R23'].data
-    er_O32 = derived_deep_tab['O32'].data
-    der_ID = derived_deep_tab['ID'].data
-    der_R23 = np.log10(er_R23)
-    der_O32 = np.log10(er_O32)
-    der_OH = derived_deep_tab['OH'].data
+    DEEP2_R23_initial = derived_deep_tab['R23'].data
+    DEEP2_O32_initial = derived_deep_tab['O32'].data
+    DEEP2_id = derived_deep_tab['ID'].data
+    DEEP2_R23 = np.log10(DEEP2_R23_initial)
+    DEEP2_O32 = np.log10(DEEP2_O32_initial)
+    DEEP2_OH = derived_deep_tab['OH'].data
 
     # MACT Derived
-    er_R23_MACT = derived_mact_tab['R23'].data
-    er_O32_MACT = derived_mact_tab['O32'].data
-    der_ID_MACT = derived_mact_tab['ID'].data
-    der_R23_MACT = np.log10(er_R23_MACT)
-    der_O32_MACT = np.log10(er_O32_MACT)
-    der_OH_MACT = derived_mact_tab['OH'].data
+    MACT_R23_initial = derived_mact_tab['R23'].data
+    MACT_O32_initial = derived_mact_tab['O32'].data
+    MACT_ID = derived_mact_tab['ID'].data
+    MACT_R23 = np.log10(MACT_R23_initial)
+    MACT_O32 = np.log10(MACT_O32_initial)
+    MACT_OH = derived_mact_tab['OH'].data
 
     O32_all = bin_derived_prop_tab['logO32_composite']
     log.debug(O32_all)
@@ -142,34 +142,34 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
 
     # For LAC
     if dataset == 'R23_Grid':
-        lR23 = [det_R23, der_R23, der_R23_MACT]
-        lO32 = [det_O32, der_O32, der_O32_MACT]
-        OH = [det_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23, DEEP2_R23, MACT_R23]
+        lO32 = [det_O32, DEEP2_O32, MACT_O32]
+        OH = [det_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'r', 'm']
         label = ['Detection', 'DEEP2', 'MACT']
         marker = ['D', '3', '4']
         
     if dataset in ['O32_Grid', 'Grid']:
-        lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
-        lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
-        OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
+        lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+        OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
     if dataset in ['Voronoi10', 'Voronoi14', 'Voronoi20', 'Double_Bin']:
-        lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
-        lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
-        OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
+        lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+        OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
     if dataset == 'n_Bins':
-        lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
-        lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
-        OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
+        lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+        OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
-        IDs = [det_ID, rlimit_ID, der_ID, der_ID_MACT]
+        IDs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
 
     local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file,
                                   lac_diff_R23_file, lac_diff_O32_file, ID=IDs,
@@ -180,15 +180,15 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     log.info('finished LAC plot')
 
     # For Green Pea Calibration
-    lR23 = [det_R23, rlimit_R23, der_R23, der_R23_MACT]
-    lO32 = [det_O32, rlimit_O32, der_O32, der_O32_MACT]
-    OH = [det_OH, rlimit_OH, der_OH, der_OH_MACT]
+    lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
+    lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+    OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
     IDs = [det_ID, rlimit_ID]
 
     if dataset == 'R23_Grid':
-        lR23 = [det_R23, der_R23, der_R23_MACT]
-        lO32 = [det_O32, der_O32, der_O32_MACT]
-        OH = [det_OH, der_OH, der_OH_MACT]
+        lR23 = [det_R23, DEEP2_R23, MACT_R23]
+        lO32 = [det_O32, DEEP2_O32, MACT_O32]
+        OH = [det_OH, DEEP2_OH, MACT_OH]
         IDs = [det_ID]
 
     if revised:

@@ -37,7 +37,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     if log is None:
         log = log_stdout()
 
-    # log.info("starting ...")
+    log.info("starting ...")
 
     suffix = ''
     if not revised:

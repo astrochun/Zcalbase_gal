@@ -84,37 +84,33 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
-    DEEP2_R23_initial = derived_deep_tab['R23'].data
-    DEEP2_O32_initial = derived_deep_tab['O32'].data
     DEEP2_id = derived_deep_tab['ID'].data
-    DEEP2_R23 = np.log10(DEEP2_R23_initial)
-    DEEP2_O32 = np.log10(DEEP2_O32_initial)
+    DEEP2_lR23 = np.log10(derived_deep_tab['R23'].data)
+    DEEP2_lO32 = np.log10(derived_deep_tab['O32'].data)
     DEEP2_OH = derived_deep_tab['OH'].data
 
     # MACT Derived
-    MACT_R23_initial = derived_mact_tab['R23'].data
-    MACT_O32_initial = derived_mact_tab['O32'].data
     MACT_ID = derived_mact_tab['ID'].data
-    MACT_R23 = np.log10(MACT_R23_initial)
-    MACT_O32 = np.log10(MACT_O32_initial)
+    MACT_lR23 = np.log10(derived_mact_tab['R23'].data)
+    MACT_lO32 = np.log10(derived_mact_tab['O32'].data)
     MACT_OH = derived_mact_tab['OH'].data
 
-    O32_all = bin_derived_prop_tab['logO32_composite']
-    log.debug(O32_all)
-    R23_all = bin_derived_prop_tab['logR23_composite']
-    com_O_log = bin_derived_prop_tab['12+log(O/H)']  # This is the 12+log(OH) value
     ID = bin_derived_prop_tab['bin_ID']
-    
-    det_O32 = O32_all[det_4363]
-    log.debug(f"det_O32: {det_O32}")
-    det_R23 = R23_all[det_4363]
-    det_OH = com_O_log[det_4363]
-    det_ID = ID[det_4363]
+    lR23_all = bin_derived_prop_tab['logR23_composite']
+    lO32_all = bin_derived_prop_tab['logO32_composite']
+    log.debug(lO32_all)
+    com_O_log = bin_derived_prop_tab['12+log(O/H)']  # This is the 12+log(OH) value
 
-    rlimit_O32 = O32_all[rlimit]
-    rlimit_R23 = R23_all[rlimit]
-    rlimit_OH = com_O_log[rlimit]
+    det_ID = ID[det_4363]
+    det_lR23 = lR23_all[det_4363]
+    det_lO32 = lO32_all[det_4363]
+    log.debug(f"det_lO32: {det_lO32}")
+    det_OH = com_O_log[det_4363]
+
     rlimit_ID = ID[rlimit]
+    rlimit_lR23 = lR23_all[rlimit]
+    rlimit_lO32 = lO32_all[rlimit]
+    rlimit_OH = com_O_log[rlimit]
 
     label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
     marker = ['D', r'$\uparrow$', '3', '4']
@@ -142,30 +138,30 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
 
     # For LAC
     if dataset == 'R23_Grid':
-        lR23 = [det_R23, DEEP2_R23, MACT_R23]
-        lO32 = [det_O32, DEEP2_O32, MACT_O32]
+        lR23 = [det_lR23, DEEP2_lR23, MACT_lR23]
+        lO32 = [det_lO32, DEEP2_lO32, MACT_lO32]
         OH = [det_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'r', 'm']
         label = ['Detection', 'DEEP2', 'MACT']
         marker = ['D', '3', '4']
         
     if dataset in ['O32_Grid', 'Grid']:
-        lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
-        lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+        lR23 = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
+        lO32 = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
         OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
     if dataset in ['Voronoi10', 'Voronoi14', 'Voronoi20', 'Double_Bin']:
-        lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
-        lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+        lR23 = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
+        lO32 = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
         OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
     if dataset == 'n_Bins':
-        lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
-        lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+        lR23 = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
+        lO32 = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
         OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         c_var = ['b', 'g', 'r', 'm']
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
@@ -180,14 +176,14 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     log.info('finished LAC plot')
 
     # For Green Pea Calibration
-    lR23 = [det_R23, rlimit_R23, DEEP2_R23, MACT_R23]
-    lO32 = [det_O32, rlimit_O32, DEEP2_O32, MACT_O32]
+    lR23 = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
+    lO32 = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
     OH = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
     IDs = [det_ID, rlimit_ID]
 
     if dataset == 'R23_Grid':
-        lR23 = [det_R23, DEEP2_R23, MACT_R23]
-        lO32 = [det_O32, DEEP2_O32, MACT_O32]
+        lR23 = [det_lR23, DEEP2_lR23, MACT_lR23]
+        lO32 = [det_lO32, DEEP2_lO32, MACT_lO32]
         OH = [det_OH, DEEP2_OH, MACT_OH]
         IDs = [det_ID]
 

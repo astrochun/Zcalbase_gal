@@ -21,28 +21,24 @@ def bian18_R23_OH(OH):
     return R23_p(OH)
 
 
+def bian18_O32_OH(OH):
+    """Function to return log(O32) given metallicity"""
+    O32 = (OH - 8.54)/(-0.59)
+
+    return O32
+
+
 def bian18_OH_O32(O32):
     """
     Function to return metallicity given log(O32)
     Used in main()
 
-    :param O32: array. log([OIII]/[OII])
+    :param O32: log([OIII]/[OII])
     """
 
     OH = 8.54 - 0.59 * O32
 
     return OH
-
-
-def bian18_O32_OH(OH):
-    """
-    Function to return log(O32) given metallicity
-    OH
-
-    """
-    O32 = (OH - 8.54)/(-0.59)
-
-    return O32
 
 
 def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[],

@@ -51,8 +51,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
 
     gpc_pdf_file = join(fitspath, f"GPC{suffix}.pdf")
     lac_pdf_file = join(fitspath, f"LAC{suffix}.pdf")
-    R23_pdf_diff = join(fitspath, f"LAC{suffix}_diff.pdf")
-    O32_pdf_diff = join(fitspath, f"LAC{suffix}_diff.pdf")
+    lac_diff_R23_file = join(fitspath, f"LAC{suffix}_diff.pdf")
+    lac_diff_O32_file = join(fitspath, f"LAC{suffix}_diff.pdf")
 
     # Validation Table Call
     if revised:
@@ -172,7 +172,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         IDs = [det_ID, rlimit_ID, der_ID, der_ID_MACT]
 
     local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file,
-                                  R23_pdf_diff, O32_pdf_diff, ID=IDs,
+                                  lac_diff_R23_file, lac_diff_O32_file, ID=IDs,
                                   yra=[7.0, 9.0],
                                   ctype=c_var, label=label, marker=marker,
                                   log=None)

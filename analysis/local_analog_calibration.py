@@ -7,7 +7,7 @@ from .deep2_r23_o32.log_commons import log_stdout, LogClass
 from .green_peas_calibration import get_zcalbase_sample
 
 
-def bian18_R23(OH):
+def bian18_R23_OH(OH):
     """
     Function to return log(R23) given metallicity
     Used in main()
@@ -21,7 +21,7 @@ def bian18_R23(OH):
     return R23_p(OH)
 
 
-def bian18_OH(O32):
+def bian18_OH_O32(O32):
     """
     Function to return metallicity given log(O32)
     Used in main()
@@ -34,7 +34,7 @@ def bian18_OH(O32):
     return OH
 
 
-def bian18_O32(OH):
+def bian18_O32_OH(OH):
     """
     Function to return log(O32) given metallicity
     OH
@@ -74,10 +74,10 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[],
     diff0 = []
     for nn in range(n_sample):
         if data_input == 'R23':
-            LAC = bian18_R23(OH[nn])
+            LAC = bian18_R23_OH(OH[nn])
             log.info(f"LAC_R23: {LAC}")
         else:
-            LAC = bian18_O32(OH[nn])
+            LAC = bian18_O32_OH(OH[nn])
             log.info(f"LAC_R23: {LAC}")
 
         if nn == 0:
@@ -227,7 +227,7 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
     O32_max = np.max(max1)
     O32_arr = np.arange(O32_min, O32_max, 0.025)
 
-    bian_OH = bian18_O32(O32_arr)
+    bian_OH = bian18_OH_O32(O32_arr)
 
     # Grid of 12+log(O/H)
     if len(yra) == 0:
@@ -239,7 +239,7 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
     else:
         OH_arr = np.arange(yra[0], yra[1], 0.05)
     log.info(f"OH_arr: {OH_arr}")
-    bian_R23 = bian18_R23(OH_arr)
+    bian_R23 = bian18_R23_OH(OH_arr)
 
     if len(ctype) == 0:
         ctype = ['blue'] * n_sample
@@ -314,10 +314,10 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
 
     plot_differences(lR23, OH, R23_pdf_file, data_input='R23', data_err=lR23_err,
                      OH_err=OH_err, OH_range=yra, data_range=[-0.5, 0.5],
-                     marker=marker, label=label, IDs=ID, log=None)
+                     marker=marker, label=label, IDs=ID, log=log)
     plot_differences(lO32, OH, O32_pdf_file, data_input='O32', data_err=lO32_err,
                      OH_err=OH_err, OH_range=yra, data_range=[-2.1, 1.0],
-                     marker=marker, label=label, IDs=ID, log=None)
+                     marker=marker, label=label, IDs=ID, log=log)
 
     log.info("finished.")
 

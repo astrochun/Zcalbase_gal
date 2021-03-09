@@ -51,8 +51,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
 
     gpc_pdf_file = join(fitspath, f"GPC{suffix}.pdf")
     lac_pdf_file = join(fitspath, f"LAC{suffix}.pdf")
-    lac_diff_R23_file = join(fitspath, f"LAC{suffix}_diff.pdf")
-    lac_diff_O32_file = join(fitspath, f"LAC{suffix}_diff.pdf")
+    lac_diff_R23_pdf_file = join(fitspath, f"LAC_R23_diff{suffix}.pdf")
+    lac_diff_O32_pdf_file = join(fitspath, f"LAC_O32_diff{suffix}.pdf")
 
     # Validation Table Call
     if revised:

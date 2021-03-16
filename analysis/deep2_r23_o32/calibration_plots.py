@@ -85,14 +85,14 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
 
     # DEEP2 Derived
     # IDs are not as usefully so passing in a blank array
-    DEEP2_id = []       #derived_deep_tab['ID'].data
+    DEEP2_id = []  # derived_deep_tab['ID'].data
     DEEP2_lR23 = np.log10(derived_deep_tab['R23'].data)
     DEEP2_lO32 = np.log10(derived_deep_tab['O32'].data)
     DEEP2_OH = derived_deep_tab['OH'].data
 
     # MACT Derived
     # IDs are not as usefully so passing in a blank array
-    MACT_ID = []      #derived_mact_tab['ID'].data
+    MACT_ID = []  # derived_mact_tab['ID'].data
     MACT_lR23 = np.log10(derived_mact_tab['R23'].data)
     MACT_lO32 = np.log10(derived_mact_tab['O32'].data)
     MACT_OH = derived_mact_tab['OH'].data

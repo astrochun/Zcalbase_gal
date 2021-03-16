@@ -84,13 +84,15 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
     derived_mact_tab = asc.read(derived_mact_file)
 
     # DEEP2 Derived
-    DEEP2_id = derived_deep_tab['ID'].data
+    # IDs are not as usefully so passing in a blank array
+    DEEP2_id = []       #derived_deep_tab['ID'].data
     DEEP2_lR23 = np.log10(derived_deep_tab['R23'].data)
     DEEP2_lO32 = np.log10(derived_deep_tab['O32'].data)
     DEEP2_OH = derived_deep_tab['OH'].data
 
     # MACT Derived
-    MACT_ID = derived_mact_tab['ID'].data
+    # IDs are not as usefully so passing in a blank array
+    MACT_ID = []      #derived_mact_tab['ID'].data
     MACT_lR23 = np.log10(derived_mact_tab['R23'].data)
     MACT_lO32 = np.log10(derived_mact_tab['O32'].data)
     MACT_OH = derived_mact_tab['OH'].data
@@ -168,8 +170,8 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         IDs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
 
     local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file,
-                                  lac_diff_R23_file, lac_diff_O32_file, ID=IDs,
-                                  yra=[7.0, 9.0],
+                                  lac_diff_R23_pdf_file, lac_diff_O32_pdf_file,
+                                  ID=IDs, yra=[7.0, 9.0],
                                   ctype=c_var, label=label, marker=marker,
                                   log=None)
 

@@ -245,8 +245,8 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
     for nn in range(n_sample):
         ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], edgecolor='none',
                       marker=marker[nn], alpha=0.5, label=label[nn])
-        if len(ID) != 0:
-            for ii in range(len(lR23[nn]-2)):
+        if len(ID[nn]) != 0:
+            for ii in range(len(lR23[nn])):
                 ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],
                                xycoords='data', size=4, va='bottom', ha='left')
 
@@ -278,8 +278,8 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
     for nn in range(n_sample):
         ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], edgecolor='none',
                       marker=marker[nn], alpha=0.5)
-        if len(ID) != 0:
-            for ii in range(len(lO32[nn]-2)):
+        if len(ID[nn]) != 0:
+            for ii in range(len(lO32[nn])):
                 ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],
                                xycoords='data', size=4, va='bottom', ha='left')
 

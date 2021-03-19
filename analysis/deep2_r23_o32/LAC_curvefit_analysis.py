@@ -128,7 +128,10 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
             label='Bian Data Range')
     for ii in range(len(marker)):
         ax.scatter(lR23[ii], OH[ii], marker=marker[ii], color=color[ii])
-
+    txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
+    txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
+    txt0 += f"\n x = 12+log(O/H)"
+    ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top', fontsize=6)
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')

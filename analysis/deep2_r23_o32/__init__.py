@@ -19,6 +19,8 @@ name_dict['Stackname_nomask'] = 'Stacking_MasterGrid.pdf'
 name_dict['Average_Bin_Value'] = 'Average_R23_O32_Values.tbl'
 name_dict['temp_metallicity_pdf'] = '_Temp_Composite_Metallicity.pdf'
 
+bian_coeff = [-0.32293, 7.2954, -54.8284, 138.0430]
+
 
 def read_fitsfiles(fits_file_path):
     fits_data, header = fits.getdata(fits_file_path, header=True)

@@ -5,6 +5,7 @@ from os.path import join
 import matplotlib.pyplot as plt
 from Zcalbase_gal.analysis import local_analog_calibration
 from Metallicity_Stack_Commons.column_names import filename_dict
+from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff
 
 
 def secondorder_polynomial(x, a, b, c):
@@ -15,33 +16,19 @@ def thirdorder_polynomial(x, a, b, c, d):
     return a*x*x*x + b*x*x + c*x +d
 
 
-def experiment_LAC(lR23, lO32, OH, marker, color, pdf_file):
-
+def experiment_LAC(lR23_ini, lO32_ini, OH_ini):
+    lR23 = np.concatenate([lR23_ini[0], lR23_ini[1], lR23_ini[2], lR23_ini[3]])
+    lO32 = np.concatenate([lO32_ini[0], lO32_ini[1], lO32_ini[2], lO32_ini[3]])
+    OH = np.concatenate([OH_ini[0], OH_ini[1], OH_ini[2], OH_ini[3]])
     OH_range = np.linspace(np.min(OH), np.max(OH), 100)
-    p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
 
+    p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
     #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
     # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
 
     o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
 
-    fitted_poly = thirdorder_polynomial(OH_range, *o1)
-    bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range)
-
-    fig, ax = plt.subplots()
-    ax.plot(fitted_poly, OH_range, label='Curve Fit')
-    ax.plot(bian_R23, OH_range, 'k--', label='Bian+(2018)')
-    avail_idx = np.where((OH_range >= 7.80) & (OH_range <= 8.4))[0]
-    ax.plot(bian_R23[avail_idx], OH_range[avail_idx], 'k-', label='Bian Data Range')
-    for ii in range(len(marker)):
-        ax.scatter(lR23[ii], OH[ii], marker=marker[ii], color=color[ii])
-
-    ax.set(xlim=(0.0, 1.2))
-    ax.set_xlabel(r'$\log(R_{23})$')
-    ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
-    ax.legend(loc='lower left', framealpha=0.5, fontsize=10)
-    
-    fig.savefig(pdf_file)
+    return o1, o2, lR23, lO32, OH, OH_range
 
 
 def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
@@ -110,7 +97,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
     rlimit_lO32 = lO32_all[rlimit]
     rlimit_OH = com_O_log[rlimit]
 
-    # label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
+    label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
 
     marker_a = ['D'] * len(det_lR23)
     marker_b = [r'$\uparrow$'] * len(rlimit_lR23)
@@ -123,8 +110,36 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
     color_c = ['red'] * len(DEEP2_lR23)
     color_d = ['magenta']*len(MACT_lR23)
     color = np.concatenate([color_a, color_b, color_c, color_d])
-    lR23 = np.concatenate([det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23])
-    lO32 = np.concatenate([det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32])
-    OH = np.concatenate([det_OH, rlimit_OH, DEEP2_OH, MACT_OH])
+    lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
+    lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
+    OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
+    ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
 
-    experiment_LAC(lR23, lO32, OH, marker, color, pdf_file)
+    o1, o2, lR23, lO32, OH, OH_range = experiment_LAC(lR23_arrs, lO32_arrs, OH_arrs)
+    print('o1: ', o1)
+    fitted_poly = thirdorder_polynomial(OH_range, *o1)
+    bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
+
+    fig, ax = plt.subplots()
+    ax.plot(fitted_poly, OH_range, label='Curve Fit')
+    ax.plot(bian_R23, OH_range, 'k--', label='Bian+(2018)')
+    avail_idx = np.where((OH_range >= 7.80) & (OH_range <= 8.4))[0]
+    ax.plot(bian_R23[avail_idx], OH_range[avail_idx], 'k-',
+            label='Bian Data Range')
+    for ii in range(len(marker)):
+        ax.scatter(lR23[ii], OH[ii], marker=marker[ii], color=color[ii])
+
+    ax.set(xlim=(0.0, 1.2))
+    ax.set_xlabel(r'$\log(R_{23})$')
+    ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
+    ax.legend(loc='lower left', framealpha=0.5, fontsize=10)
+
+    R23_diff_pdf_file = join(fitspath, f"newLAC_R23_diff{suffix}.pdf")
+    local_analog_calibration.plot_differences(lR23_arrs, OH_arrs, R23_diff_pdf_file,
+                                              data_input='R23', new_coefficients=o1,
+                                              data_err=[],
+                                              OH_err=[], OH_range=[np.min(OH_range), np.max(OH_range)],
+                                              data_range=[-0.5, 0.5],
+                                              marker=marker, label=label,
+                                              IDs=[], log=None)
+    fig.savefig(pdf_file)

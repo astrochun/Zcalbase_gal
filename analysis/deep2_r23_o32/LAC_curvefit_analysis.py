@@ -17,9 +17,14 @@ def thirdorder_polynomial(x, a, b, c, d):
 
 
 def experiment_LAC(lR23_ini, lO32_ini, OH_ini):
-    lR23 = np.concatenate([lR23_ini[0], lR23_ini[1], lR23_ini[2], lR23_ini[3]])
-    lO32 = np.concatenate([lO32_ini[0], lO32_ini[1], lO32_ini[2], lO32_ini[3]])
-    OH = np.concatenate([OH_ini[0], OH_ini[1], OH_ini[2], OH_ini[3]])
+    lR23 = []
+    lO32 = []
+    OH = []
+    for ii in range(len(lR23_ini)):
+        lR23 = np.concatenate([lR23, lR23_ini[ii]])
+        lO32 = np.concatenate([lO32, lO32_ini[ii]])
+        OH = np.concatenate([OH, OH_ini[ii]])
+
     OH_range = np.linspace(np.min(OH), np.max(OH), 100)
 
     p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
@@ -32,7 +37,7 @@ def experiment_LAC(lR23_ini, lO32_ini, OH_ini):
 
 
 def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
-                  apply_dust=False, revised=False):
+                  apply_dust=False, revised=False, include_rlimit=False):
     suffix = ''
     if not revised:
         suffix += '.valid1'
@@ -43,7 +48,6 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
     if apply_dust:
         suffix += '.dustcorr'
 
-    pdf_file = join(fitspath, f"LAC_curvefit{suffix}.pdf")
     # Validation Table Call
     if revised:
         bin_valid_file = join(fitspath, filename_dict['bin_valid_rev'])
@@ -103,19 +107,34 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
     marker_b = [r'$\uparrow$'] * len(rlimit_lR23)
     marker_c = ['3'] * len(DEEP2_lR23)
     marker_d = ['4'] * len(MACT_lR23)
-    marker = np.concatenate([marker_a, marker_b, marker_c, marker_d])
 
     color_a = ['b'] *len(det_lR23)
     color_b = ['g']*len(rlimit_lR23)
     color_c = ['red'] * len(DEEP2_lR23)
     color_d = ['magenta']*len(MACT_lR23)
-    color = np.concatenate([color_a, color_b, color_c, color_d])
-    lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
-    lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
-    OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
-    ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
 
-    o1, o2, lR23, lO32, OH, OH_range = experiment_LAC(lR23_arrs, lO32_arrs, OH_arrs)
+    if include_rlimit:
+        color = np.concatenate([color_a, color_b, color_c, color_d])
+        marker = np.concatenate([marker_a, marker_b, marker_c, marker_d])
+        lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
+        lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
+        OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
+        ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
+        pdf_file = join(fitspath, f"testLAC_curvefit_include_rlimit{suffix}.pdf")
+        R23_diff_pdf_file = join(fitspath,
+                                 f"testnewLAC_R23__include_rlimit_diff{suffix}.pdf")
+    else:
+        color = np.concatenate([color_a, color_c, color_d])
+        marker = np.concatenate([marker_a, marker_c, marker_d])
+        lR23_arrs = [det_lR23, DEEP2_lR23, MACT_lR23]
+        lO32_arrs = [det_lO32, DEEP2_lO32, MACT_lO32]
+        OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
+        ID_arrs = [det_ID, DEEP2_id, MACT_ID]
+        pdf_file = join(fitspath, f"testLAC_curvefit{suffix}.pdf")
+        R23_diff_pdf_file = join(fitspath, f"testnewLAC_R23_diff{suffix}.pdf")
+
+    o1, o2, lR23, lO32, OH, OH_range = experiment_LAC(lR23_arrs,
+                                                      lO32_arrs, OH_arrs)
     print('o1: ', o1)
     fitted_poly = thirdorder_polynomial(OH_range, *o1)
     bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
@@ -137,10 +156,9 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.legend(loc='lower left', framealpha=0.5, fontsize=10)
 
-    R23_diff_pdf_file = join(fitspath, f"newLAC_R23_diff{suffix}.pdf")
     local_analog_calibration.plot_differences(lR23_arrs, OH_arrs, R23_diff_pdf_file,
-                                              data_input='R23', new_coefficients=o1,
-                                              data_err=[],
+                                              data_input='R23',
+                                              new_coefficients=o1, data_err=[],
                                               OH_err=[], OH_range=[np.min(OH_range), np.max(OH_range)],
                                               data_range=[-0.5, 0.5],
                                               marker=marker, label=label,

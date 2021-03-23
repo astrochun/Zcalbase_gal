@@ -16,7 +16,12 @@ def thirdorder_polynomial(x, a, b, c, d):
     return a*x*x*x + b*x*x + c*x +d
 
 
-def experiment_LAC(lR23_ini, lO32_ini, OH_ini):
+def threevariable_fit(X, a, b, c, d):
+    x, lO32 = X
+    return a * x * x * x + b * x * x + c * x + d*lO32
+
+
+def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, order):
     lR23 = []
     lO32 = []
     OH = []
@@ -27,17 +32,45 @@ def experiment_LAC(lR23_ini, lO32_ini, OH_ini):
 
     OH_range = np.linspace(np.min(OH), np.max(OH), 100)
 
-    p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
     #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
     # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
 
-    o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
+    if order == 'second':
+        p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
+        o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
+    else:
+        p0 = [7.2954, -54.8284, 138.0430]
+        o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
 
     return o1, o2, lR23, lO32, OH, OH_range
 
 
-def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
-                  apply_dust=False, revised=False, include_rlimit=False):
+def LAC_three_variable(lR23_ini, lO32_ini, OH_ini):
+    '''
+    log(R23) = ax^2 + bx + c + dlog(O32)
+    '''
+    lR23 = []
+    lO32 = []
+    OH = []
+    for ii in range(len(lR23_ini)):
+        lR23 = np.concatenate([lR23, lR23_ini[ii]])
+        lO32 = np.concatenate([lO32, lO32_ini[ii]])
+        OH = np.concatenate([OH, OH_ini[ii]])
+
+    OH_range = np.linspace(np.min(OH), np.max(OH), 100)
+
+    #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
+    # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
+
+    p0 = [7.2954, -54.8284, 138.0430, 0]
+    o1, o2 = curve_fit(threevariable_fit, (OH, lO32), lR23, p0=p0)
+
+    return o1, o2, lR23, lO32, OH, OH_range
+
+
+def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
+                       threevariable=True, raw=False, apply_dust=False,
+                       revised=False, include_rlimit=False):
     suffix = ''
     if not revised:
         suffix += '.valid1'
@@ -120,9 +153,9 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
         lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
         OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
-        pdf_file = join(fitspath, f"testLAC_curvefit_include_rlimit{suffix}.pdf")
+        pdf_file = join(fitspath, f"LAC_curvefit_include_rlimit{suffix}.pdf")
         R23_diff_pdf_file = join(fitspath,
-                                 f"testnewLAC_R23__include_rlimit_diff{suffix}.pdf")
+                                 f"LAC_curvefit_R23_include_rlimit_diff{suffix}.pdf")
     else:
         color = np.concatenate([color_a, color_c, color_d])
         marker = np.concatenate([marker_a, marker_c, marker_d])
@@ -130,14 +163,23 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
         lO32_arrs = [det_lO32, DEEP2_lO32, MACT_lO32]
         OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, DEEP2_id, MACT_ID]
-        pdf_file = join(fitspath, f"testLAC_curvefit{suffix}.pdf")
-        R23_diff_pdf_file = join(fitspath, f"testnewLAC_R23_diff{suffix}.pdf")
+        pdf_file = join(fitspath, f"LAC_curvefit{suffix}.pdf")
+        R23_diff_pdf_file = join(fitspath, f"LAC_curvefit_R23_diff{suffix}.pdf")
 
-    o1, o2, lR23, lO32, OH, OH_range = experiment_LAC(lR23_arrs,
-                                                      lO32_arrs, OH_arrs)
+    if threevariable:
+        o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs,
+                                                              lO32_arrs,
+                                                              OH_arrs)
+    else:
+        o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs, lO32_arrs,
+                                                            OH_arrs)
     print('o1: ', o1)
-    fitted_poly = thirdorder_polynomial(OH_range, *o1)
-    bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
+    if secondorder == 'second':
+        fitted_poly = secondorder_polynomial(OH_range, *o1)
+        bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
+    else:
+        fitted_poly = thirdorder_polynomial(OH_range, *o1)
+        bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
     fig, ax = plt.subplots()
     ax.plot(fitted_poly, OH_range, label='Curve Fit')
@@ -147,8 +189,12 @@ def run_experiment_LAC(fitspath, fitspath_ini, raw=False,
             label='Bian Data Range')
     for ii in range(len(marker)):
         ax.scatter(lR23[ii], OH[ii], marker=marker[ii], color=color[ii])
-    txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
-    txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
+    if threevariable:
+        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
+        txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
+    else:
+        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
+        txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
     txt0 += f"\n x = 12+log(O/H)"
     ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top', fontsize=6)
     ax.set(xlim=(0.0, 1.2))

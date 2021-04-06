@@ -18,6 +18,8 @@ def thirdorder_polynomial(x, a, b, c, d):
 
 def threevariable_fit(X, a, b, c, d):
     x, lO32 = X
+    print('x = ', x)
+    print('lO32 = ', lO32)
     return a * x * x * x + b * x * x + c * x + d*lO32
 
 
@@ -30,8 +32,7 @@ def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, order):
         lO32 = np.concatenate([lO32, lO32_ini[ii]])
         OH = np.concatenate([OH, OH_ini[ii]])
 
-    OH_range = np.linspace(np.min(OH), np.max(OH), 100)
-
+    OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
     #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
     # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
 
@@ -57,8 +58,7 @@ def LAC_three_variable(lR23_ini, lO32_ini, OH_ini):
         lO32 = np.concatenate([lO32, lO32_ini[ii]])
         OH = np.concatenate([OH, OH_ini[ii]])
 
-    OH_range = np.linspace(np.min(OH), np.max(OH), 100)
-
+    OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
     #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
     # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
 
@@ -70,7 +70,7 @@ def LAC_three_variable(lR23_ini, lO32_ini, OH_ini):
 
 def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                        threevariable=True, raw=False, apply_dust=False,
-                       revised=False, include_rlimit=False):
+                       revised=True, include_rlimit=False):
     suffix = ''
     if not revised:
         suffix += '.valid1'
@@ -141,7 +141,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     marker_c = ['3'] * len(DEEP2_lR23)
     marker_d = ['4'] * len(MACT_lR23)
 
-    color_a = ['b'] *len(det_lR23)
+    color_a = ['b'] * len(det_lR23)
     color_b = ['g']*len(rlimit_lR23)
     color_c = ['red'] * len(DEEP2_lR23)
     color_d = ['magenta']*len(MACT_lR23)
@@ -170,31 +170,39 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs,
                                                               lO32_arrs,
                                                               OH_arrs)
+        lO32_median = np.median(lO32)
+        lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
+                       1.25 * lO32_median, 1.75 * lO32_median]
+        fitted_poly = np.zeros((len(lo32_values), len(lR23)))
+        for aa in range(len(lo32_values)):
+            fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]), *o1)
     else:
         o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs, lO32_arrs,
                                                             OH_arrs)
-    print('o1: ', o1)
-    if secondorder == 'second':
-        fitted_poly = secondorder_polynomial(OH_range, *o1)
-        bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
-    else:
-        fitted_poly = thirdorder_polynomial(OH_range, *o1)
-        bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
+        if secondorder == 'second':
+            fitted_poly = secondorder_polynomial(OH_range, *o1)
+        else:
+            fitted_poly = thirdorder_polynomial(OH_range, *o1)
+    bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
+
+    print('o1: ', o1)
     fig, ax = plt.subplots()
-    ax.plot(fitted_poly, OH_range, label='Curve Fit')
+    if threevariable:
+        for aa in range(len(lo32_values)):
+            ax.plot(fitted_poly[aa], OH_range, label='Curve Fit')
+        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
+        txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
+    else:
+        ax.plot(fitted_poly, OH_range, label='Curve Fit')
+        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
+        txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
     ax.plot(bian_R23, OH_range, 'k--', label='Bian+(2018)')
     avail_idx = np.where((OH_range >= 7.80) & (OH_range <= 8.4))[0]
     ax.plot(bian_R23[avail_idx], OH_range[avail_idx], 'k-',
             label='Bian Data Range')
     for ii in range(len(marker)):
         ax.scatter(lR23[ii], OH[ii], marker=marker[ii], color=color[ii])
-    if threevariable:
-        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
-        txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
-    else:
-        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
-        txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
     txt0 += f"\n x = 12+log(O/H)"
     ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top', fontsize=6)
     ax.set(xlim=(0.0, 1.2))

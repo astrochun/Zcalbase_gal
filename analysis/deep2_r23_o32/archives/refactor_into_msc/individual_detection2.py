@@ -46,7 +46,7 @@ def individual_galaxy_detections_plots(fitspath,project, dataset):
     
 
 
-    #pdf_pages= PdfPages()
+    #pp = PdfPages()
     if project == 'R23O32': 
         new_name = 'R23O32_individual_detect.tbl'
         stacking_ascii(fitspath, dataset, new_name)
@@ -72,7 +72,7 @@ def individual_galaxy_detections_plots(fitspath,project, dataset):
 def ind_detection(fitspath,project,dataset):
     get_det3_tab= asc.read(fitspath+'get_det3_table.tbl')
     ml_tab = asc.read(fitspath+'mass_LHbeta_tab.tbl')
-    
+
     if project =='R23O32':
         bin_tab = asc.read(fitspath+dataset+'_2d_binning_datadet3.tbl')
         N_gal_tab = asc.read(fitspath+dataset+'_Average_R23_O32_Values.tbl')
@@ -257,7 +257,7 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table, ou
     #individual_combine_table = /Users/reagenleimbach/Desktop/Zcalbase_gal/R23O32_Manual_0902/Individual_ratio_temperature.tbl'
     #out_ascii = fitspath+'Individual_temp_metal.tbl'
     #out_fits = fitspath+'Individual_temp_metal.fits'
-    #pdf_name = fitspath+'Individual_temp_metal.pdf'
+    #pdf_file = fitspath+'Individual_temp_metal.pdf'
     #dust_ascii = '/Users/reagenleimbach/Desktop/Zcalbase_gal/dust_attentuation_values.tbl'
 
     R_temp_calcul.run_function(fitspath, dataset, out_ascii, out_fits, temp_pdf, individual_combine_table, dust_ascii, dustatt=False)
@@ -275,7 +275,7 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table, ou
     detect = np.where((Detection ==1))[0]
     nan_detect = np.where((Detection ==0))[0]
     
-    pdf_pages = PdfPages(metal_pdf)
+    pp = PdfPages(metal_pdf)
 
     fig1, ax1 = plt.subplots()
     cm = plt.cm.get_cmap('BuPu_r')
@@ -288,9 +288,9 @@ def call_metallicity_calculation(fitspath, dataset, individual_combine_table, ou
     ax1.set_ylabel('O32')
     ax1.set_title('R23 vs. O32  Colormap=Metallicity')
     fig1.set_size_inches(8,8)
-    fig1.savefig(pdf_pages, format='pdf')
+    fig1.savefig(pp, format='pdf')
 
-    pdf_pages.close()
+    pp.close()
 
 
 def massvslum_plots(fitspath, dataset, individual_combine_table,out_ascii,out_fits, temp_pdf, metal_pdf): 
@@ -312,7 +312,7 @@ def massvslum_plots(fitspath, dataset, individual_combine_table,out_ascii,out_fi
     detect = np.where((LHBETA != -1.0))[0]
 
     pdf_name= 'MvsL_individual_metal_plots.pdf'
-    pdf_pages = PdfPages(fitspath+pdf_name)
+    pp = PdfPages(fitspath+pdf_name)
 
     fig1, ax1 = plt.subplots()
     cm = plt.cm.get_cmap('BuPu_r')
@@ -324,8 +324,8 @@ def massvslum_plots(fitspath, dataset, individual_combine_table,out_ascii,out_fi
     ax1.set_ylabel('LHBETA')
     ax1.set_title('Mass vs. Luminosity Colormap=Metallicity')
     fig1.set_size_inches(8,8)
-    fig1.savefig(pdf_pages, format='pdf')
-    pdf_pages.close()
+    fig1.savefig(pp, format='pdf')
+    pp.close()
 
 
 

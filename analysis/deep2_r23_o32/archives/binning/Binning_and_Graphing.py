@@ -14,8 +14,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 from astropy.table import Table
 
 fitspath='/astrochun/Zcalbase_gal/Analysis/DEEP2_R23_O32/' 
-#pdf_pages = PdfPages(fitspath+'R23_O32_bin01_scatter_and_hexbin.pdf') #open pdf document 
-pdf_pages = PdfPages('/astrochun/Zcalbase_gal/Analysis/DEEP2_R23_O32/Scatter_and_hexbin.pdf')
+# pp = PdfPages(fitspath+'R23_O32_bin01_scatter_and_hexbin.pdf') #open pdf document
+pp = PdfPages('/astrochun/Zcalbase_gal/Analysis/DEEP2_R23_O32/Scatter_and_hexbin.pdf')
 marker0 = ['b','g','r','m']
 
 fig1, ax1 = plt.subplots() #plt.gcf()
@@ -109,7 +109,7 @@ ax1.minorticks_on()
 ax1.legend(loc='upper left', numpoints=3) #"Field1", "Field2", "Field3", "Field4")    
 fig1.set_size_inches(9,9)
 
-pdf_pages.savefig(fig1)
+pp.savefig(fig1)
 
 fig2 = plt.figure()
 ax2 = plt.gca() # ax = plt.subplots() #plt.gcf()
@@ -134,9 +134,9 @@ ax2.minorticks_on()
 ax2.legend(loc='upper left', numpoints=3) #"Field1", "Field2", "Field3", "Field4")    
 
 fig2.set_size_inches(8,8)
-pdf_pages.savefig(fig2)
+pp.savefig(fig2)
 
-pdf_pages.close()
+pp.close()
 
 fig1.clear()
 fig2.clear()

@@ -248,7 +248,7 @@ def plot_finding_chart(fitsfile, t_ID, band0, c0, c1, mag_str, mag_table,
      - Fix previous bug with show_markers (change facecolor)
      - Added input of c1 to indicate where bright alignment stars are
      - Added t_ID, band0 inputs for plt.annotate call
-     - Changed out_pdf to keyword rather than input variable
+     - Changed pp to keyword rather than input variable
      - Added catalog keyword
      - Change axis label values to clean it up
     Modified by Chun Ly, 3 January 2017
@@ -1115,7 +1115,7 @@ def main(infile, out_path, finding_chart_path, finding_chart_fits_path,
             # + on 26/01/2017
             if pmfix == True: out_pdf = out_pdf.replace('.pdf', '.PMfix.pdf')
 
-            print '### out_pdf : ', out_pdf
+            print '### pp : ', out_pdf
 
             # Mod on 02/01/2017 and 22/01/2017 for inputs
             #if catalog == 'SDSS':

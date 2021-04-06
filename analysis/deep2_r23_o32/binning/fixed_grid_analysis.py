@@ -10,15 +10,15 @@ from os.path import join, exists
 from ..log_commons import log_stdout
 
 
-def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
+def making_grid(fitspath, pp, npz_outfile, R23, O32, det3, R23_bin,
                 O32_bin, log=None):
     """
     This file holds the function to bin data in a bin of fixed size entered
     as an input. Not used in current analysis
 
     :param fitspath: str. Path where files are retrieved and saved to
-    :param pdf_pages: str. PdfPages object
-                      fitspath + name_dict['gridpdf_suffix']
+    :param pp: str. PdfPages object
+                    fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param R23: np.array. log(R23) measurements of each spectra
@@ -81,20 +81,20 @@ def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
     ax1.legend(loc='upper left', numpoints=3)     
     fig1.set_size_inches(9, 9)
 
-    pdf_pages.savefig(fig1)
+    pp.savefig(fig1)
 
     fig2 = plt.figure()
     ax2 = plt.gca()
     cm = plt.cm.get_cmap('Blues')
 
     # Write table
-    tabmastergrid = Table([x0, y0])
-    tabmastergrid_name = join(fitspath, 'testmastergrid.tbl')
-    if not exists(tabmastergrid_name):
-        log.info(f"Writing: {tabmastergrid_name}")
+    mastergrid_tab = Table([x0, y0])
+    mastergrid_file = join(fitspath, 'mastergrid.tbl')
+    if not exists(mastergrid_file):
+        log.info(f"Writing: {mastergrid_file}")
     else:
-        log.info(f"Overwriting : {tabmastergrid_name}")
-    asc.write(tabmastergrid, tabmastergrid_name,
+        log.info(f"Overwriting : {mastergrid_file}")
+    asc.write(mastergrid_tab, mastergrid_file,
               format='fixed_width_two_line', overwrite=True)
 
     # Colorbar and hexbin plotting
@@ -116,9 +116,9 @@ def making_grid(fitspath, pdf_pages, npz_outfile, R23, O32, det3, R23_bin,
     ax2.legend(loc='upper left', numpoints=3)
 
     fig2.set_size_inches(8, 8)
-    pdf_pages.savefig(fig2)
+    pp.savefig(fig2)
 
-    pdf_pages.close()
+    pp.close()
 
     fig1.clear()
     fig2.clear()

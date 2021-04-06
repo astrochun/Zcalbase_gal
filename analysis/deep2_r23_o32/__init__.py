@@ -145,16 +145,17 @@ def get_det3(fitspath, fitspath_ini, log=None):
         'O4363_S/N': SNR4363
     }
 
-    tab1 = Table(table_dict)
+    indv_prop_tab = Table(table_dict)
 
     # We can create two different kinds of tables here of the R23_032 data (det3)
     # used to be get_det3_table.tbl
-    outfile = join(fitspath, filename_dict['indv_prop'])
-    if not exists(outfile):
-        log.info(f"Writing: {outfile}")
+    indv_prop_file = join(fitspath, filename_dict['indv_prop'])
+    if not exists(indv_prop_file):
+        log.info(f"Writing: {indv_prop_file}")
     else:
-        log.info(f"Overwriting: {outfile}")
-    asc.write(tab1, outfile, format='fixed_width_two_line', overwrite=True)
+        log.info(f"Overwriting: {indv_prop_file}")
+    asc.write(indv_prop_tab, indv_prop_file, format='fixed_width_two_line',
+              overwrite=True)
 
     log.info("finished.")
 

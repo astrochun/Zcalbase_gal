@@ -7,27 +7,28 @@ from os.path import join
 from ..log_commons import log_stdout
 
 
-def color_for_bin(fitspath, bin_info, pdf_file):
+def color_for_bin(fitspath, bin_info_file, pdf_file):
     """
     Plots for R23 and O32 for Voronoi analysis for each bin
     NOT CALLED IN GENERAL FUNCTIONS
 
     :param fitspath: str. path where files are called from and saved to
-    :param bin_info: str. table created by binning code
+    :param bin_info_file: str. table created by binning code
     :param pdf_file: str. name of pdf file produced
 
     PDF File: fitspath + pdf_file
     No returns
     """
 
-    pdf_pages = PdfPages(join(fitspath, pdf_file))
-    asc_table = asc.read(join(fitspath, bin_info))
+    pp = PdfPages(join(fitspath, pdf_file))
+
+    bin_info_tab = asc.read(join(fitspath, bin_info_file))
     targetSN = 14
-    xBar = asc_table['logR23_avg']
-    yBar = asc_table['logO32_avg']
-    xnode = asc_table['logR23_min']
-    ynode = asc_table['logO32_min']
-    area = asc_table['N_stack']
+    xBar = bin_info_tab['logR23_avg']
+    yBar = bin_info_tab['logO32_avg']
+    xnode = bin_info_tab['logR23_min']
+    ynode = bin_info_tab['logO32_min']
+    area = bin_info_tab['N_stack']
 
     w = area == 1
     plt.clf()
@@ -38,7 +39,7 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     plt.xlabel('R (arcsec)')
     plt.ylabel('R (arcsec)')
     plt.title('Map of Voronoi bins')
-    
+
     plt.subplot(212)
     rad = np.sqrt(xBar**2 + yBar**2)  # Use centroids, NOT generators
     plt.plot(rad[~w], sn[~w], 'or')
@@ -50,23 +51,24 @@ def color_for_bin(fitspath, bin_info, pdf_file):
     plt.axhline(targetSN)
     plt.legend()
     plt.pause(1)
-    pdf_pages.savefig()
-    pdf_pages.close()
+    pp.savefig()
+    pp.close()
 
 
-def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
+def r23vso32_plot(fitspath, bin_info_file, bin_derived_prop_file, pdf_file,
+                  log=None):
     """
     Plotting R23 vs O32 with a color map for
     metallicity and then for temperature
 
     :param fitspath: str. path where files are called from and saved to
-    :param bin_info: str. table created by binning code
-    :param temp_tab: str. table holding metallicity and
-                     temperature measurements
-    :param pdf_name: str. name of pdf file produced
+    :param bin_info_file: str. table created by binning code
+    :param bin_derived_prop_file: str. table holding metallicity and
+                                  temperature measurements
+    :param pdf_file: str. name of pdf file produced
     :param log: LogClass or logging object
 
-    PDF File: fitspath + pdf_name
+    PDF File: fitspath + pdf_file
     No returns
     """
 
@@ -75,21 +77,22 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
 
     log.info("starting ...")
 
-    # pdf_name = 'R23vsO32_color_comandavg.pdf'
-    pdf_pages = PdfPages(join(fitspath, pdf_name))
+    # pp = 'R23vsO32_color_comandavg.pdf'
+    pp = PdfPages(join(fitspath, pdf_file))
 
-    asc_table1 = asc.read(bin_info)
-    temp_table = asc.read(temp_tab)
+    bin_info_tab = asc.read(join(fitspath, bin_info_file))
+
+    bin_derived_prop_tab = asc.read(bin_derived_prop_file)
 
     # logR23 = asc_table['log(R23)']
     # logO32 = asc_table['log(O32)']
-    com_O_log = temp_table['12+log(O/H)']
-    R23_com = temp_table['R23_Composite']
-    O32_com = temp_table['O32_Composite']
-    n_gal = temp_table['N_Stack']
+    com_O_log = bin_derived_prop_tab['12+log(O/H)']
+    R23_com = bin_derived_prop_tab['R23_Composite']
+    O32_com = bin_derived_prop_tab['O32_Composite']
+    n_gal = bin_derived_prop_tab['N_Stack']
     
-    xBar = asc_table1['logR23_avg']
-    yBar = asc_table1['logO32_avg']
+    xBar = bin_info_tab['logR23_avg']
+    yBar = bin_info_tab['logO32_avg']
 
     fig1, ax1 = plt.subplots()
     cm = plt.cm.get_cmap('BuPu_r')
@@ -116,8 +119,7 @@ def r23vso32_plot(fitspath, bin_info, temp_tab, pdf_name, log=None):
     ax1.set_xlabel(r'log($R_{23}$)')
     ax1.set_ylabel(r'log($O_{32}$)')
 
-
-    pdf_pages.savefig()
-    pdf_pages.close()
+    pp.savefig()
+    pp.close()
 
     log.info("finished.")

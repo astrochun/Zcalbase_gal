@@ -12,7 +12,7 @@ from Metallicity_Stack_Commons.column_names import filename_dict
 from ..log_commons import log_stdout
 
 
-def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
+def n_times_binned(fitspath, pdf_file, npz_outfile, n_split, individual_ID,
                    R23, O32, SNR3, data3, galinbin, thesis=False, log=None):
     """
     This file holds the function to bin data adaptively based on the entered
@@ -22,8 +22,8 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     This is used in current analysis.
 
     :param fitspath: str. Absolute path for working directory
-    :param pdf_pages: str. name of outputted pdf file
-                      fitspath + name_dict['gridpdf_suffix']
+    :param pdf_file: str. name of outputted pdf file
+                     fitspath + name_dict['gridpdf_suffix']
     :param npz_outfile: str. name of the npz file produced by the function
                         fitspath + name_dict['gridnpz_suffix']
     :param n_split: int. the number of times each R23 bin will be split
@@ -45,7 +45,7 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
 
     log.debug("starting ...")
 
-    pp = PdfPages(pdf_pages)
+    pp = PdfPages(pdf_file)
 
     # One_dimensional binning for R23
     sortR23 = np.argsort(R23)
@@ -223,7 +223,7 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
         plt.plot(x_value, y_average, linewidth=0.3, color='g')
 
     fig.savefig(pp, format='pdf')
-    log.info(f"Writing: {pdf_pages}")
+    log.info(f"Writing: {pdf_file}")
     pp.close()
 
     # Writing as a dictionary
@@ -237,33 +237,36 @@ def n_times_binned(fitspath, pdf_pages, npz_outfile, n_split, individual_ID,
     n1 = ('bin_ID', 'N_stack', 'logR23_min', 'logO32_min', 'logR23_avg',
           'logO32_avg', 'logR23_median', 'logO32_median', 'logR23_max',
           'logO32_max')
-    tab1 = Table([n_bins_range, area, np.log10(R23_lowlimit),
-                  np.log10(O32_lowlimit), np.log10(xBar), np.log10(yBar),
-                  np.log10(R23_medians), np.log10(O32_medians),
-                  np.log10(R23_maxval), np.log10(O32_maxval)], names=n1)
+    arr1 = [n_bins_range, area, np.log10(R23_lowlimit), np.log10(O32_lowlimit),
+            np.log10(xBar), np.log10(yBar), np.log10(R23_medians),
+            np.log10(O32_medians), np.log10(R23_maxval), np.log10(O32_maxval)]
+    bin_info_tab = Table(arr1, names=n1)
 
     # Used to be called +dataset+'_binning_averages.tbl
-    bin_outfile = join(fitspath, filename_dict['bin_info'])
-    if not exists(bin_outfile):
-        log.info(f"Writing: {bin_outfile}")
+    bin_info_file = join(fitspath, filename_dict['bin_info'])
+    if not exists(bin_info_file):
+        log.info(f"Writing: {bin_info_file}")
     else:
-        log.info(f"Overwriting : {bin_outfile}")
-    asc.write(tab1, bin_outfile, format='fixed_width_two_line', overwrite=True)
+        log.info(f"Overwriting : {bin_info_file}")
+    asc.write(bin_info_tab, bin_info_file, format='fixed_width_two_line',
+              overwrite=True)
 
     n2 = ('logR23', 'logO32', 'OIII_5007_S/N', 'bin_ID', 'ID', 'logR23_min',
           'logO32_min', 'logR23_avg', 'logO32_avg',
           'logR23_median', 'logO32_median', 'logR23_max', 'logO32_max')
-    tab2 = Table([R23, O32, SNR3, bin_number, individual_ID,
-                 R23_minall, O32_minall, R23_avgall, O32_avgall,
-                 R23_medall, O32_medall, R23_maxall, O32_maxall], names=n2)
+    arr2 = [R23, O32, SNR3, bin_number, individual_ID,
+            R23_minall, O32_minall, R23_avgall, O32_avgall,
+            R23_medall, O32_medall, R23_maxall, O32_maxall]
+    indv_bin_info_tab = Table(arr2, names=n2)
 
     # Used to be + dataset+'_2d_binning_datadet3.tbl
-    indv_outfile = join(fitspath, filename_dict['indv_bin_info'])
-    if not exists(indv_outfile):
-        log.info(f"Writing: {indv_outfile}")
+    indv_bin_info_file = join(fitspath, filename_dict['indv_bin_info'])
+    if not exists(indv_bin_info_file):
+        log.info(f"Writing: {indv_bin_info_file}")
     else:
-        log.info(f"Overwriting : {indv_outfile}")
-    asc.write(tab2, indv_outfile, format='fixed_width_two_line', overwrite=True)
+        log.info(f"Overwriting : {indv_bin_info_file}")
+    asc.write(indv_bin_info_tab, indv_bin_info_file, format='fixed_width_two_line',
+              overwrite=True)
 
     # Create another ascii table with the R23_grid and O32_grid values for plots
     if thesis:

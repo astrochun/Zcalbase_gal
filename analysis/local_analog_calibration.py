@@ -7,7 +7,7 @@ from .deep2_r23_o32.log_commons import log_stdout, LogClass
 from .green_peas_calibration import get_zcalbase_sample
 
 
-def bian18_R23(OH):
+def bian18_R23_OH(OH):
     """
     Function to return log(R23) given metallicity
     Used in main()
@@ -21,12 +21,19 @@ def bian18_R23(OH):
     return R23_p(OH)
 
 
-def bian18_O32(O32):
+def bian18_O32_OH(OH):
+    """Function to return log(O32) given metallicity"""
+    O32 = (OH - 8.54)/(-0.59)
+
+    return O32
+
+
+def bian18_OH_O32(O32):
     """
     Function to return metallicity given log(O32)
     Used in main()
 
-    :param O32: array. log([OIII]/[OII])
+    :param O32: log([OIII]/[OII])
     """
 
     OH = 8.54 - 0.59 * O32
@@ -34,9 +41,138 @@ def bian18_O32(O32):
     return OH
 
 
-def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
-         OH_err=[], R23_xra=[], O32_xra=[], yra=[], ctype=[], label=[''],
-         marker=[], log=None):
+def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[],
+                     OH_err=[], OH_range=[], data_range=[], marker=[], label=[],
+                     IDs=[], log=None):
+    """
+    Plot differences between LACR23 vs observed R23 as a function
+    of metallicity
+    Plot differences between LACO32 vs observed O32 as a function
+    of metallicity
+    Used by main() function
+    """
+
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
+    fig, ax = plt.subplots()
+
+    n_sample = len(lR23_lO32)
+
+    # Plotting
+    ctype = ['blue', 'green', 'red', 'magenta']
+
+    if len(marker) == 0:
+        marker = ['o'] * n_sample
+
+    diff0 = []
+    for nn in range(n_sample):
+        if data_input == 'R23':
+            LAC = bian18_R23_OH(OH[nn])
+            log.info(f"LAC_R23: {LAC}")
+        else:
+            LAC = bian18_O32_OH(OH[nn])
+            log.info(f"LAC_R23: {LAC}")
+
+        if nn == 0:
+            if IDs:
+                for jj in range(len(LAC)):
+                    id_diff = lR23_lO32[0][jj]-LAC[jj]
+                    ax.annotate(IDs[0][jj], (OH[0][jj], id_diff),
+                                fontsize='6')
+
+        # Label in upper left the points
+        if len(label) != 0:
+            x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
+            y1 = data_range[1] - (nn * 0.035 + 0.05) \
+                     * (data_range[1] - data_range[0])
+            x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
+            y2 = data_range[1] - (nn * 0.035 + 0.0525) \
+                     * (data_range[1] - data_range[0])
+            ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
+            ax.plot([x1], [y1], marker=marker[nn], color='black')
+        for ii in range(len(lR23_lO32)):
+            y_ii_min = np.min(lR23_lO32[nn])
+            y_ii_max = np.max(lR23_lO32[nn])
+            idx = np.where((lR23_lO32[nn] >= y_ii_min) &
+                           (lR23_lO32[nn] <= y_ii_max))[0]
+
+            if len(idx) >0:
+                i_diff = lR23_lO32[nn][idx] - LAC[idx]
+                ax.scatter(OH[nn], i_diff, color=ctype[nn],
+                           marker=marker[nn], edgecolor='none', alpha=0.5)
+                diff0 += list(lR23_lO32[nn][idx] - LAC[idx])
+
+        # Added if statement so that only data points
+        # on the OH_err[0] place will be plotted
+                if nn == 0:
+                    if len(OH_err) != 0:
+                        ax.errorbar(OH[nn], i_diff,
+                                    xerr=np.transpose(OH_err[nn]),
+                                    mfc='none', capsize=0,
+                                    alpha=0.25, fmt='None', label=None,
+                                    ls='none')
+
+                    if len(data_err) != 0:
+                        ax.errorbar(OH[nn], i_diff,
+                                    yerr=np.transpose(data_err[nn]),
+                                    mfc='none', capsize=0,
+                                    alpha=0.25, fmt='None', label=None,
+                                    ls='none')
+
+    # Draw horizontal line at zero:
+    ax.axhline(y=0, c='k', linestyle='dashed')
+
+    # Compute statistics for R23
+    med0 = np.median(diff0)
+    avg0 = np.average(diff0)
+    sig0 = np.std(diff0)
+
+    # Plotting for R23
+    ax.axhline(y=avg0, c='r', linestyle='dotted')
+    ax.axhline(y=med0, c='b', linestyle='dotted')
+
+    if data_input == 'R23':
+        an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
+        an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
+        an_txt += r'$\sigma$ : %0.2f' % sig0
+        ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
+                      r'- \log(R_{23})_{\rm LAC}$')
+    else:
+        an_txt = r'$<\Delta_{O_{32}}>$ : %0.2f' % avg0 + '\n'
+        an_txt += r'$\tilde\Delta_{O_{32}}$ : %0.2f' % med0 + '\n'
+        an_txt += r'$\sigma$ : %0.2f' % sig0
+        ax.set_ylabel(r'$\Delta_{O_{32}} \equiv \log(O_{32}) '
+                      r'- \log(O_{32})_{\rm LAC}$')
+    ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction',
+                va='bottom', ha='right', fontsize=10)
+    ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
+
+    ax.minorticks_on()
+
+    if len(OH_range) != 0:
+        ax.set_xlim(OH_range)
+    if len(data_range) != 0:
+        ax.set_ylim(data_range)
+
+    leg_R23 = ax.legend(loc='upper right', scatterpoints=1, fontsize=8,
+                            framealpha=0.5)
+    for lh in leg_R23.legendHandles:
+        lh.set_alpha(0.5)
+
+    plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
+
+    log.info(f"Writing: {pdf_file}")
+    fig.savefig(pdf_file)
+
+    log.info("finished.")
+
+
+def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
+         lR23_err=[], lO32_err=[], OH_err=[], R23_xra=[], O32_xra=[],
+         yra=[], ctype=[], label=[''], marker=[], log=None):
     """
     Plots R23 and O32 line ratios and compare it to Bian et al. (2018)
     calibration that is based on local analogs to z~2 galaxies
@@ -87,7 +223,7 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     O32_max = np.max(max1)
     O32_arr = np.arange(O32_min, O32_max, 0.025)
 
-    bian_OH = bian18_O32(O32_arr)
+    bian_OH = bian18_OH_O32(O32_arr)
 
     # Grid of 12+log(O/H)
     if len(yra) == 0:
@@ -99,7 +235,7 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     else:
         OH_arr = np.arange(yra[0], yra[1], 0.05)
     log.info(f"OH_arr: {OH_arr}")
-    bian_R23 = bian18_R23(OH_arr)
+    bian_R23 = bian18_R23_OH(OH_arr)
 
     if len(ctype) == 0:
         ctype = ['blue'] * n_sample
@@ -109,7 +245,7 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     for nn in range(n_sample):
         ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], edgecolor='none',
                       marker=marker[nn], alpha=0.5, label=label[nn])
-        if len(ID) != 0:
+        if len(ID[nn]) != 0:
             for ii in range(len(lR23[nn])):
                 ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],
                                xycoords='data', size=4, va='bottom', ha='left')
@@ -142,7 +278,7 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
     for nn in range(n_sample):
         ax[1].scatter(lO32[nn], OH[nn], color=ctype[nn], edgecolor='none',
                       marker=marker[nn], alpha=0.5)
-        if len(ID) != 0:
+        if len(ID[nn]) != 0:
             for ii in range(len(lO32[nn])):
                 ax[1].annotate(ID[nn][ii], [lO32[nn][ii], OH[nn][ii]],
                                xycoords='data', size=4, va='bottom', ha='left')
@@ -171,6 +307,13 @@ def main(lR23, lO32, OH, out_pdf, ID=[], lR23_err=[], lO32_err=[],
                         wspace=0.01)
     fig.set_size_inches(10, 5)
     fig.savefig(out_pdf, format='pdf')
+
+    plot_differences(lR23, OH, R23_pdf_file, data_input='R23', data_err=lR23_err,
+                     OH_err=OH_err, OH_range=yra, data_range=[-0.5, 0.5],
+                     marker=marker, label=label, IDs=ID, log=log)
+    plot_differences(lO32, OH, O32_pdf_file, data_input='O32', data_err=lO32_err,
+                     OH_err=OH_err, OH_range=yra, data_range=[-2.1, 1.0],
+                     marker=marker, label=label, IDs=ID, log=log)
 
     log.info("finished.")
 

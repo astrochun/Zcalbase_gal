@@ -30,8 +30,7 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     :param fitspath_ini: str. save location of all of Zcalbase
     :param dataset: str. keyword used to define binning method
     :param grid_data_file: str. npz file that holds the information
-                            from the binning process
-    :param name: str. name of the outputted pdf file with graphs
+                           from the binning process
     :param mask: bool. optional input used to mask the night sky lines
                 if inputted (default: None)
     :param log: LogClass. Default use log_stdout()
@@ -53,15 +52,16 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     else:
         stack_name = name_dict['Stackname_nomask']
 
-    RestframeMaster = join(fitspath_ini,
-                           'DEEP2_Commons/Images/Master_Grid.fits')
-    log.info(f"Reading: {RestframeMaster}")
-    fits_dict = read_fitsfiles(RestframeMaster)
+    restframe_master_file = join(fitspath_ini,
+                                 'DEEP2_Commons/Images/Master_Grid.fits')
+    log.info(f"Reading: {restframe_master_file}")
+    fits_dict = read_fitsfiles(restframe_master_file)
     image2D = fits_dict['fits_data']
     header = fits_dict['header']
     wave = fits_dict['wave']
 
-    pdf_pages = PdfPages(join(fitspath, stack_name))  # open pdf document
+    pdf_file = join(fitspath, stack_name)
+    pp = PdfPages(pdf_file)  # open pdf document
 
     individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, \
         data3 = get_det3(fitspath, fitspath_ini, log=log)
@@ -71,6 +71,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     grid_data = np.load(grid_data_file, allow_pickle=True)
     R23_minimum = grid_data['R23_minimum']
     O32_minimum = grid_data['O32_minimum']
+    len_R23 = len(R23_minimum)
+    len_O32 = len(O32_minimum)
 
     image2DM = np.nan_to_num(image2D[det3])
 
@@ -82,13 +84,13 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
         image2DM = np.ma.masked_array(image2DM, maskM[det3])
         log.debug("Mask[det3]", maskM[det3])
 
-    outfile = join(fitspath, filename_dict['comp_spec'])
-    if not exists(outfile):
-        stack_2d = np.zeros((len(R23_minimum) * len(O32_minimum), len(wave)),
-                            dtype=np.float64)
+    stack_2d_file = join(fitspath, filename_dict['comp_spec'])
+    if not exists(stack_2d_file):
+        stack_2d_tab = np.zeros((len_R23 * len_O32, len(wave)),
+                                dtype=np.float64)
     else:
-        log.info(f"Reading: {outfile}")
-        stack_2d = fits.getdata(outfile)
+        log.info(f"Reading: {stack_2d_file}")
+        stack_2d_tab = fits.getdata(stack_2d_file)
 
     # Same as xBar
     avg_R23 = np.zeros(len(R23_minimum) * len(O32_minimum))
@@ -132,15 +134,15 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
                          f"avg_R23: {avg_R23[count]} "
                          f"avg_O32: {avg_O32[count]}")
 
-                if exists(outfile):
-                    Spect1D = stack_2d[count]
+                if exists(stack_2d_file):
+                    Spect1D = stack_2d_tab[count]
                 else:
                     if mask:
                         Spect1D = np.ma.mean(subgrid, axis=0)
                     else:
                         Spect1D = np.nanmean(subgrid, axis=0)
 
-                    stack_2d[count] = Spect1D
+                    stack_2d_tab[count] = Spect1D
 
                 # Compute number of spectra at a given wavelength
                 a = ma.count(subgrid, axis=0)
@@ -194,11 +196,11 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
 
                 fig.tight_layout()
                 plt.draw()
-                pdf_pages.savefig(fig)
+                pp.savefig(fig)
                 count += 1
 
-    log.info(f"Writing: {join(fitspath, stack_name)}")
-    pdf_pages.close()
+    log.info(f"Writing: {pdf_file}")
+    pp.close()
 
     # Writing fits file
     header['CTYPE1'] = 'LINEAR'
@@ -207,12 +209,14 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     header['CDELT2'] = 1.00000
     header['CRPIX2'] = 1.00000
 
-    log.info(f"Writing: {outfile}")
-    fits.writeto(outfile, stack_2d[0:count], header, overwrite=True)
+    if not exists(stack_2d_file):
+        log.info(f"Writing: {stack_2d_file}")
+        fits.writeto(stack_2d_file, stack_2d_tab[0:count], header,
+                     overwrite=True)
 
     # Writing Ascii Tables and Fits Tables
     # Used to be 'binning_averages.tbl'
-    out_ascii = join(fitspath, filename_dict['bin_info'])
+    bin_info_file = join(fitspath, filename_dict['bin_info'])
 
     ID = np.arange(0, len(R23_node), 1, dtype=int)
     n = ('bin_ID', 'logR23_min', 'logO32_min', 'logR23_avg', 'logO32_avg',
@@ -220,13 +224,14 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     # for n_split xnode and ynode are the lowest values
     # of the bin while xBar and yBar are the averages
 
-    tab0 = Table([ID, R23_node, O32_node, avg_R23,
-                  avg_O32, R23_med, O32_med, N_gal], names=n)
-    if not exists(out_ascii):
-        log.info(f"Writing: {out_ascii}")
+    bin_info_tab = Table([ID, R23_node, O32_node, avg_R23,
+                          avg_O32, R23_med, O32_med, N_gal], names=n)
+    if not exists(bin_info_file):
+        log.info(f"Writing: {bin_info_file}")
     else:
-        log.info(f"Overwriting: {out_ascii}")
-    asc.write(tab0[0:count], out_ascii, format='fixed_width_two_line')
+        log.info(f"Overwriting: {bin_info_file}")
+    asc.write(bin_info_tab[0:count], bin_info_file,
+              format='fixed_width_two_line')
 
     fig.clear()
 

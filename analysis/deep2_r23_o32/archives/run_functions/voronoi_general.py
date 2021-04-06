@@ -56,11 +56,11 @@ def run_voronoi_R23_O32_analysis(dataset,y_correction, mask='None'):
 
     if dataset == 'Double_Bin':
         galinbin = 400
-        pdf_pages = fitspath +'double_grid.pdf'
+        pdf_file = fitspath +'double_grid.pdf'
         outfile = fitspath +'double_grid.npz'
         asc_table1 = fitspath+ '/bin_info.tbl'
         asc_table2 = fitspath+ 'Double_Bin_2d_binning_datadet3.tbl'
-        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_pages, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)   #, O2_det3, O3_det3, Hb_det3
+        Binning_and_Graphing_MasterGrid.two_times_binned(fitspath, pdf_file, outfile,R23,O32, O2, O3, Hb, SNR2, SNR3, SNRH, det3, data3,galinbin)   #, O2_det3, O3_det3, Hb_det3
 
     
     #Stacking_voronoi

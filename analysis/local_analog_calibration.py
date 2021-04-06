@@ -45,10 +45,10 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, data_err=[],
                      OH_err=[], OH_range=[], data_range=[], marker=[], label=[],
                      IDs=[], log=None):
     """
-    Plot differences between LACR23 vs observed R23 as
-    a function of metallicity
-    Plot differences between LACO32 vs observed O32 as
-    a function of metallicity
+    Plot differences between LACR23 vs observed R23 as a function
+    of metallicity
+    Plot differences between LACO32 vs observed O32 as a function
+    of metallicity
     Used by main() function
     """
 

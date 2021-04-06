@@ -84,8 +84,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
 
     stack_2d_file = join(fitspath, filename_dict['comp_spec'])
     if not exists(stack_2d_file):
-        stack_2d_tab = np.zeros((len(R23_minimum) * len(O32_minimum), len(wave)),
-                            dtype=np.float64)
+        stack_2d_tab = np.zeros((len(R23_minimum) * len(O32_minimum),
+                                 len(wave)), dtype=np.float64)
     else:
         log.info(f"Reading: {stack_2d_file}")
         stack_2d_tab = fits.getdata(stack_2d_file)

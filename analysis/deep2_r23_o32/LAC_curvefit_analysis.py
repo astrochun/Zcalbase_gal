@@ -18,8 +18,8 @@ def thirdorder_polynomial(x, a, b, c, d):
 
 def threevariable_fit(X, a, b, c, d):
     x, lO32 = X
-    print('x = ', x)
-    print('lO32 = ', lO32)
+    # print('x = ', x)
+    # print('lO32 = ', lO32)
     return a * x * x * x + b * x * x + c * x + d*lO32
 
 
@@ -204,7 +204,12 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     for ii in range(len(marker)):
         ax.scatter(lR23[ii], OH[ii], marker=marker[ii], color=color[ii])
     txt0 += f"\n x = 12+log(O/H)"
-    ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top', fontsize=6)
+    ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top',
+                fontsize=6)
+    for jj in range(len(ID_arrs[0])):
+        ax.annotate(ID_arrs[0][jj], (lR23_arrs[0][jj], OH_arrs[0][jj]),
+                    fontsize='6')
+
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
@@ -214,6 +219,16 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                                               data_input='R23',
                                               new_coefficients=o1, data_err=[],
                                               OH_err=[], OH_range=[np.min(OH_range), np.max(OH_range)],
+                                              data_range=[-0.5, 0.5],
+                                              marker=marker, label=label,
+                                              IDs=[], log=None)
+    local_analog_calibration.plot_differences(lO32_arrs, OH_arrs,
+                                              R23_diff_pdf_file,
+                                              data_input='O32',
+                                              new_coefficients=o1, data_err=[],
+                                              OH_err=[],
+                                              OH_range=[np.min(OH_range),
+                                                        np.max(OH_range)],
                                               data_range=[-0.5, 0.5],
                                               marker=marker, label=label,
                                               IDs=[], log=None)

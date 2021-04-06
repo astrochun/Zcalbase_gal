@@ -83,7 +83,6 @@ def redshift_graphs(fitspath, RestframeMaster, binning_grid_npz, DEEP2_all_files
                     fig.set_size_inches(11, 8)
                     plt.draw()
                     fig.savefig(pp, format='pdf')
-                    # pdf_file.savefig(fig)
 
                 if count % nrows == 0:
                     fig2, ax_arr2 = plt.subplots(nrows=nrows, ncols=1)

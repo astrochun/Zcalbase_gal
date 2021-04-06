@@ -538,7 +538,7 @@ def zm_general(dataset, fitspath, y_correction, thesis=False, log=None):
 
     for ii in range(len(lambda0)):
         pdf_file = join(fitspath, f"Zoomed_Gauss_{line_name[ii]}.pdf")
-        log.info(f"pp: {pdf_file}")
+        log.info(f"pdf_file: {pdf_file}")
         em_tab = zoom_gauss_plot(fitspath, dataset, fits_dict, s2, lambda0[ii],
                                  lineflag, bin_info_tab,
                                  y_correction=y_correction,

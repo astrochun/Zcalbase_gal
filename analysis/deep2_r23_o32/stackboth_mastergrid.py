@@ -71,6 +71,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
     grid_data = np.load(grid_data_file, allow_pickle=True)
     R23_minimum = grid_data['R23_minimum']
     O32_minimum = grid_data['O32_minimum']
+    len_R23 = len(R23_minimum)
+    len_O32 = len(O32_minimum)
 
     image2DM = np.nan_to_num(image2D[det3])
 
@@ -84,8 +86,8 @@ def master_stacking(fitspath, fitspath_ini, dataset, grid_data_file,
 
     stack_2d_file = join(fitspath, filename_dict['comp_spec'])
     if not exists(stack_2d_file):
-        stack_2d_tab = np.zeros((len(R23_minimum) * len(O32_minimum),
-                                 len(wave)), dtype=np.float64)
+        stack_2d_tab = np.zeros((len_R23 * len_O32, len(wave)),
+                                dtype=np.float64)
     else:
         log.info(f"Reading: {stack_2d_file}")
         stack_2d_tab = fits.getdata(stack_2d_file)

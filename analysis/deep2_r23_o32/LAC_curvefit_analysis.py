@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from Zcalbase_gal.analysis import local_analog_calibration
 from Metallicity_Stack_Commons.column_names import filename_dict
 from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff
+from .log_commons import log_stdout, LogClass
 
 
 def secondorder_polynomial(x, a, b, c):
@@ -16,10 +17,12 @@ def thirdorder_polynomial(x, a, b, c, d):
     return a*x*x*x + b*x*x + c*x +d
 
 
-def threevariable_fit(X, a, b, c, d):
+def threevariable_fit(X, a,b,c,d):
+    '''
+    log(R23) = ax^2 +bx +c +dlog(O32)
+    '''
     x, lO32 = X
-    # print('x = ', x)
-    # print('lO32 = ', lO32)
+    print(type(x), type(lO32))
     return a * x * x * x + b * x * x + c * x + d*lO32
 
 
@@ -68,9 +71,149 @@ def LAC_three_variable(lR23_ini, lO32_ini, OH_ini):
     return o1, o2, lR23, lO32, OH, OH_range
 
 
+def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
+                              new_coefficients=[], data_err=[], OH_err=[],
+                              OH_range=[], data_range=[], marker=[], label=[],
+                              IDs=[], log=None):
+    """
+    Plot differences between LACR23 vs observed R23 as
+    a function of metallicity
+    Plot differences between LACO32 vs observed O32 as
+    a function of metallicity
+    Used by main() function
+    """
+    print('new coeff: ', new_coefficients, type(new_coefficients))
+    if log is None:
+        log = log_stdout()
+
+    log.info("starting ...")
+
+    fig, ax = plt.subplots()
+
+    n_sample = len(lR23)
+
+    # Plotting
+    ctype = ['blue', 'green', 'red', 'magenta']
+
+    if len(marker) == 0:
+        marker = ['o'] * n_sample
+
+    diff0 = []
+    for nn in range(n_sample):
+        if len(new_coefficients) != 0:
+            LAC = threevariable_fit((OH, lO32), *new_coefficients)
+            log.info(f"curve fit LAC_R23: {LAC}")
+
+        if nn == 0:
+            if IDs:
+                for jj in range(len(LAC)):
+                    id_diff = lR23[0][jj]-LAC[jj]
+                    ax.annotate(IDs[0][jj], (OH[0][jj], id_diff),
+                                fontsize='6')
+
+        # Label in upper left the points
+        if len(label) != 0:
+            x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
+            y1 = data_range[1] - (nn * 0.035 + 0.05) \
+                     * (data_range[1] - data_range[0])
+            x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
+            y2 = data_range[1] - (nn * 0.035 + 0.0525) \
+                     * (data_range[1] - data_range[0])
+            ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
+            ax.plot([x1], [y1], marker=marker[nn], color='black')
+        for ii in range(len(lR23)):
+            y_ii_min = np.min(lR23[nn])
+            y_ii_max = np.max(lR23[nn])
+            idx = np.where((lR23[nn] >= y_ii_min) &
+                           (lR23[nn] <= y_ii_max))[0]
+
+            if len(idx) > 0:
+                i_diff = lR23[nn][idx] - LAC[idx]
+                ax.scatter(OH[nn], i_diff, color=ctype[nn],
+                           marker=marker[nn], edgecolor='none', alpha=0.5)
+                diff0 += list(lR23[nn][idx] - LAC[idx])
+
+        # Added if statement so that only data points
+        # on the OH_err[0] place will be plotted
+                if nn == 0:
+                    if len(OH_err) != 0:
+                        ax.errorbar(OH[nn], i_diff,
+                                    xerr=np.transpose(OH_err[nn]),
+                                    mfc='none', capsize=0,
+                                    alpha=0.25, fmt='None', label=None,
+                                    ls='none')
+
+                    if len(data_err) != 0:
+                        ax.errorbar(OH[nn], i_diff,
+                                    yerr=np.transpose(data_err[nn]),
+                                    mfc='none', capsize=0,
+                                    alpha=0.25, fmt='None', label=None,
+                                    ls='none')
+
+    # Draw horizontal line at zero:
+    ax.axhline(y=0, c='k', linestyle='dashed')
+
+    # Compute statistics for R23
+    med0 = np.median(diff0)
+    avg0 = np.average(diff0)
+    sig0 = np.std(diff0)
+
+    # Plotting for R23
+    ax.axhline(y=avg0, c='r', linestyle='dotted')
+    ax.axhline(y=med0, c='b', linestyle='dotted')
+
+
+    an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
+    an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
+    an_txt += r'$\sigma$ : %0.2f' % sig0
+    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
+                  r'- \log(R_{23})_{\rm LAC}$')
+
+    ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction',
+                va='bottom', ha='right', fontsize=10)
+    ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
+
+    ax.minorticks_on()
+
+    if len(OH_range) != 0:
+        ax.set_xlim(OH_range)
+    if len(data_range) != 0:
+        ax.set_ylim(data_range)
+
+    leg_R23 = ax.legend(loc='upper right', scatterpoints=1, fontsize=8,
+                            framealpha=0.5)
+    for lh in leg_R23.legendHandles:
+        lh.set_alpha(0.5)
+
+    plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
+
+    log.info(f"Writing: {pdf_file}")
+    fig.savefig(pdf_file)
+
+    log.info("finished.")
+
+
 def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                        threevariable=True, raw=False, apply_dust=False,
                        revised=True, include_rlimit=False):
+    """
+
+    Parameters
+    ----------
+    fitspath
+    fitspath_ini
+    secondorder -> used when just fitting using lR23 and OH; determines if we
+                    have a second order or third order fit
+    threevariable -> means that we are fitting using lR23, lO32, and OH for fit
+    raw
+    apply_dust
+    revised
+    include_rlimit
+
+    Returns
+    -------
+
+    """
     suffix = ''
     if not revised:
         suffix += '.valid1'
@@ -154,8 +297,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
         pdf_file = join(fitspath, f"LAC_curvefit_include_rlimit{suffix}.pdf")
-        R23_diff_pdf_file = join(fitspath,
-                                 f"LAC_curvefit_R23_include_rlimit_diff{suffix}.pdf")
+
     else:
         color = np.concatenate([color_a, color_c, color_d])
         marker = np.concatenate([marker_a, marker_c, marker_d])
@@ -164,12 +306,12 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, DEEP2_id, MACT_ID]
         pdf_file = join(fitspath, f"LAC_curvefit{suffix}.pdf")
-        R23_diff_pdf_file = join(fitspath, f"LAC_curvefit_R23_diff{suffix}.pdf")
 
     if threevariable:
         o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs,
                                                               lO32_arrs,
                                                               OH_arrs)
+        print('o1: ', o1, type(o1))
         lO32_median = np.median(lO32)
         lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
                        1.25 * lO32_median, 1.75 * lO32_median]
@@ -180,13 +322,14 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs, lO32_arrs,
                                                             OH_arrs)
 
-        if secondorder == 'second':
+        if secondorder:
             fitted_poly = secondorder_polynomial(OH_range, *o1)
         else:
             fitted_poly = thirdorder_polynomial(OH_range, *o1)
+
+    # This is for getting the original bian plot line
     bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
-    print('o1: ', o1)
     fig, ax = plt.subplots()
     if threevariable:
         for aa in range(len(lo32_values)):
@@ -215,21 +358,75 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.legend(loc='lower left', framealpha=0.5, fontsize=10)
 
-    local_analog_calibration.plot_differences(lR23_arrs, OH_arrs, R23_diff_pdf_file,
-                                              data_input='R23',
-                                              new_coefficients=o1, data_err=[],
-                                              OH_err=[], OH_range=[np.min(OH_range), np.max(OH_range)],
-                                              data_range=[-0.5, 0.5],
-                                              marker=marker, label=label,
-                                              IDs=[], log=None)
-    local_analog_calibration.plot_differences(lO32_arrs, OH_arrs,
-                                              R23_diff_pdf_file,
-                                              data_input='O32',
-                                              new_coefficients=o1, data_err=[],
-                                              OH_err=[],
-                                              OH_range=[np.min(OH_range),
-                                                        np.max(OH_range)],
-                                              data_range=[-0.5, 0.5],
-                                              marker=marker, label=label,
-                                              IDs=[], log=None)
+    # This section plots makes the plot difference files
+    if threevariable:
+        if include_rlimit:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam_secondorder"
+                                         f"_RL_diff{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam"
+                                         f"_RL_diff{suffix}.pdf")
+        else:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam_secondorder"
+                                         f"_diff{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam_"
+                                         f"_diff{suffix}.pdf")
+        print(o1[0])
+        plot_differences_curvefit(lR23_arrs, lO32_arrs, OH_arrs,
+                                  R23_diff_pdf_file,
+                                  new_coefficients=o1, data_err=[],
+                                  OH_err=[], OH_range=[np.min(OH_range),
+                                                       np.max(OH_range)],
+                                  data_range=[-0.5, 0.5], marker=marker,
+                                  label=label, IDs=[], log=None)
+    else:
+        # This is  when only doing a fit with lR23 and OH
+        if include_rlimit:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam_secondorder"
+                                         f"_RL_diff{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam"
+                                         f"_RL_diff{suffix}.pdf")
+        else:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam_secondorder"
+                                         f"_diff{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam_"
+                                         f"_diff{suffix}.pdf")
+        local_analog_calibration.plot_differences(lR23_arrs, OH_arrs,
+                                                  R23_diff_pdf_file,
+                                                  data_input='R23',
+                                                  new_coefficients=o1,
+                                                  data_err=[],
+                                                  OH_err=[],
+                                                  OH_range=[np.min(OH_range),
+                                                            np.max(OH_range)],
+                                                  data_range=[-0.5, 0.5],
+                                                  marker=marker, label=label,
+                                                  IDs=[], log=None)
+        local_analog_calibration.plot_differences(lO32_arrs, OH_arrs,
+                                                  R23_diff_pdf_file,
+                                                  data_input='O32',
+                                                  new_coefficients=o1,
+                                                  data_err=[],
+                                                  OH_err=[],
+                                                  OH_range=[np.min(OH_range),
+                                                            np.max(OH_range)],
+                                                  data_range=[-0.5, 0.5],
+                                                  marker=marker, label=label,
+                                                  IDs=[], log=None)
+
     fig.savefig(pdf_file)

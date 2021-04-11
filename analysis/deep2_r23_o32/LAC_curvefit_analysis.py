@@ -315,6 +315,9 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         lO32_median = np.median(lO32)
         lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
                        1.25 * lO32_median, 1.75 * lO32_median]
+        lo32_labels = ['lO32 = .25 * lO32_median', 'lO32 = .75 * lO32_median',
+                       'lO32 = lO32_median', 'lO32 = 1.25 * lO32_median',
+                       'lO32 = 1.75 * lO32_median']
         fitted_poly = np.zeros((len(lo32_values), len(lR23)))
         for aa in range(len(lo32_values)):
             fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]), *o1)
@@ -333,7 +336,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     fig, ax = plt.subplots()
     if threevariable:
         for aa in range(len(lo32_values)):
-            ax.plot(fitted_poly[aa], OH_range, label='Curve Fit')
+            ax.plot(fitted_poly[aa], OH_range, label=lo32_labels[aa])
         txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
         txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
     else:
@@ -356,8 +359,8 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
-    ax.legend(loc='lower left', framealpha=0.5, fontsize=10)
-
+    ax.legend(loc='lower left', framealpha=0.5, fontsize=6)
+    fig.savefig(pdf_file)
     # This section plots makes the plot difference files
     if threevariable:
         if include_rlimit:
@@ -429,4 +432,3 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                                                   marker=marker, label=label,
                                                   IDs=[], log=None)
 
-    fig.savefig(pdf_file)

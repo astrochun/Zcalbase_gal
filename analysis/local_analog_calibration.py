@@ -70,8 +70,13 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, new_coefficients=[],
     diff0 = []
     for nn in range(n_sample):
         if len(new_coefficients) != 0:
-            LAC = bian18_R23_OH(OH[nn], new_coefficients)
-            log.info(f"curve fit LAC_R23: {LAC}")
+            #This needs some more work
+            if data_input == 'R23':
+                LAC = bian18_R23_OH(OH[nn], new_coefficients)
+                log.info(f"curve fit LAC_R23: {LAC}")
+            else:
+                LAC = bian18_O32_OH(OH[nn])
+                log.info(f"curve fit LAC_R23: {LAC}")
         else:
             if data_input == 'R23':
                 LAC = bian18_R23_OH(OH[nn], bian_coeff)
@@ -103,7 +108,7 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, new_coefficients=[],
             idx = np.where((lR23_lO32[nn] >= y_ii_min) &
                            (lR23_lO32[nn] <= y_ii_max))[0]
 
-            if len(idx) >0:
+            if len(idx) > 0:
                 i_diff = lR23_lO32[nn][idx] - LAC[idx]
                 ax.scatter(OH[nn], i_diff, color=ctype[nn],
                            marker=marker[nn], edgecolor='none', alpha=0.5)

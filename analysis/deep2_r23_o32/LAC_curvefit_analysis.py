@@ -14,7 +14,7 @@ def secondorder_polynomial(x, a, b, c):
 
 
 def thirdorder_polynomial(x, a, b, c, d):
-    return a*x*x*x + b*x*x + c*x +d
+    return a*x**3 + b*x**2 + c*x +d
 
 
 def threevariable_fit(X, a,b,c,d):
@@ -22,8 +22,7 @@ def threevariable_fit(X, a,b,c,d):
     log(R23) = ax^2 +bx +c +dlog(O32)
     '''
     x, lO32 = X
-    print(type(x), type(lO32))
-    return a * x * x * x + b * x * x + c * x + d*lO32
+    return a * x**3 + b*x**2 + c * x + d*lO32
 
 
 def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, order):
@@ -101,14 +100,14 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
     diff0 = []
     for nn in range(n_sample):
         if len(new_coefficients) != 0:
-            LAC = threevariable_fit((OH, lO32), *new_coefficients)
+            LAC = threevariable_fit((OH[nn], lO32[nn]), *new_coefficients)
             log.info(f"curve fit LAC_R23: {LAC}")
 
         if nn == 0:
             if IDs:
                 for jj in range(len(LAC)):
-                    id_diff = lR23[0][jj]-LAC[jj]
-                    ax.annotate(IDs[0][jj], (OH[0][jj], id_diff),
+                    id_diff = lR23[nn][jj]-LAC[jj]
+                    ax.annotate(IDs[nn][jj], (OH[nn][jj], id_diff),
                                 fontsize='6')
 
         # Label in upper left the points
@@ -308,10 +307,8 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         pdf_file = join(fitspath, f"LAC_curvefit{suffix}.pdf")
 
     if threevariable:
-        o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs,
-                                                              lO32_arrs,
-                                                              OH_arrs)
-        print('o1: ', o1, type(o1))
+        o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs, lO32_arrs, OH_arrs)
+        # print('o1: ', o1, type(o1))
         lO32_median = np.median(lO32)
         lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
                        1.25 * lO32_median, 1.75 * lO32_median]
@@ -322,8 +319,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         for aa in range(len(lo32_values)):
             fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]), *o1)
     else:
-        o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs, lO32_arrs,
-                                                            OH_arrs)
+        o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs, lO32_arrs, OH_arrs)
 
         if secondorder:
             fitted_poly = secondorder_polynomial(OH_range, *o1)
@@ -333,7 +329,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     # This is for getting the original bian plot line
     bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
-    fig, ax = plt.subplots()
+    '''fig, ax = plt.subplots()
     if threevariable:
         for aa in range(len(lo32_values)):
             ax.plot(fitted_poly[aa], OH_range, label=lo32_labels[aa])
@@ -360,7 +356,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.legend(loc='lower left', framealpha=0.5, fontsize=6)
-    fig.savefig(pdf_file)
+    fig.savefig(pdf_file)'''
     # This section plots makes the plot difference files
     if threevariable:
         if include_rlimit:
@@ -381,7 +377,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                 R23_diff_pdf_file = join(fitspath,
                                          f"LAC_curvefit_threeparam_"
                                          f"_diff{suffix}.pdf")
-        print(o1[0])
+        # print(o1[0])
         plot_differences_curvefit(lR23_arrs, lO32_arrs, OH_arrs,
                                   R23_diff_pdf_file,
                                   new_coefficients=o1, data_err=[],

@@ -4,7 +4,7 @@ from . import get_det3
 from os.path import join
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
-    calibration_plots, name_dict
+    calibration_plots, name_dict, LAC_curvefit_analysis
 from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from .plotting import more_plots, line_ratio_plotting, te_metal_plots
@@ -210,6 +210,22 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw,
                                     apply_dust=apply_dust, revised=revised,
                                     individual=individual, log=log)
+
+    # This fits a three order polynomial without a lO32 component
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_ini,
+                                             secondorder=False,
+                                             threevariable=False, raw=raw,
+                                             apply_dust=apply_dust,
+                                             revised=revised,
+                                             include_rlimit=True)
+
+    # This fits a second order polynomial with a lO32 component
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_ini,
+                                             secondorder=True,
+                                             threevariable=True, raw=raw,
+                                             apply_dust=apply_dust,
+                                             revised=revised,
+                                             include_rlimit=True)
 
     '''
 

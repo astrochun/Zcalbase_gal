@@ -297,36 +297,81 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
     marker = ['D', r'$\uparrow$', '3', '4']
     color = ['b', 'g', 'r', 'm']
-    #marker_a = ['D'] * len(det_lR23)
-    #marker_b = [r'$\uparrow$'] * len(rlimit_lR23)
-    #marker_c = ['3'] * len(DEEP2_lR23)
-    #marker_d = ['4'] * len(MACT_lR23)
 
-    #color_a = ['b'] * len(det_lR23)
-    #color_b = ['g']*len(rlimit_lR23)
-    #color_c = ['red'] * len(DEEP2_lR23)
-    #color_d = ['magenta']*len(MACT_lR23)
-
+    # Names of files
+    if threevariable:
+        if include_rlimit:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam_secondorder"
+                                         f"_RL_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_threeparam_secondorder_RL"
+                                f"{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam"
+                                         f"_RL_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_threeparam_RL{suffix}.pdf")
+        else:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam_secondorder"
+                                         f"_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_threeparam_secondorder{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_threeparam_"
+                                         f"_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_threeparam{suffix}.pdf")
+    else:
+        # This is  when only doing a fit with lR23 and OH
+        if include_rlimit:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam_secondorder"
+                                         f"_RL_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_twoparam_secondorder_RL_"
+                                f"{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam"
+                                         f"_RL_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_twoparam_RL{suffix}.pdf")
+        else:
+            if secondorder:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam_secondorder"
+                                         f"_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_twoparam_secondorder{suffix}.pdf")
+            else:
+                R23_diff_pdf_file = join(fitspath,
+                                         f"LAC_curvefit_twoparam_"
+                                         f"_diff{suffix}.pdf")
+                pdf_file = join(fitspath,
+                                f"LAC_curvefit_twoparam{suffix}.pdf")
     if include_rlimit:
-        # color = [color_a, color_b, color_c, color_d]
-        # marker = [marker_a, marker_b, marker_c, marker_d]
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
         OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
-        pdf_file = join(fitspath, f"LAC_curvefit_include_rlimit{suffix}.pdf")
 
     else:
-        # color = [color_a, color_c, color_d]
-        # marker = [marker_a, marker_c, marker_d]
         lR23_arrs = [det_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, DEEP2_lO32, MACT_lO32]
         OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, DEEP2_id, MACT_ID]
-        pdf_file = join(fitspath, f"LAC_curvefit{suffix}.pdf")
 
     if threevariable:
-        o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs, lO32_arrs, OH_arrs)
+        o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs,
+                                                              lO32_arrs,
+                                                              OH_arrs)
         lO32_median = np.median(lO32)
         lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
                        1.25 * lO32_median, 1.75 * lO32_median]
@@ -341,7 +386,8 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         if secondorder:
             o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs,
                                                                 lO32_arrs,
-                                                                OH_arrs, third_order=False)
+                                                                OH_arrs,
+                                                                third_order=False)
             fitted_poly = secondorder_polynomial(OH_range, *o1)
         else:
             o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs,
@@ -397,29 +443,11 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.legend(loc='lower left', framealpha=0.5, fontsize=6)
+    print('PDF file name: ', pdf_file)
     fig.savefig(pdf_file)
 
     # This section plots makes the plot difference files
     if threevariable:
-        if include_rlimit:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam_secondorder"
-                                         f"_RL_diff{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam"
-                                         f"_RL_diff{suffix}.pdf")
-        else:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam_secondorder"
-                                         f"_diff{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam_"
-                                         f"_diff{suffix}.pdf")
-        # print(o1[0])
         plot_differences_curvefit(lR23_arrs, lO32_arrs, OH_arrs,
                                   R23_diff_pdf_file,
                                   new_coefficients=o1, data_err=[],
@@ -428,25 +456,6 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                                   data_range=[-0.5, 0.5], marker=marker,
                                   label=label, IDs=ID_arrs, log=None)
     else:
-        # This is  when only doing a fit with lR23 and OH
-        if include_rlimit:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam_secondorder"
-                                         f"_RL_diff{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam"
-                                         f"_RL_diff{suffix}.pdf")
-        else:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam_secondorder"
-                                         f"_diff{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam_"
-                                         f"_diff{suffix}.pdf")
         local_analog_calibration.plot_differences(lR23_arrs, OH_arrs,
                                                   R23_diff_pdf_file,
                                                   data_input='R23',

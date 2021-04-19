@@ -25,7 +25,7 @@ def threevariable_fit(X, a,b,c,d):
     return a * x**3 + b*x**2 + c * x + d*lO32
 
 
-def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, order):
+def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, third_order=True):
     lR23 = []
     lO32 = []
     OH = []
@@ -38,12 +38,12 @@ def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, order):
     #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
     # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
 
-    if order == 'second':
+    if third_order:
         p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
         o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
     else:
         p0 = [7.2954, -54.8284, 138.0430]
-        o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
+        o1, o2 = curve_fit(secondorder_polynomial, OH, lR23, p0=p0)
 
     return o1, o2, lR23, lO32, OH, OH_range
 
@@ -106,9 +106,27 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
         if nn == 0:
             if IDs:
                 for jj in range(len(LAC)):
-                    id_diff = lR23[nn][jj]-LAC[jj]
+                    id_diff = lR23[nn][jj] - LAC[jj]
                     ax.annotate(IDs[nn][jj], (OH[nn][jj], id_diff),
                                 fontsize='6')
+        '''if n_sample == 4:
+            if IDs:
+                print('I got here!')
+                label_IDs = [IDs[0], IDs[1]]
+                for aa in range(len(label_IDs)):
+                    for jj in range(len(IDs[aa])):
+                        id_diff = lR23[aa][jj]-LAC[jj]
+                        ax.annotate(IDs[aa][jj],
+                                    (OH[aa][jj], id_diff),
+                                    fontsize='6')
+
+        else:
+            if IDs:
+                label_IDs = IDs[0]
+                for jj in range(len(label_IDs)):
+                    id_diff = lR23[0][jj] - LAC[jj]
+                    ax.annotate(label_IDs[jj], (lR23[0][jj], id_diff),
+                                fontsize='6')'''
 
         # Label in upper left the points
         if len(label) != 0:
@@ -128,8 +146,8 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
 
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - LAC[idx]
-                ax.scatter(OH[nn], i_diff, color=ctype[nn],
-                           marker=marker[nn], edgecolor='none', alpha=0.5)
+                ax.scatter(OH[nn], i_diff, color=ctype[nn], marker=marker[nn],
+                           edgecolor='none', alpha=0.5)
                 diff0 += list(lR23[nn][idx] - LAC[idx])
 
         # Added if statement so that only data points
@@ -277,20 +295,21 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     rlimit_OH = com_O_log[rlimit]
 
     label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
+    marker = ['D', r'$\uparrow$', '3', '4']
+    color = ['b', 'g', 'r', 'm']
+    #marker_a = ['D'] * len(det_lR23)
+    #marker_b = [r'$\uparrow$'] * len(rlimit_lR23)
+    #marker_c = ['3'] * len(DEEP2_lR23)
+    #marker_d = ['4'] * len(MACT_lR23)
 
-    marker_a = ['D'] * len(det_lR23)
-    marker_b = [r'$\uparrow$'] * len(rlimit_lR23)
-    marker_c = ['3'] * len(DEEP2_lR23)
-    marker_d = ['4'] * len(MACT_lR23)
-
-    color_a = ['b'] * len(det_lR23)
-    color_b = ['g']*len(rlimit_lR23)
-    color_c = ['red'] * len(DEEP2_lR23)
-    color_d = ['magenta']*len(MACT_lR23)
+    #color_a = ['b'] * len(det_lR23)
+    #color_b = ['g']*len(rlimit_lR23)
+    #color_c = ['red'] * len(DEEP2_lR23)
+    #color_d = ['magenta']*len(MACT_lR23)
 
     if include_rlimit:
-        color = np.concatenate([color_a, color_b, color_c, color_d])
-        marker = np.concatenate([marker_a, marker_b, marker_c, marker_d])
+        # color = [color_a, color_b, color_c, color_d]
+        # marker = [marker_a, marker_b, marker_c, marker_d]
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
         OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
@@ -298,8 +317,8 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         pdf_file = join(fitspath, f"LAC_curvefit_include_rlimit{suffix}.pdf")
 
     else:
-        color = np.concatenate([color_a, color_c, color_d])
-        marker = np.concatenate([marker_a, marker_c, marker_d])
+        # color = [color_a, color_c, color_d]
+        # marker = [marker_a, marker_c, marker_d]
         lR23_arrs = [det_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, DEEP2_lO32, MACT_lO32]
         OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
@@ -308,7 +327,6 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
 
     if threevariable:
         o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs, lO32_arrs, OH_arrs)
-        # print('o1: ', o1, type(o1))
         lO32_median = np.median(lO32)
         lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
                        1.25 * lO32_median, 1.75 * lO32_median]
@@ -319,17 +337,24 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         for aa in range(len(lo32_values)):
             fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]), *o1)
     else:
-        o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs, lO32_arrs, OH_arrs)
 
         if secondorder:
+            o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs,
+                                                                lO32_arrs,
+                                                                OH_arrs, third_order=False)
             fitted_poly = secondorder_polynomial(OH_range, *o1)
         else:
+            o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs,
+                                                                lO32_arrs,
+                                                                OH_arrs,
+                                                                third_order=True)
             fitted_poly = thirdorder_polynomial(OH_range, *o1)
 
     # This is for getting the original bian plot line
     bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
-    '''fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
+    # First we plot the new fitted curves and annotate with equation
     if threevariable:
         for aa in range(len(lo32_values)):
             ax.plot(fitted_poly[aa], OH_range, label=lo32_labels[aa])
@@ -339,24 +364,41 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         ax.plot(fitted_poly, OH_range, label='Curve Fit')
         txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
         txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
+    txt0 += f"\n x = 12+log(O/H)"
+    ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top',
+                fontsize=6)
+
+    # Next we plot the bian calibration
     ax.plot(bian_R23, OH_range, 'k--', label='Bian+(2018)')
     avail_idx = np.where((OH_range >= 7.80) & (OH_range <= 8.4))[0]
     ax.plot(bian_R23[avail_idx], OH_range[avail_idx], 'k-',
             label='Bian Data Range')
-    for ii in range(len(marker)):
-        ax.scatter(lR23[ii], OH[ii], marker=marker[ii], color=color[ii])
-    txt0 += f"\n x = 12+log(O/H)"
-    ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top',
-                fontsize=6)
-    for jj in range(len(ID_arrs[0])):
-        ax.annotate(ID_arrs[0][jj], (lR23_arrs[0][jj], OH_arrs[0][jj]),
-                    fontsize='6')
+
+    # Then we plot the data
+    for nn in range(len(lR23_arrs)):
+        ax.scatter(lR23_arrs[nn], OH_arrs[nn],
+                   marker=marker[nn], color=color[nn])
+
+    # Next we plot the IDS
+    if include_rlimit:
+        # Detections and Robust limits should always be the first two arrays
+        # in the list of arrays
+        label_IDs = [ID_arrs[0], ID_arrs[1]]
+        for aa in range(len(label_IDs)):
+            for jj in range(len(ID_arrs[aa])):
+                ax.annotate(ID_arrs[aa][jj],
+                            (lR23_arrs[aa][jj], OH_arrs[aa][jj]), fontsize='6')
+    else:
+        for jj in range(len(ID_arrs[0])):
+            ax.annotate(ID_arrs[0][jj], (lR23_arrs[0][jj], OH_arrs[0][jj]),
+                        fontsize='6')
 
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     ax.legend(loc='lower left', framealpha=0.5, fontsize=6)
-    fig.savefig(pdf_file)'''
+    fig.savefig(pdf_file)
+
     # This section plots makes the plot difference files
     if threevariable:
         if include_rlimit:
@@ -384,7 +426,7 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                                   OH_err=[], OH_range=[np.min(OH_range),
                                                        np.max(OH_range)],
                                   data_range=[-0.5, 0.5], marker=marker,
-                                  label=label, IDs=[], log=None)
+                                  label=label, IDs=ID_arrs, log=None)
     else:
         # This is  when only doing a fit with lR23 and OH
         if include_rlimit:

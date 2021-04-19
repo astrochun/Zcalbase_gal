@@ -70,7 +70,7 @@ def plot_differences(lR23_lO32, OH, pdf_file, data_input, new_coefficients=[],
     diff0 = []
     for nn in range(n_sample):
         if len(new_coefficients) != 0:
-            #This needs some more work
+            # This needs some more work
             if data_input == 'R23':
                 LAC = bian18_R23_OH(OH[nn], new_coefficients)
                 log.info(f"curve fit LAC_R23: {LAC}")

@@ -109,24 +109,6 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
                     id_diff = lR23[nn][jj] - LAC[jj]
                     ax.annotate(IDs[nn][jj], (OH[nn][jj], id_diff),
                                 fontsize='6')
-        '''if n_sample == 4:
-            if IDs:
-                print('I got here!')
-                label_IDs = [IDs[0], IDs[1]]
-                for aa in range(len(label_IDs)):
-                    for jj in range(len(IDs[aa])):
-                        id_diff = lR23[aa][jj]-LAC[jj]
-                        ax.annotate(IDs[aa][jj],
-                                    (OH[aa][jj], id_diff),
-                                    fontsize='6')
-
-        else:
-            if IDs:
-                label_IDs = IDs[0]
-                for jj in range(len(label_IDs)):
-                    id_diff = lR23[0][jj] - LAC[jj]
-                    ax.annotate(label_IDs[jj], (lR23[0][jj], id_diff),
-                                fontsize='6')'''
 
         # Label in upper left the points
         if len(label) != 0:
@@ -230,6 +212,14 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     Returns
     -------
 
+    threevariable = True, secondorder = True
+    lR23 = ax^2+ bx+ c+ dlO32
+    threevariable = True, secondorder = False
+    lR23 = gx^3 + ax^2+ bx+ c+ dlO32
+    threevariable = False, secondorder = True
+    lR23 = ax^2+ bx+ c
+    threevariable = False, secondorder = False
+    lR23 = gx^3 + ax^2+ bx+ c
     """
     suffix = ''
     if not revised:
@@ -303,59 +293,59 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
         if include_rlimit:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam_secondorder"
+                                         f"curvefit_threeparam_secondorder"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_threeparam_secondorder_RL"
+                                f"curvefit_threeparam_secondorder_RL"
                                 f"{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam"
+                                         f"curvefit_threeparam"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_threeparam_RL{suffix}.pdf")
+                                f"curvefit_threeparam_RL{suffix}.pdf")
         else:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam_secondorder"
+                                         f"curvefit_threeparam_secondorder"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_threeparam_secondorder{suffix}.pdf")
+                                f"curvefit_threeparam_secondorder{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_threeparam_"
+                                         f"curvefit_threeparam_"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_threeparam{suffix}.pdf")
+                                f"curvefit_threeparam{suffix}.pdf")
     else:
         # This is  when only doing a fit with lR23 and OH
         if include_rlimit:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam_secondorder"
+                                         f"curvefit_twoparam_secondorder"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_twoparam_secondorder_RL_"
+                                f"curvefit_twoparam_secondorder_RL_"
                                 f"{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam"
+                                         f"curvefit_twoparam"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_twoparam_RL{suffix}.pdf")
+                                f"curvefit_twoparam_RL{suffix}.pdf")
         else:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam_secondorder"
+                                         f"curvefit_twoparam_secondorder"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_twoparam_secondorder{suffix}.pdf")
+                                f"curvefit_twoparam_secondorder{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath,
-                                         f"LAC_curvefit_twoparam_"
+                                         f"curvefit_twoparam_"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath,
-                                f"LAC_curvefit_twoparam{suffix}.pdf")
+                                f"curvefit_twoparam{suffix}.pdf")
     if include_rlimit:
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
@@ -404,12 +394,20 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     if threevariable:
         for aa in range(len(lo32_values)):
             ax.plot(fitted_poly[aa], OH_range, label=lo32_labels[aa])
-        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
-        txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
+        if secondorder:
+            txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
+            txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
+        else:
+            txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
+            txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}+ {o1[4]:.3f}*log(O32)$"
     else:
         ax.plot(fitted_poly, OH_range, label='Curve Fit')
-        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
-        txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
+        if secondorder:
+            txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
+            txt0 += rf"+ {o1[2]:.3f}$"
+        else:
+            txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
+            txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
     txt0 += f"\n x = 12+log(O/H)"
     ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top',
                 fontsize=6)
@@ -467,15 +465,3 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
                                                   data_range=[-0.5, 0.5],
                                                   marker=marker, label=label,
                                                   IDs=[], log=None)
-        local_analog_calibration.plot_differences(lO32_arrs, OH_arrs,
-                                                  R23_diff_pdf_file,
-                                                  data_input='O32',
-                                                  new_coefficients=o1,
-                                                  data_err=[],
-                                                  OH_err=[],
-                                                  OH_range=[np.min(OH_range),
-                                                            np.max(OH_range)],
-                                                  data_range=[-0.5, 0.5],
-                                                  marker=marker, label=label,
-                                                  IDs=[], log=None)
-

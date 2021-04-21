@@ -1,6 +1,7 @@
 # This function runs the entire process start to finish
 # EW values:equival width
 from . import get_det3
+import os
 from os.path import join
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
@@ -191,10 +192,12 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
 
     No returns
     """
-
     fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',
                                dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
+
+    fitspath_curvefit = join(fitspath, 'curvefit_plots/')
+    os.makedirs(fitspath_curvefit)
 
     # Define logging function
     log = LogClass(fitspath, 'run_grid_plots.log').get_logger()
@@ -212,7 +215,7 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                     individual=individual, log=log)
 
     # This fits a three order polynomial without a lO32 component
-    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_ini,
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
                                              secondorder=False,
                                              threevariable=False, raw=raw,
                                              apply_dust=apply_dust,
@@ -220,12 +223,28 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                              include_rlimit=True)
 
     # This fits a second order polynomial with a lO32 component
-    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_ini,
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
                                              secondorder=True,
                                              threevariable=True, raw=raw,
                                              apply_dust=apply_dust,
                                              revised=revised,
                                              include_rlimit=True)
+
+    # This fits a second order polynomial without a lO32 component
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
+                                             secondorder=True,
+                                             threevariable=False, raw=raw,
+                                             apply_dust=apply_dust,
+                                             revised=revised,
+                                             include_rlimit=True)
+    '''
+    # This fits a third order polynomial with a lO32 component
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
+                                             secondorder=False,
+                                             threevariable=True, raw=raw,
+                                             apply_dust=apply_dust,
+                                             revised=revised,
+                                             include_rlimit=True)'''
 
     '''
 

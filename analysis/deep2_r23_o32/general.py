@@ -197,7 +197,11 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     fitspath = dir_date(fitspath_currentrun, year=False)
 
     fitspath_curvefit = join(fitspath, 'curvefit_plots/')
-    os.makedirs(fitspath_curvefit)
+    try:
+        os.makedirs(fitspath_curvefit)
+    except OSError:
+        print(f"Path already exists : {fitspath_curvefit}")
+
 
     # Define logging function
     log = LogClass(fitspath, 'run_grid_plots.log').get_logger()
@@ -215,31 +219,31 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                     individual=individual, log=log)
 
     # This fits a three order polynomial without a lO32 component
-    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
-                                             secondorder=False,
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_curvefit,
+                                             fitspath_ini, secondorder=False,
                                              threevariable=False, raw=raw,
                                              apply_dust=apply_dust,
                                              revised=revised,
                                              include_rlimit=True)
 
     # This fits a second order polynomial with a lO32 component
-    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
-                                             secondorder=True,
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_curvefit,
+                                             fitspath_ini, secondorder=True,
                                              threevariable=True, raw=raw,
                                              apply_dust=apply_dust,
                                              revised=revised,
                                              include_rlimit=True)
 
     # This fits a second order polynomial without a lO32 component
-    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
-                                             secondorder=True,
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_curvefit,
+                                             fitspath_ini, secondorder=True,
                                              threevariable=False, raw=raw,
                                              apply_dust=apply_dust,
                                              revised=revised,
                                              include_rlimit=True)
     '''
     # This fits a third order polynomial with a lO32 component
-    LAC_curvefit_analysis.run_experiment_LAC(fitspath_curvefit, fitspath_ini,
+    LAC_curvefit_analysis.run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini,
                                              secondorder=False,
                                              threevariable=True, raw=raw,
                                              apply_dust=apply_dust,

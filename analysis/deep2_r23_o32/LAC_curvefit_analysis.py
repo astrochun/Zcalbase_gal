@@ -192,7 +192,7 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
     log.info("finished.")
 
 
-def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
+def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=True,
                        threevariable=True, raw=False, apply_dust=False,
                        revised=True, include_rlimit=False):
     """
@@ -292,59 +292,59 @@ def run_experiment_LAC(fitspath, fitspath_ini, secondorder=True,
     if threevariable:
         if include_rlimit:
             if secondorder:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_threeparam_secondorder"
                                          f"_RL_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_threeparam_secondorder_RL"
                                 f"{suffix}.pdf")
             else:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_threeparam"
                                          f"_RL_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_threeparam_RL{suffix}.pdf")
         else:
             if secondorder:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_threeparam_secondorder"
                                          f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_threeparam_secondorder{suffix}.pdf")
             else:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_threeparam_"
                                          f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_threeparam{suffix}.pdf")
     else:
         # This is  when only doing a fit with lR23 and OH
         if include_rlimit:
             if secondorder:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_twoparam_secondorder"
                                          f"_RL_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_twoparam_secondorder_RL_"
                                 f"{suffix}.pdf")
             else:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_twoparam"
                                          f"_RL_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_twoparam_RL{suffix}.pdf")
         else:
             if secondorder:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_twoparam_secondorder"
                                          f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_twoparam_secondorder{suffix}.pdf")
             else:
-                R23_diff_pdf_file = join(fitspath,
+                R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"curvefit_twoparam_"
                                          f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath,
+                pdf_file = join(fitspath_curvefit,
                                 f"curvefit_twoparam{suffix}.pdf")
     if include_rlimit:
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]

@@ -24,8 +24,9 @@ def threevariable_fit(X, a, b, c, d):
     x, lO32 = X
     return a * x**3 + b*x**2 + c * x + d*lO32
 
-## can combine fitting functions
-def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, third_order=True):
+
+def fitting_function(lR23_ini, lO32_ini, OH_ini, secondorder=True,
+                     threevariable=True):
     lR23 = []
     lO32 = []
     OH = []
@@ -33,35 +34,20 @@ def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, third_order=True):
         lR23 = np.concatenate([lR23, lR23_ini[ii]])
         lO32 = np.concatenate([lO32, lO32_ini[ii]])
         OH = np.concatenate([OH, OH_ini[ii]])
-
     OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
 
-    if third_order:
-        p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
-        o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
+    # Currently not using a threevariable third order fit which can be added
+    if threevariable:
+        p0 = [7.2954, -54.8284, 138.0430, 0]
+        o1, o2 = curve_fit(threevariable_fit, (OH, lO32), lR23, p0=p0)
+
     else:
-        p0 = [7.2954, -54.8284, 138.0430]
-        o1, o2 = curve_fit(secondorder_polynomial, OH, lR23, p0=p0)
-
-    return o1, o2, lR23, lO32, OH, OH_range
-
-
-def LAC_three_variable(lR23_ini, lO32_ini, OH_ini):
-    '''
-    log(R23) = ax^2 + bx + c + dlog(O32)
-    '''
-    lR23 = []
-    lO32 = []
-    OH = []
-    for ii in range(len(lR23_ini)):
-        lR23 = np.concatenate([lR23, lR23_ini[ii]])
-        lO32 = np.concatenate([lO32, lO32_ini[ii]])
-        OH = np.concatenate([OH, OH_ini[ii]])
-
-    OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
-
-    p0 = [7.2954, -54.8284, 138.0430, 0]
-    o1, o2 = curve_fit(threevariable_fit, (OH, lO32), lR23, p0=p0)
+        if secondorder:
+            p0 = [7.2954, -54.8284, 138.0430]
+            o1, o2 = curve_fit(secondorder_polynomial, OH, lR23, p0=p0)
+        else:
+            p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
+            o1, o2 = curve_fit(thirdorder_polynomial, OH, lR23, p0=p0)
 
     return o1, o2, lR23, lO32, OH, OH_range
 
@@ -354,9 +340,11 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
         ID_arrs = [det_ID, DEEP2_id, MACT_ID]
 
     if threevariable:
-        o1, o2, lR23, lO32, OH, OH_range = LAC_three_variable(lR23_arrs,
-                                                              lO32_arrs,
-                                                              OH_arrs)
+        o1, o2, lR23, lO32, OH, OH_range = fitting_function(lR23_arrs,
+                                                            lO32_arrs,
+                                                            OH_arrs,
+                                                            secondorder=True,
+                                                            threevariable=True)
         lO32_median = np.median(lO32)
         lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
                        1.25 * lO32_median, 1.75 * lO32_median]
@@ -370,16 +358,18 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
     else:
 
         if secondorder:
-            o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs,
+            o1, o2, lR23, lO32, OH, OH_range = fitting_function(lR23_arrs,
                                                                 lO32_arrs,
                                                                 OH_arrs,
-                                                                third_order=False)
+                                                                secondorder=True,
+                                                                threevariable=False)
             fitted_poly = secondorder_polynomial(OH_range, *o1)
         else:
-            o1, o2, lR23, lO32, OH, OH_range = LAC_two_variable(lR23_arrs,
+            o1, o2, lR23, lO32, OH, OH_range = fitting_function(lR23_arrs,
                                                                 lO32_arrs,
                                                                 OH_arrs,
-                                                                third_order=True)
+                                                                secondorder=False,
+                                                                threevariable=False)
             fitted_poly = thirdorder_polynomial(OH_range, *o1)
 
     # This is for getting the original bian plot line

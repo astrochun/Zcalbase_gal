@@ -17,14 +17,14 @@ def thirdorder_polynomial(x, a, b, c, d):
     return a*x**3 + b*x**2 + c*x +d
 
 
-def threevariable_fit(X, a,b,c,d):
+def threevariable_fit(X, a, b, c, d):
     '''
     log(R23) = ax^2 +bx +c +dlog(O32)
     '''
     x, lO32 = X
     return a * x**3 + b*x**2 + c * x + d*lO32
 
-
+## can combine fitting functions
 def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, third_order=True):
     lR23 = []
     lO32 = []
@@ -35,8 +35,6 @@ def LAC_two_variable(lR23_ini, lO32_ini, OH_ini, third_order=True):
         OH = np.concatenate([OH, OH_ini[ii]])
 
     OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
-    #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
-    # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
 
     if third_order:
         p0 = [-0.32293, 7.2954, -54.8284, 138.0430]
@@ -61,8 +59,6 @@ def LAC_three_variable(lR23_ini, lO32_ini, OH_ini):
         OH = np.concatenate([OH, OH_ini[ii]])
 
     OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
-    #para_bound = ((working_wave - 3.0, 0.0, 0.0, med0 - 0.05 * np.abs(med0)),
-    # (working_wave + 3.0, 10.0, 100.0, med0 + 0.05 * np.abs(med0)))
 
     p0 = [7.2954, -54.8284, 138.0430, 0]
     o1, o2 = curve_fit(threevariable_fit, (OH, lO32), lR23, p0=p0)
@@ -160,7 +156,6 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
     # Plotting for R23
     ax.axhline(y=avg0, c='r', linestyle='dotted')
     ax.axhline(y=med0, c='b', linestyle='dotted')
-
 
     an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
@@ -293,59 +288,59 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
         if include_rlimit:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_threeparam_secondorder"
+                                         f"threeparam_secondorder"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_threeparam_secondorder_RL"
+                                f"threeparam_secondorder_RL"
                                 f"{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_threeparam"
+                                         f"threeparam_thirdorder"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_threeparam_RL{suffix}.pdf")
+                                f"threeparam_thirdorder_RL{suffix}.pdf")
         else:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_threeparam_secondorder"
+                                         f"threeparam_secondorder"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_threeparam_secondorder{suffix}.pdf")
+                                f"threeparam_secondorder{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_threeparam_"
+                                         f"threeparam_thirdorder"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_threeparam{suffix}.pdf")
+                                f"threeparam_thirdorder{suffix}.pdf")
     else:
         # This is  when only doing a fit with lR23 and OH
         if include_rlimit:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_twoparam_secondorder"
+                                         f"twoparam_secondorder"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_twoparam_secondorder_RL_"
+                                f"twoparam_secondorder_RL_"
                                 f"{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_twoparam"
+                                         f"twoparam_thirdorder"
                                          f"_RL_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_twoparam_RL{suffix}.pdf")
+                                f"twoparam_thirdorder_RL{suffix}.pdf")
         else:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_twoparam_secondorder"
+                                         f"twoparam_secondorder"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_twoparam_secondorder{suffix}.pdf")
+                                f"twoparam_secondorder{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"curvefit_twoparam_"
+                                         f"twoparam_thirdorder"
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"curvefit_twoparam{suffix}.pdf")
+                                f"twoparam_thirdorder{suffix}.pdf")
     if include_rlimit:
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
@@ -370,7 +365,8 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
                        'lO32 = 1.75 * lO32_median']
         fitted_poly = np.zeros((len(lo32_values), len(lR23)))
         for aa in range(len(lo32_values)):
-            fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]), *o1)
+            fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]),
+                                                *o1)
     else:
 
         if secondorder:
@@ -436,7 +432,6 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
         for jj in range(len(ID_arrs[0])):
             ax.annotate(ID_arrs[0][jj], (lR23_arrs[0][jj], OH_arrs[0][jj]),
                         fontsize='6')
-
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')

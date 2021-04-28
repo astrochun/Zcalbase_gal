@@ -129,41 +129,74 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # dataset, combine_flux_ascii, binning_avg_asc)
 
     # Verification Table
-    valid_table.make_validation_table(fitspath)
-    bin_valid_file = join(fitspath, filename_dict['bin_valid'])
+    if dataset == 'n_Bins':
+        valid_table.make_validation_table(fitspath)
+        # Calculating R, Temperature, Metallicity,
+        # Dust Attenuation, and Errors using MSC
+        if apply_dust:
+            balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',
+                               use_revised=False, log=log)
 
-    valid_table.compare_to_by_eye(fitspath, dataset)
-    bin_valid_rev_file = join(fitspath, filename_dict['bin_valid_rev'])
-
-    # Calculating R, Temperature, Metallicity,
-    # Dust Attenuation, and Errors using MSC
-    if apply_dust:
-        balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',
-                           use_revised=False, log=log)
-
-    # Run raw data derived properties calculations
-    # (option to apply dust correction)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                   apply_dust=False, revised=False, log=log)
-    error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                   apply_dust=False, revised=True, log=log)
-    if apply_dust:
+        # Run raw data derived properties calculations
+        # (option to apply dust correction)
         error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                       apply_dust=True, revised=False, log=log)
+                                       apply_dust=False, revised=False,
+                                       log=log)
         error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,
-                                       apply_dust=True, revised=True, log=log)
+                                       apply_dust=False, revised=True, log=log)
+        if apply_dust:
+            error_prop.fluxes_derived_prop(fitspath, raw=True,
+                                           binned_data=True,
+                                           apply_dust=True, revised=False,
+                                           log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=True,
+                                           binned_data=True,
+                                           apply_dust=True, revised=True,
+                                           log=log)
 
-    # Run Monte Carlo randomization calculations
-    # (option to apply dust correction)
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                   apply_dust=False, revised=False, log=log)
-    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                   apply_dust=False, revised=True, log=log)
+        # Run Monte Carlo randomization calculations
+        # (option to apply dust correction)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=False, revised=False,
+                                       log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
+                                       apply_dust=False, revised=True, log=log)
+        if apply_dust:
+            error_prop.fluxes_derived_prop(fitspath, raw=False,
+                                           binned_data=True,
+                                           apply_dust=True, revised=False,
+                                           log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=False,
+                                           binned_data=True,
+                                           apply_dust=True, revised=True,
+                                           log=log)
+    else:
+        valid_table.make_validation_table(fitspath)
+        bin_valid_file = join(fitspath, filename_dict['bin_valid'])
+
+        valid_table.compare_to_by_eye(fitspath, dataset)
+        bin_valid_rev_file = join(fitspath, filename_dict['bin_valid_rev'])
+
+        # Calculating R, Temperature, Metallicity,
+        # Dust Attenuation, and Errors using MSC
+        if apply_dust:
+            balmer.HbHgHd_fits(fitspath, out_pdf_prefix='HbHgHd_fits',use_revised=False, log=log)
+
+        # Run raw data derived properties calculations
+        # (option to apply dust correction)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,apply_dust=False, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,apply_dust=False, revised=True, log=log)
+        if apply_dust:
+            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,apply_dust=True, revised=False, log=log)
+            error_prop.fluxes_derived_prop(fitspath, raw=True, binned_data=True,apply_dust=True, revised=True, log=log)
+
+        # Run Monte Carlo randomization calculations
+        # (option to apply dust correction)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,apply_dust=False, revised=False, log=log)
+    error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,apply_dust=False, revised=True, log=log)
     if apply_dust:
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                       apply_dust=True, revised=False, log=log)
-        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,
-                                       apply_dust=True, revised=True, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,apply_dust=True, revised=False, log=log)
+        error_prop.fluxes_derived_prop(fitspath, raw=False, binned_data=True,apply_dust=True, revised=True, log=log)
 
     # Individual Detections
     # composite_indv_detect.main(fitspath,

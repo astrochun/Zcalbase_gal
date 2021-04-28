@@ -82,13 +82,13 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
     diff0 = []
     for nn in range(n_sample):
         if len(new_coefficients) != 0:
-            LAC = threevariable_fit((OH[nn], lO32[nn]), *new_coefficients)
-            log.info(f"curve fit LAC_R23: {LAC}")
+            fitted_function = threevariable_fit((OH[nn], lO32[nn]), *new_coefficients)
+            log.info(f"curve fit LAC_R23: {fitted_function}")
 
         if nn == 0:
             if IDs:
-                for jj in range(len(LAC)):
-                    id_diff = lR23[nn][jj] - LAC[jj]
+                for jj in range(len(fitted_function)):
+                    id_diff = lR23[nn][jj] - fitted_function[jj]
                     ax.annotate(IDs[nn][jj], (OH[nn][jj], id_diff),
                                 fontsize='6')
 
@@ -109,10 +109,10 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
                            (lR23[nn] <= y_ii_max))[0]
 
             if len(idx) > 0:
-                i_diff = lR23[nn][idx] - LAC[idx]
+                i_diff = lR23[nn][idx] - fitted_function[idx]
                 ax.scatter(OH[nn], i_diff, color=ctype[nn], marker=marker[nn],
                            edgecolor='none', alpha=0.5)
-                diff0 += list(lR23[nn][idx] - LAC[idx])
+                diff0 += list(lR23[nn][idx] - fitted_function[idx])
 
         # Added if statement so that only data points
         # on the OH_err[0] place will be plotted
@@ -173,7 +173,7 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
     log.info("finished.")
 
 
-def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=True,
+def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, secondorder=True,
                        threevariable=True, raw=False, apply_dust=False,
                        revised=True, include_rlimit=False):
     """
@@ -348,9 +348,11 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
         lO32_median = np.median(lO32)
         lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
                        1.25 * lO32_median, 1.75 * lO32_median]
-        lo32_labels = ['lO32 = .25 * lO32_median', 'lO32 = .75 * lO32_median',
-                       'lO32 = lO32_median', 'lO32 = 1.25 * lO32_median',
-                       'lO32 = 1.75 * lO32_median']
+        lo32_labels = [f"lO32 = {lo32_values[0]: .3f}",
+                       f"lO32 = {lo32_values[1]: .3f}",
+                       f"lO32 = {lo32_values[2]: .3f}",
+                       f"lO32 = {lo32_values[3]: .3f}",
+                       f"lO32 = {lo32_values[4]: .3f}"]
         fitted_poly = np.zeros((len(lo32_values), len(lR23)))
         for aa in range(len(lo32_values)):
             fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]),
@@ -371,7 +373,7 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
                                                                 secondorder=False,
                                                                 threevariable=False)
             fitted_poly = thirdorder_polynomial(OH_range, *o1)
-
+    x_range = [-0.5, 0.5]
     # This is for getting the original bian plot line
     bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
@@ -397,6 +399,7 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
     txt0 += f"\n x = 12+log(O/H)"
     ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top',
                 fontsize=6)
+    ax.legend(loc='lower left', framealpha=0.5, fontsize=6)
 
     # Next we plot the bian calibration
     ax.plot(bian_R23, OH_range, 'k--', label='Bian+(2018)')
@@ -407,7 +410,17 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
     # Then we plot the data
     for nn in range(len(lR23_arrs)):
         ax.scatter(lR23_arrs[nn], OH_arrs[nn],
-                   marker=marker[nn], color=color[nn])
+                   marker=marker[nn], color=color[nn]) #, label=label[nn])
+    # ax.legend(loc='upper right', framealpha=0.5, fontsize=6)
+    '''if len(label) != 0:
+        x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
+        y1 = x_range[1] - (nn * 0.035 + 0.05) \
+             * (x_range[1] - x_range[0])
+        x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
+        y2 = x_range[1] - (nn * 0.035 + 0.0525) \
+             * (x_range[1] - x_range[0])
+        ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
+        ax.plot([x1], [y1], marker=marker[nn], color='black')'''
 
     # Next we plot the IDS
     if include_rlimit:
@@ -425,7 +438,6 @@ def run_experiment_LAC(fitspath, fitspath_curvefit, fitspath_ini, secondorder=Tr
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
-    ax.legend(loc='lower left', framealpha=0.5, fontsize=6)
     print('PDF file name: ', pdf_file)
     fig.savefig(pdf_file)
 

@@ -129,8 +129,12 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
     # dataset, combine_flux_ascii, binning_avg_asc)
 
     # Verification Table
+    # If dataset is n_bins the validation table does not have to be revised
     if dataset == 'n_Bins':
-        valid_table.make_validation_table(fitspath)
+        valid_table.make_validation_table(fitspath, vmin_4363SN=3.5,
+                                          vmin_5007SN=95, vmax_4363sig=0.75,
+                                          rlmin_4363SN=0, rlmax_4363sig=1.4,
+                                          rlmin_5007SN=140)
         # Calculating R, Temperature, Metallicity,
         # Dust Attenuation, and Errors using MSC
         if apply_dust:
@@ -170,6 +174,15 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                                            binned_data=True,
                                            apply_dust=True, revised=True,
                                            log=log)
+
+
+
+
+
+
+
+
+
     else:
         valid_table.make_validation_table(fitspath)
         bin_valid_file = join(fitspath, filename_dict['bin_valid'])

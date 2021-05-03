@@ -63,11 +63,11 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
     a function of metallicity
     Used by main() function
     """
-    print('new coeff: ', new_coefficients, type(new_coefficients))
+    # print('new coeff: ', new_coefficients, type(new_coefficients))
     if log is None:
         log = log_stdout()
 
-    log.info("starting ...")
+    # log.info("starting ...")
 
     fig, ax = plt.subplots()
 
@@ -83,7 +83,7 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
     for nn in range(n_sample):
         if len(new_coefficients) != 0:
             fitted_function = threevariable_fit((OH[nn], lO32[nn]), *new_coefficients)
-            log.info(f"curve fit LAC_R23: {fitted_function}")
+            # log.info(f"curve fit LAC_R23: {fitted_function}")
 
         if nn == 0:
             if IDs:
@@ -167,15 +167,15 @@ def plot_differences_curvefit(lR23, lO32, OH, pdf_file,
 
     plt.subplots_adjust(left=0.12, right=0.97, bottom=0.1, top=0.97)
 
-    log.info(f"Writing: {pdf_file}")
+    # log.info(f"Writing: {pdf_file}")
     fig.savefig(pdf_file)
 
-    log.info("finished.")
+    # log.info("finished.")
 
 
-def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, secondorder=True,
-                       threevariable=True, raw=False, apply_dust=False,
-                       revised=True, include_rlimit=False):
+def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
+                        secondorder=True, threevariable=True, raw=False,
+                        apply_dust=False, revised=True, include_rlimit=False):
     """
 
     Parameters
@@ -267,7 +267,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, secondorder=T
 
     label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
     marker = ['D', r'$\uparrow$', '3', '4']
-    color = ['b', 'g', 'r', 'm']
+    ctype = ['b', 'g', 'r', 'm', 'cyan', 'k']
 
     # Names of files
     if threevariable:
@@ -374,14 +374,50 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, secondorder=T
                                                                 threevariable=False)
             fitted_poly = thirdorder_polynomial(OH_range, *o1)
     x_range = [-0.5, 0.5]
+    print('all O32: ', lO32)
     # This is for getting the original bian plot line
     bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
+    # Starting the plotting
     fig, ax = plt.subplots()
-    # First we plot the new fitted curves and annotate with equation
+
+    # Binning by lO32 values for plots and plot data
+    bin_start = np.zeros(n_bins)
+    bin_end = np.zeros(n_bins)
+
+    sort0 = np.argsort(lO32)
+    y_sort0 = lO32[sort0]
+    r_bin_pts = np.int(np.round(len(lO32) / float(n_bins)))
+
+    bin_start[0] = y_sort0[0]
+    bin_end[0] = y_sort0[r_bin_pts - 1]
+    for ii in range(1, n_bins):
+        bin_start[ii] = bin_end[ii - 1] + 0.000001
+        bin_end[ii] = y_sort0[
+            np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
+
+    for nn in range(len(lR23_arrs)):
+        for ii in range(n_bins):
+            y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
+            y_ii_max = bin_end[ii]  # y_min + (ii+1) * dy
+            print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
+            idx = np.where((lO32_arrs[nn] >= y_ii_min)
+                           & (lO32_arrs[nn] <= y_ii_max))[0]
+            print("idx: ", idx)
+            ii_label = ''
+            if nn ==  len(lR23_arrs)-1:
+                idx_all = np.where((lO32 >= y_ii_min) & (lO32 <= y_ii_max))[0]
+                ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
+                           f"< {y_ii_max:.2f}, N = {len(idx_all):d}"
+            if len(idx) > 0:
+                ax.scatter(lR23_arrs[nn][idx], OH_arrs[nn][idx],
+                           color=ctype[ii], marker=marker[nn], label=ii_label)
+
+    # Now we plot the new fitted curves and annotate with equation
     if threevariable:
         for aa in range(len(lo32_values)):
-            ax.plot(fitted_poly[aa], OH_range, label=lo32_labels[aa])
+            ax.plot(fitted_poly[aa], OH_range, color=ctype[aa],
+                    label=lo32_labels[aa])
         if secondorder:
             txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
             txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
@@ -408,11 +444,11 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, secondorder=T
             label='Bian Data Range')
 
     # Then we plot the data
-    for nn in range(len(lR23_arrs)):
+    '''for nn in range(len(lR23_arrs)):
         ax.scatter(lR23_arrs[nn], OH_arrs[nn],
                    marker=marker[nn], color=color[nn]) #, label=label[nn])
     # ax.legend(loc='upper right', framealpha=0.5, fontsize=6)
-    '''if len(label) != 0:
+    if len(label) != 0:
         x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
         y1 = x_range[1] - (nn * 0.035 + 0.05) \
              * (x_range[1] - x_range[0])
@@ -438,7 +474,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, secondorder=T
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
-    print('PDF file name: ', pdf_file)
+    # print('PDF file name: ', pdf_file)
     fig.savefig(pdf_file)
 
     # This section plots makes the plot difference files

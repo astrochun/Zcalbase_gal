@@ -345,18 +345,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                                                             OH_arrs,
                                                             secondorder=True,
                                                             threevariable=True)
-        lO32_median = np.median(lO32)
-        lo32_values = [.25 * lO32_median, .75 * lO32_median, lO32_median,
-                       1.25 * lO32_median, 1.75 * lO32_median]
-        lo32_labels = [f"lO32 = {lo32_values[0]: .3f}",
-                       f"lO32 = {lo32_values[1]: .3f}",
-                       f"lO32 = {lo32_values[2]: .3f}",
-                       f"lO32 = {lo32_values[3]: .3f}",
-                       f"lO32 = {lo32_values[4]: .3f}"]
-        fitted_poly = np.zeros((len(lo32_values), len(lR23)))
-        for aa in range(len(lo32_values)):
-            fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]),
-                                                *o1)
     else:
 
         if secondorder:
@@ -373,15 +361,8 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                                                                 secondorder=False,
                                                                 threevariable=False)
             fitted_poly = thirdorder_polynomial(OH_range, *o1)
-    x_range = [-0.5, 0.5]
-    print('all O32: ', lO32)
-    # This is for getting the original bian plot line
-    bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
 
-    # Starting the plotting
-    fig, ax = plt.subplots()
-
-    # Binning by lO32 values for plots and plot data
+    # Creating the inning by lO32 values for plots
     bin_start = np.zeros(n_bins)
     bin_end = np.zeros(n_bins)
 
@@ -391,11 +372,26 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
 
     bin_start[0] = y_sort0[0]
     bin_end[0] = y_sort0[r_bin_pts - 1]
+    lo32_values = np.zeros(n_bins)
     for ii in range(1, n_bins):
         bin_start[ii] = bin_end[ii - 1] + 0.000001
         bin_end[ii] = y_sort0[
             np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
+        print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
+        lo32_values[ii] = (bin_end[ii]-bin_start[ii])/2
+    print(lo32_values)
+    fitted_poly = np.zeros((len(lo32_values), len(lR23)))
+    for aa in range(len(lo32_values)):
+        fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]), *o1)
 
+    x_range = [-0.5, 0.5]
+    # This is for getting the original bian plot line
+    bian_R23 = local_analog_calibration.bian18_R23_OH(OH_range, bian_coeff)
+
+    # Starting the plotting
+    fig, ax = plt.subplots()
+
+    # Plotting the binned data and its legend
     for nn in range(len(lR23_arrs)):
         for ii in range(n_bins):
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
@@ -405,7 +401,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                            & (lO32_arrs[nn] <= y_ii_max))[0]
             print("idx: ", idx)
             ii_label = ''
-            if nn ==  len(lR23_arrs)-1:
+            if nn == len(lR23_arrs)-1:
                 idx_all = np.where((lO32 >= y_ii_min) & (lO32 <= y_ii_max))[0]
                 ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
                            f"< {y_ii_max:.2f}, N = {len(idx_all):d}"
@@ -417,7 +413,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     if threevariable:
         for aa in range(len(lo32_values)):
             ax.plot(fitted_poly[aa], OH_range, color=ctype[aa],
-                    label=lo32_labels[aa])
+                    label=lo32_values[aa])
         if secondorder:
             txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
             txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"

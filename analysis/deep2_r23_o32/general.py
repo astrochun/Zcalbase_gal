@@ -136,15 +136,10 @@ def run_grid_r23_o32_analysis(dataset, n_split=3, y_correction=False,
                                           vmin_5007SN=95, vmax_4363sig=0.75,
                                           rlmin_4363SN=0, rlmax_4363sig=1.4,
                                           rlmin_5007SN=140)
-        bin_valid_file = join(fitspath, filename_dict['bin_valid'])
-        bin_valid_rev_file = join(fitspath, filename_dict['bin_valid_rev'])
-        bin_valid_tab = asc.read(bin_valid_file)
-        asc.write(bin_valid_tab, bin_valid_rev_file,
-                  format='fixed_width_two_line', overwrite=True)
     else:
         valid_table.make_validation_table(fitspath)
 
-        valid_table.compare_to_by_eye(fitspath, dataset)
+    valid_table.compare_to_by_eye(fitspath, dataset)
 
     # Calculating R, Temperature, Metallicity,
     # Dust Attenuation, and Errors using MSC

@@ -64,7 +64,7 @@ def r23vso32_plot(fitspath, bin_info_file, bin_derived_prop_file, pdf_file,
     :param fitspath: str. path where files are called from and saved to
     :param bin_info_file: str. table created by binning code
     :param bin_derived_prop_file: str. table holding metallicity and
-                     temperature measurements
+                                  temperature measurements
     :param pdf_file: str. name of pdf file produced
     :param log: LogClass or logging object
 

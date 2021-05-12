@@ -236,7 +236,7 @@ def run_histogram_fr(path, input_file, dict_list, valid_file,
     :param dict_list: ls. list of dictionaries whose data we want to plot
                             in a histogram
     :param valid_file: str. table created independently of this code
-                        that tells us whether or not each bin is a detection
+                       that tells us whether or not each bin is a detection
 
     No returns
     """

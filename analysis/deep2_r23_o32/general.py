@@ -3,7 +3,6 @@
 from . import get_det3
 import os
 from os.path import join
-from astropy.io import ascii as asc
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
     calibration_plots, name_dict, curvefit_analysis

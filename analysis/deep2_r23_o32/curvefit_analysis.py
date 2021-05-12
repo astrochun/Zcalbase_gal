@@ -372,17 +372,19 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
 
     bin_start[0] = y_sort0[0]
     bin_end[0] = y_sort0[r_bin_pts - 1]
-    lo32_values = np.zeros(n_bins)
-    for ii in range(1, n_bins):
+    lo32_bin_avg = np.zeros(n_bins)
+    for ii in range(n_bins):
         bin_start[ii] = bin_end[ii - 1] + 0.000001
         bin_end[ii] = y_sort0[
             np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
         print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
-        lo32_values[ii] = (bin_end[ii]-bin_start[ii])/2
-    print(lo32_values)
-    fitted_poly = np.zeros((len(lo32_values), len(lR23)))
-    for aa in range(len(lo32_values)):
-        fitted_poly[aa] = threevariable_fit((OH_range, lo32_values[aa]), *o1)
+        lo32_in_bin = np.where((y_sort0 >= bin_start[ii]) &
+                               (y_sort0 < bin_end[ii]))[0]
+        lo32_bin_avg[ii] = np.average(y_sort0[lo32_in_bin])
+    print(lo32_bin_avg)
+    fitted_poly = np.zeros((len(lo32_bin_avg), len(lR23)))
+    for aa in range(len(lo32_bin_avg)):
+        fitted_poly[aa] = threevariable_fit((OH_range, lo32_bin_avg[aa]), *o1)
 
     x_range = [-0.5, 0.5]
     # This is for getting the original bian plot line
@@ -396,10 +398,10 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
         for ii in range(n_bins):
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
             y_ii_max = bin_end[ii]  # y_min + (ii+1) * dy
-            print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
+            # print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
             idx = np.where((lO32_arrs[nn] >= y_ii_min)
                            & (lO32_arrs[nn] <= y_ii_max))[0]
-            print("idx: ", idx)
+            # print("idx: ", idx)
             ii_label = ''
             if nn == len(lR23_arrs)-1:
                 idx_all = np.where((lO32 >= y_ii_min) & (lO32 <= y_ii_max))[0]
@@ -411,9 +413,9 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
 
     # Now we plot the new fitted curves and annotate with equation
     if threevariable:
-        for aa in range(len(lo32_values)):
+        for aa in range(len(lo32_bin_avg)):
             ax.plot(fitted_poly[aa], OH_range, color=ctype[aa],
-                    label=lo32_values[aa])
+                    label=lo32_bin_avg[aa])
         if secondorder:
             txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
             txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"

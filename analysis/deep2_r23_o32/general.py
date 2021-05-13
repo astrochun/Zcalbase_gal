@@ -205,22 +205,22 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     log.info("starting ...")
 
     # Te_metal Plots
-    '''te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw,
+    te_metal_plots.plotting_te_metal(fitspath, fitspath_ini, raw=raw,
                                      apply_dust=apply_dust,
                                      revised=revised, individual=individual)
 
     # Calibration Plots
     calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw,
                                     apply_dust=apply_dust, revised=revised,
-                                    individual=individual, log=log)'''
+                                    individual=individual, log=log)
 
     # This fits a three order polynomial without a lO32 component
-    '''curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
+    curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
                                              fitspath_ini, secondorder=False,
                                              threevariable=False, raw=raw,
                                              apply_dust=apply_dust,
                                              revised=revised,
-                                             include_rlimit=True)'''
+                                             include_rlimit=True)
 
     # This fits a second order polynomial with a lO32 component
     curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
@@ -231,12 +231,12 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                              include_rlimit=True)
 
     # This fits a second order polynomial without a lO32 component
-    '''curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
+    curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
                                              fitspath_ini, secondorder=True,
                                              threevariable=False, raw=raw,
                                              apply_dust=apply_dust,
                                              revised=revised,
-                                             include_rlimit=True)'''
+                                             include_rlimit=True)
 
     '''
 

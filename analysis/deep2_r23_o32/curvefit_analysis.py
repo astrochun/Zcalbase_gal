@@ -401,7 +401,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     for nn in range(len(lR23_arrs)):
         for ii in range(n_bins):
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
-            print('binstart[ii]: ', y_ii_min)
             y_ii_max = bin_end[ii]  # y_min + (ii+1) * dy
             # print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
             idx = np.where((lO32_arrs[nn] >= y_ii_min)
@@ -420,7 +419,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     if threevariable:
         for aa in range(len(lo32_bin_avg)):
             ax.plot(fitted_poly[aa], OH_range, color=ctype[aa],
-                    label=lo32_bin_avg[aa])
+                    label=f"{lo32_bin_avg[aa]:.3f}")
         if secondorder:
             txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
             txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"

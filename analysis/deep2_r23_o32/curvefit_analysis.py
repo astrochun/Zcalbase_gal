@@ -339,6 +339,8 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
         OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, DEEP2_id, MACT_ID]
 
+    print('IDs: ', ID_arrs)
+    print('lO32: ', lO32_arrs)
     if threevariable:
         o1, o2, lR23, lO32, OH, OH_range = fitting_function(lR23_arrs,
                                                             lO32_arrs,
@@ -370,13 +372,15 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     y_sort0 = lO32[sort0]
     r_bin_pts = np.int(np.round(len(lO32) / float(n_bins)))
 
-    bin_start[0] = y_sort0[0]
-    bin_end[0] = y_sort0[r_bin_pts - 1]
     lo32_bin_avg = np.zeros(n_bins)
     for ii in range(n_bins):
-        bin_start[ii] = bin_end[ii - 1] + 0.000001
-        bin_end[ii] = y_sort0[
-            np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
+        if ii == 0:
+            bin_start[0] = y_sort0[0]
+            bin_end[0] = y_sort0[r_bin_pts - 1]
+        else:
+            bin_start[ii] = bin_end[ii - 1] + 0.000001
+            bin_end[ii] = y_sort0[
+                np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
         print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
         lo32_in_bin = np.where((y_sort0 >= bin_start[ii]) &
                                (y_sort0 < bin_end[ii]))[0]
@@ -397,6 +401,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     for nn in range(len(lR23_arrs)):
         for ii in range(n_bins):
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
+            print('binstart[ii]: ', y_ii_min)
             y_ii_max = bin_end[ii]  # y_min + (ii+1) * dy
             # print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
             idx = np.where((lO32_arrs[nn] >= y_ii_min)

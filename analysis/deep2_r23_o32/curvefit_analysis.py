@@ -386,11 +386,18 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     print(lo32_bin_avg)
     fitted_poly = np.zeros((len(lo32_bin_avg), len(lR23)))
     print('*o1', *o1)
-    '''if secondorder:
-        if threevariable is False:
-            fitted_poly = secondorder_polynomial(OH_range, *o1) else:'''
-    for aa in range(len(lo32_bin_avg)):
-        fitted_poly[aa] = threevariable_fit((OH_range, lo32_bin_avg[aa]), *o1)
+    if threevariable:
+        # ax^2 + bx +c + dlog(O32)
+        for aa in range(len(lo32_bin_avg)):
+            fitted_poly[aa] = threevariable_fit((OH_range, lo32_bin_avg[aa]),
+                                                *o1)
+    else:
+        if secondorder:
+            # ax^2+bx+c
+            fitted_poly = secondorder_polynomial(OH_range, *o1)
+        else:
+            # ax^3 + bx^2 +cx+d
+            fitted_poly = thirdorder_polynomial(OH_range, *o1) # This is causing a problem
 
     x_range = [-0.5, 0.5]
     # This is for getting the original bian plot line
@@ -418,30 +425,25 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                            color=ctype[ii], marker=marker[nn], label=ii_label)
 
     # Now we plot the new fitted curves and annotate with equation
-    '''if secondorder:
-        if threevariable is False:
-            ax.plot(fitted_poly, OH_range, color=ctype, label='Curve Fit') else:'''
-
-    for aa in range(len(lo32_bin_avg)):
-        ax.plot(fitted_poly[aa], OH_range, color=ctype[aa],
-                label=f"{lo32_bin_avg[aa]:.3f}")
     if threevariable:
-        if secondorder:
-            txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
-            txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
-        else:
-            txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
-            txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}+ {o1[4]:.3f}*log(O32)$"
+        # ax^2 + bx +c + dlog(O32)
+        for aa in range(len(lo32_bin_avg)):
+            ax.plot(fitted_poly[aa], OH_range, color=ctype[aa],
+                    label=f"{lo32_bin_avg[aa]:.3f}")
+        txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
+        txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
     else:
-        print('IM RUNNING AND I SHOULDNT BE ')
-        # ax.plot(fitted_poly, OH_range, label='Curve Fit')
-        # I think commenting this out fixes my problem
         if secondorder:
+            # ax^2+bx+c
+            ax.plot(fitted_poly, OH_range, color=ctype[-1], label='Curve Fit')
             txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
             txt0 += rf"+ {o1[2]:.3f}$"
         else:
+            # ax^3 + bx^2 +cx+d
+            ax.plot(fitted_poly, OH_range, color=ctype[-1], label='Curve Fit')
             txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^3 + {o1[1]:.3f}*x^2"
             txt0 += rf"+ {o1[2]:.3f}*x + {o1[3]:.3f}$"
+
     txt0 += f"\n x = 12+log(O/H)"
     ax.annotate(txt0, [0.05, 0.92], xycoords='axes fraction', va='top',
                 fontsize=6)

@@ -294,7 +294,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
         # ax^2 + bx +c + dlog(O32)
         for aa in range(len(lo32_bin_avg)):
             ax.plot(fitted_poly[aa], OH_range, color=ctype[aa],
-                    label=f"{lo32_bin_avg[aa]:.3f}")
+                    label=f"Average lO32: {lo32_bin_avg[aa]:.3f}")
         txt0 = rf"curve_fit: $log(R23) = {o1[0]:.3f}*x^2 + {o1[1]:.3f}*x"
         txt0 += rf"+ {o1[2]:.3f} + {o1[3]:.3f}*log(O32)$"
     else:
@@ -361,7 +361,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                                   new_coefficients=o1, data_err=[],
                                   OH_err=[], OH_range=[np.min(OH_range),
                                                        np.max(OH_range)],
-                                  data_range=[-0.5, 0.5], marker=marker,
+                                  data_range=[-0.3, 0.3], marker=marker,
                                   label=label, IDs=ID_arrs, log=None)
     else:
         plot_difference_curvefit.plot_difference_twovariable(lR23_arrs, OH_arrs,
@@ -372,6 +372,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                                                   OH_err=[],
                                                   OH_range=[np.min(OH_range),
                                                             np.max(OH_range)],
-                                                  data_range=[-0.5, 0.5],
+                                                  data_range=[-0.3, 0.3],
                                                   marker=marker, label=label,
                                                   IDs=[], log=None)

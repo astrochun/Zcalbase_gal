@@ -13,7 +13,7 @@ from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff, ctype, \
 
 def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
                               new_coefficients=[], data_err=[], OH_err=[],
-                              OH_range=[], data_range=[], marker=[], label=[],
+                              OH_range=[7,11], data_range=[-0.3, 0.3], marker=[], label=[],
                               IDs=[], log=None):
     """
     So this curve fitting function looks like it fits for three variables fits
@@ -73,6 +73,10 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
                 i_diff = lR23[nn][idx] - fitted_function[idx]
                 ax.scatter(OH[nn], i_diff, color=ctype[nn], marker=marker[nn],
                            edgecolor='none', alpha=0.5)
+                if nn == 1:
+                    ax.scatter(OH[nn], i_diff, color=ctype[1],
+                               marker=r'$\rightarrow$',
+                               edgecolor='none', alpha=0.5)
                 diff0 += list(lR23[nn][idx] - fitted_function[idx])
 
         # Added if statement so that only data points
@@ -108,7 +112,7 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
-                  r'- \log(R_{23})_{\rm LAC}$')
+                  r'- \log(R_{23})_{\rm Zcal_curvefit}$')
 
     ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction',
                 va='bottom', ha='right', fontsize=10)
@@ -120,7 +124,7 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
         ax.set_xlim(OH_range)
     if len(data_range) != 0:
         ax.set_ylim(data_range)
-
+    ax.set_xlim(7, 9.5)
     leg_R23 = ax.legend(loc='upper right', scatterpoints=1, fontsize=8,
                             framealpha=0.5)
     for lh in leg_R23.legendHandles:
@@ -136,7 +140,7 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
 
 def plot_difference_twovaraible(lR23_lO32, OH, pdf_file, data_input,
                                  new_coefficients=[], data_err=[], OH_err=[],
-                                 OH_range=[], data_range=[], marker=[],
+                                 OH_range=[], data_range=[-0.3,0.3], marker=[],
                                  label=[], IDs=[], log=None):
     """
     Plot differences between LACR23 vs observed R23 as a function

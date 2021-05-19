@@ -66,8 +66,6 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
     n_sample = len(lR23)
 
     # Plotting
-    ctype = ['red', 'magenta', 'green', 'cyan', 'blue', 'black']
-
     if len(marker) == 0:
         marker = ['o'] * n_sample
 

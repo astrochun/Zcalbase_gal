@@ -162,3 +162,56 @@ def get_det3(fitspath, fitspath_ini, log=None):
     log.info("finished.")
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
+
+# Fitting Functions
+ctype = ['blue', 'green', 'red', 'magenta', 'cyan', 'black']
+
+
+def secondorder_polynomial(x, a, b, c):
+    return a*x*x + b*x + c
+
+
+def thirdorder_polynomial(x, a, b, c, d):
+    return a*x**3 + b*x**2 + c*x +d
+
+
+def threevariable_fit(X, a, b, c, d):
+    '''
+    log(R23) = ax^2 +bx +c +dlog(O32)
+    '''
+    x, lO32 = X
+    return a * x**3 + b*x**2 + c * x + d*lO32
+
+
+def bian18_R23_OH(OH, R23_coeff):
+    """
+    Function to return log(R23) given metallicity
+    Used in main()
+
+    :param OH: array. 12+log(O/H)
+    """
+
+    # R23_coeff = [-0.32293, 7.2954, -54.8284, 138.0430]
+    R23_p = np.poly1d(R23_coeff)
+
+    return R23_p(OH)
+
+
+def bian18_O32_OH(OH):
+    """Function to return log(O32) given metallicity"""
+    O32 = (OH - 8.54)/(-0.59)
+
+    return O32
+
+
+def bian18_OH_O32(O32):
+    """
+    Function to return metallicity given log(O32)
+    Used in main()
+
+    :param O32: log([OIII]/[OII])
+    """
+
+    OH = 8.54 - 0.59 * O32
+
+    return OH

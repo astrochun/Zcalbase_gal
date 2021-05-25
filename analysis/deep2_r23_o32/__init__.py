@@ -20,6 +20,7 @@ name_dict['Average_Bin_Value'] = 'Average_R23_O32_Values.tbl'
 name_dict['temp_metallicity_pdf'] = '_Temp_Composite_Metallicity.pdf'
 
 bian_coeff = [-0.32293, 7.2954, -54.8284, 138.0430]
+jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
 
 
 def read_fitsfiles(fits_file_path):
@@ -215,3 +216,24 @@ def bian18_OH_O32(O32):
     OH = 8.54 - 0.59 * O32
 
     return OH
+
+def jiang_O32_OH_fit(xy, a, b, c, d, e):
+    """
+    Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
+    Used by main() function
+    :param xy: Array of 12+log(O/H), log([OIII]/[OII])
+
+    Jiang coefficients
+    :param a:
+    :param b:
+    :param c:
+    :param d:
+    :param e:
+    """
+
+    x = xy[0]
+    y = xy[1]
+
+    logR23 = a + b * x + c * x**2 - d * (e + x) * y
+
+    return logR23

@@ -147,11 +147,11 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
     fig.set_size_inches(10, 5)
     fig.savefig(out_pdf, format='pdf')
 
-    plot_difference_curvefit.plot_differences_twovaraible(lR23, OH, R23_pdf_file, data_input='R23',
+    plot_difference_curvefit.plot_difference_twovariable(lR23, OH, R23_pdf_file, data_input='R23',
                      new_coefficients=[], data_err=lR23_err,
                      OH_err=OH_err, OH_range=yra, data_range=[-0.5, 0.5],
                      marker=marker, label=label, IDs=ID, log=log)
-    plot_difference_curvefit.plot_differences_twovaraible(lO32, OH, O32_pdf_file, data_input='O32',
+    plot_difference_curvefit.plot_difference_twovariable(lO32, OH, O32_pdf_file, data_input='O32',
                      new_coefficients=[], data_err=lO32_err,
                      OH_err=OH_err, OH_range=yra, data_range=[-2.1, 1.0],
                      marker=marker, label=label, IDs=ID, log=log)

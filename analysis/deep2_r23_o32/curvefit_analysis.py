@@ -205,26 +205,20 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
         ID_arrs = [det_ID, DEEP2_id, MACT_ID]
 
     if threevariable:
-        o1, o2, lR23, lO32, OH, OH_range = fitting_function(lR23_arrs,
-                                                            lO32_arrs,
-                                                            OH_arrs,
-                                                            secondorder=True,
-                                                            threevariable=True)
+        o1, o2, lR23, lO32, OH, OH_range = \
+            fitting_function(lR23_arrs, lO32_arrs, OH_arrs, secondorder=True,
+                             threevariable=True)
     else:
 
         if secondorder:
-            o1, o2, lR23, lO32, OH, OH_range = fitting_function(lR23_arrs,
-                                                                lO32_arrs,
-                                                                OH_arrs,
-                                                                secondorder=True,
-                                                                threevariable=False)
+            o1, o2, lR23, lO32, OH, OH_range = \
+                fitting_function(lR23_arrs, lO32_arrs, OH_arrs,
+                                 secondorder=True, threevariable=False)
             fitted_poly = secondorder_polynomial(OH_range, *o1)
         else:
-            o1, o2, lR23, lO32, OH, OH_range = fitting_function(lR23_arrs,
-                                                                lO32_arrs,
-                                                                OH_arrs,
-                                                                secondorder=False,
-                                                                threevariable=False)
+            o1, o2, lR23, lO32, OH, OH_range = \
+                fitting_function(lR23_arrs, lO32_arrs, OH_arrs,
+                                 secondorder=False, threevariable=False)
             fitted_poly = thirdorder_polynomial(OH_range, *o1)
 
     # Creating the inning by lO32 values for plots
@@ -262,7 +256,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
             fitted_poly = secondorder_polynomial(OH_range, *o1)
         else:
             # ax^3 + bx^2 +cx+d
-            fitted_poly = thirdorder_polynomial(OH_range, *o1) # This is causing a problem
+            fitted_poly = thirdorder_polynomial(OH_range, *o1)
 
     x_range = [-0.5, 0.5]
     # This is for getting the original bian plot line
@@ -353,25 +347,27 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
     # print('PDF file name: ', pdf_file)
     fig.savefig(pdf_file)
-
+    fitting_model = 'Zcal'
     # This section plots makes the plot difference files
     if threevariable:
-        plot_difference_curvefit.plot_difference_threevariable(lR23_arrs, lO32_arrs, OH_arrs,
-                                  R23_diff_pdf_file,
-                                  new_coefficients=o1, data_err=[],
-                                  OH_err=[], OH_range=[np.min(OH_range),
-                                                       np.max(OH_range)],
-                                  data_range=[-0.3, 0.3], marker=marker,
-                                  label=label, IDs=ID_arrs, log=None)
+        plot_difference_curvefit.\
+            plot_difference_threevariable(lR23_arrs, lO32_arrs, OH_arrs, lO32,
+                                          R23_diff_pdf_file, fitting_model,
+                                          bin_start, bin_end,
+                                          new_coefficients=o1, n_bins=4,
+                                          data_err=[], OH_err=[],
+                                          OH_range=[np.min(OH_range),
+                                                    np.max(OH_range)],
+                                          data_range=[-0.3, 0.3],
+                                          marker=marker, label=label,
+                                          IDs=ID_arrs, log=None)
     else:
-        plot_difference_curvefit.plot_difference_twovariable(lR23_arrs, OH_arrs,
-                                                  R23_diff_pdf_file,
-                                                  data_input='R23',
-                                                  new_coefficients=o1,
-                                                  data_err=[],
-                                                  OH_err=[],
-                                                  OH_range=[np.min(OH_range),
-                                                            np.max(OH_range)],
-                                                  data_range=[-0.3, 0.3],
-                                                  marker=marker, label=label,
-                                                  IDs=[], log=None)
+        plot_difference_curvefit.\
+            plot_difference_twovariable(lR23_arrs, OH_arrs, R23_diff_pdf_file,
+                                        data_input='R23', new_coefficients=o1,
+                                        data_err=[], OH_err=[],
+                                        OH_range=[np.min(OH_range),
+                                                  np.max(OH_range)],
+                                        data_range=[-0.3, 0.3],
+                                        marker=marker, label=label, IDs=[],
+                                        log=None)

@@ -8,16 +8,18 @@ from Zcalbase_gal.analysis.deep2_r23_o32.log_commons \
     import log_stdout, LogClass
 from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff, ctype, \
     secondorder_polynomial, thirdorder_polynomial, threevariable_fit, \
-    bian18_R23_OH, bian18_O32_OH, bian18_OH_O32
+    bian18_R23_OH, bian18_O32_OH, bian18_OH_O32, jiang_O32_OH_fit, jiang18_coeffs
 
 
-def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
-                              new_coefficients=[], data_err=[], OH_err=[],
-                              OH_range=[7,11], data_range=[-0.3, 0.3], marker=[], label=[],
-                              IDs=[], log=None):
+def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file, fitting_model,
+                                  bin_start, bin_end, new_coefficients=[],
+                                  n_bins=4, data_err=[], OH_err=[],
+                                  OH_range=[7,11], data_range=[-0.3, 0.3],
+                                  marker=[], label=[], IDs=[], log=None):
     """
     So this curve fitting function looks like it fits for three variables fits
     a * x**3 + b*x**2 + c * x + d*lO32
+    This is also going to be used for the Jiang calibration
 
 
     Plot differences between LACR23 vs observed R23 as
@@ -42,9 +44,15 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
 
     diff0 = []
     for nn in range(n_sample):
-        if len(new_coefficients) != 0:
-            fitted_function = threevariable_fit((OH[nn], lO32[nn]), *new_coefficients)
-            # log.info(f"curve fit LAC_R23: {fitted_function}")
+        if fitting_model == 'jiang':
+            fitted_function = jiang_O32_OH_fit((OH[nn], lO32[nn]),
+                                               *jiang18_coeffs)
+            log.info(f"jiang_R23: {fitted_function}")
+        if fitting_model == 'Zcal':
+            if len(new_coefficients) != 0:
+                fitted_function = threevariable_fit((OH[nn], lO32[nn]),
+                                                    *new_coefficients)
+                # log.info(f"curve fit LAC_R23: {fitted_function}")
 
         if nn == 0:
             if IDs:
@@ -63,18 +71,26 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
                      * (data_range[1] - data_range[0])
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
             ax.plot([x1], [y1], marker=marker[nn], color='black')
-        for ii in range(len(lR23)):
-            y_ii_min = np.min(lR23[nn])
-            y_ii_max = np.max(lR23[nn])
-            idx = np.where((lR23[nn] >= y_ii_min) &
-                           (lR23[nn] <= y_ii_max))[0]
+
+        for ii in range(n_bins):
+            y_ii_min = bin_start[ii]
+            y_ii_max = bin_end[ii]
+            idx = np.where((lO32[nn] >= y_ii_min) &
+                           (lO32[nn] <= y_ii_max))[0]
+
+            ii_label = ''
+            if nn == 0:  # n_sample-1:
+                idx_all = np.where((lO32_all >= y_ii_min) &
+                                   (lO32_all <= y_ii_max))[0]
+                ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
+                           fr"< {y_ii_max:.2f}, N = {len(idx_all):d}"
 
             if len(idx) > 0:
                 i_diff = lR23[nn][idx] - fitted_function[idx]
-                ax.scatter(OH[nn], i_diff, color=ctype[nn], marker=marker[nn],
-                           edgecolor='none', alpha=0.5)
+                ax.scatter(OH[nn][idx], i_diff, color=ctype[nn], marker=marker[nn],
+                           edgecolor='none', alpha=0.5, label=ii_label)
                 if nn == 1:
-                    ax.scatter(OH[nn], i_diff, color=ctype[1],
+                    ax.scatter(OH[nn][idx], i_diff, color=ctype[1],
                                marker=r'$\rightarrow$',
                                edgecolor='none', alpha=0.5)
                 diff0 += list(lR23[nn][idx] - fitted_function[idx])
@@ -83,14 +99,14 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
         # on the OH_err[0] place will be plotted
                 if nn == 0:
                     if len(OH_err) != 0:
-                        ax.errorbar(OH[nn], i_diff,
+                        ax.errorbar(OH[nn][idx], i_diff,
                                     xerr=np.transpose(OH_err[nn]),
                                     mfc='none', capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
 
                     if len(data_err) != 0:
-                        ax.errorbar(OH[nn], i_diff,
+                        ax.errorbar(OH[nn][idx], i_diff,
                                     yerr=np.transpose(data_err[nn]),
                                     mfc='none', capsize=0,
                                     alpha=0.25, fmt='None', label=None,
@@ -138,9 +154,9 @@ def plot_difference_threevariable(lR23, lO32, OH, pdf_file,
     # log.info("finished.")
 
 
-def plot_difference_twovaraible(lR23_lO32, OH, pdf_file, data_input,
+def plot_difference_twovariable(lR23_lO32, OH, pdf_file, data_input,
                                  new_coefficients=[], data_err=[], OH_err=[],
-                                 OH_range=[], data_range=[-0.3,0.3], marker=[],
+                                 OH_range=[], data_range=[-0.3, 0.3], marker=[],
                                  label=[], IDs=[], log=None):
     """
     Plot differences between LACR23 vs observed R23 as a function

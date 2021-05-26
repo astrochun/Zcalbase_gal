@@ -100,14 +100,14 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file, fitting_mo
                 if nn == 0:
                     if len(OH_err) != 0:
                         ax.errorbar(OH[nn][idx], i_diff,
-                                    xerr=np.transpose(OH_err[nn]),
+                                    xerr=np.transpose(OH_err[nn][idx]),
                                     mfc='none', capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
 
                     if len(data_err) != 0:
                         ax.errorbar(OH[nn][idx], i_diff,
-                                    yerr=np.transpose(data_err[nn]),
+                                    yerr=np.transpose(data_err[nn][idx]),
                                     mfc='none', capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')

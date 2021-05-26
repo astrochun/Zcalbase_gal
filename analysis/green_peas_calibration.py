@@ -330,11 +330,6 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     # into the statistical calculations
     # in plot_differences, this options allows to redefine lR23, lO32, OH
     if include_Rlimit:
-        nR23 = lR23
-        nO32 = lO32
-        nOH = OH
-        nIDs = IDs
-    else:
         nR23 = [lR23[0], lR23[2], lR23[3]]
         nO32 = [lO32[0], lO32[2], lO32[3]]
         nOH = [OH[0], OH[2], OH[3]]
@@ -342,6 +337,11 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
         log.info('Using redefined values')
         label = ['Detection', 'DEEP2', 'MACT']
         marker = ['D', '3', '4']
+    else:
+        nR23 = lR23
+        nO32 = lO32
+        nOH = OH
+        nIDs = IDs
 
     # Plot differences between model and data
     if not fit:

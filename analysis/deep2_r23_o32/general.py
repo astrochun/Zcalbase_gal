@@ -192,6 +192,7 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
     fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',
                                dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
+    # fitspath ='/Users/reagenleimbach/GoogleDrive/Research/Zcalbase_gal/Current_Runs/n_Bins/0525/'
     fitspath_curvefit = join(fitspath, 'curvefit_plots/')
     try:
         os.makedirs(fitspath_curvefit)
@@ -235,12 +236,11 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                           apply_dust=apply_dust,
                                           revised=revised, include_rlimit=True)
 
-    '''
 
     ###Making More Plots###
     #asc_table = combine_flux_ascii
     #temp_table = temp_met_ascii
-    
+    '''
     temp_m_gascii = join(fitspath, 'bin_derived_properties.tbl')
     
     

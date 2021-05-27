@@ -314,21 +314,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     ax.plot(bian_R23[avail_idx], OH_range[avail_idx], 'k-',
             label='Bian Data Range')
 
-    # Then we plot the data
-    '''for nn in range(len(lR23_arrs)):
-        ax.scatter(lR23_arrs[nn], OH_arrs[nn],
-                   marker=marker[nn], color=color[nn]) #, label=label[nn])
-    # ax.legend(loc='upper right', framealpha=0.5, fontsize=6)
-    if len(label) != 0:
-        x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
-        y1 = x_range[1] - (nn * 0.035 + 0.05) \
-             * (x_range[1] - x_range[0])
-        x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
-        y2 = x_range[1] - (nn * 0.035 + 0.0525) \
-             * (x_range[1] - x_range[0])
-        ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
-        ax.plot([x1], [y1], marker=marker[nn], color='black')'''
-
     # Next we plot the IDS
     if include_rlimit:
         # Detections and Robust limits should always be the first two arrays
@@ -363,8 +348,9 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                                           IDs=ID_arrs, log=None)
     else:
         plot_difference_curvefit.\
-            plot_difference_twovariable(lR23_arrs, OH_arrs, R23_diff_pdf_file,
-                                        data_input='R23', new_coefficients=o1,
+            plot_difference_twovariable(lR23_arrs, lO32_arrs, OH_arrs,
+                                        bin_start, bin_end, R23_diff_pdf_file,
+                                        new_coefficients=o1, n_bins=4,
                                         data_err=[], OH_err=[],
                                         OH_range=[np.min(OH_range),
                                                   np.max(OH_range)],

@@ -9,7 +9,7 @@ from .green_peas_calibration import get_zcalbase_sample
 from .deep2_r23_o32.plotting import plot_difference_curvefit
 
 
-def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
+def main(lR23, lO32, OH, out_pdf, R23_pdf_file, n_bins=4, ID=[],
          lR23_err=[], lO32_err=[], OH_err=[], R23_xra=[], O32_xra=[],
          yra=[], ctype=[], label=[''], marker=[], log=None):
     """
@@ -49,6 +49,27 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
 
     n_sample = len(lR23)
 
+    # Creating the inning by lO32 values for plots
+    bin_start = np.zeros(n_bins)
+    bin_end = np.zeros(n_bins)
+
+    sort0 = np.argsort(lO32)
+    y_sort0 = lO32[sort0]
+    r_bin_pts = np.int(np.round(len(lO32) / float(n_bins)))
+
+    lo32_bin_avg = np.zeros(n_bins)
+    for ii in range(n_bins):
+        if ii == 0:
+            bin_start[0] = y_sort0[0]
+            bin_end[0] = y_sort0[r_bin_pts - 1]
+        else:
+            bin_start[ii] = bin_end[ii - 1] + 0.000001
+            bin_end[ii] = y_sort0[
+                np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
+        print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
+        lo32_in_bin = np.where((y_sort0 >= bin_start[ii]) &
+                               (y_sort0 < bin_end[ii]))[0]
+
     min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
     OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
     for nn in range(n_sample):
@@ -74,7 +95,7 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
     else:
         OH_arr = np.arange(yra[0], yra[1], 0.05)
     log.info(f"OH_arr: {OH_arr}")
-    bian_R23 = bian18_R23_OH(OH_arr,bian_coeff)
+    bian_R23 = bian18_R23_OH(OH_arr, bian_coeff)
 
     if len(ctype) == 0:
         ctype = ['blue'] * n_sample
@@ -147,14 +168,13 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, O32_pdf_file, ID=[],
     fig.set_size_inches(10, 5)
     fig.savefig(out_pdf, format='pdf')
 
-    plot_difference_curvefit.plot_difference_twovariable(lR23, OH, R23_pdf_file, data_input='R23',
-                     new_coefficients=[], data_err=lR23_err,
-                     OH_err=OH_err, OH_range=yra, data_range=[-0.5, 0.5],
-                     marker=marker, label=label, IDs=ID, log=log)
-    plot_difference_curvefit.plot_difference_twovariable(lO32, OH, O32_pdf_file, data_input='O32',
-                     new_coefficients=[], data_err=lO32_err,
-                     OH_err=OH_err, OH_range=yra, data_range=[-2.1, 1.0],
-                     marker=marker, label=label, IDs=ID, log=log)
+    plot_difference_curvefit.\
+        plot_difference_twovariable(lR23, lO32, OH, bin_start, bin_end,
+                                    R23_pdf_file, data_input='R23',
+                                    new_coefficients=[], n_bins=4,
+                                    data_err=lR23_err, OH_err=OH_err,
+                                    OH_range=yra, data_range=[-0.5, 0.5],
+                                    marker=marker, label=label, IDs=ID, log=log)
 
     log.info("finished.")
 

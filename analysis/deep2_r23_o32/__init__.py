@@ -164,6 +164,7 @@ def get_det3(fitspath, fitspath_ini, log=None):
 
     return individual_names, R23, O32, O2, O3, Hb, SNR2, SNR3, det3, data3
 
+
 # Fitting Functions
 ctype = ['blue', 'green', 'red', 'magenta', 'cyan', 'black']
 
@@ -216,6 +217,7 @@ def bian18_OH_O32(O32):
     OH = 8.54 - 0.59 * O32
 
     return OH
+
 
 def jiang_O32_OH_fit(xy, a, b, c, d, e):
     """

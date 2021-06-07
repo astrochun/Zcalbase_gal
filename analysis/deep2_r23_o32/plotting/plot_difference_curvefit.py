@@ -130,11 +130,11 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     an_txt = r'$<\Delta_{R_{23}}>$ : %0.2f' % avg0 + '\n'
     an_txt += r'$\tilde\Delta_{R_{23}}$ : %0.2f' % med0 + '\n'
     an_txt += r'$\sigma$ : %0.2f' % sig0
-    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
-                  r'- \log(R_{23})_{\rm Zcal_curvefit}$')
-
     ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction',
                 va='bottom', ha='right', fontsize=10)
+
+     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
+                   r'- \log(R_{23})_{\rm Zcal_curvefit}$')
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
 
     ax.minorticks_on()
@@ -281,4 +281,3 @@ def plot_difference_twovariable(lR23, lO32, OH, bin_start, bin_end, pdf_file,
     fig.savefig(pdf_file)
 
     log.info("finished.")
-

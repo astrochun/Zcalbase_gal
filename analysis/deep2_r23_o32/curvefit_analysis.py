@@ -40,7 +40,6 @@ def fitting_function(lR23_array, lO32_array, OH_array, secondorder=True,
     if threevariable:
         p0 = [7.2954, -54.8284, 138.0430, 0]
         o1, o2 = curve_fit(threevariable_fit, (OH, lO32), lR23, p0=p0)
-
     else:
         if secondorder:
             p0 = [7.2954, -54.8284, 138.0430]
@@ -205,12 +204,12 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                                          f"_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
                                 f"twoparam_thirdorder{suffix}.pdf")
+
     if include_rlimit:
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
         OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
-
     else:
         lR23_arrs = [det_lR23, DEEP2_lR23, MACT_lR23]
         lO32_arrs = [det_lO32, DEEP2_lO32, MACT_lO32]
@@ -284,9 +283,8 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
             y_ii_min = bin_start[ii]  # bin_y_min + ii * dy
             y_ii_max = bin_end[ii]  # y_min + (ii+1) * dy
             # print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
-            idx = np.where((lO32_arrs[nn] >= y_ii_min)
-                           & (lO32_arrs[nn] <= y_ii_max))[0]
-            # print("idx: ", idx)
+            idx = np.where((lO32_arrs[nn] >= y_ii_min) &
+                           (lO32_arrs[nn] <= y_ii_max))[0]
             ii_label = ''
             if nn == len(lR23_arrs)-1:
                 idx_all = np.where((lO32 >= y_ii_min) & (lO32 <= y_ii_max))[0]

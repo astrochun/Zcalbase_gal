@@ -214,26 +214,21 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                     apply_dust=apply_dust, revised=revised,
                                     individual=individual, log=log)
 
-    # This fits a three order polynomial without a lO32 component
-    curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
-                                          fitspath_ini, secondorder=False,
-                                          threevariable=False, raw=raw,
-                                          apply_dust=apply_dust,
-                                          revised=revised, include_rlimit=True)
+    params_list = [
+        # three order polynomial without a lO32 component
+        {'secondorder': False, 'threevariable': False},
+        # second order polynomial with a lO32 component
+        {'secondorder': True, 'threevariable': True},
+        # second order polynomial without a lO32 component
+        {'secondorder': True, 'threevariable': False},
+    ]
 
-    # This fits a second order polynomial with a lO32 component
-    curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
-                                          fitspath_ini, secondorder=True,
-                                          threevariable=True, raw=raw,
-                                          apply_dust=apply_dust,
-                                          revised=revised, include_rlimit=True)
-
-    # This fits a second order polynomial without a lO32 component
-    curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
-                                          fitspath_ini, secondorder=True,
-                                          threevariable=False, raw=raw,
-                                          apply_dust=apply_dust,
-                                          revised=revised, include_rlimit=True)
+    for params in params_list:
+        curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
+                                              fitspath_ini, **params, raw=raw,
+                                              apply_dust=apply_dust,
+                                              revised=revised,
+                                              include_rlimit=True)
 
     ###Making More Plots###
     #asc_table = combine_flux_ascii

@@ -11,6 +11,16 @@ from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff, ctype, \
     bian18_R23_OH, bian18_O32_OH, bian18_OH_O32, jiang_O32_OH_fit, jiang18_coeffs
 
 
+def set_label_location(OH_range, data_range):
+    x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
+    y1 = data_range[1] - (nn * 0.035 + 0.05) \
+                     * (data_range[1] - data_range[0])
+    x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
+    y2 = data_range[1] - (nn * 0.035 + 0.0525) \
+                     * (data_range[1] - data_range[0])
+    return x1, y1, x2, y2
+
+
 def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                                   fitting_model, bin_start, bin_end,
                                   new_coefficients=[], n_bins=4, data_err=[],
@@ -64,12 +74,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
 
         # Label in upper left the points
         if len(label) != 0:
-            x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
-            y1 = data_range[1] - (nn * 0.035 + 0.05) \
-                     * (data_range[1] - data_range[0])
-            x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
-            y2 = data_range[1] - (nn * 0.035 + 0.0525) \
-                     * (data_range[1] - data_range[0])
+            x1, y1, x2, y2 = set_label_location(nn, OH_range, data_range)
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
             ax.plot([x1], [y1], marker=marker[nn], color='black')
 
@@ -80,7 +85,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                            (lO32[nn] <= y_ii_max))[0]
 
             ii_label = ''
-            if nn == 2:  # n_sample-1:
+            if label =='DEEP2':  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) &
                                    (lO32_all <= y_ii_max))[0]
                 ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
@@ -202,12 +207,7 @@ def plot_difference_twovariable(lR23, lO32, OH, bin_start, bin_end, pdf_file,
 
         # Label in upper left the points
         if len(label) != 0:
-            x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
-            y1 = data_range[1] - (nn * 0.035 + 0.05) \
-                 * (data_range[1] - data_range[0])
-            x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
-            y2 = data_range[1] - (nn * 0.035 + 0.0525) \
-                 * (data_range[1] - data_range[0])
+            x1, y1, x2, y2 = set_label_location(nn, OH_range, data_range)
             ax.text(x2, y2, label[nn], fontsize=8, va='center', ha='left')
             ax.plot([x1], [y1], marker=marker[nn], color='black')
 

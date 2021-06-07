@@ -81,6 +81,19 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     lR23 = gx^3 + ax^2+ bx+ c
     """
     suffix = ''
+    if threevariable:
+        suffix += 'threeparam_'
+    else:
+        suffix += 'twoparam_'
+
+    if secondorder:
+        suffix += 'secondorder'
+    else:
+        suffix += 'thirdorder'
+
+    if include_rlimit:
+        suffix += '_includerobust'
+
     if not revised:
         suffix += '.valid1'
 
@@ -147,63 +160,8 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     marker = ['D', r'$\uparrow$', '3', '4']
 
     # Names of files
-    if threevariable:
-        if include_rlimit:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"threeparam_secondorder"
-                                         f"_includerobust_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"threeparam_secondorder_includerobust"
-                                f"{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"threeparam_thirdorder"
-                                         f"_includerobust_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"threeparam_thirdorder_includerobust{suffix}.pdf")
-        else:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"threeparam_secondorder"
-                                         f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"threeparam_secondorder{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"threeparam_thirdorder"
-                                         f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"threeparam_thirdorder{suffix}.pdf")
-    else:
-        # This is  when only doing a fit with lR23 and OH
-        if include_rlimit:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"twoparam_secondorder"
-                                         f"_includerobust_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"twoparam_secondorder_RL_"
-                                f"{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"twoparam_thirdorder"
-                                         f"_includerobust_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"twoparam_thirdorder_includerobust{suffix}.pdf")
-        else:
-            if secondorder:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"twoparam_secondorder"
-                                         f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"twoparam_secondorder{suffix}.pdf")
-            else:
-                R23_diff_pdf_file = join(fitspath_curvefit,
-                                         f"twoparam_thirdorder"
-                                         f"_diff{suffix}.pdf")
-                pdf_file = join(fitspath_curvefit,
-                                f"twoparam_thirdorder{suffix}.pdf")
+    R23_diff_pdf_file = join(fitspath_curvefit, f"diff_{suffix}.pdf")
+    pdf_file = join(fitspath_curvefit, f"{suffix}.pdf")
 
     if include_rlimit:
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
@@ -216,22 +174,9 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
         OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
         ID_arrs = [det_ID, DEEP2_id, MACT_ID]
 
-    if threevariable:
-        o1, o2, lR23, lO32, OH, OH_range = \
-            fitting_function(lR23_arrs, lO32_arrs, OH_arrs, secondorder=True,
-                             threevariable=True)
-    else:
-
-        if secondorder:
-            o1, o2, lR23, lO32, OH, OH_range = \
-                fitting_function(lR23_arrs, lO32_arrs, OH_arrs,
-                                 secondorder=True, threevariable=False)
-            fitted_poly = secondorder_polynomial(OH_range, *o1)
-        else:
-            o1, o2, lR23, lO32, OH, OH_range = \
-                fitting_function(lR23_arrs, lO32_arrs, OH_arrs,
-                                 secondorder=False, threevariable=False)
-            fitted_poly = thirdorder_polynomial(OH_range, *o1)
+    o1, o2, lR23, lO32, OH, OH_range = \
+        fitting_function(lR23_arrs, lO32_arrs, OH_arrs,
+                         secondorder=secondorder, threevariable=threevariable)
 
     # Creating the inning by lO32 values for plots
     bin_start = np.zeros(n_bins)
@@ -254,7 +199,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
         lo32_in_bin = np.where((y_sort0 >= bin_start[ii]) &
                                (y_sort0 < bin_end[ii]))[0]
         lo32_bin_avg[ii] = np.average(y_sort0[lo32_in_bin])
-    print(lo32_bin_avg)
     fitted_poly = np.zeros((len(lo32_bin_avg), len(lR23)))
     print('*o1', *o1)
     if threevariable:

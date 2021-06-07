@@ -170,11 +170,15 @@ ctype = ['blue', 'green', 'red', 'magenta', 'cyan', 'black']
 
 
 def secondorder_polynomial(x, a, b, c):
-    return a*x*x + b*x + c
+    """a*x*x + b*x + c"""
+    poly = np.poly1d([a, b, c])
+    return poly(x)
 
 
 def thirdorder_polynomial(x, a, b, c, d):
-    return a*x**3 + b*x**2 + c*x +d
+    """a * x ** 3 + b * x ** 2 + c * x + d"""
+    poly = np.poly1d([a, b, c, d])
+    return poly(x)
 
 
 def threevariable_fit(X, a, b, c, d):
@@ -182,7 +186,8 @@ def threevariable_fit(X, a, b, c, d):
     log(R23) = ax^2 +bx +c +dlog(O32)
     '''
     x, lO32 = X
-    return a * x**3 + b*x**2 + c * x + d*lO32
+    poly = np.poly1d([a, b, c])
+    return poly(x) + d*lO32
 
 
 def bian18_R23_OH(OH, R23_coeff):

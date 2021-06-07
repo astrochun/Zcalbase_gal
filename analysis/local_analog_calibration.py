@@ -56,19 +56,7 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, n_bins=4, ID=[],
     sort0 = np.argsort(lO32)
     y_sort0 = lO32[sort0]
     r_bin_pts = np.int(np.round(len(lO32) / float(n_bins)))
-
     lo32_bin_avg = np.zeros(n_bins)
-    for ii in range(n_bins):
-        if ii == 0:
-            bin_start[0] = y_sort0[0]
-            bin_end[0] = y_sort0[r_bin_pts - 1]
-        else:
-            bin_start[ii] = bin_end[ii - 1] + 0.000001
-            bin_end[ii] = y_sort0[
-                np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
-        print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
-        lo32_in_bin = np.where((y_sort0 >= bin_start[ii]) &
-                               (y_sort0 < bin_end[ii]))[0]
 
     min1, max1 = np.zeros(n_sample), np.zeros(n_sample)
     OH_min1, OH_max1 = np.zeros(n_sample), np.zeros(n_sample)
@@ -103,20 +91,32 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, n_bins=4, ID=[],
         label = [''] * n_sample
 
     for nn in range(n_sample):
-        ax[0].scatter(lR23[nn], OH[nn], color=ctype[nn], edgecolor='none',
-                      marker=marker[nn], alpha=0.5, label=label[nn])
-        if len(ID[nn]) != 0:
-            for ii in range(len(lR23[nn])):
-                ax[0].annotate(ID[nn][ii], [lR23[nn][ii], OH[nn][ii]],
-                               xycoords='data', size=4, va='bottom', ha='left')
+        for ii in range(n_bins):
+            if ii == 0:
+                bin_start[0] = y_sort0[0]
+                bin_end[0] = y_sort0[r_bin_pts - 1]
+            else:
+                bin_start[ii] = bin_end[ii - 1] + 0.000001
+                bin_end[ii] = y_sort0[
+                    np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
+            print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
+            lo32_in_bin = np.where((y_sort0 >= bin_start[ii]) &
+                                   (y_sort0 < bin_end[ii]))[0]
+            # Plotting
+            ax[0].scatter(lR23[nn], OH[nn], color=ctype[ii], edgecolor='none',
+                          marker=marker[nn], alpha=0.5, label=label[nn])
+            if len(ID[nn]) != 0:
+                for aa in range(len(lR23[nn])):
+                    ax[0].annotate(ID[nn][aa], [lR23[nn][aa], OH[nn][aa]],
+                                   xycoords='data', size=4, va='bottom', ha='left')
 
-        if len(OH_err) != 0:
-            ax[0].errorbar(lR23[nn], OH[nn], yerr=OH_err[nn], mec=ctype[nn],
-                           ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None,
-                           label=None)
+            if len(OH_err) != 0:
+                ax[0].errorbar(lR23[nn], OH[nn], yerr=OH_err[nn],mec=ctype[ii],
+                               ecolor=ctype[nn], capsize=0, alpha=0.5,
+                               fmt=None, label=None)
 
         if len(lR23_err) != 0:
-            ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec=ctype[nn],
+            ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec=ctype[ii],
                            ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None,
                            label=None)
 

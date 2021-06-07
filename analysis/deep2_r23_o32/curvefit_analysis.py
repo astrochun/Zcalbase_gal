@@ -8,18 +8,32 @@ from Metallicity_Stack_Commons.column_names import filename_dict
 from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff, \
     secondorder_polynomial, thirdorder_polynomial, threevariable_fit
 from .plotting import plot_difference_curvefit
+from . import ctype
 from .log_commons import log_stdout, LogClass
 
 
-def fitting_function(lR23_ini, lO32_ini, OH_ini, secondorder=True,
+def fitting_function(lR23_array, lO32_array, OH_array, secondorder=True,
                      threevariable=True):
+    """
+    :param lR23_array: array. an array of arrays of log(R23) values; each array
+                        from a different data set
+    :param lO32_array: array. an array of arrays of log(O32) values; each array
+                        from a different data set
+    :param OH_array: array. an array of arrays of OH values; each array
+                        from a different data set
+    Returns
+    o1, o2 -> contains all parameters from teh curve fitting
+    lR23, lO32, OH -> array of all specific values concatenated and no longer
+                        distinguishable by data sete
+    OH_range -> array of OH values that span the range of OH
+    """
     lR23 = []
     lO32 = []
     OH = []
-    for ii in range(len(lR23_ini)):
-        lR23 = np.concatenate([lR23, lR23_ini[ii]])
-        lO32 = np.concatenate([lO32, lO32_ini[ii]])
-        OH = np.concatenate([OH, OH_ini[ii]])
+    for ii in range(len(lR23_array)):
+        lR23 = np.concatenate([lR23, lR23_array[ii]])
+        lO32 = np.concatenate([lO32, lO32_array[ii]])
+        OH = np.concatenate([OH, OH_array[ii]])
     OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
 
     # Currently not using a threevariable third order fit which can be added
@@ -132,7 +146,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
 
     label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
     marker = ['D', r'$\uparrow$', '3', '4']
-    ctype = ['b', 'g', 'r', 'm', 'cyan', 'k']
 
     # Names of files
     if threevariable:
@@ -140,16 +153,16 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"threeparam_secondorder"
-                                         f"_RL_diff{suffix}.pdf")
+                                         f"_includerobust_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"threeparam_secondorder_RL"
+                                f"threeparam_secondorder_includerobust"
                                 f"{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"threeparam_thirdorder"
-                                         f"_RL_diff{suffix}.pdf")
+                                         f"_includerobust_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"threeparam_thirdorder_RL{suffix}.pdf")
+                                f"threeparam_thirdorder_includerobust{suffix}.pdf")
         else:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,
@@ -169,16 +182,16 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"twoparam_secondorder"
-                                         f"_RL_diff{suffix}.pdf")
+                                         f"_includerobust_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
                                 f"twoparam_secondorder_RL_"
                                 f"{suffix}.pdf")
             else:
                 R23_diff_pdf_file = join(fitspath_curvefit,
                                          f"twoparam_thirdorder"
-                                         f"_RL_diff{suffix}.pdf")
+                                         f"_includerobust_diff{suffix}.pdf")
                 pdf_file = join(fitspath_curvefit,
-                                f"twoparam_thirdorder_RL{suffix}.pdf")
+                                f"twoparam_thirdorder_includerobust{suffix}.pdf")
         else:
             if secondorder:
                 R23_diff_pdf_file = join(fitspath_curvefit,

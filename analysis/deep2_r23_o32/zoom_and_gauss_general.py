@@ -343,7 +343,7 @@ def zoom_gauss_plot(fitspath, dataset, fits_dict, s2,
             xbar_array[rr] = o1[0]   # referred to as Center as well
             sigma1_array[rr] = o1[1]
             median_array[rr] = o1[3]
-            norm_array[rr] = o1[2]
+            norm_array[rr] = o1[2]  # also positive amplitude
             rms_array[rr] = rms_tot
             SN_array[rr] = (flux_s/rms_tot)
 
@@ -470,8 +470,8 @@ def zoom_gauss_plot(fitspath, dataset, fits_dict, s2,
         n = tuple([f"{line_name}_{val}" for val in n])
 
         tab0 = Table([flux_g_array, flux_s_array, sigma1_array, median_array,
-                      norm_array, rms_array, SN_array, xbar_array, sig2_array,
-                      neg_amp_array], names=n)
+                      norm_array, rms_array, SN_array, xbar_array,
+                      sig2_array, neg_amp_array], names=n)
 
         if line_type == 'Balmer':
             log.info('Adding an Equ_Width Column')

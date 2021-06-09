@@ -158,7 +158,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     marker = ['D', r'$\uparrow$', '3', '4']
 
     # Names of files
-    R23_diff_pdf_file = join(fitspath_curvefit, f"{prefix}_diff_{suffix}.pdf")
+    R23_diff_pdf_file = join(fitspath_curvefit, f"{prefix}_diff{suffix}.pdf")
     pdf_file = join(fitspath_curvefit, f"{prefix}{suffix}.pdf")
 
     if include_rlimit:

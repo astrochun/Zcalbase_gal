@@ -11,7 +11,7 @@ from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff, ctype, \
     bian18_R23_OH, bian18_O32_OH, bian18_OH_O32, jiang_O32_OH_fit, jiang18_coeffs
 
 
-def set_label_location(OH_range, data_range):
+def set_label_location(nn, OH_range, data_range):
     x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
     y1 = data_range[1] - (nn * 0.035 + 0.05) \
                      * (data_range[1] - data_range[0])
@@ -138,7 +138,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     ax.annotate(an_txt, [0.2, 0.015], xycoords='axes fraction',
                 va='bottom', ha='right', fontsize=10)
 
-     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
+    ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
                    r'- \log(R_{23})_{\rm Zcal_curvefit}$')
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
 

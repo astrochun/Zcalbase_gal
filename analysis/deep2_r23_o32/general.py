@@ -210,9 +210,9 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                      revised=revised, individual=individual)
 
     # Calibration Plots
-    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw,
+    ''''calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw,
                                     apply_dust=apply_dust, revised=revised,
-                                    individual=individual, log=log)
+                                    individual=individual, log=log)'''
 
     params_list = [
         # three order polynomial without a lO32 component

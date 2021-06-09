@@ -85,7 +85,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                            (lO32[nn] <= y_ii_max))[0]
 
             ii_label = ''
-            if label =='DEEP2':  # n_sample-1:
+            if label == 'DEEP2':  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) &
                                    (lO32_all <= y_ii_max))[0]
                 ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \

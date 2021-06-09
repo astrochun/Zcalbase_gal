@@ -30,7 +30,7 @@ con1 = 3728.91 / 3726.16
 def line_flag_check(fitspath, working_wave, lineflag, wave, y_norm,
                     line_name0, row, col, fig, ax_arr, log=None):
     """
-    Plots a  ed in plot of emission lines to check visually if the
+    Plots a  zoomed in plot of emission lines to check visually if the
     emission lines are excluded in the line flag.
     Note: Call is currently commented out
     """

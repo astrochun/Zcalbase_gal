@@ -27,13 +27,10 @@ def fitting_function(lR23_array, lO32_array, OH_array, secondorder=True,
                         distinguishable by data sete
     OH_range -> array of OH values that span the range of OH
     """
-    lR23 = []
-    lO32 = []
-    OH = []
-    for ii in range(len(lR23_array)):
-        lR23 = np.concatenate([lR23, lR23_array[ii]])
-        lO32 = np.concatenate([lO32, lO32_array[ii]])
-        OH = np.concatenate([OH, OH_array[ii]])
+
+    lR23 = np.concatenate(lR23_array)
+    lO32 = np.concatenate(lO32_array)
+    OH = np.concatenate(OH_array)
     OH_range = np.linspace(np.min(OH), np.max(OH), len(lR23))
 
     # Currently not using a threevariable third order fit which can be added
@@ -80,19 +77,20 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     threevariable = False, secondorder = False
     lR23 = gx^3 + ax^2+ bx+ c
     """
+    prefix = ''
     suffix = ''
     if threevariable:
-        suffix += 'threeparam_'
+        prefix += 'threeparam_'
     else:
-        suffix += 'twoparam_'
+        prefix += 'twoparam_'
 
     if secondorder:
-        suffix += 'secondorder'
+        prefix += 'secondorder'
     else:
-        suffix += 'thirdorder'
+        prefix += 'thirdorder'
 
     if include_rlimit:
-        suffix += '_includerobust'
+        prefix += '_includerobust'
 
     if not revised:
         suffix += '.valid1'
@@ -160,8 +158,8 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     marker = ['D', r'$\uparrow$', '3', '4']
 
     # Names of files
-    R23_diff_pdf_file = join(fitspath_curvefit, f"diff_{suffix}.pdf")
-    pdf_file = join(fitspath_curvefit, f"{suffix}.pdf")
+    R23_diff_pdf_file = join(fitspath_curvefit, f"{prefix}_diff_{suffix}.pdf")
+    pdf_file = join(fitspath_curvefit, f"{prefix}{suffix}.pdf")
 
     if include_rlimit:
         lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]

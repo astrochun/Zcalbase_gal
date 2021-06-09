@@ -116,7 +116,7 @@ def main(lR23, lO32, OH, out_pdf, R23_pdf_file, n_bins=4, ID=[],
                                fmt=None, label=None)
 
         if len(lR23_err) != 0:
-            ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec=ctype[ii],
+            ax[0].errorbar(lR23[nn], OH[nn], xerr=lR23_err[nn], mec=ctype[nn],
                            ecolor=ctype[nn], capsize=0, alpha=0.5, fmt=None,
                            label=None)
 

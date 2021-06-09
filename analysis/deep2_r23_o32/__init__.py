@@ -181,11 +181,11 @@ def thirdorder_polynomial(x, a, b, c, d):
     return poly(x)
 
 
-def threevariable_fit(X, a, b, c, d):
+def threevariable_fit(XY, a, b, c, d):
     '''
     log(R23) = ax^2 +bx +c +dlog(O32)
     '''
-    x, lO32 = X
+    x, lO32 = XY
     poly = np.poly1d([a, b, c])
     return poly(x) + d*lO32
 

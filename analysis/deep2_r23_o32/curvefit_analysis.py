@@ -50,7 +50,7 @@ def fitting_function(lR23_array, lO32_array, OH_array, secondorder=True,
 
 def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                         secondorder=True, threevariable=True, raw=False,
-                        apply_dust=False, revised=True, include_rlimit=False):
+                        apply_dust=False, revised=True):
     """
 
     Parameters
@@ -63,7 +63,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     raw
     apply_dust
     revised
-    include_rlimit
 
     Returns
     -------
@@ -88,9 +87,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
         prefix += 'secondorder'
     else:
         prefix += 'thirdorder'
-
-    if include_rlimit:
-        prefix += '_includerobust'
 
     if not revised:
         suffix += '.valid1'
@@ -155,22 +151,17 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     rlimit_OH = com_O_log[rlimit]
 
     label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
-    marker = ['D', r'$\uparrow$', '3', '4']
-
+    marker = ['D', r'$\uparrow$', '3', '4']  #r'$\uparrow$',
+    fitting_marker = ['D', '3', '4']
     # Names of files
     R23_diff_pdf_file = join(fitspath_curvefit, f"{prefix}_diff{suffix}.pdf")
     pdf_file = join(fitspath_curvefit, f"{prefix}{suffix}.pdf")
 
-    if include_rlimit:
-        lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
-        lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
-        OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
-        ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
-    else:
-        lR23_arrs = [det_lR23, DEEP2_lR23, MACT_lR23]
-        lO32_arrs = [det_lO32, DEEP2_lO32, MACT_lO32]
-        OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
-        ID_arrs = [det_ID, DEEP2_id, MACT_ID]
+    # Data for fitting
+    lR23_arrs = [det_lR23, DEEP2_lR23, MACT_lR23]
+    lO32_arrs = [det_lO32, DEEP2_lO32, MACT_lO32]
+    OH_arrs = [det_OH, DEEP2_OH, MACT_OH]
+    ID_arrs = [det_ID, DEEP2_id, MACT_ID]
 
     o1, o2, lR23, lO32, OH, OH_range = \
         fitting_function(lR23_arrs, lO32_arrs, OH_arrs,
@@ -234,7 +225,10 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                            f"< {y_ii_max:.2f}, N = {len(idx_all):d}"
             if len(idx) > 0:
                 ax.scatter(lR23_arrs[nn][idx], OH_arrs[nn][idx],
-                           color=ctype[ii], marker=marker[nn], label=ii_label)
+                           color=ctype[ii], marker=fitting_marker[nn], label=ii_label)
+                if nn == 0:
+                    ax.scatter(rlimit_lR23[idx], rlimit_OH[idx],
+                               color=ctype[ii], marker=r'$\uparrow$')
 
     # Now we plot the new fitted curves and annotate with equation
     if threevariable:
@@ -268,18 +262,13 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
             label='Bian Data Range')
 
     # Next we plot the IDS
-    if include_rlimit:
-        # Detections and Robust limits should always be the first two arrays
-        # in the list of arrays
-        label_IDs = [ID_arrs[0], ID_arrs[1]]
-        for aa in range(len(label_IDs)):
-            for jj in range(len(ID_arrs[aa])):
-                ax.annotate(ID_arrs[aa][jj],
-                            (lR23_arrs[aa][jj], OH_arrs[aa][jj]), fontsize='6')
-    else:
-        for jj in range(len(ID_arrs[0])):
-            ax.annotate(ID_arrs[0][jj], (lR23_arrs[0][jj], OH_arrs[0][jj]),
-                        fontsize='6')
+    for jj in range(len(ID_arrs[0])):
+        ax.annotate(ID_arrs[0][jj], (lR23_arrs[0][jj], OH_arrs[0][jj]),
+                    fontsize='6')
+    for rr in range(len(rlimit_ID)):
+        ax.annotate(rlimit_ID[rr], (rlimit_lR23[rr], rlimit_OH[rr]),
+                    fontsize='6')
+
     ax.set(xlim=(0.0, 1.2))
     ax.set_xlabel(r'$\log(R_{23})$')
     ax.set_ylabel(r'$12+\log({\rm O/H})_{T_e}$')
@@ -287,6 +276,10 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     fig.savefig(pdf_file)
     fitting_model = 'Zcal'
     # This section plots makes the plot difference files
+    lR23_arrs = [det_lR23, rlimit_lR23, DEEP2_lR23, MACT_lR23]
+    lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
+    OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
+    ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
     if threevariable:
         plot_difference_curvefit.\
             plot_difference_threevariable(lR23_arrs, lO32_arrs, OH_arrs, lO32,

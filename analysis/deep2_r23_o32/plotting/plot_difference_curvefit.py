@@ -65,7 +65,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                                                     *new_coefficients)
                 # log.info(f"curve fit LAC_R23: {fitted_function}")
 
-        if nn == 0:
+        if label[nn] == 'Detection':
             if IDs:
                 for jj in range(len(fitted_function)):
                     id_diff = lR23[nn][jj] - fitted_function[jj]
@@ -96,12 +96,12 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                 ax.scatter(OH[nn][idx], i_diff, color=ctype[ii],
                            marker=marker[nn], edgecolor='none', alpha=0.5,
                            label=ii_label)
-                if nn == 1:
-                    ax.scatter(OH[nn][idx], i_diff, color=ctype[ii],
+                if label[nn] == 'Robust Limits':
+                    ax.scatter(OH[nn][idx], i_diff, color=ctype[1],
                                marker=r'$\rightarrow$',
                                edgecolor='none', alpha=0.5)
-                diff0 += list(lR23[nn][idx] - fitted_function[idx])
-
+                if label[ii] != 'Robust Limits':
+                    diff0 += list(lR23[nn][idx] - fitted_function[idx])
         # Added if statement so that only data points
         # on the OH_err[0] place will be plotted
                 if nn == 0:
@@ -221,7 +221,12 @@ def plot_difference_twovariable(lR23, lO32, OH, bin_start, bin_end, pdf_file,
                 i_diff = lR23[nn][idx] - LAC[idx]
                 ax.scatter(OH[nn][idx], i_diff, color=ctype[ii],
                            marker=marker[nn], edgecolor='none', alpha=0.5)
-                diff0 += list(lR23[nn][idx] - LAC[idx])
+                if label[nn] == 'Robust Limits':
+                    ax.scatter(OH[nn][idx], i_diff, color=ctype[1],
+                               marker=r'$\rightarrow$',
+                               edgecolor='none', alpha=0.5)
+                if label[ii] != 'Robust Limits':
+                    diff0 += list(lR23[nn][idx] - LAC[idx])
 
         # Added if statement so that only data points
         # on the OH_err[0] place will be plotted

@@ -280,26 +280,16 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
     OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
     ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
+    parameter_dict = {"lR23": lR23_arrs, "lO32": lO32_arrs, "OH": OH_arrs,
+                      "lO32_all": lO32, "pdf_file": R23_diff_pdf_file,
+                      "fitting_model": fitting_model, "bin_start": bin_start,
+                      "bin_end": bin_end, "new_coefficients": o1, "n_bins": 4,
+                      "OH_range": [7.0, 8.8], "data_range": [-0.3, 0.3],
+                      "marker": marker, "label": label, "IDs": ID_arrs,
+                      "log": None}
     if threevariable:
         plot_difference_curvefit.\
-            plot_difference_threevariable(lR23_arrs, lO32_arrs, OH_arrs, lO32,
-                                          R23_diff_pdf_file, fitting_model,
-                                          bin_start, bin_end,
-                                          new_coefficients=o1, n_bins=4,
-                                          data_err=[], OH_err=[],
-                                          OH_range=[np.min(OH_range),
-                                                    np.max(OH_range)],
-                                          data_range=[-0.3, 0.3],
-                                          marker=marker, label=label,
-                                          IDs=ID_arrs, log=None)
+            plot_difference_threevariable(**parameter_dict)
     else:
         plot_difference_curvefit.\
-            plot_difference_twovariable(lR23_arrs, lO32_arrs, OH_arrs,
-                                        bin_start, bin_end, R23_diff_pdf_file,
-                                        new_coefficients=o1, n_bins=4,
-                                        data_err=[], OH_err=[],
-                                        OH_range=[np.min(OH_range),
-                                                  np.max(OH_range)],
-                                        data_range=[-0.3, 0.3],
-                                        marker=marker, label=label, IDs=[],
-                                        log=None)
+            plot_difference_twovariable(**parameter_dict)

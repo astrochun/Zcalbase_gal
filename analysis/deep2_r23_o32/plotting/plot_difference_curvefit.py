@@ -24,7 +24,7 @@ def set_label_location(nn, OH_range, data_range):
 def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                                   fitting_model, bin_start, bin_end,
                                   new_coefficients=[], n_bins=4, data_err=[],
-                                  OH_err=[], OH_range=[7,11],
+                                  OH_err=[], OH_range=[7,8.8],
                                   data_range=[-0.3, 0.3],
                                   marker=[], label=[], IDs=[], log=None):
     """
@@ -148,7 +148,6 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
         ax.set_xlim(OH_range)
     if len(data_range) != 0:
         ax.set_ylim(data_range)
-    ax.set_xlim(7, 9.5)
     leg_R23 = ax.legend(loc='upper right', scatterpoints=1, fontsize=8,
                             framealpha=0.5)
     for lh in leg_R23.legendHandles:
@@ -162,7 +161,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     # log.info("finished.")
 
 
-def plot_difference_twovariable(lR23, lO32, OH, bin_start, bin_end, pdf_file,
+def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pdf_file,
                                 new_coefficients=[], n_bins=4, data_err=[],
                                 OH_err=[], OH_range=[], data_range=[-0.3, 0.3],
                                 marker=[], label=[], IDs=[], log=None):

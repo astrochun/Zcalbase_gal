@@ -21,6 +21,41 @@ def set_label_location(nn, OH_range, data_range):
     return x1, y1, x2, y2
 
 
+def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
+    n_gal = len(lR23_diff)
+    n_bin = np.int(np.round(n_gal/n_inbin))
+    sort0 = np.argsort(metallicities)
+    met_sort = metallicities[sort0]
+
+    # Initializing
+    bin_start = np.zeros(n_bin, dtype=np.int)
+    bin_end = np.zeros(n_bin, dtype=np.int)
+    x_points = np.zeros(n_bin)
+    y_points = np.zeros(n_bin)
+    std_y =  np.zeros(n_bin)
+    for ii in range(n_bin):
+        if ii == 0:
+            bin_start[0] = met_sort[0]
+            bin_end[0] = met_sort[n_bin - 1]
+        else:
+            bin_start[ii] = bin_end[ii - 1] + 0.000001
+            bin_end[ii] = met_sort[
+                np.min([len(metallicities) - 1, (ii + 1) * n_bin - 1])]
+        points_in_bin = np.where((met_sort >= bin_start[ii]) &
+                               (met_sort < bin_end[ii]))[0]
+        print('metallicity?: ', points_in_bin)
+        R23_in_bin = lR23_diff[points_in_bin]
+        metal_in_bin = metallicities[points_in_bin]
+
+        x_points[ii] = np.average(metal_in_bin)
+        y_points[ii] = np.average(R23_in_bin)
+        std_y[ii] = np.std(R23_in_bin)
+
+        print(f"Bin Start: {bin_start[ii]}  Bin end: {bin_end[ii]}")
+
+    return x_points, y_points, std_y
+
+
 def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                                   fitting_model, bin_start, bin_end,
                                   new_coefficients=[], n_bins=4, data_err=[],
@@ -53,7 +88,8 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     if len(marker) == 0:
         marker = ['o'] * n_sample
 
-    diff0 = []
+    lR23_diff0 = []
+    OH_diff0 = []
     for nn in range(n_sample):
         if fitting_model == 'jiang':
             fitted_function = jiang_O32_OH_fit((OH[nn], lO32[nn]),
@@ -85,7 +121,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                            (lO32[nn] <= y_ii_max))[0]
 
             ii_label = ''
-            if label == 'DEEP2':  # n_sample-1:
+            if label[nn] == 'DEEP2':  # n_sample-1:
                 idx_all = np.where((lO32_all >= y_ii_min) &
                                    (lO32_all <= y_ii_max))[0]
                 ii_label = fr" {y_ii_min:.2f} < $\log(O_{{32}})$ " + \
@@ -100,8 +136,9 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                     ax.scatter(OH[nn][idx], i_diff, color=ctype[1],
                                marker=r'$\rightarrow$',
                                edgecolor='none', alpha=0.5)
-                if label[ii] != 'Robust Limits':
-                    diff0 += list(lR23[nn][idx] - fitted_function[idx])
+                if label[nn] != 'Robust Limits':
+                    lR23_diff0 += list(lR23[nn][idx] - fitted_function[idx])
+                    OH_diff0 += list(OH[nn][idx])
         # Added if statement so that only data points
         # on the OH_err[0] place will be plotted
                 if nn == 0:
@@ -118,14 +155,20 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                                     mfc='none', capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
-
+    print('lR23_diff0', lR23_diff0, type(lR23_diff0))
+    x_points, y_points, std_y = bin_galaxies_statistics(lR23_diff0, OH_diff0, n_inbin=10)
+    ax.scatter(x_points, y_points, 'o', 'k')
+    std_txt = r'List of STDEV for binned galaxies:  '
+    for rr in range(len(std_y)):
+        std_txt += r' '% std_y[rr] + '\n'
+    ax.annotate(std_txt)
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
 
     # Compute statistics for R23
-    med0 = np.median(diff0)
-    avg0 = np.average(diff0)
-    sig0 = np.std(diff0)
+    med0 = np.median(lR23_diff0)
+    avg0 = np.average(lR23_diff0)
+    sig0 = np.std(lR23_diff0)
 
     # Plotting for R23
     ax.axhline(y=avg0, c='r', linestyle='dotted', label='Average')
@@ -139,7 +182,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                 va='bottom', ha='right', fontsize=10)
 
     ax.set_ylabel(r'$\Delta_{R_{23}} \equiv \log(R_{23}) '
-                   r'- \log(R_{23})_{\rm Zcal_curvefit}$')
+                  r'- \log(R_{23})_{\rm Zcal_curvefit}$')
     ax.set_xlabel(r'$12+\log({\rm O/H})_{T_e}$')
 
     ax.minorticks_on()
@@ -162,7 +205,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
 
 
 def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pdf_file,
-                                new_coefficients=[], n_bins=4, data_err=[],
+                                fitting_model, new_coefficients=[], n_bins=4, data_err=[],
                                 OH_err=[], OH_range=[], data_range=[-0.3, 0.3],
                                 marker=[], label=[], IDs=[], log=None):
     """
@@ -224,7 +267,7 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pd
                     ax.scatter(OH[nn][idx], i_diff, color=ctype[1],
                                marker=r'$\rightarrow$',
                                edgecolor='none', alpha=0.5)
-                if label[ii] != 'Robust Limits':
+                if label[nn] != 'Robust Limits':
                     diff0 += list(lR23[nn][idx] - LAC[idx])
 
         # Added if statement so that only data points

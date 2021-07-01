@@ -60,9 +60,14 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     secondorder -> used when just fitting using lR23 and OH; determines if we
                     have a second order or third order fit
     threevariable -> means that we are fitting using lR23, lO32, and OH for fit
-    raw
-    apply_dust
-    revised
+    :param raw: bool to do a simple calculation, no randomization.
+                Default: False
+    :param binned_data: bool for whether to analysis binned data.
+                        Default: True
+    :param apply_dust: bool for whether to apply dust attenuation.
+                        Default: False
+    :param revised: bool to indicate if revised validation table is used.
+                    Default: True
 
     Returns
     -------
@@ -184,12 +189,12 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
             bin_start[ii] = bin_end[ii - 1] + 0.000001
             bin_end[ii] = y_sort0[
                 np.min([len(lO32) - 1, (ii + 1) * r_bin_pts - 1])]
-        print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
+        #print('bin start: ', bin_start[ii], 'bin end: ', bin_end[ii])
         lo32_in_bin = np.where((y_sort0 >= bin_start[ii]) &
                                (y_sort0 < bin_end[ii]))[0]
         lo32_bin_avg[ii] = np.average(y_sort0[lo32_in_bin])
     fitted_poly = np.zeros((len(lo32_bin_avg), len(lR23)))
-    print('*o1', *o1)
+    #print('*o1', *o1)
     if threevariable:
         # ax^2 + bx +c + dlog(O32)
         for aa in range(len(lo32_bin_avg)):

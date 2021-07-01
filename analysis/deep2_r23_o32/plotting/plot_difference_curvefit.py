@@ -59,7 +59,7 @@ def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
 def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                                   fitting_model, bin_start, bin_end,
                                   new_coefficients=[], n_bins=4, data_err=[],
-                                  OH_err=[], OH_range=[7,8.8],
+                                  OH_err=[], OH_range=[7, 8.8],
                                   data_range=[-0.3, 0.3],
                                   marker=[], label=[], IDs=[], log=None):
     """

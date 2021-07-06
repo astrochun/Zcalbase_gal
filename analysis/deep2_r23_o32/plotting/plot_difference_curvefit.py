@@ -1,7 +1,4 @@
 import numpy as np
-from astropy.io import ascii as asc
-from scipy.optimize import curve_fit
-from os.path import join
 import matplotlib.pyplot as plt
 
 from Zcalbase_gal.analysis.deep2_r23_o32.log_commons \

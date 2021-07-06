@@ -285,6 +285,7 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
     lO32_arrs = [det_lO32, rlimit_lO32, DEEP2_lO32, MACT_lO32]
     OH_arrs = [det_OH, rlimit_OH, DEEP2_OH, MACT_OH]
     ID_arrs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
+
     parameter_dict = {"lR23": lR23_arrs, "lO32": lO32_arrs, "OH": OH_arrs,
                       "lO32_all": lO32, "pdf_file": R23_diff_pdf_file,
                       "fitting_model": fitting_model, "bin_start": bin_start,

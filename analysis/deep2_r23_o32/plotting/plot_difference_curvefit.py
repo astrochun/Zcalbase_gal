@@ -21,16 +21,18 @@ def set_label_location(nn, OH_range, data_range):
 def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
     n_gal = len(lR23_diff)
     n_bin = np.int(np.round(n_gal/n_inbin))
+    print('metallicities: ', metallicities)
     sort0 = np.argsort(metallicities)
     met_sort = metallicities[sort0]
 
     # Initializing
-    bin_start = np.zeros(n_bin, dtype=np.int)
-    bin_end = np.zeros(n_bin, dtype=np.int)
-    x_points = np.zeros(n_bin)
-    y_points = np.zeros(n_bin)
-    std_y =  np.zeros(n_bin)
-    for ii in range(n_bin):
+    bin_start = np.zeros(n_bin)
+    bin_end = np.zeros(n_bin)
+    x_points = np.zeros(n_inbin)
+    y_points = np.zeros(n_inbin)
+    std_y = np.zeros(n_inbin)
+    print(len(x_points))
+    for ii in range(n_inbin):
         if ii == 0:
             bin_start[0] = met_sort[0]
             bin_end[0] = met_sort[n_bin - 1]
@@ -38,8 +40,8 @@ def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
             bin_start[ii] = bin_end[ii - 1] + 0.000001
             bin_end[ii] = met_sort[
                 np.min([len(metallicities) - 1, (ii + 1) * n_bin - 1])]
-        points_in_bin = np.where((met_sort >= bin_start[ii]) &
-                               (met_sort < bin_end[ii]))[0]
+        points_in_bin = np.where((metallicities >= bin_start[ii]) &
+                               (metallicities < bin_end[ii]))[0]
         print('metallicity?: ', points_in_bin)
         R23_in_bin = lR23_diff[points_in_bin]
         metal_in_bin = metallicities[points_in_bin]
@@ -50,7 +52,7 @@ def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
 
         print(f"Bin Start: {bin_start[ii]}  Bin end: {bin_end[ii]}")
 
-    return x_points, y_points, std_y
+    return x_points, y_points, std_y, bin_start, bin_end
 
 
 def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
@@ -152,13 +154,15 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                                     mfc='none', capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
-    print('lR23_diff0', lR23_diff0, type(lR23_diff0))
-    x_points, y_points, std_y = bin_galaxies_statistics(lR23_diff0, OH_diff0, n_inbin=10)
-    ax.scatter(x_points, y_points, 'o', 'k')
-    std_txt = r'List of STDEV for binned galaxies:  '
+    x_points, y_points, std_y, \
+    OH_start, OH_end = bin_galaxies_statistics(np.array(lR23_diff0),
+                                               np.array(OH_diff0), n_inbin=10)
+    ax.scatter(x_points, y_points, marker='.', color='k')
+
     for rr in range(len(std_y)):
-        std_txt += r' '% std_y[rr] + '\n'
-    ax.annotate(std_txt)
+        ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr]+0.001],
+                    ha='center', fontsize=6)
+
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
 
@@ -228,7 +232,8 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pd
     if len(marker) == 0:
         marker = ['o'] * n_sample
 
-    diff0 = []
+    lR23_diff0 = []
+    OH_diff0 = []
     for nn in range(n_sample):
         if len(new_coefficients) != 0:
             LAC = bian18_R23_OH(OH[nn], new_coefficients)
@@ -265,8 +270,8 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pd
                                marker=r'$\rightarrow$',
                                edgecolor='none', alpha=0.5)
                 if label[nn] != 'Robust Limits':
-                    diff0 += list(lR23[nn][idx] - LAC[idx])
-
+                    lR23_diff0 += list(lR23[nn][idx] - LAC[idx])
+                    OH_diff0 += list(OH[nn][idx])
         # Added if statement so that only data points
         # on the OH_err[0] place will be plotted
                 if nn == 0:
@@ -284,13 +289,21 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pd
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
 
+    x_points, y_points, std_y, \
+    OH_start, OH_end = bin_galaxies_statistics(np.array(lR23_diff0),
+                                               np.array(OH_diff0), n_inbin=10)
+    ax.scatter(x_points, y_points, marker='.', color='k')
+
+    for rr in range(len(std_y)):
+        ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr] + 0.001],
+                    ha='center', fontsize=6)
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
 
     # Compute statistics for R23
-    med0 = np.median(diff0)
-    avg0 = np.average(diff0)
-    sig0 = np.std(diff0)
+    med0 = np.median(lR23_diff0)
+    avg0 = np.average(lR23_diff0)
+    sig0 = np.std(lR23_diff0)
 
     # Plotting for R23
     ax.axhline(y=avg0, c='r', linestyle='dotted', label='Average')

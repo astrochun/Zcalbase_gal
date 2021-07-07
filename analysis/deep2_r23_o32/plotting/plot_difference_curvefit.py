@@ -31,7 +31,6 @@ def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
     x_points = np.zeros(n_inbin)
     y_points = np.zeros(n_inbin)
     std_y = np.zeros(n_inbin)
-    print(len(x_points))
     for ii in range(n_inbin):
         if ii == 0:
             bin_start[0] = met_sort[0]
@@ -42,15 +41,12 @@ def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
                 np.min([len(metallicities) - 1, (ii + 1) * n_bin - 1])]
         points_in_bin = np.where((metallicities >= bin_start[ii]) &
                                (metallicities < bin_end[ii]))[0]
-        print('metallicity?: ', points_in_bin)
         R23_in_bin = lR23_diff[points_in_bin]
         metal_in_bin = metallicities[points_in_bin]
 
         x_points[ii] = np.average(metal_in_bin)
         y_points[ii] = np.average(R23_in_bin)
         std_y[ii] = np.std(R23_in_bin)
-
-        print(f"Bin Start: {bin_start[ii]}  Bin end: {bin_end[ii]}")
 
     return x_points, y_points, std_y, bin_start, bin_end
 
@@ -158,10 +154,17 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     OH_start, OH_end = bin_galaxies_statistics(np.array(lR23_diff0),
                                                np.array(OH_diff0), n_inbin=10)
     ax.scatter(x_points, y_points, marker='.', color='k')
+    xerror = [np.abs(x_points - OH_end), np.abs(x_points - OH_start)]
+    ax.errorbar(x_points, y_points, xerr=xerror, mfc='none', capsize=0,
+                alpha=0.25, fmt='None', label=None,
+                ls='none')
+    ax.errorbar(x_points, y_points, yerr=[std_y, std_y], mfc='none', capsize=0,
+                alpha=0.25, fmt='None', label=None,
+                ls='none')
 
     for rr in range(len(std_y)):
         ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr]+0.001],
-                    ha='center', fontsize=6)
+                    ha='right', fontsize=6)
 
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
@@ -193,7 +196,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     if len(data_range) != 0:
         ax.set_ylim(data_range)
     leg_R23 = ax.legend(loc='upper right', scatterpoints=1, fontsize=8,
-                            framealpha=0.5)
+                        framealpha=0.5)
     for lh in leg_R23.legendHandles:
         lh.set_alpha(0.5)
 
@@ -205,10 +208,11 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     # log.info("finished.")
 
 
-def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pdf_file,
-                                fitting_model, new_coefficients=[], n_bins=4, data_err=[],
-                                OH_err=[], OH_range=[], data_range=[-0.3, 0.3],
-                                marker=[], label=[], IDs=[], log=None):
+def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end,
+                                pdf_file, fitting_model, new_coefficients=[],
+                                n_bins=4, data_err=[], OH_err=[], OH_range=[],
+                                data_range=[-0.3, 0.3], marker=[], label=[],
+                                IDs=[], log=None):
     """
     Plot differences between LACR23 vs observed R23 as a function
     of metallicity
@@ -293,10 +297,15 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pd
     OH_start, OH_end = bin_galaxies_statistics(np.array(lR23_diff0),
                                                np.array(OH_diff0), n_inbin=10)
     ax.scatter(x_points, y_points, marker='.', color='k')
+    xerror = [np.abs(x_points-OH_end), np.abs(x_points-OH_start)]
+    ax.errorbar(x_points, y_points, xerr=xerror, mfc='none', capsize=0,
+                alpha=0.25, fmt='None', label=None, ls='none')
+    ax.errorbar(x_points, y_points, yerr=[std_y, std_y], mfc='none', capsize=0,
+                alpha=0.25, fmt='None', label=None, ls='none')
 
     for rr in range(len(std_y)):
         ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr] + 0.001],
-                    ha='center', fontsize=6)
+                    ha='right', fontsize=6)
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
 
@@ -328,7 +337,7 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end, pd
         ax.set_ylim(data_range)
 
     leg_R23 = ax.legend(loc='upper right', scatterpoints=1, fontsize=8,
-                            framealpha=0.5)
+                        framealpha=0.5)
     for lh in leg_R23.legendHandles:
         lh.set_alpha(0.5)
 

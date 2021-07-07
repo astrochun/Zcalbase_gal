@@ -189,9 +189,9 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
 
     No returns
     """
-    #fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs', dataset)
-    #fitspath = dir_date(fitspath_currentrun, year=False)
-    fitspath = '/Users/reagenleimbach/GoogleDrive/Research/Zcalbase_gal/Current_Runs/n_Bins/0609/'
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',
+                               dataset)
+    fitspath = dir_date(fitspath_currentrun, year=False)
     fitspath_curvefit = join(fitspath, 'curvefit_plots/')
     try:
         os.makedirs(fitspath_curvefit)
@@ -210,9 +210,9 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                      revised=revised, individual=individual)
 
     # Calibration Plots
-    calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw,
+    '''calibration_plots.lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=raw,
                                     apply_dust=apply_dust, revised=revised,
-                                    individual=individual, log=log)
+                                    individual=individual, log=log)'''
 
     params_list = [
         # three order polynomial without a lO32 component

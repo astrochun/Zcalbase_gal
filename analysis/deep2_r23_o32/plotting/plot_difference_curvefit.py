@@ -154,7 +154,10 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     OH_start, OH_end = bin_galaxies_statistics(np.array(lR23_diff0),
                                                np.array(OH_diff0), n_inbin=10)
     ax.scatter(x_points, y_points, marker='.', color='k')
-    xerror = [np.abs(x_points - OH_end), np.abs(x_points - OH_start)]
+    for jj in range(len(x_points)):
+        print('x_points: ', x_points[jj], 'Start: ', OH_start[jj], 'End: ', OH_end[jj])
+    xerror = [np.abs(x_points - OH_start), np.abs(x_points - OH_end)]
+    print(xerror)
     ax.errorbar(x_points, y_points, xerr=xerror, mfc='none', capsize=0,
                 alpha=0.25, fmt='None', label=None,
                 ls='none')
@@ -297,7 +300,7 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end,
     OH_start, OH_end = bin_galaxies_statistics(np.array(lR23_diff0),
                                                np.array(OH_diff0), n_inbin=10)
     ax.scatter(x_points, y_points, marker='.', color='k')
-    xerror = [np.abs(x_points-OH_end), np.abs(x_points-OH_start)]
+    xerror = [np.abs(x_points-OH_start), np.abs(x_points-OH_end)]
     ax.errorbar(x_points, y_points, xerr=xerror, mfc='none', capsize=0,
                 alpha=0.25, fmt='None', label=None, ls='none')
     ax.errorbar(x_points, y_points, yerr=[std_y, std_y], mfc='none', capsize=0,

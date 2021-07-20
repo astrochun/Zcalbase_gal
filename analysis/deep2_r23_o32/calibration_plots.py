@@ -170,7 +170,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         IDs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
 
     local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file,
-                                  lac_diff_R23_pdf_file, lac_diff_O32_pdf_file,
+                                  lac_diff_R23_pdf_file,
                                   ID=IDs, yra=[7.0, 9.0],
                                   ctype=c_var, label=label, marker=marker,
                                   log=log)

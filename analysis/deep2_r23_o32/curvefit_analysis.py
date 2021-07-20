@@ -194,7 +194,6 @@ def run_experiment_Zcal(fitspath, fitspath_curvefit, fitspath_ini, n_bins=4,
                                (y_sort0 < bin_end[ii]))[0]
         lo32_bin_avg[ii] = np.average(y_sort0[lo32_in_bin])
     fitted_poly = np.zeros((len(lo32_bin_avg), len(lR23)))
-    #print('*o1', *o1)
     if threevariable:
         # ax^2 + bx +c + dlog(O32)
         for aa in range(len(lo32_bin_avg)):

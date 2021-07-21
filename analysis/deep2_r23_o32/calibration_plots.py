@@ -169,11 +169,11 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         label = ['Detection', 'Robust Limits', 'DEEP2', 'MACT']
         IDs = [det_ID, rlimit_ID, DEEP2_id, MACT_ID]
 
-    local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file,
+    '''local_analog_calibration.main(lR23, lO32, OH, lac_pdf_file,
                                   lac_diff_R23_pdf_file,
                                   ID=IDs, yra=[7.0, 9.0],
                                   ctype=c_var, label=label, marker=marker,
-                                  log=log)
+                                  log=log)'''
 
     log.info('finished LAC plot')
 
@@ -200,7 +200,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
             metal_err = error_npz['12+log(O/H)_error']  # log values
             green_peas_calibration.main(lR23, lO32, OH, gpc_pdf_file, n_bins=6,
                                         lR23_err=[], OH_err=[metal_err],
-                                        xra=[0.5, 1.1], yra=[6.5, 9.10],
+                                        xra=[0.5, 1.1], yra=[7.0, 8.8],
                                         marker=marker, edgecolors=edgecolor,
                                         alpha=alpha, label=label, IDs=IDs,
                                         include_Rlimit=True, fit=False,
@@ -208,7 +208,7 @@ def lac_gpc_plots(fitspath, fitspath_ini, dataset, raw=False,
         else:
             log.info('No error npz found')
             green_peas_calibration.main(lR23, lO32, OH, gpc_pdf_file, n_bins=6,
-                                        xra=[0.5, 1.1], yra=[6.5, 9.10],
+                                        xra=[0.5, 1.1], yra=[7.0, 8.8],
                                         marker=marker, edgecolors=edgecolor,
                                         alpha=alpha, label=label, IDs=IDs,
                                         include_Rlimit=True, fit=False,

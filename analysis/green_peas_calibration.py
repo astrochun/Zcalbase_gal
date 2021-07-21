@@ -326,34 +326,17 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.97)
     fig.savefig(out_pdf)
 
-    # Because we do not want to include the Robust limits
-    # into the statistical calculations
-    # in plot_differences, this options allows to redefine lR23, lO32, OH
-    if include_Rlimit:
-        nR23 = [lR23[0], lR23[2], lR23[3]]
-        nO32 = [lO32[0], lO32[2], lO32[3]]
-        nOH = [OH[0], OH[2], OH[3]]
-        nIDs = [IDs[0]]
-        log.info('Using redefined values')
-        label = ['Detection', 'DEEP2', 'MACT']
-        marker = ['D', '3', '4']
-    else:
-        nR23 = lR23
-        nO32 = lO32
-        nOH = OH
-        nIDs = IDs
-
     # Plot differences between model and data
     if not fit:
         fitting_model = 'jiang'
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
         plot_difference_curvefit. \
-            plot_difference_threevariable(nR23, nO32, nOH, lO32_all,
+            plot_difference_threevariable(lR23, lO32, OH, lO32_all,
                                           out_diff_pdf, fitting_model, bin_start, bin_end,
                                           n_bins=n_bins, data_err=lR23_err,
                                           OH_err=OH_err, OH_range=yra,
                                           data_range=dR23_range, marker=marker,
-                                          label=label, IDs=nIDs, log=log)
+                                          label=label, IDs=IDs, log=log)
 
     log.info("finished.")
 

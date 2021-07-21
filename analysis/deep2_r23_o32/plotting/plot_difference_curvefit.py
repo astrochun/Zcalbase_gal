@@ -139,14 +139,14 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                     if len(OH_err) != 0:
                         ax.errorbar(OH[nn][idx], i_diff,
                                     xerr=np.transpose(OH_err[nn][idx]),
-                                    mfc='none', capsize=0,
+                                    ecolor=ctype[ii], capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
 
                     if len(data_err) != 0:
                         ax.errorbar(OH[nn][idx], i_diff,
                                     yerr=np.transpose(data_err[nn][idx]),
-                                    mfc='none', capsize=0,
+                                    ecolor=ctype[ii], capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
     x_points, y_points, std_y, \
@@ -281,14 +281,14 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end,
                     if len(OH_err) != 0:
                         ax.errorbar(OH[nn], i_diff,
                                     xerr=np.transpose(OH_err[nn]),
-                                    mfc='none', capsize=0,
+                                    ecolor=ctype[ii], capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
 
                     if len(data_err) != 0:
                         ax.errorbar(OH[nn], i_diff,
                                     yerr=np.transpose(data_err[nn]),
-                                    mfc='none', capsize=0,
+                                    ecolor=ctype[ii], capsize=0,
                                     alpha=0.25, fmt='None', label=None,
                                     ls='none')
 

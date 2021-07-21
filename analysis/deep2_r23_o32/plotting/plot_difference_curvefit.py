@@ -11,27 +11,26 @@ from Zcalbase_gal.analysis.deep2_r23_o32 import bian_coeff, ctype, \
 def set_label_location(nn, OH_range, data_range):
     x1 = OH_range[0] + 0.025 * (OH_range[1] - OH_range[0])
     y1 = data_range[1] - (nn * 0.035 + 0.05) \
-                     * (data_range[1] - data_range[0])
+         * (data_range[1] - data_range[0])
     x2 = OH_range[0] + 0.035 * (OH_range[1] - OH_range[0])
     y2 = data_range[1] - (nn * 0.035 + 0.0525) \
-                     * (data_range[1] - data_range[0])
+         * (data_range[1] - data_range[0])
     return x1, y1, x2, y2
 
 
 def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
     n_gal = len(lR23_diff)
     n_bin = np.int(np.round(n_gal/n_inbin))
-    print('metallicities: ', metallicities)
     sort0 = np.argsort(metallicities)
     met_sort = metallicities[sort0]
 
     # Initializing
     bin_start = np.zeros(n_bin)
     bin_end = np.zeros(n_bin)
-    x_points = np.zeros(n_inbin)
-    y_points = np.zeros(n_inbin)
-    std_y = np.zeros(n_inbin)
-    for ii in range(n_inbin):
+    x_points = np.zeros(n_bin)
+    y_points = np.zeros(n_bin)
+    std_y = np.zeros(n_bin)
+    for ii in range(n_bin):
         if ii == 0:
             bin_start[0] = met_sort[0]
             bin_end[0] = met_sort[n_bin - 1]
@@ -40,7 +39,7 @@ def bin_galaxies_statistics(lR23_diff, metallicities, n_inbin=10):
             bin_end[ii] = met_sort[
                 np.min([len(metallicities) - 1, (ii + 1) * n_bin - 1])]
         points_in_bin = np.where((metallicities >= bin_start[ii]) &
-                               (metallicities < bin_end[ii]))[0]
+                                 (metallicities < bin_end[ii]))[0]
         R23_in_bin = lR23_diff[points_in_bin]
         metal_in_bin = metallicities[points_in_bin]
 
@@ -69,7 +68,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     a function of metallicity
     Used by main() function
     """
-    # print('new coeff: ', new_coefficients, type(new_coefficients))
+
     if log is None:
         log = log_stdout()
 
@@ -154,10 +153,7 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
     OH_start, OH_end = bin_galaxies_statistics(np.array(lR23_diff0),
                                                np.array(OH_diff0), n_inbin=10)
     ax.scatter(x_points, y_points, marker='.', color='k')
-    for jj in range(len(x_points)):
-        print('x_points: ', x_points[jj], 'Start: ', OH_start[jj], 'End: ', OH_end[jj])
     xerror = [np.abs(x_points - OH_start), np.abs(x_points - OH_end)]
-    print(xerror)
     ax.errorbar(x_points, y_points, xerr=xerror, mfc='none', capsize=0,
                 alpha=0.25, fmt='None', label=None,
                 ls='none')
@@ -166,8 +162,8 @@ def plot_difference_threevariable(lR23, lO32, OH, lO32_all, pdf_file,
                 ls='none')
 
     for rr in range(len(std_y)):
-        ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr]+0.001],
-                    ha='right', fontsize=6)
+        ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr]+0.025],
+                    ha='center', fontsize=6)
 
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
@@ -307,8 +303,8 @@ def plot_difference_twovariable(lR23, lO32, OH, lO32_all, bin_start, bin_end,
                 alpha=0.25, fmt='None', label=None, ls='none')
 
     for rr in range(len(std_y)):
-        ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr] + 0.001],
-                    ha='right', fontsize=6)
+        ax.annotate(f"{std_y[rr]:.2f}", [x_points[rr], y_points[rr] + 0.025],
+                    ha='center', fontsize=6)
     # Draw horizontal line at zero:
     ax.axhline(y=0, c='k', linestyle='dashed')
 

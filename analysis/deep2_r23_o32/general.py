@@ -1,11 +1,11 @@
 # This function runs the entire process start to finish
 # EW values:equival width
 from . import get_det3
+import os
 from os.path import join
-from astropy.io import ascii as asc
 
 from . import stackboth_mastergrid, zoom_and_gauss_general, \
-    calibration_plots, name_dict
+    calibration_plots, name_dict, curvefit_analysis
 from .binning import n_bins_grid_analysis, fixed_grid_analysis, \
     single_grid_o32, single_grid_r23
 from .plotting import more_plots, line_ratio_plotting, te_metal_plots
@@ -189,10 +189,15 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
 
     No returns
     """
-
     fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',
                                dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
+    fitspath_curvefit = join(fitspath, 'curvefit_plots/')
+    try:
+        os.makedirs(fitspath_curvefit)
+    except OSError:
+        print(f"Path already exists : {fitspath_curvefit}")
+
 
     # Define logging function
     log = LogClass(fitspath, 'run_grid_plots.log').get_logger()
@@ -209,12 +214,25 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
                                     apply_dust=apply_dust, revised=revised,
                                     individual=individual, log=log)
 
-    '''
+    params_list = [
+        # three order polynomial without a lO32 component
+        {'secondorder': False, 'threevariable': False},
+        # second order polynomial with a lO32 component
+        {'secondorder': True, 'threevariable': True},
+        # second order polynomial without a lO32 component
+        {'secondorder': True, 'threevariable': False},
+    ]
+
+    for params in params_list:
+        curvefit_analysis.run_experiment_Zcal(fitspath, fitspath_curvefit,
+                                              fitspath_ini, **params, raw=raw,
+                                              apply_dust=apply_dust,
+                                              revised=revised)
 
     ###Making More Plots###
     #asc_table = combine_flux_ascii
     #temp_table = temp_met_ascii
-    
+    '''
     temp_m_gascii = join(fitspath, 'bin_derived_properties.tbl')
     
     

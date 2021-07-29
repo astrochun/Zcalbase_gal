@@ -7,30 +7,8 @@ from astropy.io import fits
 from os.path import join
 
 from .deep2_r23_o32.log_commons import log_stdout, LogClass
-
-jiang18_coeffs = [-24.135, 6.1523, -0.37866, -0.147, -7.071]
-
-
-def O32_OH_fit(xy, a, b, c, d, e):
-    """
-    Main functional code that determine log(R23) from log(O32) and 12+log(O/H)
-    Used by main() function
-    :param xy: Array of 12+log(O/H), log([OIII]/[OII])
-
-    Jiang coefficients
-    :param a:
-    :param b:
-    :param c:
-    :param d:
-    :param e:
-    """
-
-    x = xy[0]
-    y = xy[1]
-
-    logR23 = a + b * x + c * x**2 - d * (e + x) * y
-
-    return logR23
+from .deep2_r23_o32 import jiang_O32_OH_fit, jiang18_coeffs, ctype
+from .deep2_r23_o32.plotting import plot_difference_curvefit
 
 
 def jiang18(xy):
@@ -42,7 +20,7 @@ def jiang18(xy):
     :param xy: array. 12+log(O/H), log([OIII]/[OII])
     """
 
-    logR23 = O32_OH_fit(xy, * jiang18_coeffs)
+    logR23 = jiang_O32_OH_fit(xy, * jiang18_coeffs)
 
     return logR23
 
@@ -66,14 +44,12 @@ def plot_differences(lR23, lO32, OH, lO32_all, out_diff_pdf, bin_start,
     n_sample = len(lR23)
 
     # Plotting
-    ctype = ['red', 'magenta', 'green', 'cyan', 'blue', 'black']
-
     if len(marker) == 0:
         marker = ['o'] * n_sample
 
     diff0 = []
     for nn in range(n_sample):
-        jiang_R23 = O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
+        jiang_R23 = jiang_O32_OH_fit((OH[nn], lO32[nn]), *jiang18_coeffs)
         log.info(f"jiang_R23: {jiang_R23}")
 
         if nn == 0:
@@ -268,7 +244,8 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
             OH_all = np.append(OH_all, OH[nn])
             lR23_all = np.append(lR23_all, lR23[nn])
 
-        opt, cov = curve_fit(O32_OH_fit, (OH_all, lO32_all), lR23_all, p0=p0)
+        opt, cov = curve_fit(jiang_O32_OH_fit, (OH_all, lO32_all),
+                             lR23_all, p0=p0)
         log.info(opt)
 
     for nn in range(n_sample):
@@ -320,7 +297,7 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
                 if not fit:
                     opt = jiang18_coeffs
 
-                mod_logR23 = O32_OH_fit((x_arr, lO32_avg), *opt)
+                mod_logR23 = jiang_O32_OH_fit((x_arr, lO32_avg), *opt)
                 ax.annotate(f"{lO32_avg:.2f}", [mod_logR23[-1], x_arr[-1]],
                             xytext=xytext_location[ii],
                             textcoords='offset points',
@@ -349,31 +326,17 @@ def main(lR23, lO32, OH, out_pdf, n_bins=4, lR23_err=[], OH_err=[], xra=[],
     plt.subplots_adjust(left=0.075, right=0.99, bottom=0.08, top=0.97)
     fig.savefig(out_pdf)
 
-    # Because we do not want to include the Robust limits
-    # into the statistical calculations
-    # in plot_differences, this options allows to redefine lR23, lO32, OH
-    if include_Rlimit:
-        nR23 = [lR23[0], lR23[2], lR23[3]]
-        nO32 = [lO32[0], lO32[2], lO32[3]]
-        nOH = [OH[0], OH[2], OH[3]]
-        nIDs = [IDs[0]]
-        log.info('Using redefined values')
-        label = ['Detection', 'DEEP2', 'MACT']
-        marker = ['D', '3', '4']
-    else:
-        nR23 = lR23
-        nO32 = lO32
-        nOH = OH
-        nIDs = IDs
-
     # Plot differences between model and data
     if not fit:
+        fitting_model = 'jiang'
         out_diff_pdf = out_pdf.replace('.pdf', '.diff.pdf')
-        plot_differences(nR23, nO32, nOH, lO32_all, out_diff_pdf,
-                         bin_start, bin_end,
-                         n_bins=n_bins, lR23_err=lR23_err, OH_err=OH_err,
-                         OH_range=yra, dR23_range=dR23_range, marker=marker,
-                         label=label, IDs=nIDs, log=log)
+        plot_difference_curvefit. \
+            plot_difference_threevariable(lR23, lO32, OH, lO32_all,
+                                          out_diff_pdf, fitting_model, bin_start, bin_end,
+                                          n_bins=n_bins, data_err=lR23_err,
+                                          OH_err=OH_err, OH_range=yra,
+                                          data_range=dR23_range, marker=marker,
+                                          label=label, IDs=IDs, log=log)
 
     log.info("finished.")
 

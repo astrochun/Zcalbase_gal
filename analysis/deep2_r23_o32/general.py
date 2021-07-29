@@ -189,7 +189,8 @@ def run_grid_plots(fitspath_ini, dataset, raw=False, apply_dust=False,
 
     No returns
     """
-    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',dataset)
+    fitspath_currentrun = join(fitspath_ini, 'Zcalbase_gal/Current_Runs',
+                               dataset)
     fitspath = dir_date(fitspath_currentrun, year=False)
     fitspath_curvefit = join(fitspath, 'curvefit_plots/')
     try:
